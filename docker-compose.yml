@@ -1,0 +1,124 @@
+# INF-01: docker-compose for exam-integrity-app (dev stack, no Keycloak)
+version: '3.9'
+
+services:
+
+  mongodb:
+    image: mongo:7
+    container_name: exam-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: exam-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 5
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    container_name: exam-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: exam-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  pdf-ingestion-service:
+    build:
+      context: ./pdf-ingestion-service
+      dockerfile: Dockerfile
+    container_name: exam-pdf-ingestion
+    ports:
+      - "8091:8091"
+    environment:
+      - APP_PORT=8091
+    depends_on:
+      - kafka
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8091/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  scoring-worker:
+    build:
+      context: ./scoring-worker
+      dockerfile: Dockerfile
+    container_name: exam-scoring-worker
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SCORING_REQUEST_TOPIC: scoring.request
+      SCORING_RESULT_TOPIC: scoring.result
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  exam-integrity-backend:
+    build:
+      context: ./exam-integrity-backend
+      dockerfile: Dockerfile
+    container_name: exam-integrity-backend
+    ports:
+      - "8090:8090"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      MONGODB_URI: mongodb://mongodb:27017/exam_integrity
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      INGESTION_SERVICE_URL: http://pdf-ingestion-service:8091
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
+  exam-integrity-ui:
+    build:
+      context: ./exam-integrity-ui
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_API_BASE_URL: http://localhost:8090/exam-integrity-backend
+        REACT_APP_WS_URL: http://localhost:8090/exam-integrity-backend
+    container_name: exam-integrity-ui
+    ports:
+      - "3000:80"
+    depends_on:
+      - exam-integrity-backend
+
+volumes:
+  mongo-data:

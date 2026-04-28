@@ -1,0 +1,1405 @@
+openapi: 3.0.3
+info:
+  title: Exam Integrity Engine API
+  description: |
+    Production API for the Exam Integrity Engine -- a Vietnamese-education exam digitisation,
+    proctoring, and scoring platform.
+
+    **Base path**: `/exam-integrity-backend`
+    **Authentication**: All endpoints require `Authorization: Bearer <keycloak-jwt>` (OAuth2 Resource Server).
+
+    ## Workflow Overview
+
+    ### Teacher (Draft) Workflow
+    ```
+    POST /api/drafts (upload PDF)
+      -> GET  /api/drafts/{draftId}                        (open for review, locks draft)
+      -> PATCH /api/drafts/{draftId}/questions/{questionId} (correct questions)
+      -> DELETE /api/drafts/{draftId}/questions/{questionId} (remove question, re-sequence)
+      -> GET  /api/questions                               (browse bank for a replacement)
+      -> POST /api/drafts/{draftId}/questions              (add bank question or inline)
+      -> POST /api/drafts/{draftId}/publish               (create live Exam)
+    ```
+
+    ### Student (Session) Workflow
+    ```
+    POST /api/sessions                               (create session, starts Redis timer)
+      -> GET  /api/sessions/{sessionId}/questions/N  (load each question)
+      -> PATCH /api/sessions/{sessionId}/answers/{questionId}  (auto-save answers)
+      -> POST /api/sessions/{sessionId}/submit       (submit, triggers async scoring)
+      -> GET  /api/sessions/{sessionId}/review       (poll until scoring complete)
+    ```
+
+    ### Real-time Timer (WebSocket STOMP)
+    Connect to `ws://{host}/exam-integrity-backend/ws/exam`
+    Subscribe to `/topic/session/{sessionId}` for tick and force-submit messages.
+  version: 1.0.0
+  contact:
+    name: hvantran
+servers:
+  - url: http://localhost:8090/exam-integrity-backend
+    description: Local development
+  - url: https://api.exam-integrity.example.com/exam-integrity-backend
+    description: Production
+
+tags:
+  - name: Exam Management
+    description: Browse and retrieve published exams (ACTIVE status only)
+  - name: Exam Draft
+    description: PDF ingestion, draft review and publishing workflow (teacher only)
+  - name: Question Bank
+    description: Reusable question repository -- search and retrieve stored questions for use in exam drafts
+  - name: Exam Session
+    description: Session lifecycle -- create, answer, submit, review (student)
+  - name: Proctoring
+    description: Anti-cheat event capture during an exam session
+
+# -----------------------------------------------------------------------------
+# PATHS
+# -----------------------------------------------------------------------------
+paths:
+
+  # -- Exam Management ------------------------------------------------------
+  /api/exams:
+    get:
+      tags: [Exam Management]
+      operationId: listExams
+      summary: List all active exams
+      description: |
+        Returns summary cards for all `ACTIVE` exams.
+        Optionally filter by one or more tags (e.g. `toan`, `lop4`).
+        `questions` array is **null** on list responses -- use GET /api/exams/{examId} to load questions.
+      parameters:
+        - name: tags
+          in: query
+          required: false
+          description: Comma-separated tags to filter by
+          example: toan,lop4
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+      responses:
+        '200':
+          description: List of exam summary cards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExamDTO'
+              example:
+                - id: exam-001
+                  title: "Thi giua ky Toan lop 4 - MA DE 01"
+                  durationSeconds: 2700
+                  totalPoints: 10
+                  questionCount: 20
+                  tags: [toan, lop4, giua-ky]
+                  questions: null
+
+  /api/exams/{examId}:
+    get:
+      tags: [Exam Management]
+      operationId: getExam
+      summary: Get a single exam with all questions
+      description: |
+        Returns the full exam document including every question.
+        Used when starting a session (the UI must know question count and total points).
+        `correctAnswer` and `rubric` are **never** included -- they are only exposed
+        in the ReviewDashboard after the student submits.
+      parameters:
+        - $ref: '#/components/parameters/examId'
+      responses:
+        '200':
+          description: Exam found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamDTO'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # -- Exam Draft -----------------------------------------------------------
+  /api/drafts:
+    post:
+      tags: [Exam Draft]
+      operationId: uploadPdf
+      summary: Upload a PDF and create an exam draft
+      description: |
+        Forwards the uploaded PDF to the `pdf-ingestion-service` (port 8091),
+        receives a `ParsedExam` response, and stores it as an `ExamDraft`
+        with `status=PENDING_REVIEW`.
+
+        **Multi-set PDFs**: If the PDF contains multiple exam sets (multiple "MA DE" sections),
+        the response is `HTTP 202` with `status=MULTI_SET_DETECTED`.
+        The UI must show a set-picker and call this endpoint again with `?exam_set_index=N`.
+
+        **OCR**: Scanned PDFs are processed with PaddleOCR. Each question receives
+        `ocrConfidence` and `parserConfidence` badges for the review UI.
+      parameters:
+        - name: exam_set_index
+          in: query
+          required: false
+          description: 0-based index of the exam set to import. Required only for multi-set PDFs.
+          example: 0
+          schema:
+            type: integer
+            minimum: 0
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: PDF file to ingest
+      responses:
+        '201':
+          description: Draft created (status=PENDING_REVIEW)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamDraftSummaryDTO'
+        '202':
+          description: Multi-set PDF detected -- show set picker (status=MULTI_SET_DETECTED)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamDraftSummaryDTO'
+        '400':
+          description: Not a PDF or empty file
+        '422':
+          description: PDF is unreadable (corrupt scan or unsupported format)
+
+    get:
+      tags: [Exam Draft]
+      operationId: listDrafts
+      summary: List exam drafts for the current teacher
+      description: Returns summary cards (no question content). Filter by status.
+      parameters:
+        - name: status
+          in: query
+          required: false
+          description: Filter by draft lifecycle status
+          schema:
+            type: string
+            enum: [PENDING_REVIEW, UNDER_REVIEW, APPROVED, REJECTED]
+          example: PENDING_REVIEW
+      responses:
+        '200':
+          description: List of draft summary cards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExamDraftSummaryDTO'
+
+  /api/drafts/{draftId}:
+    get:
+      tags: [Exam Draft]
+      operationId: getDraft
+      summary: Get full draft with all questions for review
+      description: |
+        Returns the complete `ExamDraft` document including every `DraftQuestion`.
+
+        Each question includes integrity metadata for the review UI:
+        - `content` -- normalised text after OCR post-processing
+        - `rawText` -- original raw OCR output (for comparison)
+        - `ocrConfidence` -- per-question OCR quality (null for text-based PDFs)
+        - `parserConfidence` -- question-structure confidence
+        - `parserWarnings` -- list of specific warnings
+
+        **Confidence badge colours** (designer reference):
+        | Value | Badge |
+        |---|---|
+        | >= 0.85 | Green -- OK |
+        | 0.70 - 0.84 | Yellow -- Warning |
+        | < 0.70 | Red -- Needs review |
+
+        Also transitions draft status: `PENDING_REVIEW -> UNDER_REVIEW` (soft lock to current teacher).
+      parameters:
+        - $ref: '#/components/parameters/draftId'
+      responses:
+        '200':
+          description: Full draft with all DraftQuestion objects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamDraftFullDTO'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Draft is already UNDER_REVIEW by another teacher
+
+  /api/drafts/{draftId}/questions:
+    post:
+      tags: [Exam Draft]
+      operationId: addQuestionToDraft
+      summary: Add a question to a draft (from bank or inline)
+      description: |
+        Adds a question to the draft during the review phase.
+        Typically used after removing a low-quality parsed question.
+
+        **From question bank**: Supply `bankQuestionId`. The bank question is
+        copied into the draft -- future edits to the bank entry will not propagate.
+
+        **Inline new question**: Omit `bankQuestionId` and supply `content`, `type`,
+        `points`, etc. directly.
+
+        The question is inserted at the given `position` (1-based). If `position` is
+        null the question is appended at the end. All subsequent questions are
+        re-sequenced immediately.
+      parameters:
+        - $ref: '#/components/parameters/draftId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddQuestionToDraftCommand'
+            examples:
+              fromBank:
+                summary: Copy from question bank
+                value:
+                  bankQuestionId: bank-q-uuid-007
+                  position: 3
+              inline:
+                summary: Add a brand-new inline question
+                value:
+                  position: 3
+                  content: "Tinh 12 x 34 = ?"
+                  type: MCQ
+                  points: 0.5
+                  options: ["A. 408", "B. 418", "C. 480", "D. 488"]
+                  correctAnswer: "A"
+      responses:
+        '201':
+          description: Question added -- returns the newly created DraftQuestionDTO
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DraftQuestionDTO'
+        '400':
+          description: Neither bankQuestionId nor inline content/type/points supplied
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Draft is APPROVED or REJECTED and cannot be modified
+
+  /api/drafts/{draftId}/questions/{questionId}:
+    patch:
+      tags: [Exam Draft]
+      operationId: editDraftQuestion
+      summary: Save edits to a single question
+      description: |
+        Teacher corrects any field of a parsed question.
+        Idempotent -- last write wins.
+
+        Set `reviewStatus` to:
+        - `APPROVED` -- parser was correct, no changes needed
+        - `CORRECTED` -- teacher edited the content
+        - `EXCLUDED` -- question is too damaged; will be dropped on publish
+          (soft alternative to DELETE -- question stays for audit)
+      parameters:
+        - $ref: '#/components/parameters/draftId'
+        - $ref: '#/components/parameters/questionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DraftQuestionEditCommand'
+      responses:
+        '204':
+          description: Saved
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Draft is APPROVED or REJECTED and cannot be edited
+
+    delete:
+      tags: [Exam Draft]
+      operationId: removeQuestionFromDraft
+      summary: Remove a question from a draft
+      description: |
+        Permanently removes a question from the draft and re-sequences the
+        `questionNumber` of all subsequent questions.
+
+        **When to use DELETE vs EXCLUDED**:
+        | | DELETE | reviewStatus: EXCLUDED |
+        |---|---|---|
+        | Question visible in draft? | No | Yes (for audit) |
+        | Dropped on publish? | n/a | Yes |
+        | Re-sequences numbers? | Yes | No |
+        | Reversible? | No | Yes (set back to PENDING) |
+
+        Typical workflow: DELETE the bad question, then call
+        `POST /api/drafts/{draftId}/questions` to insert a bank replacement
+        at the same position.
+      parameters:
+        - $ref: '#/components/parameters/draftId'
+        - $ref: '#/components/parameters/questionId'
+      responses:
+        '204':
+          description: Question removed; subsequent questions re-sequenced
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Draft is APPROVED or REJECTED and cannot be modified
+
+  /api/drafts/{draftId}/publish:
+    post:
+      tags: [Exam Draft]
+      operationId: publishDraft
+      summary: Publish draft as a live Exam
+      description: |
+        Converts an `ExamDraft` into a final `Exam` document (`status=ACTIVE`).
+
+        **Backend validation before publishing**:
+        - At least one question must be `APPROVED` or `CORRECTED` (not all `EXCLUDED`)
+        - Essay questions (`ESSAY_SHORT` / `ESSAY_LONG`) must have a non-null `rubric`
+
+        **Question bank storage (automatic)**:
+        Every question with `reviewStatus=APPROVED` or `reviewStatus=CORRECTED` is copied
+        into the system question bank (`/api/questions`) after the exam is created.
+        `EXCLUDED` questions are NOT stored.
+
+        Each bank entry inherits the question's `type` (`MCQ`, `ESSAY_SHORT`, or `ESSAY_LONG`)
+        and the exam's `tags`, making it immediately searchable by type and topic for
+        use as a replacement question in future draft reviews.
+
+        Bank storage is idempotent: if the same question content already exists in the
+        bank (matched by SHA-256 of normalised content), `usageCount` is incremented
+        instead of creating a duplicate.
+
+        Tags from the `ExamDraftPublishCommand` are stored on both the `ExamDraft`
+        and the newly created `Exam`.
+
+        On success: `ExamDraft.status` becomes `APPROVED`, new `Exam` created with `status=ACTIVE`.
+      parameters:
+        - $ref: '#/components/parameters/draftId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamDraftPublishCommand'
+            example:
+              title: "Thi giua ky Toan lop 4 - MA DE 01"
+              durationSeconds: 2700
+              tags: [toan, lop4, giua-ky]
+              reviewNotes: "Corrected 3 questions with low OCR confidence"
+      responses:
+        '201':
+          description: Exam published -- returns the new Exam
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamDTO'
+        '400':
+          description: Validation failed (missing rubric on essay, all questions excluded, etc.)
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Draft already published
+
+  /api/drafts/{draftId}/reject:
+    post:
+      tags: [Exam Draft]
+      operationId: rejectDraft
+      summary: Reject a draft
+      description: |
+        Marks the draft as `REJECTED`. Rejected drafts are retained for audit
+        but cannot be published.
+      parameters:
+        - $ref: '#/components/parameters/draftId'
+        - name: reason
+          in: query
+          required: false
+          description: Human-readable rejection reason
+          example: "Scan too blurry, re-scan required"
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Rejected
+        '409':
+          description: Draft already APPROVED
+
+  # -- Question Bank -------------------------------------------------------
+  /api/questions:
+    get:
+      tags: [Question Bank]
+      operationId: searchQuestionBank
+      summary: Search the question bank
+      description: |
+        Returns paginated questions from the question bank.
+        Teachers use this during draft review to find replacement questions.
+
+        **Bank population**: Questions are added automatically when a draft is published.
+        All `APPROVED` and `CORRECTED` questions are copied; `EXCLUDED` questions are not.
+
+        **Filtering by type is the primary way to find a valid replacement**:
+        When a teacher removes an `MCQ` question from a draft they should filter by
+        `type=MCQ` to ensure the replacement maintains the exam structure.
+        Similarly, essay questions should be replaced with `ESSAY_SHORT` or `ESSAY_LONG`
+        entries from the bank.
+
+        Combine `type` with `tags` and `q` for the most precise results:
+        - `type=MCQ&tags=toan,lop4` -- all MCQ questions tagged with toan and lop4
+        - `type=ESSAY_SHORT&q=chu+vi` -- essay questions about perimeter
+      parameters:
+        - name: q
+          in: query
+          required: false
+          description: Full-text search across question content
+          example: "so nguyen to"
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: false
+          description: Filter by question type
+          schema:
+            type: string
+            enum: [MCQ, ESSAY_SHORT, ESSAY_LONG]
+        - name: tags
+          in: query
+          required: false
+          description: Filter by tags (comma-separated)
+          example: toan,lop4
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Paginated question bank results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionBankPageDTO'
+
+  # -- Exam Session ---------------------------------------------------------
+  /api/sessions:
+    post:
+      tags: [Exam Session]
+      operationId: createSession
+      summary: Create a new exam session
+      description: |
+        Starts a new exam session for a student.
+
+        - Initialises Redis timer key `timer:{sessionId}` with TTL = `exam.durationSeconds`
+        - Returns `remainingSeconds` for the UI's initial countdown render
+        - Publishes `exam.ingested` Kafka event for audit
+      parameters:
+        - name: examId
+          in: query
+          required: true
+          description: ID of the published exam
+          example: exam-uuid
+          schema:
+            type: string
+        - name: studentId
+          in: query
+          required: true
+          description: Keycloak subject (sub claim) of the student
+          example: student-uuid
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionDTO'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Student already has an ACTIVE session for this exam
+
+  /api/sessions/{sessionId}:
+    get:
+      tags: [Exam Session]
+      operationId: getSession
+      summary: Get current session state
+      description: Returns `status` and `remainingSeconds` (read from Redis).
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      responses:
+        '200':
+          description: Session state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionDTO'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/sessions/{sessionId}/timer:
+    get:
+      tags: [Exam Session]
+      operationId: getTimer
+      summary: Get remaining seconds (REST fallback)
+      description: |
+        REST fallback for clients that cannot use WebSocket.
+        Returns plain `long` value.
+
+        **Prefer** STOMP subscription to `/topic/session/{sessionId}` for real-time 1-second ticks.
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      responses:
+        '200':
+          description: Remaining seconds
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+                example: 2513
+
+  /api/sessions/{sessionId}/questions/{questionNumber}:
+    get:
+      tags: [Exam Session]
+      operationId: getQuestion
+      summary: Get one question for display
+      description: |
+        Returns question content for the student to answer.
+        `questionNumber` is **1-based** (first question = 1).
+
+        **Security**: `correctAnswer` and `rubric` are **never** included in this response.
+        They are only revealed in the ReviewDashboard after submission.
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+        - name: questionNumber
+          in: path
+          required: true
+          description: 1-based question index
+          example: 3
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Question for display
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionSummaryDTO'
+        '403':
+          description: Session is not ACTIVE
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/sessions/{sessionId}/answers/{questionId}:
+    patch:
+      tags: [Exam Session]
+      operationId: saveAnswer
+      summary: Save or update an answer
+      description: |
+        Saves the student's answer for one question.
+        Idempotent -- last write wins. Updates `ExamSession.answers[questionId]` in MongoDB.
+
+        **When to call**: automatically on every page navigation (Next / Previous button)
+        and whenever the student toggles the "Flag for review" checkbox.
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+        - $ref: '#/components/parameters/questionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnswerDTO'
+            example:
+              questionId: q-uuid-003
+              answer: "A"
+              flaggedForReview: false
+      responses:
+        '204':
+          description: Saved
+        '403':
+          description: Session is not ACTIVE -- cannot modify answers after submission
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/sessions/{sessionId}/submit:
+    post:
+      tags: [Exam Session]
+      operationId: submitExam
+      summary: Submit the exam
+      description: |
+        Marks the session as `SUBMITTED` and publishes an `exam.submitted` Kafka event.
+        Scoring runs **asynchronously** via the scoring-worker service.
+
+        **UI flow**:
+        1. Show confirmation modal: "Are you sure? You cannot change your answers after submission."
+        2. On confirm, call this endpoint.
+        3. On `202`, redirect student to `/review/{sessionId}` and begin polling.
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      responses:
+        '202':
+          description: Accepted -- scoring started asynchronously
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Session already submitted or force-submitted
+
+  /api/sessions/{sessionId}/review:
+    get:
+      tags: [Exam Session]
+      operationId: getReviewDashboard
+      summary: Get review dashboard (poll until complete)
+      description: |
+        Returns scores and corrections for all questions after submission.
+
+        **Polling**: Poll every 2 seconds. Scoring is complete when no `ScoreDTO`
+        has `status=PENDING_ESSAY`.
+
+        **Score formula**:
+        - MCQ: `CORRECT` (full points) or `INCORRECT` (zero)
+        - Essay: `EssayScore = MaxPoint x (0.35xKeyword + 0.25xSteps + 0.20xFinalAnswer + 0.15xSemantic + 0.05xFormat)`
+        - Final: `finalScore10 = (totalEarned / totalMax) x 10`
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      responses:
+        '200':
+          description: Review dashboard ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewDashboardDTO'
+        '202':
+          description: Scoring still in progress -- keep polling
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # -- Proctoring -----------------------------------------------------------
+  /api/sessions/{sessionId}/proctor/events:
+    post:
+      tags: [Proctoring]
+      operationId: reportProctorEvent
+      summary: Report a proctoring event
+      description: |
+        Called by the UI proctoring hook whenever a suspicious browser action is detected.
+        Events are forwarded to Kafka topic `proctor.alert` for asynchronous risk scoring.
+
+        Sessions accumulate a `riskScore` (0-100). Sessions with `riskScore >= 70`
+        are flagged (`status=FLAGGED`) for teacher review.
+
+        | eventType | Trigger |
+        |---|---|
+        | `TAB_BLUR` | `window.blur` -- student switched tab or app |
+        | `TAB_FOCUS` | `window.focus` -- student returned to exam tab |
+        | `COPY_PASTE` | `document copy` event (Ctrl+C) |
+        | `CONTEXT_MENU` | Right-click context menu blocked |
+        | `FULLSCREEN_EXIT` | `document.fullscreenchange` fired |
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+        - name: eventType
+          in: query
+          required: true
+          description: Anti-cheat event type
+          example: TAB_BLUR
+          schema:
+            type: string
+            enum: [TAB_BLUR, TAB_FOCUS, COPY_PASTE, CONTEXT_MENU, FULLSCREEN_EXIT]
+        - name: studentId
+          in: query
+          required: true
+          description: Keycloak subject of the student
+          example: student-uuid
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Event queued for processing
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+# -----------------------------------------------------------------------------
+# COMPONENTS
+# -----------------------------------------------------------------------------
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Keycloak-issued JWT. Configure JWK set URI via KEYCLOAK_JWK_SET_URI.
+
+  parameters:
+    examId:
+      name: examId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: exam-uuid
+
+    draftId:
+      name: draftId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: draft-uuid
+
+    sessionId:
+      name: sessionId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: session-uuid
+
+    questionId:
+      name: questionId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: q-uuid-003
+
+  responses:
+    NotFound:
+      description: Resource not found
+
+  schemas:
+
+    # -- Exam ----------------------------------------------------------------
+    ExamDTO:
+      type: object
+      description: Published exam. `questions` is null on list responses.
+      properties:
+        id:
+          type: string
+          example: exam-uuid
+        title:
+          type: string
+          example: "Thi giua ky Toan lop 4 - MA DE 01"
+        durationSeconds:
+          type: integer
+          example: 2700
+        totalPoints:
+          type: number
+          format: double
+          example: 10.0
+        questionCount:
+          type: integer
+          example: 20
+        tags:
+          type: array
+          items:
+            type: string
+          example: [toan, lop4, giua-ky]
+        questions:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/QuestionSummaryDTO'
+
+    QuestionSummaryDTO:
+      type: object
+      description: Question for student display. correctAnswer and rubric are never included.
+      properties:
+        id:
+          type: string
+          example: q-uuid-003
+        questionNumber:
+          type: integer
+          example: 3
+        content:
+          type: string
+          example: "Tinh 12 x 34 = ?"
+        type:
+          type: string
+          enum: [MCQ, ESSAY_SHORT, ESSAY_LONG]
+        points:
+          type: number
+          format: double
+          example: 0.5
+        options:
+          type: array
+          nullable: true
+          description: Present only for MCQ questions
+          items:
+            type: string
+          example: ["A. 408", "B. 418", "C. 480", "D. 488"]
+        truncated:
+          type: boolean
+          description: True if OCR cut off part of this question
+          example: false
+
+    # -- Draft ----------------------------------------------------------------
+    ExamDraftSummaryDTO:
+      type: object
+      description: Draft card view (no question content). Used in list responses and after upload.
+      properties:
+        draftId:
+          type: string
+          example: draft-uuid
+        title:
+          type: string
+          example: "Thi giua ky Toan lop 4"
+        originalFilename:
+          type: string
+          example: de-thi-2024.pdf
+        pdfType:
+          type: string
+          enum: [SCANNED, TEXT_BASED]
+        ocrUsed:
+          type: boolean
+          example: true
+        documentOcrConfidence:
+          type: number
+          format: double
+          description: Mean OCR confidence across all pages (0.0-1.0). Null for text-based PDFs.
+          example: 0.91
+        totalQuestions:
+          type: integer
+          example: 20
+        flaggedQuestionCount:
+          type: integer
+          description: Number of questions with ocrConfidence or parserConfidence below 0.85
+          example: 3
+        hasPointMismatch:
+          type: boolean
+          description: True when sum of question points != stated total points
+          example: false
+        totalPoints:
+          type: number
+          format: double
+          example: 10.0
+        detectedPointsSum:
+          type: number
+          format: double
+          example: 10.0
+        tags:
+          type: array
+          items:
+            type: string
+          example: [toan, lop4]
+        status:
+          type: string
+          enum: [PENDING_REVIEW, UNDER_REVIEW, APPROVED, REJECTED, MULTI_SET_DETECTED]
+        uploadedAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T08:30:00Z"
+        uploadedBy:
+          type: string
+          example: teacher-uuid
+
+    ExamDraftFullDTO:
+      allOf:
+        - $ref: '#/components/schemas/ExamDraftSummaryDTO'
+        - type: object
+          properties:
+            questions:
+              type: array
+              items:
+                $ref: '#/components/schemas/DraftQuestionDTO'
+
+    DraftQuestionDTO:
+      type: object
+      description: Question with full integrity metadata for the review UI.
+      properties:
+        id:
+          type: string
+          example: dq-uuid-003
+        questionNumber:
+          type: integer
+          example: 3
+        content:
+          type: string
+          description: Normalised question text after OCR post-processing
+          example: "Tinh 12 x 34 = ?"
+        rawText:
+          type: string
+          description: Raw OCR output before normalisation (for teacher comparison)
+          example: "T1nh 12 x 34 = ?"
+        type:
+          type: string
+          enum: [MCQ, ESSAY_SHORT, ESSAY_LONG]
+        points:
+          type: number
+          format: double
+          example: 0.5
+        options:
+          type: array
+          nullable: true
+          items:
+            type: string
+          example: ["A. 408", "B. 418", "C. 480", "D. 488"]
+        correctAnswer:
+          type: string
+          nullable: true
+          example: "A"
+        rubric:
+          $ref: '#/components/schemas/RubricDTO'
+        truncated:
+          type: boolean
+          example: false
+        ocrConfidence:
+          type: number
+          format: double
+          nullable: true
+          description: "Per-question OCR quality (0.0-1.0). Null for text-based PDFs. Badge thresholds: >=0.85 green, 0.70-0.84 yellow, <0.70 red."
+          example: 0.87
+        parserConfidence:
+          type: number
+          format: double
+          description: "Question-structure parse confidence (0.0-1.0). Badge thresholds same as ocrConfidence."
+          example: 0.92
+        pageNumber:
+          type: integer
+          nullable: true
+          example: 2
+        boundingBox:
+          $ref: '#/components/schemas/BoundingBox'
+        parserWarnings:
+          type: array
+          items:
+            type: string
+          example: ["OCR confidence below 0.90 for this question"]
+        reviewStatus:
+          type: string
+          enum: [PENDING, APPROVED, CORRECTED, EXCLUDED]
+          example: PENDING
+        teacherNotes:
+          type: string
+          nullable: true
+          example: "OCR misread digit 1 as letter l"
+        source:
+          type: string
+          enum: [PDF_PARSED, BANK_ADDED, INLINE_ADDED]
+          description: |
+            Origin of this question.
+            - `PDF_PARSED` -- extracted from the uploaded PDF
+            - `BANK_ADDED` -- copied from the question bank during review
+            - `INLINE_ADDED` -- typed in directly by the teacher during review
+          example: PDF_PARSED
+        bankQuestionId:
+          type: string
+          nullable: true
+          description: ID of the source bank question. Non-null only when source=BANK_ADDED.
+          example: bank-q-uuid-007
+
+    BoundingBox:
+      type: object
+      nullable: true
+      description: PDF coordinates of the question region (for highlighting in the review UI)
+      properties:
+        pageNumber:
+          type: integer
+          example: 2
+        x1:
+          type: number
+          format: double
+          example: 72.0
+        y1:
+          type: number
+          format: double
+          example: 140.0
+        x2:
+          type: number
+          format: double
+          example: 520.0
+        y2:
+          type: number
+          format: double
+          example: 180.0
+
+    DraftQuestionEditCommand:
+      type: object
+      description: Fields the teacher can edit during review. All fields are optional; only provided fields are updated.
+      properties:
+        content:
+          type: string
+          example: "Tinh 12 x 34 = ?"
+        type:
+          type: string
+          enum: [MCQ, ESSAY_SHORT, ESSAY_LONG]
+        points:
+          type: number
+          format: double
+          example: 0.5
+        options:
+          type: array
+          nullable: true
+          items:
+            type: string
+          example: ["A. 408", "B. 418", "C. 480", "D. 488"]
+        correctAnswer:
+          type: string
+          nullable: true
+          example: "A"
+        rubric:
+          $ref: '#/components/schemas/RubricDTO'
+        reviewStatus:
+          type: string
+          enum: [APPROVED, CORRECTED, EXCLUDED]
+          example: CORRECTED
+        teacherNotes:
+          type: string
+          nullable: true
+          example: "OCR misread digit"
+
+    AddQuestionToDraftCommand:
+      type: object
+      description: |
+        Add a question to a draft during review.
+        Supply either `bankQuestionId` (copy from bank) or inline fields
+        (`content`, `type`, `points`) -- not both.
+      properties:
+        bankQuestionId:
+          type: string
+          nullable: true
+          description: ID of a question bank entry to copy into this draft
+          example: bank-q-uuid-007
+        position:
+          type: integer
+          nullable: true
+          description: 1-based insertion position. Null = append at end. Subsequent questions are re-sequenced.
+          example: 3
+          minimum: 1
+        content:
+          type: string
+          description: Required when bankQuestionId is null
+          example: "Tinh 12 x 34 = ?"
+        type:
+          type: string
+          enum: [MCQ, ESSAY_SHORT, ESSAY_LONG]
+          description: Required when bankQuestionId is null
+        points:
+          type: number
+          format: double
+          description: Required when bankQuestionId is null
+          example: 0.5
+        options:
+          type: array
+          nullable: true
+          items:
+            type: string
+          example: ["A. 408", "B. 418", "C. 480", "D. 488"]
+        correctAnswer:
+          type: string
+          nullable: true
+          example: "A"
+        rubric:
+          $ref: '#/components/schemas/RubricDTO'
+        teacherNotes:
+          type: string
+          nullable: true
+          example: "Replacement for Q3 which had low OCR confidence"
+
+    QuestionBankItemDTO:
+      type: object
+      description: |
+        A reusable question stored in the system question bank.
+        Populated automatically on draft publish: all APPROVED and CORRECTED questions
+        are copied to the bank. EXCLUDED questions are not stored.
+      properties:
+        id:
+          type: string
+          example: bank-q-uuid-007
+        content:
+          type: string
+          example: "Tinh 12 x 34 = ?"
+        type:
+          type: string
+          enum: [MCQ, ESSAY_SHORT, ESSAY_LONG]
+          description: |
+            Question type inherited from the draft question.
+            Use this field to filter bank searches so replacement questions
+            match the type of the question being removed from the draft.
+        points:
+          type: number
+          format: double
+          example: 0.5
+        options:
+          type: array
+          nullable: true
+          description: Present only when type=MCQ
+          items:
+            type: string
+          example: ["A. 408", "B. 418", "C. 480", "D. 488"]
+        correctAnswer:
+          type: string
+          nullable: true
+          example: "A"
+        rubric:
+          $ref: '#/components/schemas/RubricDTO'
+        tags:
+          type: array
+          description: Inherited from the exam tags at publish time
+          items:
+            type: string
+          example: [toan, lop4, nhan]
+        usageCount:
+          type: integer
+          description: Number of published exams that have used this question. Incremented instead of duplicating on re-publish of identical content.
+          example: 7
+        sourceExamId:
+          type: string
+          description: ID of the exam from which this question was first published
+          example: exam-uuid
+        sourceExamTitle:
+          type: string
+          description: Title of the source exam (for display in the bank search results)
+          example: "Thi giua ky Toan lop 4 - MA DE 01"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-10T10:00:00Z"
+
+    QuestionBankPageDTO:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuestionBankItemDTO'
+        totalItems:
+          type: integer
+          example: 42
+        page:
+          type: integer
+          example: 0
+        size:
+          type: integer
+          example: 20
+
+    ExamDraftPublishCommand:
+      type: object
+      required: [title, durationSeconds]
+      properties:
+        title:
+          type: string
+          example: "Thi giua ky Toan lop 4 - MA DE 01"
+        durationSeconds:
+          type: integer
+          example: 2700
+        tags:
+          type: array
+          items:
+            type: string
+          example: [toan, lop4, giua-ky]
+        reviewNotes:
+          type: string
+          nullable: true
+          example: "Corrected 3 questions with low OCR confidence. Quality acceptable."
+
+    RubricDTO:
+      type: object
+      nullable: true
+      description: Essay scoring rubric. Required for ESSAY_SHORT and ESSAY_LONG questions before publishing.
+      properties:
+        keywords:
+          type: array
+          items:
+            type: string
+          description: Key terms the answer must contain (35% weight)
+          example: ["dap so", "buoc giai", "ket qua"]
+        expectedSteps:
+          type: array
+          items:
+            type: string
+          description: Required reasoning steps (25% weight)
+          example: ["Tinh tich", "Ket luan"]
+        finalAnswer:
+          type: string
+          description: Expected final numeric or text answer (20% weight)
+          example: "408"
+        modelAnswer:
+          type: string
+          description: Full model answer for display in review (semantic reference, 15% weight)
+          example: "12 x 34 = 408"
+        formatChecks:
+          type: array
+          items:
+            type: string
+          description: Format requirements, e.g. units (5% weight)
+          example: ["Dap so phai co don vi"]
+
+    # -- Session --------------------------------------------------------------
+    SessionDTO:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          example: session-uuid
+        examId:
+          type: string
+          example: exam-uuid
+        studentId:
+          type: string
+          example: student-uuid
+        status:
+          type: string
+          enum: [ACTIVE, SUBMITTED, FORCE_SUBMITTED, FLAGGED]
+          example: ACTIVE
+        startedAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T09:00:00Z"
+        remainingSeconds:
+          type: integer
+          format: int64
+          example: 2513
+
+    AnswerDTO:
+      type: object
+      required: [questionId, answer]
+      properties:
+        questionId:
+          type: string
+          example: q-uuid-003
+        answer:
+          type: string
+          description: MCQ choice letter (A/B/C/D) or essay free-text
+          example: "A"
+        flaggedForReview:
+          type: boolean
+          default: false
+          description: True if student marked this question for review before submitting
+          example: false
+
+    # -- Review / Scoring -----------------------------------------------------
+    ReviewDashboardDTO:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          example: session-uuid
+        totalEarned:
+          type: number
+          format: double
+          example: 8.5
+        totalMax:
+          type: number
+          format: double
+          example: 10.0
+        finalScore10:
+          type: number
+          format: double
+          description: "Final score on a 10-point scale: (totalEarned / totalMax) x 10"
+          example: 8.5
+        missedQuestionNumbers:
+          type: array
+          items:
+            type: integer
+          description: 1-based question numbers where status != CORRECT
+          example: [3, 11, 17]
+        scores:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScoreDTO'
+
+    ScoreDTO:
+      type: object
+      properties:
+        questionId:
+          type: string
+          example: q-uuid-003
+        questionNumber:
+          type: integer
+          example: 3
+        earnedPoints:
+          type: number
+          format: double
+          example: 0.4
+        maxPoints:
+          type: number
+          format: double
+          example: 0.5
+        status:
+          type: string
+          enum:
+            - CORRECT
+            - INCORRECT
+            - PARTIAL
+            - PENDING_ESSAY
+            - INCOMPLETE_QUESTION
+            - MULTIPLE_ANSWERS_FLAG
+            - SELF_GRADE_REQUIRED
+          example: PARTIAL
+        studentAnswer:
+          type: string
+          example: "Paris"
+        correctAnswer:
+          type: string
+          description: Only revealed here after submission
+          example: "Paris"
+        explanation:
+          type: string
+          example: "Keyword 'buoc giai' missing from answer"
+        scoreBreakdown:
+          $ref: '#/components/schemas/ScoreBreakdownDTO'
+
+    ScoreBreakdownDTO:
+      type: object
+      nullable: true
+      description: Detailed scoring breakdown. Non-null only for ESSAY_SHORT and ESSAY_LONG questions.
+      properties:
+        keywordScore:
+          type: number
+          format: double
+          description: Keyword match ratio (weight 35%)
+          example: 0.90
+        stepsScore:
+          type: number
+          format: double
+          description: Reasoning steps match ratio (weight 25%)
+          example: 0.80
+        finalAnswerScore:
+          type: number
+          format: double
+          description: Final answer correctness (weight 20%)
+          example: 1.0
+        semanticScore:
+          type: number
+          format: double
+          description: Vietnamese SBERT semantic similarity (weight 15%)
+          example: 0.85
+        formatScore:
+          type: number
+          format: double
+          description: Format / unit requirement score (weight 5%)
+          example: 0.70
+        weightedTotal:
+          type: number
+          format: double
+          description: "Weighted sum: 0.35*kw + 0.25*steps + 0.20*fa + 0.15*sem + 0.05*fmt"
+          example: 0.87
+
+security:
+  - bearerAuth: []

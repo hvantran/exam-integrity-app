@@ -1,0 +1,44 @@
+spring:
+  config:
+    import:
+      - classpath:kafka.properties
+  application:
+    name: ${exam.integrity.service.name}
+  profiles:
+    active: ${spring.profiles.active}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:6080/realms/pman-realm/protocol/openid-connect/certs}
+
+server:
+  servlet:
+    context-path: /${exam.integrity.service.name}
+  error:
+    include-message: always
+    include-binding-errors: always
+
+springdoc:
+  swagger-ui:
+    enabled: ${springdoc.swagger-ui.enabled}
+    path: /swagger-ui.html
+  api-docs:
+    enabled: ${springdoc.api-docs.enabled}
+  packages-to-scan: com.hoatv.exam.integrity
+
+management:
+  metrics:
+    tags:
+      application: exam-integrity-backend
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - loggers
+          - info
+          - prometheus
+
+scheduling:
+  enabled: true
