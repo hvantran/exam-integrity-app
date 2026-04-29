@@ -9,7 +9,7 @@ import type { DashboardSection } from '../components/organisms';
 import type { FinalPublicationFormValues } from '../components/templates';
 
 const SECTION_ROUTES: Record<DashboardSection, string> = {
-  overview:         '/teacher/ingestion',
+  dashboard:        '/teacher/dashboard',
   ingestion:        '/teacher/ingestion',
   review:           '/teacher/ingestion',
   'question-bank':  '/teacher/question-bank',
@@ -61,7 +61,7 @@ const FinalPublicationPage: React.FC = () => {
         approvedQuestions: readyCount,
         totalPoints: activePoints,
         essayRubricsStatus: essayQuestions.length > 0
-          ? `${rubricsCount} / ${essayQuestions.length} rubrics done`
+          ? `${rubricsCount} / ${essayQuestions.length}`
           : 'No essay questions',
       }}
       formValues={formValues}

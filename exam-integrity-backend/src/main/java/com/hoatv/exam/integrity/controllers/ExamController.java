@@ -1,11 +1,13 @@
 package com.hoatv.exam.integrity.controllers;
 
+import com.hoatv.exam.integrity.dtos.CreateExamFromBankCommand;
 import com.hoatv.exam.integrity.dtos.ExamDTO;
 import com.hoatv.exam.integrity.services.ExamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -51,4 +53,34 @@ public class ExamController {
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
     }
+
+    @Operation(
+        summary = "Create exam from random question bank sample",
+        description = "Randomly picks mcqCount MCQ questions, essayShortCount essay short questions, and essayLongCount essay long questions from the question bank and creates a new ACTIVE exam.",
+        responses = {
+            @ApiResponse(responseCode = "201", description = "Exam created"),
+            @ApiResponse(responseCode = "400", description = "Invalid counts"),
+            @ApiResponse(responseCode = "422", description = "Not enough questions in bank")
+        }
+    )
+    @PostMapping("/from-bank")
+    public ResponseEntity<ExamDTO> createFromBank(@RequestBody CreateExamFromBankCommand cmd) {
+        ExamDTO created = examService.createFromBank(cmd);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @Operation(
+        summary = "Delete an exam",
+        description = "Deletes the exam document only. Questions remain in the question bank.",
+        responses = {
+            @ApiResponse(responseCode = "204", description = "Exam deleted"),
+            @ApiResponse(responseCode = "404", description = "Exam not found")
+        }
+    )
+    @DeleteMapping("/{examId}")
+    public ResponseEntity<Void> deleteExam(@PathVariable("examId") String examId) {
+        examService.deleteExam(examId);
+        return ResponseEntity.noContent().build();
+    }
 }
+

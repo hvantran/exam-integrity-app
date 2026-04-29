@@ -20,7 +20,7 @@ import QuestionDisplay from '../components/molecules/QuestionDisplay/QuestionDis
 import { colors } from '../design-system/tokens';
 
 const SECTION_ROUTES: Record<DashboardSection, string> = {
-  overview:         '/teacher/ingestion',
+  dashboard:        '/teacher/dashboard',
   ingestion:        '/teacher/ingestion',
   review:           '/teacher/ingestion',
   'question-bank':  '/teacher/question-bank',

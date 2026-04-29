@@ -24,11 +24,11 @@ import { colors, borderRadius } from '../design-system/tokens';
 import type { DashboardSection } from '../components/organisms';
 
 const SECTION_ROUTES: Record<DashboardSection, string> = {
-  overview: '/teacher/ingestion',
-  ingestion: '/teacher/ingestion',
-  review: '/teacher/ingestion',
-  'question-bank': '/teacher/question-bank',
-  reports: '/teacher/ingestion',
+  dashboard:        '/teacher/dashboard',
+  ingestion:        '/teacher/ingestion',
+  review:           '/teacher/ingestion',
+  'question-bank':  '/teacher/question-bank',
+  reports:          '/teacher/ingestion',
 };
 
 const DIFFICULTY_OPTIONS = ['Easy', 'Medium', 'Hard'];
@@ -290,10 +290,13 @@ const QuestionBankPage: React.FC = () => {
   const [type, setType] = useState<QuestionType | ''>('');
   const [tagInput, setTagInput] = useState('');
   const [tagFilters, setTagFilters] = useState<string[]>([]);
-  const [page] = useState(1);
+  const [page, setPage] = useState(1);
   const PAGE_SIZE = 20;
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteAllOpen, setDeleteAllOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [addForm, setAddForm] = useState<EditFormState>({ content: '', type: 'MCQ', difficulty: 'Medium', options: ['', '', '', ''], correctAnswer: 'A', points: 1, tags: '' });
+  const [addError, setAddError] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -302,14 +305,17 @@ const QuestionBankPage: React.FC = () => {
   const handleLogout = () => { logout(); navigate('/login', { replace: true }); };
   const handleNavigate = (section: DashboardSection) => navigate(SECTION_ROUTES[section]);
 
+  // Reset to page 1 when filters change
+  React.useEffect(() => { setPage(1); }, [q, type, tagFilters]);
+
   const { data, isLoading } = useQuery({
     queryKey: ['question-bank', q, type, tagFilters, page],
     queryFn: () => questionBankService.search({
       q: q || undefined,
       type: type || undefined,
       tags: tagFilters.length ? tagFilters : undefined,
-      page: page - 1,
-      size: PAGE_SIZE,
+      page: 0,
+      size: page * PAGE_SIZE,
     }),
     placeholderData: (prev) => prev,
   });
@@ -322,6 +328,36 @@ const QuestionBankPage: React.FC = () => {
       setEditingId(null);
     },
   });
+
+  const { mutate: addQuestion, isPending: isAdding } = useMutation({
+    mutationFn: (cmd: DraftQuestionEditCommand) => questionBankService.addQuestion(cmd),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['question-bank'] });
+      setAddOpen(false);
+      setAddForm({ content: '', type: 'MCQ', difficulty: 'Medium', options: ['', '', '', ''], correctAnswer: 'A', points: 1, tags: '' });
+      setAddError(null);
+    },
+    onError: (err: unknown) => {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setAddError(msg ?? 'Failed to add question. It may already exist in the bank.');
+    },
+  });
+
+  const handleAddSubmit = () => {
+    if (!addForm.content.trim()) { setAddError('Question content is required.'); return; }
+    setAddError(null);
+    const tagList = addForm.tags.split(',').map(t => t.trim()).filter(Boolean);
+    addQuestion({
+      content: addForm.content,
+      type: addForm.type,
+      points: addForm.points,
+      options: addForm.type === 'MCQ' ? addForm.options : undefined,
+      correctAnswer: addForm.type === 'MCQ' ? addForm.correctAnswer : undefined,
+      rubric: tagList.length ? { keywords: tagList } : undefined,
+      reviewStatus: undefined,
+      teacherNotes: undefined,
+    } as DraftQuestionEditCommand);
+  };
 
   const { mutate: deleteAllQuestions, isPending: isDeleting } = useMutation({
     mutationFn: () => questionBankService.deleteAll(),
@@ -403,25 +439,43 @@ const QuestionBankPage: React.FC = () => {
             <Typography sx={{ fontSize: '13px', color: colors.on.surfaceVariant }}>
               Showing <strong>{data?.totalElements ?? 0}</strong> results
             </Typography>
-            {(data?.totalElements ?? 0) > 0 && (
-              <Tooltip title="Delete all questions from the bank">
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+              <Tooltip title="Add a new question to the bank">
                 <Button
                   size="small"
-                  variant="outlined"
-                  startIcon={<DeleteSweepIcon sx={{ fontSize: '16px' }} />}
-                  onClick={() => setDeleteAllOpen(true)}
+                  variant="contained"
+                  startIcon={<AddCircleOutlineIcon sx={{ fontSize: '16px' }} />}
+                  onClick={() => { setAddOpen(true); setAddError(null); }}
                   sx={{
                     fontSize: '12px',
-                    color: '#d32f2f',
-                    borderColor: '#d32f2f',
                     textTransform: 'none',
-                    '&:hover': { backgroundColor: '#d32f2f14', borderColor: '#b71c1c' },
+                    backgroundColor: colors.primary.main,
+                    '&:hover': { backgroundColor: colors.primary.deep },
                   }}
                 >
-                  Delete All
+                  Add Question
                 </Button>
               </Tooltip>
-            )}
+              {(data?.totalElements ?? 0) > 0 && (
+                <Tooltip title="Delete all questions from the bank">
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<DeleteSweepIcon sx={{ fontSize: '16px' }} />}
+                    onClick={() => setDeleteAllOpen(true)}
+                    sx={{
+                      fontSize: '12px',
+                      color: '#d32f2f',
+                      borderColor: '#d32f2f',
+                      textTransform: 'none',
+                      '&:hover': { backgroundColor: '#d32f2f14', borderColor: '#b71c1c' },
+                    }}
+                  >
+                    Delete All
+                  </Button>
+                </Tooltip>
+              )}
+            </Box>
           </Box>
         }
       >
@@ -452,7 +506,7 @@ const QuestionBankPage: React.FC = () => {
 
             {data && data.totalPages > 1 && (
               <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-                <Button variant="outlined" sx={{ borderColor: colors.outlineVariant, color: colors.on.surface, borderRadius: borderRadius.default }}>
+                <Button variant="outlined" onClick={() => setPage(p => p + 1)} sx={{ borderColor: colors.outlineVariant, color: colors.on.surface, borderRadius: borderRadius.default }}>
                   Load More Results
                 </Button>
               </Box>
@@ -460,6 +514,93 @@ const QuestionBankPage: React.FC = () => {
           </>
         )}
       </TeacherManQuestionBankLayout>
+
+      {/* Add Question dialog */}
+      <Dialog open={addOpen} onClose={() => { setAddOpen(false); setAddError(null); }} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontWeight: 700, color: colors.primary.main }}>Add New Question</DialogTitle>
+        <DialogContent sx={{ pt: 1 }}>
+          <TextField
+            label="Question Content"
+            multiline
+            minRows={3}
+            fullWidth
+            value={addForm.content}
+            onChange={e => setAddForm(f => ({ ...f, content: e.target.value }))}
+            sx={{ mt: 1, mb: 2 }}
+          />
+          <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+            <FormControl size="small" sx={{ flex: 1 }}>
+              <InputLabel>Question Type</InputLabel>
+              <Select value={addForm.type} label="Question Type"
+                onChange={e => setAddForm(f => ({ ...f, type: e.target.value as QuestionType }))}>
+                {TYPE_OPTIONS.map(o => <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>)}
+              </Select>
+            </FormControl>
+            <FormControl size="small" sx={{ flex: 1 }}>
+              <InputLabel>Difficulty Level</InputLabel>
+              <Select value={addForm.difficulty} label="Difficulty Level"
+                onChange={e => setAddForm(f => ({ ...f, difficulty: e.target.value }))}>
+                {DIFFICULTY_OPTIONS.map(d => <MenuItem key={d} value={d}>{d}</MenuItem>)}
+              </Select>
+            </FormControl>
+          </Box>
+          {addForm.type === 'MCQ' && (
+            <Box sx={{ mb: 2 }}>
+              <Typography sx={{ fontSize: '12px', fontWeight: 600, color: colors.on.surfaceVariant, mb: 1, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Answer Options
+              </Typography>
+              <RadioGroup value={addForm.correctAnswer} onChange={e => setAddForm(f => ({ ...f, correctAnswer: e.target.value }))}>
+                {OPTION_LABELS.map((label, idx) => (
+                  <Box key={label} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <Radio value={label} size="small" sx={{ p: '4px' }} />
+                    <Typography sx={{ fontSize: '13px', fontWeight: 600, color: colors.on.surface, minWidth: '20px' }}>{label}</Typography>
+                    <TextField
+                      size="small"
+                      fullWidth
+                      placeholder={`Option ${label}`}
+                      value={addForm.options[idx] ?? ''}
+                      onChange={e => setAddForm(f => {
+                        const opts = [...f.options]; opts[idx] = e.target.value; return { ...f, options: opts };
+                      })}
+                    />
+                  </Box>
+                ))}
+              </RadioGroup>
+            </Box>
+          )}
+          <Box sx={{ display: 'flex', gap: 2, mb: 1 }}>
+            <TextField
+              label="Points"
+              type="number"
+              size="small"
+              value={addForm.points}
+              onChange={e => setAddForm(f => ({ ...f, points: Number(e.target.value) }))}
+              sx={{ width: 120 }}
+              inputProps={{ min: 0 }}
+            />
+            <TextField
+              label="Tags / Keywords (comma separated)"
+              size="small"
+              fullWidth
+              value={addForm.tags}
+              onChange={e => setAddForm(f => ({ ...f, tags: e.target.value }))}
+            />
+          </Box>
+          {addError && (
+            <Typography sx={{ fontSize: '12px', color: '#d32f2f', mt: 1 }}>{addError}</Typography>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+          <Button variant="outlined" size="small" onClick={() => { setAddOpen(false); setAddError(null); }} disabled={isAdding}
+            sx={{ borderColor: colors.outlineVariant, color: colors.on.surfaceVariant }}>
+            Cancel
+          </Button>
+          <Button variant="contained" size="small" onClick={handleAddSubmit} disabled={isAdding}
+            sx={{ backgroundColor: colors.primary.main, '&:hover': { backgroundColor: colors.primary.deep } }}>
+            {isAdding ? 'Saving…' : 'Add Question'}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Delete All confirmation dialog */}
       <Dialog open={deleteAllOpen} onClose={() => setDeleteAllOpen(false)} maxWidth="xs" fullWidth>

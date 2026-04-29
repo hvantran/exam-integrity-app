@@ -9,7 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import type { PortalSection } from '../components/organisms';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
-  overview:    '/',
+  dashboard:    '/',
   'my-exams':  '/',
   results:     '/',
 };

@@ -1,7 +1,7 @@
 import React, { useState, KeyboardEvent } from 'react';
 import { Box, Button, Chip, Skeleton, TextField, Typography } from '@mui/material';
 import PublishIcon from '@mui/icons-material/Publish';
-import AddIcon from '@mui/icons-material/Add';
+import {Add as AddIcon, CheckCircleOutlined, FunctionsOutlined, ChromeReaderModeOutlined} from '@mui/icons-material';
 import { colors, spacing, borderRadius } from '../../design-system/tokens';
 import {
   AppTopBar,
@@ -42,7 +42,7 @@ export interface FinalPublicationLayoutProps {
   onPublish?: () => void;
 }
 
-const StatCard: React.FC<{ icon: string; value: string | number; label: string; iconColor?: string }> = ({
+const StatCard: React.FC<{ icon: React.ReactNode; value: string | number; label: string; iconColor?: string }> = ({
   icon,
   value,
   label,
@@ -114,7 +114,7 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
   const tags = formValues.tags ?? [];
 
   const addTag = (raw: string) => {
-    const trimmed = raw.trim().toLowerCase();
+    const trimmed = raw.trim();
     if (!trimmed || tags.includes(trimmed)) return;
     onFormChange?.('tags', [...tags, trimmed]);
     setTagInput('');
@@ -199,19 +199,19 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
             : (
               <>
                 <StatCard
-                  icon="task_alt"
+                  icon=<CheckCircleOutlined/>
                   value={stats.approvedQuestions ?? 0}
                   label="Approved Questions"
                   iconColor={colors.secondary.main}
                 />
                 <StatCard
-                  icon="toll"
+                  icon=<FunctionsOutlined/>
                   value={stats.totalPoints ?? 0}
                   label="Total Points"
                   iconColor={colors.primary.main}
                 />
                 <StatCard
-                  icon="check_circle"
+                  icon=<ChromeReaderModeOutlined/>
                   value={stats.essayRubricsStatus ?? 'Ready'}
                   label="Essay Rubrics"
                   iconColor={colors.secondary.main}
@@ -268,8 +268,12 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
 
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: `${spacing.gutter}px` }}>
                 <Box>
+                  <Typography
+                    sx={{ fontSize: '12px', fontWeight: 500, color: colors.on.surfaceVariant, mb: 0.75, ml: 0.25 }}
+                  >
+                    Duaration (seconds)
+                  </Typography>
                   <TextField
-                    label="Duration (seconds)"
                     fullWidth
                     type="number"
                     value={formValues.durationSeconds ?? 2700}
@@ -277,11 +281,6 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
                     variant="outlined"
                     size="medium"
                   />
-                  {formValues.durationSeconds != null && (
-                    <Typography sx={{ fontSize: '12px', color: colors.on.surfaceVariant, mt: 1, textAlign: 'right' }}>
-                      {Math.round((formValues.durationSeconds as number) / 60)} min
-                    </Typography>
-                  )}
                 </Box>
 
                 {/* Tags chip input */}
@@ -353,9 +352,6 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
                       />
                     )}
                   </Box>
-                  <Typography sx={{ fontSize: '11px', color: colors.on.surfaceVariant, mt: 0.5, ml: 0.25 }}>
-                    Press Enter or comma to add a tag. Backspace to remove the last tag.
-                  </Typography>
                 </Box>
               </Box>
 

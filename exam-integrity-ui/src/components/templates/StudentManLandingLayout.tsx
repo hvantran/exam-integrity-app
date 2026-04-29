@@ -29,7 +29,7 @@ export interface LandingLayoutProps {
 const StudentManLandingLayout: React.FC<LandingLayoutProps> = ({
   studentName = 'Hoc vien',
   studentRole = 'Trung tam hoc tap',
-  activeSection = 'overview',
+  activeSection = 'dashboard',
   pageTitle = 'Ky thi dang dien ra',
   pageSubtitle = 'Danh sach cac bai kiem tra duoc giao cho ban.',
   filters = [],
@@ -44,7 +44,7 @@ const StudentManLandingLayout: React.FC<LandingLayoutProps> = ({
 }) => (
   <Box sx={{ minHeight: '100vh', backgroundColor: colors.background }}>
     <AppTopBar
-      appTitle="Portal Kiem Tra"
+      appTitle="Academic Management"
       userName={studentName}
       onSearch={onSearch}
       onNotifications={onNotifications}

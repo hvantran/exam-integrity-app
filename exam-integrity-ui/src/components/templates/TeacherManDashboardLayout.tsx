@@ -19,7 +19,7 @@ export interface DashboardLayoutProps {
 }
 
 const TeacherManDashboardLayout: React.FC<DashboardLayoutProps> = ({
-  activeSection = 'overview',
+  activeSection = 'dashboard',
   userName = 'Giao vien',
   userRole,
   onNavigate,

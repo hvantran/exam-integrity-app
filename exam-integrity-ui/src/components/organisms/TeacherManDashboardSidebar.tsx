@@ -13,7 +13,7 @@ import { APP_BAR_HEIGHT } from './AppTopBar';
 
 export const TEACHER_SIDEBAR_WIDTH = 256;
 
-export type DashboardSection = 'overview' | 'ingestion' | 'review' | 'question-bank' | 'reports';
+export type DashboardSection = 'dashboard' | 'ingestion' | 'review' | 'question-bank' | 'reports';
 
 export interface DashboardSidebarProps {
   activeSection?: DashboardSection;
@@ -26,7 +26,7 @@ export interface DashboardSidebarProps {
 }
 
 const navItems: { section: DashboardSection; icon: React.ReactNode; label: string }[] = [
-  { section: 'overview',      icon: <DashboardIcon  sx={{ fontSize: 20 }} />, label: 'Ingestion' },
+  { section: 'dashboard',      icon: <DashboardIcon  sx={{ fontSize: 20 }} />, label: 'Dashboard' },
   { section: 'ingestion',     icon: <UploadFileIcon sx={{ fontSize: 20 }} />, label: 'Upload Exam' },
   { section: 'review',        icon: <RateReviewIcon sx={{ fontSize: 20 }} />, label: 'Review' },
   { section: 'question-bank', icon: <StorageIcon    sx={{ fontSize: 20 }} />, label: 'Question Bank' },
@@ -59,7 +59,7 @@ const navBtnSx = (active: boolean) => ({
 });
 
 const TeacherManDashboardSidebar: React.FC<DashboardSidebarProps> = ({
-  activeSection = 'overview',
+  activeSection = 'dashboard',
   onNavigate,
   onCreateExam,
   onSettings,
@@ -154,7 +154,7 @@ const TeacherManDashboardSidebar: React.FC<DashboardSidebarProps> = ({
         sx={navBtnSx(false)}
       >
         <SettingsIcon sx={{ fontSize: 20 }} />
-        Cai dat
+        Settings
       </Box>
       <Box
         component="button"

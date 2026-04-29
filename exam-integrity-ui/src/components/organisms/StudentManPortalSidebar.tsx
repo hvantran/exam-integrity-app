@@ -9,10 +9,10 @@ import { APP_BAR_HEIGHT } from './AppTopBar';
 
 export const STUDENT_SIDEBAR_WIDTH = 256;
 
-export type PortalSection = 'overview' | 'my-exams' | 'results';
+export type PortalSection = 'dashboard' | 'my-exams' | 'results';
 
 const NAV_ITEMS: { id: PortalSection; label: string; Icon: React.ElementType }[] = [
-  { id: 'overview', label: 'Overview', Icon: DashboardIcon },
+  { id: 'dashboard', label: 'Dashboard', Icon: DashboardIcon },
   { id: 'my-exams', label: 'My Exams', Icon: AssignmentIcon },
   { id: 'results', label: 'Results', Icon: AnalyticsIcon },
 ];
@@ -33,7 +33,7 @@ export interface PortalSidebarProps {
  * Contains: student avatar + name, nav items, bottom help button.
  */
 const StudentManPortalSidebar: React.FC<PortalSidebarProps> = ({
-  activeSection = 'overview',
+  activeSection = 'dashboard',
   studentName = 'Student',
   studentRole = 'Learning Center',
   onNavigate,

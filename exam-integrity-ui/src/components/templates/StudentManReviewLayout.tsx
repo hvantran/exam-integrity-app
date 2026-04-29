@@ -25,7 +25,7 @@ const StudentManReviewLayout: React.FC<ReviewLayoutProps> = ({
 }) => (
   <Box sx={{ minHeight: '100vh', backgroundColor: colors.background }}>
     <AppTopBar
-      appTitle="Portal Kiem Tra"
+      appTitle="Academic Management"
       userName={studentName}
       onSearch={onSearch}
       onNotifications={onNotifications}

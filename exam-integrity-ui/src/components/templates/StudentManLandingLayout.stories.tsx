@@ -66,7 +66,7 @@ export const Default: Story = {
     <StudentManLandingLayout
       studentName="Nguyễn Văn An"
       studentRole="Lớp 4A"
-      activeSection="overview"
+      activeSection='dashboard'
       filters={FILTERS}
       activeFilter="all"
     >

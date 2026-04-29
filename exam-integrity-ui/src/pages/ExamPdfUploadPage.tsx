@@ -10,11 +10,11 @@ import { useAuth } from '../context/AuthContext';
 import type { DashboardSection } from '../components/organisms';
 
 const SECTION_ROUTES: Record<DashboardSection, string> = {
-  overview:       '/teacher/ingestion',
-  ingestion:      '/teacher/ingestion',
-  review:         '/teacher/ingestion',
-  'question-bank': '/teacher/question-bank',
-  reports:        '/teacher/ingestion',
+  dashboard:        '/teacher/dashboard',
+  ingestion:        '/teacher/ingestion',
+  review:           '/teacher/ingestion',
+  'question-bank':  '/teacher/question-bank',
+  reports:          '/teacher/ingestion',
 };
 
 const IngestionPage: React.FC = () => {
@@ -56,15 +56,6 @@ const IngestionPage: React.FC = () => {
     >
       <Box sx={{ p: 3, textAlign: 'center' }}>
         <input type="file" accept=".pdf" ref={inputRef} hidden onChange={handleFile} />
-        <Button
-          variant="outlined"
-          startIcon={<UploadFileIcon />}
-          onClick={() => inputRef.current?.click()}
-          disabled={upload.isPending}
-          size="large"
-        >
-          Choose PDF File
-        </Button>
         {upload.isPending && (
           <>
             <LinearProgress sx={{ mt: 2 }} />

@@ -23,6 +23,9 @@ export const questionBankService = {
   update: (id: string, cmd: DraftQuestionEditCommand): Promise<DraftQuestionDTO> =>
     apiClient.put<DraftQuestionDTO>(`${API}/api/questions/${id}`, cmd).then(r => r.data),
 
+  addQuestion: (cmd: DraftQuestionEditCommand): Promise<DraftQuestionDTO> =>
+    apiClient.post<DraftQuestionDTO>(`${API}/api/questions`, cmd).then(r => r.data),
+
   deleteAll: (): Promise<void> =>
     apiClient.delete(`${API}/api/questions`).then(() => undefined),
 };

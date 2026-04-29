@@ -162,9 +162,6 @@ const LoginPage: React.FC = () => {
           }}
         >
           <Typography variant="caption" sx={{ color: colors.on.surfaceVariant, display: 'block' }}>
-            <strong>Teacher (ADMIN):</strong> admin / admin123
-          </Typography>
-          <Typography variant="caption" sx={{ color: colors.on.surfaceVariant, display: 'block' }}>
             <strong>Student (USER):</strong> user / user123
           </Typography>
         </Box>

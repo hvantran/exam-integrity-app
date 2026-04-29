@@ -89,6 +89,16 @@ export interface ExamDraftPublishCommand {
   reviewNotes?: string;
 }
 
+export interface CreateExamFromBankCommand {
+  title: string;
+  durationSeconds: number;
+  tags?: string[];
+  reviewNotes?: string;
+  mcqCount: number;
+  essayShortCount: number;
+  essayLongCount: number;
+}
+
 export interface SessionDTO {
   sessionId: string;
   examId: string;

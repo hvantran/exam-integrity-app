@@ -13,7 +13,7 @@ export default meta;
 type Story = StoryObj<typeof StudentManPortalSidebar>;
 
 export const Overview: Story = {
-  args: { activeSection: 'overview', studentName: 'Nguyễn Văn An', studentRole: 'Lớp 4A' },
+  args: { activeSection: 'dashboard', studentName: 'Nguyễn Văn An', studentRole: 'Lớp 4A' },
 };
 
 export const MyExams: Story = {

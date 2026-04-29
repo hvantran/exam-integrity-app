@@ -32,6 +32,22 @@ export const ActiveExam: Story = {
           isProctoringActive
         />
       }
+      footer={
+        <StudentManExamNavigationBar
+          canGoPrev
+          canGoNext
+          isFlagged={false}
+          onPrevious={() => {}}
+          onNext={() => {}}
+          onFlag={() => {}}
+          onSubmit={() => {}}
+        />
+      }
+      proTips={[
+        'Read the question carefully before attempting to answer.',
+        'Use the workspace provided for intermediate calculations to avoid careless mistakes.',
+        'You can flag questions to review them later before submitting the exam.'
+      ]}
     >
       <StudentManQuestionPanel
         questionNumber={18}
@@ -42,15 +58,6 @@ export const ActiveExam: Story = {
         options={options}
         selectedAnswer="A"
         onAnswerChange={() => {}}
-      />
-      <StudentManExamNavigationBar
-        canGoPrev
-        canGoNext
-        isFlagged={false}
-        onPrevious={() => {}}
-        onNext={() => {}}
-        onFlag={() => {}}
-        onSubmit={() => {}}
       />
     </StudentManExamLayout>
   ),

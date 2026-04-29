@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Box, Typography } from '@mui/material';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import { colors } from '../../../design-system/tokens';
@@ -19,9 +19,30 @@ const pad = (n: number) => String(n).padStart(2, '0');
  * per Zen Integrity System spec ("Warning Red is used for time-remaining warnings").
  */
 const StudentManTimerDisplay: React.FC<TimerDisplayProps> = ({ remainingSeconds, showIcon = true }) => {
-  const isUrgent = remainingSeconds <= 300;
-  const mm = pad(Math.floor(remainingSeconds / 60));
-  const ss = pad(remainingSeconds % 60);
+  const [localSeconds, setLocalSeconds] = useState(remainingSeconds);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Sync local timer with prop
+  useEffect(() => {
+    setLocalSeconds(remainingSeconds);
+  }, [remainingSeconds]);
+
+  // Per-second decrement
+  useEffect(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (localSeconds > 0) {
+      intervalRef.current = setInterval(() => {
+        setLocalSeconds(prev => (prev > 0 ? prev - 1 : 0));
+      }, 1000);
+    }
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [localSeconds]);
+
+  const isUrgent = localSeconds <= 300;
+  const mm = pad(Math.floor(localSeconds / 60));
+  const ss = pad(localSeconds % 60);
   const color = isUrgent ? colors.tertiary.main : colors.secondary.main;
 
   return (

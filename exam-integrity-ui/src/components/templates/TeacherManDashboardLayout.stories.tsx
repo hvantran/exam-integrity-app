@@ -50,7 +50,7 @@ const OverviewContent = () => (
 
 export const Overview: Story = {
   args: {
-    activeSection: 'overview',
+    activeSection: 'dashboard',
     userName: 'Nguyễn Minh Tú',
     userRole: 'Teacher',
   },

@@ -10,10 +10,11 @@ import LoginPage from './pages/LoginPage';
 import LandingPage from './pages/LandingPage';
 import ExamPage from './pages/ExamPage';
 import ReviewPage from './pages/ReviewPage';
-import IngestionPage from './pages/IngestionPage';
+import IngestionPage from './pages/ExamPdfUploadPage';
 import QuestionReviewPage from './pages/QuestionReviewPage';
 import QuestionBankPage from './pages/QuestionBankPage';
 import FinalPublicationPage from './pages/FinalPublicationPage';
+import TeacherManDashboardPage from './pages/TeacherManDashboardPage';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -56,6 +57,14 @@ const App: React.FC = () => (
             />
 
             {/* Teacher routes — ADMIN role required */}
+            <Route
+              path="/teacher/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN']}>
+                  <TeacherManDashboardPage />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/teacher/ingestion"
               element={

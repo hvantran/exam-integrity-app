@@ -14,7 +14,7 @@ type Story = StoryObj<typeof TeacherManDashboardSidebar>;
 
 export const Default: Story = {
   args: {
-    activeSection: 'overview',
+    activeSection: 'dashboard',
     userName: 'Nguyen Minh Tu',
     userRole: 'Giao vien',
   },
