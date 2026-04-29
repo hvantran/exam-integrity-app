@@ -11,10 +11,12 @@ export interface ExamNavigationBarProps {
   canGoNext: boolean;
   isFlagged?: boolean;
   isLastQuestion?: boolean;
+  flaggedCount?: number;
   onPrevious: () => void;
   onNext: () => void;
   onFlag: () => void;
   onSubmit: () => void;
+  onReviewFlagged?: () => void;
 }
 
 /**
@@ -32,6 +34,8 @@ const StudentManExamNavigationBar: React.FC<ExamNavigationBarProps> = ({
   onNext,
   onFlag,
   onSubmit,
+  flaggedCount = 0,
+  onReviewFlagged,
 }) => (
   <Box
     sx={{
@@ -81,6 +85,17 @@ const StudentManExamNavigationBar: React.FC<ExamNavigationBarProps> = ({
     >
       {isFlagged ? 'Unflag' : 'Flag'}
     </Button>
+
+    {/* Review Flagged — only on last question and if flagged exist */}
+    {isLastQuestion && flaggedCount > 0 && onReviewFlagged && (
+      <Button
+        variant="outlined"
+        onClick={onReviewFlagged}
+        sx={{ marginLeft: 8, color: '#F59E0B', borderColor: '#F59E0B', fontWeight: 600 }}
+      >
+        Review Flagged ({flaggedCount})
+      </Button>
+    )}
 
     {/* Submit — only shown on last question or always visible */}
     <Button variant="danger" onClick={onSubmit}>

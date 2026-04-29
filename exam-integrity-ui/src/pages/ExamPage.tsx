@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { CircularProgress, Alert } from '@mui/material';
 import { StudentManExamLayout } from '../components/templates';
 import { StudentManExamHeader, StudentManQuestionPanel, StudentManExamNavigationBar, SubmitModal } from '../components/organisms';
+import StudentManFlaggedSidebar from '../components/organisms/StudentManFlaggedSidebar';
 import type { QuestionOption } from '../components/organisms';
 import { useSession, useQuestion, useSaveAnswer, useSubmitExam } from '../hooks/useSession';
 import { useExam } from '../hooks/useExams';
@@ -14,6 +15,8 @@ const ExamPage: React.FC = () => {
   const { sessionId = '' } = useParams<{ sessionId: string }>();
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [reviewFlaggedMode, setReviewFlaggedMode] = useState(false);
+  const [flaggedReviewIndex, setFlaggedReviewIndex] = useState(0);
   // Store answers per question number
   const [answerMap, setAnswerMap] = useState<Record<number, string>>({});
   const [answeredMap, setAnsweredMap] = useState<Record<number, boolean>>({});
@@ -72,46 +75,109 @@ const ExamPage: React.FC = () => {
     );
   }
 
+  // Compute flagged question numbers
+  const flaggedNumbers = Object.entries(flaggedMap)
+    .filter(([_, flagged]) => flagged)
+    .map(([num]) => Number(num))
+    .sort((a, b) => a - b);
+
+  // If in review flagged mode, show only flagged questions and navigation
+  const inReviewFlagged = reviewFlaggedMode && flaggedNumbers.length > 0;
+  const flaggedQuestionNumber = inReviewFlagged ? flaggedNumbers[flaggedReviewIndex] : currentQuestion;
+
   return (
     <StudentManExamLayout
       header={
         <StudentManExamHeader
           remainingSeconds={displayRemaining}
-          currentQuestion={currentQuestion}
+          currentQuestion={flaggedQuestionNumber}
           totalQuestions={totalQuestions}
         />
       }
-      sidebar={null}
-      footer={
-        <StudentManExamNavigationBar
-          canGoPrev={currentQuestion > 1}
-          canGoNext={currentQuestion < totalQuestions}
-          onPrevious={() => setCurrentQuestion(q => Math.max(1, q - 1))}
-          onNext={() => setCurrentQuestion(q => Math.min(totalQuestions, q + 1))}
-          isFlagged={flaggedMap[currentQuestion] ?? false}
-          onFlag={() => {
-            if (!question) return;
-            const next = !flaggedMap[currentQuestion];
-            setFlaggedMap(m => ({ ...m, [currentQuestion]: next }));
-            saveAnswer.mutate({ questionId: question.id, payload: { answer: answerMap[currentQuestion] || '', flaggedForReview: next } });
+      sidebar={
+        <StudentManFlaggedSidebar
+          flaggedMap={flaggedMap}
+          totalQuestions={totalQuestions}
+          currentQuestion={flaggedQuestionNumber}
+          onJumpTo={q => {
+            if (inReviewFlagged) {
+              const idx = flaggedNumbers.indexOf(q);
+              if (idx !== -1) setFlaggedReviewIndex(idx);
+            } else {
+              setCurrentQuestion(q);
+            }
           }}
-          onSubmit={() => setShowSubmitModal(true)}
         />
       }
+      footer={
+        <StudentManExamNavigationBar
+          canGoPrev={
+            inReviewFlagged
+              ? flaggedReviewIndex > 0
+              : flaggedQuestionNumber > 1
+          }
+          canGoNext={
+            inReviewFlagged
+              ? flaggedReviewIndex < flaggedNumbers.length - 1
+              : flaggedQuestionNumber < totalQuestions
+          }
+          isFlagged={flaggedMap[flaggedQuestionNumber] ?? false}
+          isLastQuestion={
+            inReviewFlagged
+              ? flaggedReviewIndex === flaggedNumbers.length - 1
+              : flaggedQuestionNumber === totalQuestions
+          }
+          flaggedCount={flaggedNumbers.length}
+          onPrevious={() => {
+            if (inReviewFlagged) {
+              setFlaggedReviewIndex(i => Math.max(0, i - 1));
+            } else {
+              setCurrentQuestion(q => Math.max(1, q - 1));
+            }
+          }}
+          onNext={() => {
+            if (inReviewFlagged) {
+              setFlaggedReviewIndex(i => Math.min(flaggedNumbers.length - 1, i + 1));
+            } else {
+              setCurrentQuestion(q => Math.min(totalQuestions, q + 1));
+            }
+          }}
+          onFlag={() => {
+            if (!question) return;
+            const next = !flaggedMap[flaggedQuestionNumber];
+            setFlaggedMap(m => ({ ...m, [flaggedQuestionNumber]: next }));
+            saveAnswer.mutate({ questionId: question.id, payload: { answer: answerMap[flaggedQuestionNumber] || '', flaggedForReview: next } });
+          }}
+          onSubmit={() => setShowSubmitModal(true)}
+          onReviewFlagged={
+            !inReviewFlagged && flaggedNumbers.length > 0
+              ? () => {
+                setReviewFlaggedMode(true);
+                setFlaggedReviewIndex(0);
+              }
+              : undefined
+          }
+        />
+      }
+      proTips={[
+        "Hệ thống sẽ tự động nộp bài khi hết thời gian. Đảm bảo bạn đã chuẩn bị giấy nháp cho các phần tự luận.",
+        "Đọc kỹ yêu cầu đề bài (ví dụ: \"Đặt tính\") trước khi làm để tránh nhầm lẫn.",
+        "Sử dụng tính năng Flag for Review nếu bạn chưa chắc chắn về câu trả lời."
+      ]}
     >
       {questionLoading ? (
         <CircularProgress />
       ) : question ? (
         <StudentManQuestionPanel
-          questionNumber={question.questionNumber}
+          questionNumber={flaggedQuestionNumber}
           questionText={question.content}
           questionType={question.type}
           options={mappedOptions}
-          selectedAnswer={answerMap[currentQuestion] || ''}
+          selectedAnswer={answerMap[flaggedQuestionNumber] || ''}
           onAnswerChange={(answer: string) => {
-            setAnswerMap(m => ({ ...m, [currentQuestion]: answer }));
-            if (answer) setAnsweredMap(m => ({ ...m, [currentQuestion]: true }));
-            saveAnswer.mutate({ questionId: question.id, payload: { answer, flaggedForReview: flaggedMap[currentQuestion] ?? false } });
+            setAnswerMap(m => ({ ...m, [flaggedQuestionNumber]: answer }));
+            if (answer) setAnsweredMap(m => ({ ...m, [flaggedQuestionNumber]: true }));
+            saveAnswer.mutate({ questionId: question.id, payload: { answer, flaggedForReview: flaggedMap[flaggedQuestionNumber] ?? false } });
           }}
         />
       ) : null}

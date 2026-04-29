@@ -5,7 +5,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'outlined';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps {
@@ -21,6 +21,7 @@ export interface ButtonProps {
   onClick?: () => void;
   type?: 'button' | 'submit' | 'reset';
   children: React.ReactNode;
+  sx?: MuiButtonProps['sx'];
 }
 
 const muiVariantMap: Record<ButtonVariant, MuiButtonProps['variant']> = {
@@ -28,6 +29,7 @@ const muiVariantMap: Record<ButtonVariant, MuiButtonProps['variant']> = {
   secondary: 'outlined',
   ghost: 'text',
   danger: 'contained',
+  outlined: 'outlined',
 };
 
 const muiColorMap: Record<ButtonVariant, MuiButtonProps['color']> = {
@@ -35,6 +37,7 @@ const muiColorMap: Record<ButtonVariant, MuiButtonProps['color']> = {
   secondary: 'primary',
   ghost: 'primary',
   danger: 'error',
+  outlined: 'primary',
 };
 
 const muiSizeMap: Record<ButtonSize, MuiButtonProps['size']> = {
@@ -63,6 +66,7 @@ const Button: React.FC<ButtonProps> = ({
   onClick,
   type = 'button',
   children,
+  sx,
 }) => (
   <MuiButton
     variant={muiVariantMap[variant]}
@@ -75,6 +79,7 @@ const Button: React.FC<ButtonProps> = ({
     onClick={onClick}
     type={type}
     disableElevation
+    sx={sx}
   >
     {children}
   </MuiButton>
