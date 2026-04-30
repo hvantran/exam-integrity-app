@@ -38,7 +38,7 @@ const StudentManQuestionPanel: React.FC<QuestionPanelProps> = ({
   disabled = false,
   onAnswerChange,
 }) => (
-  <div className="bg-white border border-gray-300 border-l-4 border-l-blue-600 rounded-xl shadow-lg p-8">
+  <div className="bg-white min-w-[742px] border border-gray-300 border-l-4 border-l-blue-600 rounded-xl shadow-lg p-8">
     {/* Header */}
     <div className="flex items-center gap-4 mb-4">
       <div className="w-8 h-8 rounded bg-blue-600 flex items-center justify-center flex-shrink-0">

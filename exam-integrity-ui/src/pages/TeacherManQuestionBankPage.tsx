@@ -97,18 +97,9 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
   };
 
   return (
-    <Box
-      sx={{
-        backgroundColor: colors.surface.container.lowest,
-        border: `2px solid ${colors.primary.main}`,
-        borderLeft: `4px solid ${colors.primary.main}`,
-        borderRadius: borderRadius.lg,
-        p: 3,
-        boxShadow: '0px 4px 20px rgba(0,0,0,0.06)',
-      }}
-    >
+    <Box className="bg-surface border-2 border-primary border-l-4 rounded-lg p-3 shadow-lg">
       {/* Header */}
-      <Typography sx={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.05em', color: colors.primary.main, textTransform: 'uppercase', mb: 2 }}>
+      <Typography className="text-xs font-semibold tracking-wide text-primary uppercase mb-2">
         Edit Question
       </Typography>
 
@@ -120,18 +111,11 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
         fullWidth
         value={form.content}
         onChange={e => setField('content', e.target.value)}
-        sx={{ mb: 2 }}
+        className="mb-2"
       />
 
-      {/* Type + Difficulty row */}
-      <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-        <FormControl size="small" sx={{ flex: 1 }}>
-          <InputLabel>Question Type</InputLabel>
-          <Select value={form.type} label="Question Type" onChange={e => setField('type', e.target.value as QuestionType)}>
-            {TYPE_OPTIONS.map(o => <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>)}
-          </Select>
-        </FormControl>
-        <FormControl size="small" sx={{ flex: 1 }}>
+      <Box className="flex gap-2 mb-2">
+        <FormControl size="small" className="flex-1">
           <InputLabel>Difficulty Level</InputLabel>
           <Select value={form.difficulty} label="Difficulty Level" onChange={e => setField('difficulty', e.target.value)}>
             {DIFFICULTY_OPTIONS.map(d => <MenuItem key={d} value={d}>{d}</MenuItem>)}
@@ -141,22 +125,22 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
 
       {/* Answer options (MCQ only) */}
       {form.type === 'MCQ' && (
-        <Box sx={{ mb: 2 }}>
-          <Typography sx={{ fontSize: '12px', fontWeight: 600, color: colors.on.surfaceVariant, mb: 1, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <Box className="mb-2">
+          <Typography className="text-xs font-semibold text-on-surface mb-1 uppercase tracking-wide">
             Answer Options
           </Typography>
           <RadioGroup value={form.correctAnswer} onChange={e => setField('correctAnswer', e.target.value)}>
             {OPTION_LABELS.map((label, idx) => (
-              <Box key={label} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                <Radio value={label} size="small" sx={{ p: '4px' }} />
-                <Typography sx={{ fontSize: '13px', fontWeight: 600, color: colors.on.surface, minWidth: '20px' }}>{label}</Typography>
+              <Box key={label} className="flex items-center gap-1 mb-1">
+                <Radio value={label} size="small" className="p-1" />
+                <Typography className="text-sm font-semibold text-on-surface min-w-[20px]">{label}</Typography>
                 <TextField
                   size="small"
                   fullWidth
                   placeholder={`Option ${label}`}
                   value={form.options[idx] ?? ''}
                   onChange={e => setOption(idx, e.target.value)}
-                  sx={{ flex: 1 }}
+                  className="flex-1"
                 />
               </Box>
             ))}
@@ -165,14 +149,14 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
       )}
 
       {/* Points + Tags row */}
-      <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+      <Box className="flex gap-2 mb-3">
         <TextField
           label="Points"
           type="number"
           size="small"
           value={form.points}
           onChange={e => setField('points', Number(e.target.value))}
-          sx={{ width: 120 }}
+          className="w-30"
           inputProps={{ min: 0 }}
         />
         <TextField
@@ -185,13 +169,13 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
       </Box>
 
       {/* Actions */}
-      <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+      <Box className="flex gap-2 justify-end">
         <Button variant="outlined" size="small" onClick={onCancel} disabled={isSaving}
-          sx={{ borderColor: colors.outlineVariant, color: colors.on.surfaceVariant }}>
+          className="border-outline text-on-surface">
           Cancel
         </Button>
         <Button variant="contained" size="small" onClick={handleSave} disabled={isSaving}
-          sx={{ backgroundColor: colors.primary.main, '&:hover': { backgroundColor: colors.primary.deep } }}>
+          className="bg-primary hover:bg-primary-deep text-primary-on">
           {isSaving ? 'Saving…' : 'Save Changes'}
         </Button>
       </Box>

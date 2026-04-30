@@ -44,7 +44,7 @@ const FinalPublicationPage: React.FC = () => {
     );
   };
 
-  if (isLoading) return <CircularProgress />;
+  if (isLoading) return <div className="flex justify-center items-center h-64"><CircularProgress /></div>;
   if (!draft) return <Alert severity="error">Draft not found.</Alert>;
 
   // Only count questions that will actually be published (not excluded)

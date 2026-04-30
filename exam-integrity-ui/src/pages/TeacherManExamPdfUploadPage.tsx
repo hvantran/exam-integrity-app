@@ -54,23 +54,21 @@ const IngestionPage: React.FC = () => {
       onNavigate={handleNavigate}
       onLogout={handleLogout}
     >
-      <Box sx={{ p: 3, textAlign: 'center' }}>
+      <div className="p-6 text-center bg-surface text-on-surface">
         <input type="file" accept=".pdf" ref={inputRef} hidden onChange={handleFile} />
         {upload.isPending && (
           <>
-            <LinearProgress sx={{ mt: 2 }} />
-            <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
-              Processing PDF…
-            </Typography>
+            <LinearProgress className="mt-2" />
+            <div className="mt-2 text-on-surface text-sm">Processing PDF…</div>
           </>
         )}
         {upload.isSuccess && (
-          <Alert severity="success" sx={{ mt: 2 }}>
+          <Alert severity="success" className="mt-2">
             Upload successful! Redirecting to review page…
           </Alert>
         )}
-        {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
-      </Box>
+        {error && <Alert severity="error" className="mt-2">{error}</Alert>}
+      </div>
     </TeacherManIngestionLayout>
   );
 };

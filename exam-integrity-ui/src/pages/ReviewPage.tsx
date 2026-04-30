@@ -27,13 +27,15 @@ const ReviewPage: React.FC = () => {
       activeSection="results"
       onNavigate={handleNavigate}
     >
-      {isLoading ? (
-        <CircularProgress />
-      ) : !dashboard ? (
-        <Alert severity="info">Scoring in progress… please wait.</Alert>
-      ) : (
-        <ReviewDashboard dashboard={dashboard} />
-      )}
+      <div className="p-4 min-h-[300px] flex items-center justify-center">
+        {isLoading ? (
+          <CircularProgress />
+        ) : !dashboard ? (
+          <Alert severity="info">Scoring in progress… please wait.</Alert>
+        ) : (
+          <ReviewDashboard dashboard={dashboard} />
+        )}
+      </div>
     </StudentManReviewLayout>
   );
 };

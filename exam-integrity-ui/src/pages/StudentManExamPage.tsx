@@ -68,9 +68,11 @@ const ExamPage: React.FC = () => {
         sidebar={null}
         footer={null}
       >
-        <Alert severity="warning" sx={{ mt: 4, fontSize: 18 }}>
-          Time is up! Your exam is being submitted. You can no longer answer questions.
-        </Alert>
+        <div className="mt-8 text-lg text-on-surface">
+          <Alert severity="warning" className="text-base">
+            Time is up! Your exam is being submitted. You can no longer answer questions.
+          </Alert>
+        </div>
       </StudentManExamLayout>
     );
   }

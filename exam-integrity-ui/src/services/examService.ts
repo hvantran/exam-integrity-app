@@ -17,4 +17,7 @@ export const examService = {
     apiClient.post<ExamDTO>(`${API}/api/exams/from-bank`, cmd).then(r => r.data),
   deleteExam: (examId: string): Promise<void> =>
     apiClient.delete(`${API}/api/exams/${examId}`).then(() => undefined),
+  listTags: (): Promise<string[]> =>
+    apiClient.get<string[]>(`${API}/api/exams/tags`).then(r => Array.isArray(r.data) ? r.data : []),
+
 };

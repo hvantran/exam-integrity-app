@@ -5,21 +5,22 @@ import {
   Box, Card, CardContent, Typography, Button, CircularProgress, Chip,
 } from '@mui/material';
 import { StudentManLandingLayout } from '../components/templates';
-import { useExamList } from '../hooks/useExams';
+import { useExamList, useTagList } from '../hooks/useExams';
 import { useCreateSession } from '../hooks/useSession';
 import { useAuth } from '../context/AuthContext';
 
-const FILTERS = [
-  { label: 'All', value: '' },
-  { label: 'Math', value: 'math' },
-  { label: 'Literature', value: 'literature' },
-  { label: 'English', value: 'english' },
-];
+
 
 const LandingPage: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState('');
   const tags = activeFilter ? [activeFilter] : undefined;
   const { data: exams, isLoading } = useExamList(tags);
+  const { data: tagList = [], isLoading: isTagsLoading } = useTagList();
+
+  const filterOptions = React.useMemo(() => [
+    { label: 'All', value: '' },
+    ...tagList.map(tag => ({ label: tag, value: tag })),
+  ], [tagList]);
   const createSession = useCreateSession();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -30,39 +31,36 @@ const LandingPage: React.FC = () => {
   return (
     <StudentManLandingLayout
       studentName={user?.username ?? 'Student'}
-      filters={FILTERS}
+      filters={filterOptions}
       activeFilter={activeFilter}
       onFilterChange={setActiveFilter}
       onLogout={handleLogout}
     >
-      {isLoading ? (
-        <CircularProgress />
+      {isLoading || isTagsLoading ? (
+        <div className="flex justify-center items-center min-h-[200px]"><CircularProgress /></div>
       ) : (
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 2 }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {(exams ?? []).map(exam => (
-            <Card key={exam.id} variant="outlined">
-              <CardContent>
-                <Typography variant="h6">{exam.title}</Typography>
-                <Typography variant="body2" color="text.secondary">
+            <div key={exam.id} className="border rounded-xl bg-white shadow p-4 flex flex-col justify-between">
+              <div>
+                <div className="text-lg font-semibold mb-1">{exam.title}</div>
+                <div className="text-sm text-gray-500 mb-2">
                   {exam.questionCount} questions · {Math.round(exam.durationSeconds / 60)} min · {exam.totalPoints} pts
-                </Typography>
-                <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                  {exam.tags?.map(t => <Chip key={t} label={t} size="small" />)}
-                </Box>
-              </CardContent>
-              <Box sx={{ px: 2, pb: 2 }}>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  onClick={() => createSession.mutate({ examId: exam.id, studentId })}
-                  disabled={createSession.isPending}
-                >
-                  Start Exam
-                </Button>
-              </Box>
-            </Card>
+                </div>
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {exam.tags?.map(t => <span key={t} className="text-primary text-xs px-2 py-0.5 rounded-full font-medium">{t}</span>)}
+                </div>
+              </div>
+              <button
+                className="mt-2 w-full bg-primary hover:bg-primary-deep text-primary-on font-semibold py-2 rounded"
+                onClick={() => createSession.mutate({ examId: exam.id, studentId })}
+                disabled={createSession.isPending}
+              >
+                Start Exam
+              </button>
+            </div>
           ))}
-        </Box>
+        </div>
       )}
     </StudentManLandingLayout>
   );

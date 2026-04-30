@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Box, CircularProgress, Alert, Typography, Button, Chip,
+  CircularProgress, Alert, Button, Chip,
   Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, Table, TableHead, TableRow, TableCell, TableBody,
   IconButton, InputAdornment,
@@ -66,9 +66,11 @@ const ReplaceBankModal: React.FC<ReplaceBankModalProps> = ({ open, insertPositio
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        Select questions from the bank
-        <IconButton size="small" onClick={onClose}><CloseIcon fontSize="small" /></IconButton>
+      <DialogTitle>
+        <div className="flex items-center justify-between w-full">
+          <span>Select questions from the bank</span>
+          <IconButton size="small" onClick={onClose}><CloseIcon fontSize="small" /></IconButton>
+        </div>
       </DialogTitle>
       <DialogContent dividers>
         <TextField
@@ -77,7 +79,7 @@ const ReplaceBankModal: React.FC<ReplaceBankModalProps> = ({ open, insertPositio
           placeholder="Search question content…"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          sx={{ mb: 2 }}
+          className="mb-4"
           InputProps={{
             startAdornment: (
               <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment>
@@ -85,7 +87,7 @@ const ReplaceBankModal: React.FC<ReplaceBankModalProps> = ({ open, insertPositio
           }}
         />
         {isLoading ? (
-          <CircularProgress size={24} />
+          <div className="flex justify-center py-4"><CircularProgress size={24} /></div>
         ) : (
           <Table size="small">
             <TableHead>
@@ -99,8 +101,8 @@ const ReplaceBankModal: React.FC<ReplaceBankModalProps> = ({ open, insertPositio
             <TableBody>
               {(data?.content ?? []).map(q => (
                 <TableRow key={q.id} hover>
-                  <TableCell sx={{ maxWidth: 420 }}>
-                    <Typography variant="body2" noWrap>{q.content}</Typography>
+                  <TableCell className="max-w-[420px] truncate">
+                    <span className="text-sm font-normal truncate block">{q.content}</span>
                   </TableCell>
                   <TableCell>
                     <Chip label={q.type} size="small" />
@@ -112,6 +114,7 @@ const ReplaceBankModal: React.FC<ReplaceBankModalProps> = ({ open, insertPositio
                       variant="contained"
                       disabled={addQuestion.isPending}
                       onClick={() => handlePick(q)}
+                      className="!bg-primary !text-primary-on !rounded !px-3 !py-1 hover:!bg-primary-deep"
                     >
                       Select
                     </Button>
@@ -121,9 +124,7 @@ const ReplaceBankModal: React.FC<ReplaceBankModalProps> = ({ open, insertPositio
               {data?.content.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={4}>
-                    <Typography variant="body2" color="text.secondary" textAlign="center">
-                      No questions found.
-                    </Typography>
+                    <div className="text-center text-gray-400 text-sm py-2">No questions found.</div>
                   </TableCell>
                 </TableRow>
               )}
@@ -153,7 +154,7 @@ const QuestionReviewPage: React.FC = () => {
   const editQuestion = useEditQuestion(draftId);
   const removeQuestion = useRemoveQuestion(draftId);
 
-  if (isLoading) return <CircularProgress />;
+  if (isLoading) return <div className="flex justify-center items-center h-64"><CircularProgress /></div>;
   if (!draft) return <Alert severity="error">Draft not found.</Alert>;
 
   // Only show non-excluded questions in the reviewer
@@ -188,27 +189,23 @@ const QuestionReviewPage: React.FC = () => {
         onNavigate={handleNavigate}
         onLogout={handleLogout}
         leftPanel={
-          <Box sx={{ p: 2 }}>
+          <div className="p-4">
             {/* Question navigator pills */}
             {total > 0 && (
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mb: 2 }}>
+              <div className="flex flex-wrap gap-2 mb-4">
                 {questions.map((q, i) => (
-                  <Chip
+                  <button
                     key={q.id}
-                    label={`Question ${q.questionNumber > 0 ? q.questionNumber : i + 1}`}
-                    size="small"
+                    type="button"
                     onClick={() => setCurrentIdx(i)}
-                    sx={{
-                      cursor: 'pointer',
-                      fontWeight: currentIdx === i ? 700 : 400,
-                      backgroundColor: currentIdx === i ? colors.primary.main : colors.surface.container.low,
-                      color: currentIdx === i ? colors.primary.on : colors.on.surface,
-                      border: `1px solid ${currentIdx === i ? colors.primary.main : colors.outlineVariant}`,
-                      '&:hover': { opacity: 0.85 },
-                    }}
-                  />
+                    className={`px-3 py-1 rounded border text-xs font-medium transition-colors duration-150 ${currentIdx === i
+                      ? 'bg-primary text-primary-on border-primary font-bold'
+                      : 'bg-surface text-on-surface border-outline'} hover:opacity-85`}
+                  >
+                    {`Question ${q.questionNumber > 0 ? q.questionNumber : i + 1}`}
+                  </button>
                 ))}
-              </Box>
+              </div>
             )}
 
             {currentQ ? (
@@ -219,30 +216,24 @@ const QuestionReviewPage: React.FC = () => {
               </Alert>
             )}
 
-            <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
+            <div className="flex gap-2 mt-4 items-center">
               <Button variant="outlined" size="small" disabled={currentIdx === 0}
-                onClick={() => setCurrentIdx(i => i - 1)}>← Prev</Button>
-              <Typography sx={{ flex: 1, textAlign: 'center', alignSelf: 'center', fontSize: '0.85rem', color: colors.on.surfaceVariant }}>
-                {total > 0 ? `${currentIdx + 1} / ${total}` : 'No questions'}
-              </Typography>
+                onClick={() => setCurrentIdx(i => i - 1)} className="!rounded !px-3 !py-1">← Prev</Button>
+              <span className="flex-1 text-center text-xs text-gray-500">{total > 0 ? `${currentIdx + 1} / ${total}` : 'No questions'}</span>
               <Button variant="outlined" size="small" disabled={currentIdx >= total - 1}
-                onClick={() => setCurrentIdx(i => i + 1)}>Next →</Button>
-            </Box>
-          </Box>
+                onClick={() => setCurrentIdx(i => i + 1)} className="!rounded !px-3 !py-1">Next →</Button>
+            </div>
+          </div>
         }
         rightPanel={
-          <Box sx={{ p: 2 }}>
-            <Typography variant="subtitle2" gutterBottom>Draft Info</Typography>
-            <Typography variant="body2" color="text.secondary">{draft.summary.originalFilename}</Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              {total} questions · {draft.summary.totalPoints} pts
-            </Typography>
+          <div className="p-4">
+            <div className="text-xs font-semibold text-gray-700 mb-1">Draft Info</div>
+            <div className="text-xs text-gray-500">{draft.summary.originalFilename}</div>
+            <div className="text-xs text-gray-500 mt-2">{total} questions · {draft.summary.totalPoints} pts</div>
             {draft.summary.flaggedQuestionCount > 0 && (
-              <Typography variant="body2" color="warning.main" sx={{ mt: 1 }}>
-                ⚠ {draft.summary.flaggedQuestionCount} questions need review
-              </Typography>
+              <div className="text-xs text-yellow-700 mt-2">⚠ {draft.summary.flaggedQuestionCount} questions need review</div>
             )}
-          </Box>
+          </div>
         }
       />
 

@@ -33,3 +33,10 @@ export function useDeleteExam() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['exams'] }); },
   });
 }
+
+export function useTagList() {
+  return useQuery({
+    queryKey: ['exam-tags'],
+    queryFn: () => examService.listTags(),
+  });
+}

@@ -3,6 +3,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import { APP_BAR_HEIGHT } from './AppTopBar';
 
 export const STUDENT_SIDEBAR_WIDTH = 256;
@@ -21,6 +22,7 @@ export interface PortalSidebarProps {
   studentRole?: string;
   onNavigate?: (section: PortalSection) => void;
   onHelp?: () => void;
+  onLogOut?: () => void;
 }
 
 /**
@@ -36,6 +38,7 @@ const StudentManPortalSidebar: React.FC<PortalSidebarProps> = ({
   studentRole = 'Learning Center',
   onNavigate,
   onHelp,
+  onLogOut: onLogout,
 }) => (
   <aside
     className="fixed left-0 top-16 w-[256px] h-[calc(100vh-64px)] z-80 flex flex-col gap-2 pt-8 pb-8 border-r border-gray-200 bg-white overflow-y-auto"
@@ -83,6 +86,14 @@ const StudentManPortalSidebar: React.FC<PortalSidebarProps> = ({
       >
         <SupportAgentIcon style={{ fontSize: 18 }} />
         Online Help
+      </button>
+      <button
+        type="button"
+        onClick={onLogout}
+        className="w-full flex items-center justify-center gap-2 border border-gray-300 text-gray-500 text-sm font-medium rounded-lg py-2 hover:bg-gray-50 transition"
+      >
+        <LogoutRoundedIcon style={{ fontSize: 18 }} />
+        Logout
       </button>
     </div>
   </aside>

@@ -64,36 +64,36 @@ const CreateExamDialog: React.FC<CreateExamDialogProps> = ({ open, onClose, onSu
     if (!open) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-            <div className="bg-white rounded-xl shadow-lg w-full max-w-lg p-6 relative">
-                <button className="absolute top-3 right-3 text-gray-400 hover:text-gray-600" onClick={handleClose}>&times;</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-on-surface bg-opacity-30">
+            <div className="bg-surface rounded-xl shadow-lg w-full max-w-lg p-6 relative">
+                <button className="absolute top-3 right-3 text-on-surface hover:text-primary" onClick={handleClose}>&times;</button>
                 <h2 className="text-lg font-bold mb-4">Create Exam from Question Bank</h2>
-                {error && <div className="mb-2 text-red-600 bg-red-50 rounded px-2 py-1 text-sm">{error}</div>}
+                {error && <div className="mb-2 text-error bg-errorContainer rounded px-2 py-1 text-sm">{error}</div>}
                 <form className="space-y-4" onSubmit={e => { e.preventDefault(); handleSubmit(); }}>
                     <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Exam Name</label>
+                        <label className="block text-xs font-medium text-on-surface mb-1">Exam Name</label>
                         <input
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                            className="w-full border border-outline rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                             value={title}
                             onChange={e => setTitle(e.target.value)}
                             required
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Duration (minutes)</label>
+                        <label className="block text-xs font-medium text-on-surface mb-1">Duration (minutes)</label>
                         <input
                             type="number"
                             min={1}
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                            className="w-full border border-outline rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                             value={durationMin}
                             onChange={e => setDurationMin(Math.max(1, Number(e.target.value)))}
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Tags</label>
+                        <label className="block text-xs font-medium text-on-surface mb-1">Tags</label>
                         <div className="flex gap-2 mb-1">
                             <input
-                                className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                                className="flex-1 border border-outline rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                                 placeholder="Add tag and press Enter"
                                 value={tagInput}
                                 onChange={e => setTagInput(e.target.value)}
@@ -103,19 +103,19 @@ const CreateExamDialog: React.FC<CreateExamDialogProps> = ({ open, onClose, onSu
                         {tags.length > 0 && (
                             <div className="flex flex-wrap gap-1">
                                 {tags.map(t => (
-                                    <span key={t} className="bg-violet-100 text-violet-700 text-xs px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                                    <span key={t} className="bg-primary-container text-primary text-xs px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
                                         {t}
-                                        <button type="button" className="ml-1 text-violet-700 hover:text-violet-900" onClick={() => handleRemoveTag(t)}>&times;</button>
+                                        <button type="button" className="ml-1 text-primary hover:text-primary-deep" onClick={() => handleRemoveTag(t)}>&times;</button>
                                     </span>
                                 ))}
                             </div>
                         )}
                     </div>
                     <div>
-                        <div className="text-xs font-semibold text-gray-500 mb-2">Question Bank Selection</div>
+                        <div className="text-xs font-semibold text-on-surface mb-2">Question Bank Selection</div>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1"># MCQ</label>
+                                <label className="block text-xs font-medium text-on-surface mb-1"># MCQ</label>
                                 <input
                                     type="number"
                                     min={0}
@@ -158,7 +158,7 @@ const CreateExamDialog: React.FC<CreateExamDialogProps> = ({ open, onClose, onSu
                     </div>
                     <div className="flex justify-end gap-2 pt-2">
                         <button type="button" className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700" onClick={handleClose} disabled={isLoading}>Cancel</button>
-                        <button type="submit" className="px-4 py-2 rounded bg-violet-700 text-white font-semibold hover:bg-violet-800 disabled:opacity-60" disabled={isLoading || !title.trim() || (mcqCount + essayShortCount + essayLongCount === 0)}>
+                        <button type="submit" className="px-4 py-2 rounded bg-primary text-white font-semibold hover:bg-violet-800 disabled:opacity-60" disabled={isLoading || !title.trim() || (mcqCount + essayShortCount + essayLongCount === 0)}>
                             {isLoading ? 'Creating…' : 'Create Exam'}
                         </button>
                     </div>
@@ -181,15 +181,15 @@ interface ExamCardProps {
 
 const ExamCard: React.FC<ExamCardProps> = ({ title, durationSeconds, questionCount, totalPoints, tags, onDelete }) => (
     <div className="relative overflow-hidden border border-gray-300 rounded-xl p-4 bg-white shadow-sm">
-        <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-violet-700 rounded-l-xl" />
+        <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-primary-700 rounded-l-xl" />
         <div className="font-semibold text-base text-gray-900 mb-2">{title}</div>
         <div className="flex gap-4 mb-2 text-xs text-gray-500">
             <span className="inline-flex items-center gap-1">
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
                 {Math.round(durationSeconds / 60)} min
             </span>
             <span className="inline-flex items-center gap-1">
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M8 12h8" /></svg>
                 {questionCount} questions
             </span>
             <span>{totalPoints} pts</span>
@@ -197,17 +197,17 @@ const ExamCard: React.FC<ExamCardProps> = ({ title, durationSeconds, questionCou
         {tags && tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mb-2">
                 {tags.map(t => (
-                    <span key={t} className="bg-violet-100 text-violet-700 text-xs px-2 py-0.5 rounded-full font-medium">{t}</span>
+                    <span key={t} className="bg-violet-100 text-primary text-xs px-2 py-0.5 rounded-full font-medium">{t}</span>
                 ))}
             </div>
         )}
         <div className="flex justify-end mt-3">
             <button
-                className="flex items-center gap-1 text-xs text-red-700 border border-red-700 rounded px-3 py-1 hover:bg-red-50 transition"
+                className="flex items-center gap-1 text-xs text-error-700 border border-red-700 rounded px-3 py-1 hover:bg-red-50 transition"
                 onClick={onDelete}
                 type="button"
             >
-                <svg className="w-4 h-4 text-red-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+                <svg className="w-4 h-4 text-error-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6" /></svg>
                 Delete
             </button>
         </div>
@@ -262,7 +262,7 @@ const TeacherManDashboardPage: React.FC = () => {
                     <div className="text-sm text-gray-500 mt-1">Published exams available to students</div>
                 </div>
                 <button
-                    className="inline-flex items-center gap-2 bg-violet-700 hover:bg-violet-800 text-white font-semibold rounded-lg px-4 py-2 transition"
+                    className="inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg px-4 py-2 transition"
                     onClick={() => setDialogOpen(true)}
                 >
                     <span className="text-lg font-bold">+</span>

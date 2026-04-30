@@ -82,5 +82,17 @@ public class ExamController {
         examService.deleteExam(examId);
         return ResponseEntity.noContent().build();
     }
+    
+    @Operation(
+        summary = "List all unique tags",
+        description = "Returns all unique tags assigned to exams.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "List of unique tags")
+        }
+    )
+    @GetMapping("/tags")
+    public ResponseEntity<List<String>> listTags() {
+        return ResponseEntity.ok(examService.listAllTags());
+    }
 }
 

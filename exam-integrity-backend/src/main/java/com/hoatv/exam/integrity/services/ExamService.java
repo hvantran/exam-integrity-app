@@ -160,4 +160,12 @@ public class ExamService {
         q.setCorrectAnswer(item.getCorrectAnswer());
         return q;
     }
+    
+    public List<String> listAllTags() {
+        return examRepository.findAll().stream()
+            .flatMap(e -> e.getTags().stream())
+            .distinct()
+            .sorted()
+            .toList();
+    }
 }

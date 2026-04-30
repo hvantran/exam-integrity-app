@@ -45,63 +45,24 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        backgroundColor: colors.background,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        px: 2,
-      }}
-    >
-      <Box
-        component="form"
+    <div className="min-h-screen bg-background flex items-center justify-center px-2">
+      <form
         onSubmit={handleSubmit}
         noValidate
-        sx={{
-          width: '100%',
-          maxWidth: 420,
-          backgroundColor: colors.surface.default,
-          border: `1px solid ${colors.outlineVariant}`,
-          borderRadius: borderRadius.xl,
-          boxShadow: shadow.cardActive,
-          px: { xs: 3, sm: `${spacing.gutter * 1.5}px` },
-          py: 5,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 3,
-        }}
+        className="w-full max-w-[420px] bg-surface border border-outline rounded-2xl shadow-md px-6 py-8 flex flex-col gap-6"
+        style={{ boxShadow: '0px 4px 20px rgba(0,0,0,0.03)' }}
       >
         {/* Logo + heading */}
-        <Box sx={{ textAlign: 'center' }}>
-          <Box
-            sx={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 56,
-              height: 56,
-              borderRadius: '50%',
-              backgroundColor: colors.primary.main,
-              mb: 2,
-            }}
-          >
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary mb-3">
             <SchoolIcon sx={{ color: '#fff', fontSize: 30 }} />
-          </Box>
-          <Typography
-            variant="h5"
-            sx={{ fontWeight: 700, color: colors.on.surface, letterSpacing: '-0.5px' }}
-          >
-            ExamIntegrity
-          </Typography>
-          <Typography variant="body2" sx={{ color: colors.on.surfaceVariant, mt: 0.5 }}>
-            Sign in to continue
-          </Typography>
-        </Box>
+          </div>
+          <div className="text-2xl font-bold text-on-surface tracking-tight">ExamIntegrity</div>
+          <div className="text-sm text-on-surface mt-1">Sign in to continue</div>
+        </div>
 
         {/* Error alert */}
-        {error && <Alert severity="error" sx={{ borderRadius: borderRadius.md }}>{error}</Alert>}
+        {error && <Alert severity="error" className="rounded-md">{error}</Alert>}
 
         {/* Username */}
         <TextField
@@ -147,26 +108,19 @@ const LoginPage: React.FC = () => {
           variant="contained"
           fullWidth
           disabled={isLoading}
-          sx={{ height: 44, fontWeight: 600, borderRadius: borderRadius.md }}
+          className="h-11 font-semibold rounded-md"
         >
           {isLoading ? <CircularProgress size={20} color="inherit" /> : 'Sign In'}
         </Button>
 
         {/* Dev hint */}
-        <Box
-          sx={{
-            p: 1.5,
-            borderRadius: borderRadius.default,
-            backgroundColor: `${colors.primary.main}0d`,
-            border: `1px solid ${colors.primary.main}30`,
-          }}
-        >
-          <Typography variant="caption" sx={{ color: colors.on.surfaceVariant, display: 'block' }}>
+        <div className="p-3 rounded bg-primary/5 border border-primary/20">
+          <span className="text-xs text-on-surface block">
             <strong>Student (USER):</strong> user / user123
-          </Typography>
-        </Box>
-      </Box>
-    </Box>
+          </span>
+        </div>
+      </form>
+    </div>
   );
 };
 
