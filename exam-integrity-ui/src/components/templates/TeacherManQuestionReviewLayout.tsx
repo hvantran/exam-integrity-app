@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Button, Divider, Skeleton, Typography } from '@mui/material';
+import { Button, Divider } from '@mui/material';
+import { Skeleton } from '../molecules';
 import FindReplaceIcon from '@mui/icons-material/FindReplace';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
@@ -60,7 +61,7 @@ const TeacherManQuestionReviewLayout: React.FC<QuestionReviewLayoutProps> = ({
   leftPanel,
   rightPanel,
 }) => (
-  <Box sx={{ minHeight: '100vh', backgroundColor: colors.background, display: 'flex', flexDirection: 'column' }}>
+  <div className="min-h-screen bg-gray-50 flex flex-col">
     <AppTopBar
       userName={userName}
       showSearch={false}
@@ -77,100 +78,31 @@ const TeacherManQuestionReviewLayout: React.FC<QuestionReviewLayoutProps> = ({
       onSettings={onSettings}
       onLogout={onLogout}
     />
-    <Box
-      component="main"
-      sx={{
-        ml: `${TEACHER_SIDEBAR_WIDTH}px`,
-        pt: `${APP_BAR_HEIGHT}px`,
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        height: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
-      }}
-    >
+    <main className="ml-[256px] pt-[64px] flex-1 flex flex-col overflow-hidden h-[calc(100vh-64px)]">
       {/* Exam breadcrumb sub-header */}
       {examName && (
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            px: `${spacing.margin}px`,
-            py: 1.5,
-            borderBottom: `1px solid ${colors.outlineVariant}`,
-            backgroundColor: colors.surface.container.lowest,
-            flexShrink: 0,
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Typography sx={{ fontSize: '14px', color: colors.on.surfaceVariant }}>
-              {examName}
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <Button
-              variant="outlined"
-              onClick={onSaveDraft}
-              sx={{
-                fontSize: '14px',
-                fontWeight: 500,
-                textTransform: 'none',
-                borderColor: colors.outlineVariant,
-                color: colors.primary.main,
-                borderRadius: '4px',
-              }}
-            >
-              Save Draft
-            </Button>
-            <Button
-              variant="contained"
-              onClick={onPublish}
-              sx={{
-                fontSize: '14px',
-                fontWeight: 500,
-                textTransform: 'none',
-                backgroundColor: colors.primary.main,
-                color: colors.primary.on,
-                borderRadius: '4px',
-                '&:hover': { backgroundColor: colors.primary.deep },
-              }}
-            >
-              Publish
-            </Button>
-          </Box>
-        </Box>
+        <div className="flex justify-between items-center px-6 py-2 border-b border-gray-200 bg-white flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">{examName}</span>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outlined" onClick={onSaveDraft} className="text-sm font-medium border-gray-200 text-violet-700 rounded px-4 py-2">Save Draft</Button>
+            <Button variant="contained" onClick={onPublish} className="text-sm font-medium bg-violet-700 text-white rounded px-4 py-2 hover:bg-violet-800">Publish</Button>
+          </div>
+        </div>
       )}
 
       {/* Inner scrollable area */}
-      <Box sx={{ flex: 1, overflowY: 'auto', p: `${spacing.margin}px` }}>
+      <div className="flex-1 overflow-y-auto p-6">
         {/* Screen header + actions */}
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'space-between',
-            mb: `${spacing.stackLg}px`,
-            flexShrink: 0,
-          }}
-        >
-          <Box>
-            <Typography
-              sx={{ fontSize: '14px', fontWeight: 500, color: colors.on.surfaceVariant, mb: `${spacing.unit}px` }}
-            >
-              Question {questionNumber}{' '}
-              <Box component="span" sx={{ color: colors.outline }}>
-                / {totalQuestions}
-              </Box>
-            </Typography>
-            <Typography
-              variant="h2"
-              sx={{ fontSize: '32px', fontWeight: 600, color: colors.on.surface, lineHeight: 1.25 }}
-            >
-              Review &amp; Edit Question
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', gap: `${spacing.stackSm}px` }}>
+        <div className="flex items-end justify-between mb-8 flex-shrink-0">
+          <div>
+            <div className="text-sm font-medium text-gray-500 mb-1">
+              Question {questionNumber} <span className="text-gray-400">/ {totalQuestions}</span>
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 leading-tight">Review &amp; Edit Question</h2>
+          </div>
+          <div className="flex gap-2">
             <Button
               variant="outlined"
               startIcon={<FindReplaceIcon />}
@@ -219,116 +151,52 @@ const TeacherManQuestionReviewLayout: React.FC<QuestionReviewLayoutProps> = ({
             >
               Delete Question
             </Button>
-          </Box>
-        </Box>
+          </div>
+        </div>
 
         {/* Split 2-column panel */}
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: `${spacing.gutter}px`,
-            minHeight: '60vh',
-          }}
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[60vh]">
           {/* Left panel: Original Scan */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              backgroundColor: colors.surface.container.lowest,
-              border: `1px solid ${colors.outlineVariant}`,
-              borderRadius: '12px',
-              overflow: 'hidden',
-            }}
-          >
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                px: 3,
-                py: 2,
-                borderBottom: `1px solid ${colors.outlineVariant}`,
-                flexShrink: 0,
-              }}
-            >
-              <Typography sx={{ fontSize: '18px', fontWeight: 600, color: colors.on.surface }}>
-                Original Scan
-              </Typography>
-            </Box>
-            <Box
-              sx={{
-                flex: 1,
-                p: 3,
-                backgroundColor: colors.surface.container.low,
-                overflowY: 'auto',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
+          <div className="flex flex-col bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200 flex-shrink-0">
+              <span className="text-lg font-semibold text-gray-900">Original Scan</span>
+            </div>
+            <div className="flex-1 p-6 bg-gray-50 overflow-y-auto flex items-center justify-center">
               {isLoading ? (
-                <Skeleton variant="rounded" sx={{ width: '100%', height: '100%', minHeight: 300 }} />
+                <Skeleton height={300} className="w-full h-full min-h-[300px] rounded-lg" />
               ) : (
                 leftPanel ?? (
-                  <Typography sx={{ color: colors.on.surfaceVariant, fontSize: '14px' }}>
-                    No scan provided.
-                  </Typography>
+                  <span className="text-sm text-gray-400">No scan provided.</span>
                 )
               )}
-            </Box>
-          </Box>
+            </div>
+          </div>
 
           {/* Right panel: Parsed Content */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              backgroundColor: colors.surface.container.lowest,
-              border: `1px solid ${colors.outlineVariant}`,
-              borderLeft: `4px solid ${colors.primary.main}`,
-              borderRadius: '12px',
-              overflow: 'hidden',
-            }}
-          >
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                px: 3,
-                py: 2,
-                borderBottom: `1px solid ${colors.outlineVariant}`,
-                flexShrink: 0,
-              }}
-            >
-              <Typography sx={{ fontSize: '18px', fontWeight: 600, color: colors.on.surface }}>
-                Parsed Content
-              </Typography>
-            </Box>
-            <Box sx={{ flex: 1, p: 3, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <div className="flex flex-col bg-white border border-gray-200 border-l-4 border-l-violet-700 rounded-xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200 flex-shrink-0">
+              <span className="text-lg font-semibold text-gray-900">Parsed Content</span>
+            </div>
+            <div className="flex-1 p-6 overflow-y-auto flex flex-col gap-2">
               {isLoading ? (
                 <>
-                  <Skeleton variant="rounded" height={72} />
-                  <Skeleton variant="rounded" height={80} />
+                  <Skeleton height={72} className="mb-2" />
+                  <Skeleton height={80} className="mb-2" />
                   {[0, 1, 2].map((i) => (
-                    <Skeleton key={i} variant="rounded" height={52} />
+                    <Skeleton key={i} height={52} className="mb-2" />
                   ))}
                 </>
               ) : (
                 rightPanel ?? (
-                  <Typography sx={{ color: colors.on.surfaceVariant, fontSize: '14px' }}>
-                    No parsed content provided.
-                  </Typography>
+                  <span className="text-sm text-gray-400">No parsed content provided.</span>
                 )
               )}
-            </Box>
-          </Box>
-        </Box>
-      </Box>
-    </Box>
-  </Box>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
 );
 
 export default TeacherManQuestionReviewLayout;

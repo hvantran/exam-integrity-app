@@ -1,7 +1,7 @@
 import React from 'react';
-import { Box, Tabs, Tab, Button } from '@mui/material';
+import { Button } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
-import { colors, spacing, borderRadius } from '../../design-system/tokens';
+// Removed MUI tokens, using Tailwind CSS
 import { AppTopBar, TeacherManDashboardSidebar, APP_BAR_HEIGHT, TEACHER_SIDEBAR_WIDTH } from '../organisms';
 import type { DashboardSection } from '../organisms';
 
@@ -32,7 +32,7 @@ const TeacherManReportsLayout: React.FC<ReportsLayoutProps> = ({
   onHelp,
   children,
 }) => (
-  <Box sx={{ minHeight: '100vh', backgroundColor: colors.background }}>
+  <div className="min-h-screen bg-gray-50">
     <AppTopBar
       userName={userName}
       onSearch={onSearch}
@@ -44,68 +44,38 @@ const TeacherManReportsLayout: React.FC<ReportsLayoutProps> = ({
       userName={userName}
       onNavigate={onNavigate}
     />
-    <Box
-      sx={{
-        ml: `${TEACHER_SIDEBAR_WIDTH}px`,
-        pt: `${APP_BAR_HEIGHT}px`,
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
+    <div className="ml-[256px] pt-[64px] min-h-screen flex flex-col">
       {/* Page-level toolbar: tabs + export */}
-      <Box
-        sx={{
-          position: 'sticky',
-          top: APP_BAR_HEIGHT,
-          zIndex: 70,
-          backgroundColor: colors.surface.container.lowest,
-          borderBottom: `1px solid ${colors.outlineVariant}`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          px: `${spacing.margin}px`,
-          pr: `${spacing.stackLg}px`,
-        }}
-      >
-        <Tabs
-          value={activeTab}
-          onChange={(_, v) => onTabChange?.(v)}
-          sx={{
-            minHeight: 48,
-            '& .MuiTab-root': {
-              minHeight: 48,
-              fontSize: '13px',
-              textTransform: 'none',
-              color: colors.on.surfaceVariant,
-            },
-            '& .Mui-selected': { color: colors.primary.main, fontWeight: 600 },
-            '& .MuiTabs-indicator': {
-              backgroundColor: colors.primary.main,
-              height: 3,
-              borderRadius: `${borderRadius.sm} ${borderRadius.sm} 0 0`,
-            },
-          }}
-        >
-          {tabs.map((label, i) => <Tab key={i} label={label} />)}
-        </Tabs>
+      <div className="sticky top-[64px] z-70 bg-white border-b border-gray-200 flex items-center justify-between px-6 pr-8">
+        <div className="flex space-x-2 min-h-[48px]">
+          {tabs.map((label, i) => (
+            <button
+              key={i}
+              className={`px-4 py-2 text-sm font-medium rounded-t ${activeTab === i ? 'text-violet-700 border-b-2 border-violet-700 bg-gray-50' : 'text-gray-500 hover:text-violet-700'} focus:outline-none`}
+              onClick={() => onTabChange?.(i)}
+              type="button"
+            >
+              {label}
+            </button>
+          ))}
+        </div>
         {onExport && (
           <Button
             startIcon={<DownloadIcon />}
             variant="outlined"
             size="small"
             onClick={onExport}
-            sx={{ borderColor: colors.outlineVariant, color: colors.on.surfaceVariant }}
+            className="border-gray-200 text-gray-500"
           >
             Xuat bao cao
           </Button>
         )}
-      </Box>
-      <Box component="main" sx={{ flex: 1, p: `${spacing.margin}px`, maxWidth: spacing.containerMax, mx: 'auto', width: '100%' }}>
+      </div>
+      <main className="flex-1 p-6 max-w-6xl mx-auto w-full">
         {children}
-      </Box>
-    </Box>
-  </Box>
+      </main>
+    </div>
+  </div>
 );
 
 export default TeacherManReportsLayout;

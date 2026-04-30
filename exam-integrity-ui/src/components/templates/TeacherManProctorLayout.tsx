@@ -1,8 +1,5 @@
 import React from 'react';
-import { Box, Typography, Chip } from '@mui/material';
-import TimerOutlinedIcon from '@mui/icons-material/TimerOutlined';
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
-import { colors, typography, spacing, borderRadius } from '../../design-system/tokens';
+
 
 const PROCTOR_APP_BAR_HEIGHT = 64;
 const PROCTOR_SIDEBAR_WIDTH = 256;
@@ -41,251 +38,92 @@ const TeacherManProctorLayout: React.FC<ProctorLayoutProps> = ({
   onSubmit,
   children,
 }) => (
-  <Box sx={{ minHeight: '100vh', backgroundColor: colors.background }}>
+  <div className="min-h-screen bg-gray-50">
     {/* 4px progress bar */}
-    <Box
-      sx={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: 4,
-        backgroundColor: colors.surface.container.highest,
-        zIndex: 110,
-      }}
-    >
-      <Box
-        sx={{
-          height: '100%',
-          width: `${progressPercent}%`,
-          backgroundColor: colors.primary.main,
-          transition: 'width 0.5s ease',
-        }}
+    <div className="fixed top-0 left-0 w-full h-1 bg-white z-[110]">
+      <div
+        className="h-full bg-blue-600 transition-all duration-500"
+        style={{ width: `${progressPercent}%` }}
       />
-    </Box>
+    </div>
 
     {/* Specialized proctor AppBar */}
-    <Box
-      component="header"
-      sx={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: PROCTOR_APP_BAR_HEIGHT,
-        zIndex: 100,
-        backgroundColor: colors.surface.container.lowest,
-        borderBottom: `1px solid ${colors.surface.container.high}`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        px: `${spacing.margin}px`,
-      }}
+    <header
+      className="fixed top-0 left-0 right-0 h-16 z-[100] bg-white border-b border-gray-200 flex items-center justify-between px-6"
     >
       {/* Left: brand + horizontal nav */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: `${spacing.stackLg}px` }}>
-        <Typography
-          sx={{
-            fontFamily: typography.fontFamily.sans,
-            fontSize: '20px',
-            fontWeight: 700,
-            color: colors.primary.deep,
-            letterSpacing: '-0.02em',
-            userSelect: 'none',
-          }}
-        >
-          {brandName}
-        </Typography>
-        <Box
-          component="nav"
-          sx={{
-            display: { xs: 'none', md: 'flex' },
-            gap: '4px',
-          }}
-        >
+      <div className="flex items-center gap-8">
+        <span className="font-bold text-xl text-blue-700 select-none">{brandName}</span>
+        <nav className="hidden md:flex gap-1">
           {navLabels.map(({ section, label }) => {
             const isActive = activeNavSection === section;
             return (
-              <Box
+              <button
                 key={section}
-                component="button"
                 onClick={() => onNavigate?.(section)}
-                sx={{
-                  px: '12px',
-                  py: '8px',
-                  border: 'none',
-                  borderBottom: isActive ? `2px solid ${colors.primary.main}` : '2px solid transparent',
-                  backgroundColor: 'transparent',
-                  color: isActive ? colors.primary.main : colors.on.surfaceVariant,
-                  fontFamily: typography.fontFamily.sans,
-                  fontSize: typography.scale.uiLabel.fontSize,
-                  fontWeight: isActive ? 600 : 400,
-                  cursor: 'pointer',
-                  borderRadius: '0',
-                  transition: 'color 0.15s, border-color 0.15s',
-                  '&:hover': { color: colors.primary.main },
-                }}
+                className={`px-3 py-2 border-b-2 bg-transparent text-sm font-${isActive ? 'semibold' : 'normal'} ${isActive ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-blue-600'} transition-colors`}
               >
                 {label}
-              </Box>
+              </button>
             );
           })}
-        </Box>
-      </Box>
+        </nav>
+      </div>
 
       {/* Right: proctor controls */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: `${spacing.stackMd}px` }}>
+      <div className="flex items-center gap-4">
         {isProctoringActive && (
-          <Chip
-            icon={<FiberManualRecordIcon sx={{ fontSize: '10px !important', color: `${colors.secondary.main} !important`, animation: 'pulse 1.5s infinite' }} />}
-            label="Proctoring Active"
-            sx={{
-              display: { xs: 'none', lg: 'flex' },
-              backgroundColor: colors.secondary.container,
-              color: colors.secondary.onContainer,
-              fontFamily: typography.fontFamily.sans,
-              fontSize: typography.scale.labelCaps.fontSize,
-              fontWeight: 600,
-              letterSpacing: typography.scale.labelCaps.letterSpacing,
-              height: 28,
-            }}
-          />
+          <span className="hidden lg:flex items-center bg-green-100 text-green-700 font-semibold text-xs rounded px-2 py-1 h-7 animate-pulse">
+            <span className="mr-1 text-green-500 text-xs">●</span>Proctoring Active
+          </span>
         )}
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            backgroundColor: colors.surface.container.default,
-            border: `1px solid ${colors.outlineVariant}`,
-            borderRadius: borderRadius.default,
-            px: '12px',
-            py: '6px',
-          }}
-        >
-          <TimerOutlinedIcon sx={{ fontSize: 18, color: colors.on.surfaceVariant }} />
-          <Typography
-            sx={{
-              fontFamily: typography.fontFamily.mono,
-              fontSize: typography.scale.uiLabel.fontSize,
-              fontWeight: 500,
-              color: colors.on.surface,
-              letterSpacing: '0.05em',
-            }}
-          >
-            {timerDisplay}
-          </Typography>
-        </Box>
+        <span className="flex items-center gap-2 bg-gray-100 border border-gray-200 rounded px-3 py-1">
+          <span className="text-gray-500 text-base">⏰</span>
+          <span className="font-mono text-sm font-medium text-gray-900 tracking-wider">{timerDisplay}</span>
+        </span>
         {onSubmit && (
-          <Box
-            component="button"
+          <button
+            type="button"
             onClick={onSubmit}
-            sx={{
-              px: '16px',
-              py: '8px',
-              backgroundColor: colors.primary.main,
-              color: colors.primary.on,
-              border: 'none',
-              borderRadius: borderRadius.default,
-              fontFamily: typography.fontFamily.sans,
-              fontSize: typography.scale.uiLabel.fontSize,
-              fontWeight: 600,
-              cursor: 'pointer',
-              transition: 'background-color 0.15s',
-              '&:hover': { backgroundColor: colors.primary.deep },
-            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded font-semibold text-sm hover:bg-blue-700 transition-colors"
           >
             Nop bai
-          </Box>
+          </button>
         )}
-      </Box>
-    </Box>
+      </div>
+    </header>
 
     {/* Question progress sidebar */}
-    <Box
-      component="aside"
-      sx={{
-        position: 'fixed',
-        left: 0,
-        top: PROCTOR_APP_BAR_HEIGHT,
-        width: PROCTOR_SIDEBAR_WIDTH,
-        height: `calc(100vh - ${PROCTOR_APP_BAR_HEIGHT}px)`,
-        zIndex: 80,
-        backgroundColor: colors.surface.container.low,
-        borderRight: `1px solid ${colors.outlineVariant}`,
-        display: { xs: 'none', md: 'flex' },
-        flexDirection: 'column',
-        p: `${spacing.stackLg}px`,
-        overflowY: 'auto',
-      }}
+    <aside
+      className="hidden md:flex fixed left-0 z-[80] bg-gray-50 border-r border-gray-200 flex-col p-8 overflow-y-auto"
+      style={{ top: PROCTOR_APP_BAR_HEIGHT, width: PROCTOR_SIDEBAR_WIDTH, height: `calc(100vh - ${PROCTOR_APP_BAR_HEIGHT}px)` }}
     >
-      <Typography
-        sx={{
-          fontFamily: typography.fontFamily.sans,
-          fontSize: typography.scale.uiLabel.fontSize,
-          fontWeight: 700,
-          color: colors.on.surface,
-          mb: '4px',
-        }}
-      >
-        Tien do lam bai
-      </Typography>
-      <Typography
-        sx={{
-          fontFamily: typography.fontFamily.sans,
-          fontSize: typography.scale.labelCaps.fontSize,
-          color: colors.on.surfaceVariant,
-          mb: `${spacing.stackMd}px`,
-        }}
-      >
-        Da hoan thanh {completedCount}/{totalCount}
-      </Typography>
-      {/* Question number grid */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px' }}>
+      <span className="font-bold text-gray-900 mb-1 text-sm">Tien do lam bai</span>
+      <span className="text-xs text-gray-500 mb-4">Da hoan thanh {completedCount}/{totalCount}</span>
+      <div className="grid grid-cols-5 gap-2">
         {Array.from({ length: totalCount || 0 }, (_, i) => {
           const num = i + 1;
           const done = num <= (completedCount || 0);
           return (
-            <Box
+            <span
               key={num}
-              sx={{
-                width: 36,
-                height: 36,
-                borderRadius: borderRadius.default,
-                border: `1px solid ${done ? colors.primary.main : colors.outlineVariant}`,
-                backgroundColor: done ? colors.primary.main : colors.surface.container.lowest,
-                color: done ? colors.primary.on : colors.on.surface,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontFamily: typography.fontFamily.sans,
-                fontSize: '12px',
-                fontWeight: 500,
-                cursor: 'pointer',
-              }}
+              className={`w-9 h-9 rounded border flex items-center justify-center text-xs font-medium cursor-pointer ${done ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300 bg-white text-gray-700'}`}
             >
               {num}
-            </Box>
+            </span>
           );
         })}
-      </Box>
-    </Box>
+      </div>
+    </aside>
 
     {/* Main content */}
-    <Box
-      component="main"
-      sx={{
-        ml: { xs: 0, md: `${PROCTOR_SIDEBAR_WIDTH}px` },
-        pt: `${PROCTOR_APP_BAR_HEIGHT}px`,
-        minHeight: '100vh',
-        overflowY: 'auto',
-      }}
+    <main
+      className="min-h-screen overflow-y-auto"
+      style={{ marginLeft: `0px`, paddingTop: `${PROCTOR_APP_BAR_HEIGHT}px` }}
     >
-      <Box sx={{ p: `${spacing.margin}px` }}>
-        {children}
-      </Box>
-    </Box>
-  </Box>
+      <div className="p-6">{children}</div>
+    </main>
+  </div>
 );
 
 export default TeacherManProctorLayout;

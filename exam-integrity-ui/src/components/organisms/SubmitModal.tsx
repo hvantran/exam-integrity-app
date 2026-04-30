@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-  Box, Button, Dialog, DialogContent, Divider, Typography, LinearProgress,
-} from '@mui/material';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import { colors, borderRadius } from '../../design-system/tokens';
+
 
 interface Props {
   open: boolean;
@@ -21,97 +17,62 @@ const SubmitModal: React.FC<Props> = ({ open, answeredCount, totalCount, onBack,
   const unanswered = totalCount - answeredCount;
   const pct = Math.round((answeredCount / Math.max(totalCount, 1)) * 100);
 
+  if (!open) return null;
+
   return (
-    <Dialog
-      open={open}
-      maxWidth="sm"
-      fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: borderRadius.lg,
-          border: `1px solid ${colors.outlineVariant}`,
-          boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-        },
-      }}
-    >
-      <DialogContent sx={{ p: 4 }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-2xl w-full max-w-md p-8 animate-fadeIn">
         {/* Icon header */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-          <Box
-            sx={{
-              width: 48, height: 48, borderRadius: '50%',
-              backgroundColor: `${colors.tertiary.main}18`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}
-          >
-            <WarningAmberIcon sx={{ color: colors.tertiary.main, fontSize: 26 }} />
-          </Box>
-          <Box>
-            <Typography sx={{ fontWeight: 700, fontSize: '18px', color: colors.on.surface }}>
-              Confirm Submission
-            </Typography>
-            <Typography sx={{ fontSize: '13px', color: colors.on.surfaceVariant }}>
-              This action cannot be undone
-            </Typography>
-          </Box>
-        </Box>
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
+            <span className="text-yellow-500 text-2xl" role="img" aria-label="warning">⚠️</span>
+          </div>
+          <div>
+            <div className="font-bold text-lg text-gray-900">Confirm Submission</div>
+            <div className="text-sm text-gray-500">This action cannot be undone</div>
+          </div>
+        </div>
 
         {/* Progress summary */}
-        <Box sx={{ mb: 3 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-            <Typography sx={{ fontSize: '13px', color: colors.on.surfaceVariant }}>Answer Progress</Typography>
-            <Typography sx={{ fontSize: '13px', fontWeight: 600, color: colors.on.surface }}>
-              {answeredCount} / {totalCount}
-            </Typography>
-          </Box>
-          <LinearProgress
-            variant="determinate"
-            value={pct}
-            sx={{
-              height: 8, borderRadius: borderRadius.full,
-              backgroundColor: colors.surface.container.high,
-              '& .MuiLinearProgress-bar': { backgroundColor: colors.secondary.main },
-            }}
-          />
-        </Box>
+        <div className="mb-6">
+          <div className="flex justify-between mb-1 text-sm">
+            <span className="text-gray-500">Answer Progress</span>
+            <span className="font-semibold text-gray-900">{answeredCount} / {totalCount}</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div
+              className="bg-blue-500 h-2.5 rounded-full transition-all"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+        </div>
 
         {unanswered > 0 && (
-          <Box
-            sx={{
-              p: 2, mb: 3, borderRadius: borderRadius.default,
-              backgroundColor: `${colors.tertiary.main}12`,
-              border: `1px solid ${colors.tertiary.main}40`,
-            }}
+          <div
+            className="flex items-center gap-2 mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-700 text-sm"
           >
-            <Typography sx={{ fontSize: '14px', color: colors.on.surface }}>
-              You have <strong>{unanswered}</strong> unanswered questions.
-              Are you sure you want to submit?
-            </Typography>
-          </Box>
+            <span className="text-lg">⚠️</span>
+            {unanswered} unanswered question{unanswered > 1 ? 's' : ''} remain
+          </div>
         )}
 
-        <Divider sx={{ mb: 3 }} />
-
-        {/* Actions */}
-        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-          <Button
-            variant="outlined"
+        <div className="flex justify-end gap-3 mt-6">
+          <button
             onClick={onBack}
-            sx={{ borderColor: colors.outlineVariant, color: colors.on.surface }}
+            className="px-4 py-2 rounded bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition-colors"
           >
-            Go Back
-          </Button>
-          <Button
-            variant="contained"
+            Back
+          </button>
+          <button
             onClick={onFinalSubmit}
-            sx={{ backgroundColor: colors.error, '&:hover': { backgroundColor: `${colors.error}dd` } }}
+            className="px-4 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors"
           >
             Submit
-          </Button>
-        </Box>
-      </DialogContent>
-    </Dialog>
-  );
-};
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default SubmitModal;

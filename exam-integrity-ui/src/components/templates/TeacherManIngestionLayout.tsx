@@ -1,14 +1,12 @@
-import React from 'react';
-import { Box, Button, Skeleton, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { colors, spacing } from '../../design-system/tokens';
+import { Button } from '@mui/material';
+import React from 'react';
+import { Skeleton } from '../molecules';
+import type { DashboardSection } from '../organisms';
 import {
   AppTopBar,
-  TeacherManDashboardSidebar,
-  APP_BAR_HEIGHT,
-  TEACHER_SIDEBAR_WIDTH,
+  TeacherManDashboardSidebar
 } from '../organisms';
-import type { DashboardSection } from '../organisms';
 
 export interface IngestionLayoutProps {
   userName?: string;
@@ -39,7 +37,7 @@ const TeacherManIngestionLayout: React.FC<IngestionLayoutProps> = ({
   isLoading = false,
   children,
 }) => (
-  <Box sx={{ minHeight: '100vh', backgroundColor: colors.background }}>
+  <div className="min-h-screen bg-gray-50">
     <AppTopBar
       userName={userName}
       onSearch={onSearch}
@@ -55,75 +53,35 @@ const TeacherManIngestionLayout: React.FC<IngestionLayoutProps> = ({
       onSettings={onSettings}
       onLogout={onLogout}
     />
-    <Box
-      component="main"
-      sx={{
-        ml: `${TEACHER_SIDEBAR_WIDTH}px`,
-        pt: `${APP_BAR_HEIGHT}px`,
-        minHeight: '100vh',
-        overflowY: 'auto',
-      }}
-    >
-      <Box sx={{ p: `${spacing.margin}px`, maxWidth: spacing.containerMax, mx: 'auto' }}>
+    <main className="ml-[256px] pt-[64px] min-h-screen overflow-y-auto">
+      <div className="p-6 max-w-6xl mx-auto">
         {/* Page header */}
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            mb: `${spacing.stackLg}px`,
-          }}
-        >
-          <Box>
-            <Typography
-              variant="h2"
-              sx={{ fontSize: '32px', fontWeight: 600, color: colors.on.surface, lineHeight: 1.25 }}
-            >
-              Exam Ingestion
-            </Typography>
-            <Typography
-              sx={{ fontSize: '14px', color: colors.on.surfaceVariant, mt: `${spacing.unit}px` }}
-            >
-              Manage and review uploaded exam PDFs.
-            </Typography>
-          </Box>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 leading-tight">Exam Ingestion</h2>
+            <div className="text-sm text-gray-500 mt-1">Manage and review uploaded exam PDFs.</div>
+          </div>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={onImportExam}
-            sx={{
-              backgroundColor: colors.primary.main,
-              color: colors.primary.on,
-              fontWeight: 500,
-              fontSize: '14px',
-              px: 3,
-              py: 1.5,
-              borderRadius: '4px',
-              textTransform: 'none',
-              '&:hover': { backgroundColor: colors.primary.deep },
-            }}
+            className="bg-violet-700 text-white font-medium text-sm px-6 py-2 rounded hover:bg-violet-800"
           >
             Import New Exam
           </Button>
-        </Box>
+        </div>
 
         {/* Exam cards grid */}
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
-            gap: `${spacing.gutter}px`,
-          }}
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {isLoading
             ? [0, 1, 2].map((i) => (
-                <Skeleton key={i} variant="rounded" height={200} sx={{ borderRadius: '12px' }} />
-              ))
+              <Skeleton key={i} height={200} className="rounded-xl" />
+            ))
             : children}
-        </Box>
-      </Box>
-    </Box>
-  </Box>
+        </div>
+      </div>
+    </main>
+  </div>
 );
 
 export default TeacherManIngestionLayout;

@@ -1,7 +1,5 @@
 import React from 'react';
-import { Box } from '@mui/material';
 import StudentManProTips from '../organisms/StudentManProTips';
-import { colors, spacing } from '../../design-system/tokens';
 
 export interface ExamLayoutProps {
   header: React.ReactNode;
@@ -22,91 +20,38 @@ export interface ExamLayoutProps {
  * Generous outer margins push distractions away from the peripheral vision.
  */
 const StudentManExamLayout: React.FC<ExamLayoutProps> = ({ header, children, sidebar, footer, proTips }) => (
-  <Box
-    sx={{
-      minHeight: '100vh',
-      background: `linear-gradient(180deg, #f7fafc 0%, #e9eef6 100%)`,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'stretch',
-    }}
-  >
+  <div className="min-h-screen flex flex-col items-stretch bg-gradient-to-b from-[#f7fafc] to-[#e9eef6]">
     {/* Sticky header rendered by caller (includes ProgressBar) */}
-    <Box
-      sx={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 1100,
-        backgroundColor: '#fff',
-        boxShadow: '0 2px 8px 0 rgba(0,0,0,0.04)',
-      }}
-    >
+    <div className="sticky top-0 z-[1100] bg-white shadow-[0_2px_8px_0_rgba(0,0,0,0.04)]">
       {header}
-    </Box>
+    </div>
 
     {/* Content area */}
-    <Box
-      sx={{
-        flex: 1,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-        px: { xs: 1, md: 4 },
-        py: { xs: 2, md: 6 },
-        gap: { xs: 2, md: 4 },
-        maxWidth: 1440,
-        mx: 'auto',
-        width: '100%',
-      }}
-    >
+    <div className="flex flex-1 justify-center items-start px-2 md:px-8 py-4 md:py-12 gap-2 md:gap-8 max-w-[1440px] mx-auto w-full">
       {/* Paper column — 800px max, with card effect */}
-      <Box
-        sx={{
-          flex: 1,
-          maxWidth: 1040,
-          backgroundColor: '#fff',
-          borderRadius: 3,
-          boxShadow: '0 4px 24px 0 rgba(0,0,0,0.07)',
-          p: { xs: 2, md: 4 },
-          minHeight: 600,
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
+      <div className="flex-1 max-w-[1040px] bg-white rounded-2xl shadow-[0_4px_24px_0_rgba(0,0,0,0.07)] p-2 md:p-8 min-h-[600px] flex flex-col">
         {/* Main content and ProTips side by side */}
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'row', gap: 3 }}>
-          <Box sx={{ flex: 2, minWidth: 0, display: 'flex', flexDirection: 'column' }}>{children}</Box>
+        <div className="flex flex-row gap-6 flex-1">
+          <div className="flex-2 min-w-0 flex flex-col">{children}</div>
           {proTips && proTips.length > 0 && (
-            <Box sx={{ flex: 1, minWidth: 220, maxWidth: 280, ml: 2, alignSelf: 'flex-start' }}>
+            <div className="flex-1 min-w-[220px] max-w-[280px] ml-2 self-start">
               <StudentManProTips tips={proTips} />
-            </Box>
+            </div>
           )}
-        </Box>
+        </div>
         {footer && (
-          <Box sx={{ mt: 3 }}>{footer}</Box>
+          <div className="mt-6">{footer}</div>
         )}
-      </Box>
+      </div>
 
       {/* Optional navigator sidebar */}
       {sidebar && (
-        <Box
-          sx={{
-            width: 280,
-            flexShrink: 0,
-            display: { xs: 'none', lg: 'block' },
-            backgroundColor: '#f5f7fa',
-            borderRadius: 3,
-            boxShadow: '0 2px 12px 0 rgba(0,0,0,0.04)',
-            p: 2,
-            minHeight: 600,
-            ml: 2,
-          }}
-        >
+        <div className="hidden lg:block w-[280px] flex-shrink-0 bg-[#f5f7fa] rounded-2xl shadow-[0_2px_12px_0_rgba(0,0,0,0.04)] p-4 min-h-[600px] ml-2">
           {sidebar}
-        </Box>
+        </div>
       )}
-    </Box>
-  </Box>
+    </div>
+  </div>
 );
 
 export default StudentManExamLayout;

@@ -7,13 +7,13 @@ import { theme } from './design-system';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
-import LandingPage from './pages/LandingPage';
-import ExamPage from './pages/ExamPage';
+import LandingPage from './pages/StudentManDashboardPage';
+import ExamPage from './pages/StudentManExamPage';
 import ReviewPage from './pages/ReviewPage';
-import IngestionPage from './pages/ExamPdfUploadPage';
+import IngestionPage from './pages/TeacherManExamPdfUploadPage';
 import QuestionReviewPage from './pages/QuestionReviewPage';
-import QuestionBankPage from './pages/QuestionBankPage';
-import FinalPublicationPage from './pages/FinalPublicationPage';
+import QuestionBankPage from './pages/TeacherManQuestionBankPage';
+import FinalPublicationPage from './pages/TeacherManFinalPublicationPage';
 import TeacherManDashboardPage from './pages/TeacherManDashboardPage';
 
 const queryClient = new QueryClient({

@@ -1,7 +1,5 @@
 import React from 'react';
-import { Box, Typography, Divider } from '@mui/material';
 import type { QuestionType } from '../../types/exam.types';
-import { colors, borderRadius, shadow } from '../../design-system/tokens';
 
 export interface QuestionOption {
   key: string;
@@ -40,86 +38,35 @@ const StudentManQuestionPanel: React.FC<QuestionPanelProps> = ({
   disabled = false,
   onAnswerChange,
 }) => (
-  <Box
-    sx={{
-      backgroundColor: colors.surface.container.lowest,
-      border: `1px solid ${colors.outlineVariant}`,
-      borderLeft: `4px solid ${colors.primary.main}`,
-      borderRadius: borderRadius.lg,
-      boxShadow: shadow.cardActive,
-      padding: '32px',
-    }}
-  >
+  <div className="bg-white border border-gray-300 border-l-4 border-l-blue-600 rounded-xl shadow-lg p-8">
     {/* Header */}
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
-      <Box
-        sx={{
-          width: 32,
-          height: 32,
-          borderRadius: borderRadius.default,
-          backgroundColor: colors.primary.main,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-        }}
-      >
-        <Typography sx={{ color: '#fff', fontSize: '13px', fontWeight: 700 }}>
-          {questionNumber}
-        </Typography>
-      </Box>
+    <div className="flex items-center gap-4 mb-4">
+      <div className="w-8 h-8 rounded bg-blue-600 flex items-center justify-center flex-shrink-0">
+        <span className="text-white text-xs font-bold">{questionNumber}</span>
+      </div>
       {(subject || gradeLevel) && (
-        <Typography
-          variant="caption"
-          sx={{ color: colors.on.surfaceVariant, fontSize: '12px', fontWeight: 500 }}
-        >
+        <span className="text-gray-500 text-xs font-medium">
           {[subject, gradeLevel].filter(Boolean).join(' · ')}
-        </Typography>
+        </span>
       )}
-    </Box>
+    </div>
 
-    <Divider sx={{ mb: 2.5 }} />
+    <div className="border-b border-gray-200 mb-6" />
 
     {/* Question body */}
-    <Typography
-      sx={{
-        fontSize: '16px',
-        fontWeight: 400,
-        lineHeight: '28px',
-        color: colors.on.surface,
-        mb: 3,
-        whiteSpace: 'pre-wrap',
-      }}
-    >
+    <div className="text-base font-normal leading-7 text-gray-900 mb-6 whitespace-pre-wrap">
       {questionText}
-    </Typography>
+    </div>
 
     {/* Answer area */}
     {questionType === 'MCQ' && options ? (
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div className="flex flex-col gap-3">
         {options.map((opt) => {
           const isSelected = selectedAnswer === opt.key;
           return (
-            <Box
+            <label
               key={opt.key}
-              component="label"
-              sx={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '12px',
-                p: '12px 16px',
-                borderRadius: borderRadius.default,
-                border: `1px solid ${isSelected ? colors.primary.main : colors.outlineVariant}`,
-                backgroundColor: isSelected ? colors.primary.fixed : 'transparent',
-                cursor: disabled ? 'not-allowed' : 'pointer',
-                transition: 'all 0.15s ease',
-                '&:hover': disabled
-                  ? {}
-                  : {
-                      borderColor: colors.primary.main,
-                      backgroundColor: colors.surface.container.low,
-                    },
-              }}
+              className={`flex items-start gap-3 p-3 rounded border transition-all cursor-pointer ${isSelected ? 'border-blue-600 bg-blue-50' : 'border-gray-300 bg-transparent'} ${disabled ? 'cursor-not-allowed opacity-60' : 'hover:border-blue-600 hover:bg-gray-50'}`}
             >
               <input
                 type="radio"
@@ -128,45 +75,26 @@ const StudentManQuestionPanel: React.FC<QuestionPanelProps> = ({
                 checked={isSelected}
                 disabled={disabled}
                 onChange={() => onAnswerChange(opt.key)}
-                style={{ marginTop: 2, accentColor: colors.primary.main, flexShrink: 0 }}
+                className="mt-1 accent-blue-600 flex-shrink-0"
               />
-              <Typography sx={{ fontSize: '15px', lineHeight: '24px', color: colors.on.surface }}>
-                <strong>{opt.key}.</strong>&nbsp;{opt.text}
-              </Typography>
-            </Box>
+              <span className="text-sm leading-6 text-gray-900"><strong>{opt.key}.</strong>&nbsp;{opt.text}</span>
+            </label>
           );
         })}
-      </Box>
+      </div>
     ) : (
-      <Box
-        sx={{
-          borderLeft: `3px solid ${colors.outlineVariant}`,
-          pl: 2,
-        }}
-      >
+      <div className="border-l-4 border-gray-300 pl-4">
         <textarea
           rows={7}
           placeholder={Array(7).fill(DOTTED_LINE).join('\n')}
           value={selectedAnswer ?? ''}
           disabled={disabled}
           onChange={(e) => onAnswerChange(e.target.value)}
-          style={{
-            width: '100%',
-            fontFamily: '"Space Grotesk", monospace',
-            fontSize: '15px',
-            lineHeight: '26px',
-            border: `1px dashed ${colors.outlineVariant}`,
-            borderRadius: 4,
-            padding: '12px',
-            backgroundColor: colors.surface.container.lowest,
-            resize: 'vertical',
-            color: colors.on.surface,
-            outline: 'none',
-          }}
+          className="w-full font-mono text-sm leading-6 border border-dashed border-gray-300 rounded p-3 bg-white resize-vertical text-gray-900 outline-none"
         />
-      </Box>
+      </div>
     )}
-  </Box>
+  </div>
 );
 
 export default StudentManQuestionPanel;

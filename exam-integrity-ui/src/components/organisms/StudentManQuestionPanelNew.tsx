@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Card, CardContent, Button, Stack, Chip } from '@mui/material';
+
 
 export interface StudentManQuestionPanelNewProps {
   questionNumber: number;
@@ -32,70 +32,47 @@ const StudentManQuestionPanelNew: React.FC<StudentManQuestionPanelNewProps> = ({
   contractInfo,
 }) => {
   return (
-    <Card sx={{ borderRadius: 3, boxShadow: 3, p: 0, overflow: 'visible' }}>
-      <CardContent sx={{ pb: 2 }}>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
-          <Typography variant="subtitle2" color="text.secondary">
-            Question {questionNumber}
-          </Typography>
-          <Chip
-            label={flagged ? 'Flagged for Review' : 'Mark for Review'}
-            color={flagged ? 'warning' : 'default'}
-            variant={flagged ? 'filled' : 'outlined'}
-            size="small"
+    <div className="rounded-xl shadow-lg p-0 overflow-visible bg-white">
+      <div className="pb-2 px-6 pt-6">
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-sm text-gray-500">Question {questionNumber}</span>
+          <button
+            type="button"
             onClick={onFlag}
-            sx={{ fontWeight: 500 }}
-          />
-        </Stack>
-        <Typography variant="h6" fontWeight={600} mb={2}>
-          {questionText}
-        </Typography>
-        <Stack spacing={1} mb={2}>
+            className={`text-xs font-medium px-3 py-1 rounded border ${flagged ? 'bg-yellow-100 border-yellow-400 text-yellow-800' : 'bg-white border-gray-300 text-gray-600'} transition`}
+          >
+            {flagged ? 'Flagged for Review' : 'Mark for Review'}
+          </button>
+        </div>
+        <div className="text-lg font-semibold mb-4">{questionText}</div>
+        <div className="flex flex-col gap-2 mb-4">
           {options.map(option => (
-            <Button
+            <button
               key={option.key}
-              variant={selectedAnswer === option.key ? 'contained' : 'outlined'}
-              color={selectedAnswer === option.key ? 'primary' : 'inherit'}
-              fullWidth
-              sx={{
-                justifyContent: 'flex-start',
-                textTransform: 'none',
-                fontWeight: selectedAnswer === option.key ? 600 : 400,
-                borderRadius: 2,
-                borderWidth: 2,
-                borderColor: selectedAnswer === option.key ? 'primary.main' : 'grey.300',
-                backgroundColor: selectedAnswer === option.key ? 'primary.50' : 'background.paper',
-                boxShadow: selectedAnswer === option.key ? 2 : 0,
-              }}
+              type="button"
               onClick={() => onAnswerChange(option.key)}
               disabled={!!proctorStatus && proctorStatus !== 'active'}
+              className={`w-full flex items-center justify-start px-4 py-2 rounded border-2 transition-all text-left ${selectedAnswer === option.key ? 'border-blue-600 bg-blue-50 font-semibold shadow' : 'border-gray-300 bg-white font-normal'} ${!!proctorStatus && proctorStatus !== 'active' ? 'opacity-60 cursor-not-allowed' : 'hover:border-blue-600 hover:bg-gray-50'}`}
             >
-              <Box mr={2} fontWeight={600}>
-                {option.key}
-              </Box>
-              {option.text}
-            </Button>
+              <span className="mr-3 font-semibold">{option.key}</span>
+              <span>{option.text}</span>
+            </button>
           ))}
-        </Stack>
+        </div>
         {contractInfo && (
-          <Box mt={2} p={2} bgcolor="grey.100" borderRadius={2}>
-            <Typography variant="body2" color="text.secondary">
-              {contractInfo}
-            </Typography>
-          </Box>
+          <div className="mt-4 p-3 bg-gray-100 rounded">
+            <span className="text-xs text-gray-500">{contractInfo}</span>
+          </div>
         )}
         {proctorStatus && (
-          <Box mt={2}>
-            <Chip
-              label={`Proctor: ${proctorStatus}`}
-              color={proctorStatus === 'active' ? 'success' : 'error'}
-              variant="outlined"
-              size="small"
-            />
-          </Box>
+          <div className="mt-4">
+            <span className={`inline-block px-2 py-1 rounded border text-xs font-medium ${proctorStatus === 'active' ? 'border-green-400 text-green-700 bg-green-50' : 'border-red-400 text-red-700 bg-red-50'}`}>
+              Proctor: {proctorStatus}
+            </span>
+          </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

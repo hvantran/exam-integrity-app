@@ -1,5 +1,5 @@
+
 import React from 'react';
-import { Box, List, ListItemButton, ListItemText, Typography, Chip } from '@mui/material';
 
 export interface StudentManFlaggedSidebarProps {
   flaggedMap: Record<number, boolean>;
@@ -16,33 +16,33 @@ const StudentManFlaggedSidebar: React.FC<StudentManFlaggedSidebarProps> = ({ fla
 
   if (flaggedNumbers.length === 0) {
     return (
-      <Box p={2}>
-        <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-          No flagged questions
-        </Typography>
-      </Box>
+      <div className="p-4">
+        <div className="text-gray-500 text-base font-medium mb-2">No flagged questions</div>
+      </div>
     );
   }
 
   return (
-    <Box p={2}>
-      <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-        Flagged Questions
-        <Chip label={flaggedNumbers.length} size="small" color="warning" sx={{ ml: 1 }} />
-      </Typography>
-      <List dense>
+    <div className="p-4">
+      <div className="flex items-center mb-3">
+        <span className="font-semibold text-base text-gray-800 mr-2">Flagged Questions</span>
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800 ml-1">{flaggedNumbers.length}</span>
+      </div>
+      <ul className="space-y-1">
         {flaggedNumbers.map(num => (
-          <ListItemButton
-            key={num}
-            selected={num === currentQuestion}
-            onClick={() => onJumpTo(num)}
-            sx={{ borderRadius: 2, mb: 0.5 }}
-          >
-            <ListItemText primary={`Question ${num}`} />
-          </ListItemButton>
+          <li key={num}>
+            <button
+              type="button"
+              className={`w-full flex items-center px-3 py-2 rounded-lg transition text-left ${num === currentQuestion ? 'bg-blue-50 border border-blue-500 text-blue-700 font-semibold' : 'bg-white border border-gray-200 text-gray-700'} hover:bg-blue-100`}
+              onClick={() => onJumpTo(num)}
+            >
+              <span className="mr-2 text-lg">🚩</span>
+              <span className="text-sm">Question {num}</span>
+            </button>
+          </li>
         ))}
-      </List>
-    </Box>
+      </ul>
+    </div>
   );
 };
 

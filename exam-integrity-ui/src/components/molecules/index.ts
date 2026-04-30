@@ -1,3 +1,4 @@
+export { default as Skeleton } from './Skeleton/Skeleton';
 export { default as StudentManTimerDisplay } from './TimerDisplay/StudentManTimerDisplay';
 export type { TimerDisplayProps } from './TimerDisplay/StudentManTimerDisplay';
 

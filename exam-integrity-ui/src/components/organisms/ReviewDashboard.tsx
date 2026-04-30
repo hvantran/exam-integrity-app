@@ -1,10 +1,6 @@
 import React from 'react';
-import { Box, Typography, Paper, LinearProgress } from '@mui/material';
-import SchoolIcon from '@mui/icons-material/School';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+
 import type { ReviewDashboard as ReviewDashboardType } from '../../types/exam.types';
-import { colors, borderRadius, shadow, spacing } from '../../design-system/tokens';
 import { MistakeSummary } from '../molecules';
 import { CorrectionCard } from '../molecules';
 
@@ -18,113 +14,68 @@ const ReviewDashboard: React.FC<Props> = ({ dashboard }) => {
   const incorrectCount = dashboard.scores.length - correctCount;
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        backgroundColor: colors.background,
-        py: `${spacing.stackLg}px`,
-        px: { xs: 2, md: `${spacing.gutter}px` },
-      }}
-    >
-      <Box sx={{ maxWidth: spacing.paperWidth, mx: 'auto' }}>
+    <div className="min-h-screen bg-gray-50 py-10 px-2 md:px-8">
+      <div className="max-w-4xl mx-auto">
         {/* Score hero card */}
-        <Paper
-          elevation={0}
-          sx={{
-            p: 4,
-            mb: 3,
-            borderRadius: borderRadius.lg,
-            border: `1px solid ${colors.outlineVariant}`,
-            boxShadow: shadow.cardActive,
-            background: `linear-gradient(135deg, ${colors.primary.deep} 0%, ${colors.primary.main} 100%)`,
-            color: '#fff',
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-            <Box
-              sx={{
-                width: 48, height: 48, borderRadius: '50%',
-                backgroundColor: 'rgba(255,255,255,0.2)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}
-            >
-              <SchoolIcon sx={{ fontSize: 26 }} />
-            </Box>
-            <Typography sx={{ fontWeight: 700, fontSize: '20px' }}>
-              Exam Results
-            </Typography>
-          </Box>
+        <div className="p-8 mb-6 rounded-2xl border border-gray-200 shadow-lg bg-gradient-to-br from-blue-800 to-blue-500 text-white">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+              <span className="text-2xl">🎓</span>
+            </div>
+            <div className="font-bold text-2xl">Exam Results</div>
+          </div>
 
           {/* Big score */}
-          <Typography sx={{ fontSize: '56px', fontWeight: 800, lineHeight: 1, mb: 1 }}>
+          <div className="text-6xl font-extrabold leading-none mb-2">
             {dashboard.finalScore10.toFixed(1)}
-            <Typography component="span" sx={{ fontSize: '24px', fontWeight: 400, opacity: 0.8 }}>
-              /10
-            </Typography>
-          </Typography>
+            <span className="text-2xl font-normal opacity-80">/10</span>
+          </div>
 
-          <LinearProgress
-            variant="determinate"
-            value={pct}
-            sx={{
-              height: 6,
-              borderRadius: borderRadius.full,
-              backgroundColor: 'rgba(255,255,255,0.25)',
-              '& .MuiLinearProgress-bar': { backgroundColor: '#fff' },
-              mb: 2,
-            }}
-          />
+          <div className="w-full bg-white bg-opacity-25 rounded-full h-1.5 mb-3">
+            <div
+              className="bg-white h-1.5 rounded-full transition-all"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
 
           {/* Stats row */}
-          <Box sx={{ display: 'flex', gap: 4 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <CheckCircleOutlineIcon sx={{ fontSize: 18, opacity: 0.9 }} />
-              <Typography sx={{ fontSize: '14px', opacity: 0.9 }}>
-                Correct: <strong>{correctCount}</strong>
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <CancelOutlinedIcon sx={{ fontSize: 18, opacity: 0.9 }} />
-              <Typography sx={{ fontSize: '14px', opacity: 0.9 }}>
-                Incorrect: <strong>{incorrectCount}</strong>
-              </Typography>
-            </Box>
-            <Typography sx={{ fontSize: '14px', opacity: 0.9, ml: 'auto' }}>
+          <div className="flex gap-8">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">✅</span>
+              <span className="font-semibold text-base">Correct</span>
+              <span className="font-bold text-lg ml-1">{correctCount}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-lg">❌</span>
+              <span className="font-semibold text-base">Incorrect</span>
+              <span className="font-bold text-lg ml-1">{incorrectCount}</span>
+            </div>
+            <span className="text-base opacity-90 ml-auto">
               {dashboard.totalEarned.toFixed(1)} / {dashboard.totalMax.toFixed(1)} pts
-            </Typography>
-          </Box>
-        </Paper>
+            </span>
+          </div>
+        </div>
 
         {/* Essay notice */}
-        <Box
-          sx={{
-            p: 2,
-            mb: 3,
-            borderRadius: borderRadius.default,
-            backgroundColor: `${colors.primary.main}0d`,
-            border: `1px solid ${colors.primary.main}30`,
-          }}
-        >
-          <Typography sx={{ fontSize: '13px', color: colors.on.surfaceVariant }}>
+        <div className="p-4 mb-6 rounded-lg bg-blue-100 border border-blue-200">
+          <span className="text-sm text-blue-700">
             Note: Essay questions require manual grading by the teacher.
-          </Typography>
-        </Box>
+          </span>
+        </div>
 
         <MistakeSummary missedNumbers={dashboard.missedQuestionNumbers ?? []} />
 
         {/* Corrections */}
         {dashboard.scores.filter(s => s.status !== 'CORRECT').length > 0 && (
           <>
-            <Typography sx={{ fontWeight: 700, fontSize: '16px', color: colors.on.surface, mb: 2 }}>
-              Questions to Review
-            </Typography>
+            <div className="font-bold text-lg text-gray-900 mb-2">Questions to Review</div>
             {dashboard.scores
               .filter(s => s.status !== 'CORRECT')
               .map(s => <CorrectionCard key={s.questionId} score={s} />)}
           </>
         )}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 

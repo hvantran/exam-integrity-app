@@ -1,10 +1,8 @@
 import React from 'react';
-import { Box, Typography, Avatar, Button } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
-import { colors, borderRadius, spacing } from '../../design-system/tokens';
 import { APP_BAR_HEIGHT } from './AppTopBar';
 
 export const STUDENT_SIDEBAR_WIDTH = 256;
@@ -39,110 +37,55 @@ const StudentManPortalSidebar: React.FC<PortalSidebarProps> = ({
   onNavigate,
   onHelp,
 }) => (
-  <Box
-    component="aside"
-    sx={{
-      position: 'fixed',
-      left: 0,
-      top: APP_BAR_HEIGHT,
-      width: STUDENT_SIDEBAR_WIDTH,
-      height: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
-      zIndex: 80,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '8px',
-      pt: `${spacing.stackLg}px`,
-      pb: `${spacing.stackLg}px`,
-      borderRight: `1px solid ${colors.outlineVariant}`,
-      backgroundColor: colors.surface.container.lowest,
-      overflowY: 'auto',
-    }}
+  <aside
+    className="fixed left-0 top-16 w-[256px] h-[calc(100vh-64px)] z-80 flex flex-col gap-2 pt-8 pb-8 border-r border-gray-200 bg-white overflow-y-auto"
+    style={{ minWidth: 256 }}
   >
     {/* Student identity block */}
-    <Box sx={{ px: 3, mb: 4, display: 'flex', alignItems: 'center', gap: '12px' }}>
-      <Avatar
-        sx={{
-          width: 40,
-          height: 40,
-          bgcolor: colors.primary.fixedDim,
-          color: colors.primary.deep,
-          fontSize: 16,
-          fontWeight: 700,
-          border: `1px solid ${colors.outlineVariant}`,
-        }}
-      >
+    <div className="px-6 mb-6 flex items-center gap-3">
+      <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-base border border-blue-300">
         {studentName.slice(0, 2).toUpperCase()}
-      </Avatar>
-      <Box>
-        <Typography sx={{ fontSize: '18px', fontWeight: 700, color: colors.on.surface, lineHeight: 1.3 }}>
-          {studentName}
-        </Typography>
-        <Typography sx={{ fontSize: '14px', fontWeight: 500, color: colors.on.surfaceVariant, lineHeight: '20px' }}>
-          {studentRole}
-        </Typography>
-      </Box>
-    </Box>
+      </div>
+      <div>
+        <div className="text-lg font-bold text-gray-900 leading-snug">{studentName}</div>
+        <div className="text-sm font-medium text-gray-500 leading-tight">{studentRole}</div>
+      </div>
+    </div>
 
     {/* Navigation */}
-    <Box component="nav" sx={{ flex: 1, fontFamily: '"Public Sans", sans-serif' }}>
+    <nav className="flex-1 font-sans">
       {NAV_ITEMS.map(({ id, label, Icon }) => {
         const isActive = activeSection === id;
         return (
-          <Box
+          <a
             key={id}
-            component="a"
             href="#"
-            onClick={(e: React.MouseEvent) => { e.preventDefault(); onNavigate?.(id); }}
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              px: '16px',
-              py: '12px',
-              mx: isActive ? 0 : '8px',
-              borderRadius: isActive ? 0 : borderRadius.lg,
-              borderLeft: isActive ? `4px solid ${colors.primary.container}` : '4px solid transparent',
-              borderTopRightRadius: borderRadius.lg,
-              borderBottomRightRadius: borderRadius.lg,
-              backgroundColor: isActive ? colors.surface.container.low : 'transparent',
-              color: isActive ? colors.primary.container : colors.on.surfaceVariant,
-              textDecoration: 'none',
-              fontSize: '14px',
-              fontWeight: 500,
-              transition: 'background-color 0.15s ease, transform 0.2s ease',
-              '&:hover': {
-                backgroundColor: isActive ? colors.surface.container.low : colors.surface.container.low,
-                transform: 'translateX(2px)',
-              },
-            }}
+            onClick={(e) => { e.preventDefault(); onNavigate?.(id); }}
+            className={`flex items-center gap-3 px-4 py-3 rounded-r-lg transition-all text-sm font-medium ${
+              isActive
+                ? 'border-l-4 border-blue-500 bg-blue-50 text-blue-700 mx-0'
+                : 'border-l-4 border-transparent text-gray-500 hover:bg-gray-50 mx-2'
+            }`}
           >
-            <Icon sx={{ fontSize: 22 }} />
+            <Icon style={{ fontSize: 22 }} />
             {label}
-          </Box>
+          </a>
         );
       })}
-    </Box>
+    </nav>
 
     {/* Help button */}
-    <Box sx={{ px: 2, mt: 'auto' }}>
-      <Button
-        startIcon={<SupportAgentIcon sx={{ fontSize: 18 }} />}
-        fullWidth
-        variant="outlined"
+    <div className="px-4 mt-auto pb-2">
+      <button
+        type="button"
         onClick={onHelp}
-        sx={{
-          borderColor: colors.outlineVariant,
-          color: colors.on.surfaceVariant,
-          fontSize: '14px',
-          fontWeight: 500,
-          borderRadius: borderRadius.default,
-          '&:hover': { backgroundColor: colors.surface.container.low },
-        }}
+        className="w-full flex items-center justify-center gap-2 border border-gray-300 text-gray-500 text-sm font-medium rounded-lg py-2 hover:bg-gray-50 transition"
       >
+        <SupportAgentIcon style={{ fontSize: 18 }} />
         Online Help
-      </Button>
-    </Box>
-  </Box>
+      </button>
+    </div>
+  </aside>
 );
 
 export default StudentManPortalSidebar;

@@ -1,14 +1,5 @@
 import React from 'react';
-import { Box, Divider, Typography } from '@mui/material';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
-import RateReviewIcon from '@mui/icons-material/RateReview';
-import StorageIcon from '@mui/icons-material/Storage';
-import AnalyticsIcon from '@mui/icons-material/Analytics';
-import SettingsIcon from '@mui/icons-material/Settings';
-import LogoutIcon from '@mui/icons-material/Logout';
-import AddIcon from '@mui/icons-material/Add';
-import { colors, typography, spacing, borderRadius } from '../../design-system/tokens';
+
 import { APP_BAR_HEIGHT } from './AppTopBar';
 
 export const TEACHER_SIDEBAR_WIDTH = 256;
@@ -26,37 +17,15 @@ export interface DashboardSidebarProps {
 }
 
 const navItems: { section: DashboardSection; icon: React.ReactNode; label: string }[] = [
-  { section: 'dashboard',      icon: <DashboardIcon  sx={{ fontSize: 20 }} />, label: 'Dashboard' },
-  { section: 'ingestion',     icon: <UploadFileIcon sx={{ fontSize: 20 }} />, label: 'Upload Exam' },
-  { section: 'review',        icon: <RateReviewIcon sx={{ fontSize: 20 }} />, label: 'Review' },
-  { section: 'question-bank', icon: <StorageIcon    sx={{ fontSize: 20 }} />, label: 'Question Bank' },
-  { section: 'reports',       icon: <AnalyticsIcon  sx={{ fontSize: 20 }} />, label: 'Reports' },
+  { section: 'dashboard',      icon: <span className="text-lg">🏠</span>, label: 'Dashboard' },
+  { section: 'ingestion',      icon: <span className="text-lg">📤</span>, label: 'Upload Exam' },
+  { section: 'review',         icon: <span className="text-lg">📝</span>, label: 'Review' },
+  { section: 'question-bank',  icon: <span className="text-lg">📚</span>, label: 'Question Bank' },
+  { section: 'reports',        icon: <span className="text-lg">📊</span>, label: 'Reports' },
 ];
 
-const navBtnSx = (active: boolean) => ({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '12px',
-  px: '16px',
-  py: '12px',
-  mr: '16px',
-  borderRadius: `0 ${borderRadius.lg} ${borderRadius.lg} 0`,
-  borderLeft: `4px solid ${active ? colors.primary.main : 'transparent'}`,
-  borderTop: 'none',
-  borderRight: 'none',
-  borderBottom: 'none',
-  backgroundColor: active ? colors.surface.container.lowest : 'transparent',
-  color: active ? colors.primary.main : colors.on.surfaceVariant,
-  fontFamily: typography.fontFamily.sans,
-  fontSize: typography.scale.uiLabel.fontSize,
-  fontWeight: active ? 600 : 500,
-  cursor: 'pointer',
-  textAlign: 'left' as const,
-  width: '100%',
-  outline: 'none',
-  transition: 'background-color 0.15s, color 0.15s',
-  '&:hover': active ? {} : { backgroundColor: colors.surface.container.default },
-});
+
+
 
 const TeacherManDashboardSidebar: React.FC<DashboardSidebarProps> = ({
   activeSection = 'dashboard',
@@ -65,107 +34,51 @@ const TeacherManDashboardSidebar: React.FC<DashboardSidebarProps> = ({
   onSettings,
   onLogout,
 }) => (
-  <Box
-    component="nav"
-    sx={{
-      position: 'fixed',
-      left: 0,
-      top: APP_BAR_HEIGHT,
-      width: TEACHER_SIDEBAR_WIDTH,
-      height: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
-      zIndex: 80,
-      backgroundColor: colors.surface.container.low,
-      borderRight: `1px solid ${colors.outlineVariant}`,
-      display: 'flex',
-      flexDirection: 'column',
-      py: `${spacing.stackLg}px`,
-      overflowY: 'auto',
-    }}
+  <nav
+    className="fixed left-0 z-80 bg-gray-50 border-r border-gray-200 flex flex-col py-8 overflow-y-auto"
+    style={{ top: APP_BAR_HEIGHT, width: TEACHER_SIDEBAR_WIDTH, height: `calc(100vh - ${APP_BAR_HEIGHT}px)` }}
   >
     {/* Institution identity */}
-    <Box
-      sx={{
-        px: `${spacing.margin}px`,
-        mb: `${spacing.stackLg}px`,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px',
-      }}
-    >
-      <Box
-        sx={{
-          width: 48,
-          height: 48,
-          borderRadius: borderRadius.default,
-          backgroundColor: colors.surface.container.highest,
-          border: `1px solid ${colors.outlineVariant}`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          mb: '8px',
-          flexShrink: 0,
-        }}
-      >
-        <Typography
-          sx={{
-            fontSize: '13px',
-            fontWeight: 700,
-            color: colors.primary.deep,
-            userSelect: 'none',
-          }}
-        >
-          EI
-        </Typography>
-      </Box>
-      <Typography
-        sx={{
-          fontFamily: typography.fontFamily.sans,
-          fontSize: typography.scale.uiLabel.fontSize,
-          fontWeight: 700,
-          color: colors.on.surface,
-          lineHeight: 1.3,
-        }}
-      >
-        Teacher Portal
-      </Typography>
-    </Box>
+    <div className="px-6 mb-8 flex flex-col gap-2">
+      <div className="w-12 h-12 rounded bg-white border border-gray-200 flex items-center justify-center mb-2 flex-shrink-0">
+        <span className="text-xs font-bold text-blue-700 select-none">EI</span>
+      </div>
+      <span className="font-bold text-gray-900 leading-tight text-sm">Teacher Portal</span>
+    </div>
 
     {/* Navigation */}
-    <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+    <div className="flex-1 flex flex-col">
       {navItems.map(({ section, icon, label }) => (
-        <Box
+        <button
           key={section}
-          component="button"
           onClick={() => onNavigate?.(section)}
-          sx={navBtnSx(activeSection === section)}
+          className={`flex items-center gap-3 px-4 py-3 mr-4 rounded-r-xl border-l-4 text-left w-full outline-none transition-colors ${activeSection === section ? 'border-l-blue-600 bg-white text-blue-600 font-semibold' : 'border-l-transparent text-gray-500 font-medium hover:bg-gray-100'}`}
         >
           {icon}
           {label}
-        </Box>
+        </button>
       ))}
-    </Box>
+    </div>
 
     {/* Bottom section */}
-    <Divider sx={{ mx: '16px', mb: '8px', borderColor: colors.outlineVariant }} />
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-      <Box
-        component="button"
+    <div className="border-t border-gray-200 mx-4 mb-2" />
+    <div className="flex flex-col">
+      <button
         onClick={onSettings}
-        sx={navBtnSx(false)}
+        className="flex items-center gap-3 px-4 py-3 mr-4 rounded-r-xl border-l-4 border-l-transparent text-gray-500 font-medium hover:bg-gray-100 text-left w-full outline-none transition-colors"
       >
-        <SettingsIcon sx={{ fontSize: 20 }} />
+        <span className="text-lg">⚙️</span>
         Settings
-      </Box>
-      <Box
-        component="button"
+      </button>
+      <button
         onClick={onLogout}
-        sx={navBtnSx(false)}
+        className="flex items-center gap-3 px-4 py-3 mr-4 rounded-r-xl border-l-4 border-l-transparent text-gray-500 font-medium hover:bg-gray-100 text-left w-full outline-none transition-colors"
       >
-        <LogoutIcon sx={{ fontSize: 20 }} />
+        <span className="text-lg">🚪</span>
         Logout
-      </Box>
-    </Box>
-  </Box>
+      </button>
+    </div>
+  </nav>
 );
 
 export default TeacherManDashboardSidebar;

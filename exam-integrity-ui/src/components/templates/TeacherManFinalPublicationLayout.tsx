@@ -1,5 +1,6 @@
 import React, { useState, KeyboardEvent } from 'react';
-import { Box, Button, Chip, Skeleton, TextField, Typography } from '@mui/material';
+import { Box, Button, Chip, TextField, Typography } from '@mui/material';
+import { Skeleton } from '../molecules';
 import PublishIcon from '@mui/icons-material/Publish';
 import {Add as AddIcon, CheckCircleOutlined, FunctionsOutlined, ChromeReaderModeOutlined} from '@mui/icons-material';
 import { colors, spacing, borderRadius } from '../../design-system/tokens';
@@ -46,45 +47,13 @@ const StatCard: React.FC<{ icon: React.ReactNode; value: string | number; label:
   icon,
   value,
   label,
-  iconColor = colors.secondary.main,
+  iconColor = '#6D28D9', // fallback color
 }) => (
-  <Box
-    sx={{
-      backgroundColor: colors.surface.container.lowest,
-      border: `1px solid ${colors.outlineVariant}`,
-      borderRadius: borderRadius.default,
-      p: 3,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      textAlign: 'center',
-      gap: 1,
-    }}
-  >
-    <Box
-      component="span"
-      className="material-symbols-outlined"
-      sx={{ fontSize: '36px', color: iconColor, fontFamily: 'Material Symbols Outlined' }}
-    >
-      {icon}
-    </Box>
-    <Typography sx={{ fontSize: '32px', fontWeight: 600, color: colors.on.surface, lineHeight: 1 }}>
-      {value}
-    </Typography>
-    <Typography
-      sx={{
-        fontSize: '12px',
-        fontWeight: 600,
-        letterSpacing: '0.05em',
-        textTransform: 'uppercase',
-        color: colors.on.surfaceVariant,
-        mt: '2px',
-      }}
-    >
-      {label}
-    </Typography>
-  </Box>
+  <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 flex flex-col items-center justify-center text-center gap-2">
+    <span className="material-symbols-outlined" style={{ fontSize: 36, color: iconColor, fontFamily: 'Material Symbols Outlined' }}>{icon}</span>
+    <span className="text-3xl font-semibold text-gray-900 leading-none">{value}</span>
+    <span className="text-xs font-semibold uppercase tracking-wider text-gray-500 mt-0.5">{label}</span>
+  </div>
 );
 
 const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = ({
@@ -134,67 +103,35 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
   };
 
   return (
-  <Box sx={{ minHeight: '100vh', backgroundColor: colors.background }}>
-    <AppTopBar
-      userName={userName}
-      onSearch={onSearch}
-      onNotifications={onNotifications}
-      onHelp={onHelp}
-    />
-    <TeacherManDashboardSidebar
-      activeSection="review"
-      userName={userName}
-      userRole={userRole}
-      onNavigate={onNavigate}
-      onCreateExam={onCreateExam}
-      onSettings={onSettings}
-      onLogout={onLogout}
-    />
-    <Box
-      component="main"
-      sx={{
-        ml: `${TEACHER_SIDEBAR_WIDTH}px`,
-        pt: `${APP_BAR_HEIGHT}px`,
-        minHeight: '100vh',
-        overflowY: 'auto',
-        display: 'flex',
-        justifyContent: 'center',
-      }}
-    >
-      <Box
-        sx={{
-          width: '100%',
-          maxWidth: spacing.paperWidth,
-          p: `${spacing.margin}px`,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: `${spacing.stackLg}px`,
-        }}
-      >
+    <div className="min-h-screen bg-gray-50">
+      <AppTopBar
+        userName={userName}
+        onSearch={onSearch}
+        onNotifications={onNotifications}
+        onHelp={onHelp}
+      />
+      <TeacherManDashboardSidebar
+        activeSection="review"
+        userName={userName}
+        userRole={userRole}
+        onNavigate={onNavigate}
+        onCreateExam={onCreateExam}
+        onSettings={onSettings}
+        onLogout={onLogout}
+      />
+      <main className="ml-[256px] pt-[64px] min-h-screen overflow-y-auto flex justify-center">
+        <div className="w-full max-w-4xl p-6 flex flex-col gap-8">
         {/* Page header */}
-        <Box>
-          <Typography
-            variant="h2"
-            sx={{ fontSize: '32px', fontWeight: 600, color: colors.on.surface, mb: 1, lineHeight: 1.25 }}
-          >
-            Final Publication Review
-          </Typography>
-          <Typography sx={{ fontSize: '14px', color: colors.on.surfaceVariant }}>
-            Review exam details before publishing to students.
-          </Typography>
-        </Box>
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-1 leading-tight">Final Publication Review</h2>
+          <div className="text-sm text-gray-500">Review exam details before publishing to students.</div>
+        </div>
 
         {/* Summary bento grid */}
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: `${spacing.gutter}px`,
-          }}
-        >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {isLoading
             ? [0, 1, 2].map((i) => (
-                <Skeleton key={i} variant="rounded" height={140} sx={{ borderRadius: borderRadius.default }} />
+                <Skeleton key={i} height={140} className="rounded-lg mb-2" />
               ))
             : (
               <>
@@ -218,42 +155,20 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
                 />
               </>
             )}
-        </Box>
+        </div>
 
         {/* Exam configuration form */}
-        <Box
-          sx={{
-            backgroundColor: colors.surface.container.lowest,
-            border: `1px solid ${colors.outlineVariant}`,
-            borderRadius: borderRadius.default,
-            p: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: `${spacing.stackMd}px`,
-          }}
-        >
-          <Typography
-            variant="h3"
-            sx={{
-              fontSize: '24px',
-              fontWeight: 600,
-              color: colors.on.surface,
-              borderBottom: `1px solid ${colors.outlineVariant}`,
-              pb: 2,
-              mb: 1,
-            }}
-          >
-            Exam Configuration
-          </Typography>
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 flex flex-col gap-6">
+          <h3 className="text-2xl font-semibold text-gray-900 border-b border-gray-200 pb-2 mb-1">Exam Configuration</h3>
 
           {isLoading ? (
             <>
-              <Skeleton variant="rounded" height={56} />
-              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: `${spacing.gutter}px` }}>
-                <Skeleton variant="rounded" height={56} />
-                <Skeleton variant="rounded" height={56} />
-              </Box>
-              <Skeleton variant="rounded" height={100} />
+              <Skeleton height={56} className="mb-2" />
+              <div className="grid grid-cols-2 gap-4 mb-2">
+                <Skeleton height={56} />
+                <Skeleton height={56} />
+              </div>
+              <Skeleton height={100} />
             </>
           ) : (
             <>
@@ -266,8 +181,8 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
                 size="medium"
               />
 
-              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: `${spacing.gutter}px` }}>
-                <Box>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
                   <Typography
                     sx={{ fontSize: '12px', fontWeight: 500, color: colors.on.surfaceVariant, mb: 0.75, ml: 0.25 }}
                   >
@@ -281,29 +196,12 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
                     variant="outlined"
                     size="medium"
                   />
-                </Box>
+                </div>
 
                 {/* Tags chip input */}
-                <Box>
-                  <Typography
-                    sx={{ fontSize: '12px', fontWeight: 500, color: colors.on.surfaceVariant, mb: 0.75, ml: 0.25 }}
-                  >
-                    Tags
-                  </Typography>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      alignItems: 'center',
-                      gap: 0.75,
-                      minHeight: 56,
-                      border: `1px solid ${colors.outlineVariant}`,
-                      borderRadius: '4px',
-                      px: 1.5,
-                      py: 1,
-                      '&:focus-within': { borderColor: colors.primary.main, borderWidth: 2 },
-                    }}
-                  >
+                <div>
+                  <div className="text-xs font-medium text-gray-500 mb-1 ml-1">Tags</div>
+                  <div className="flex flex-wrap items-center gap-2 min-h-[56px] border border-gray-200 rounded px-3 py-2 focus-within:border-violet-700 focus-within:border-2">
                     {tags.map(tag => (
                       <Chip
                         key={tag}
@@ -318,24 +216,13 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
                         }}
                       />
                     ))}
-                    <Box
-                      component="input"
+                    <input
+                      className="border-none outline-none flex-1 min-w-[120px] text-sm bg-transparent font-inherit placeholder:text-gray-400"
                       value={tagInput}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTagInput(e.target.value)}
+                      onChange={(e) => setTagInput(e.target.value)}
                       onKeyDown={handleTagKeyDown}
                       onBlur={() => { if (tagInput.trim()) addTag(tagInput); }}
                       placeholder={tags.length === 0 ? 'Enter tag then press Enter…' : 'Add tag…'}
-                      sx={{
-                        border: 'none',
-                        outline: 'none',
-                        flex: 1,
-                        minWidth: 120,
-                        fontSize: '14px',
-                        color: colors.on.surface,
-                        backgroundColor: 'transparent',
-                        fontFamily: 'inherit',
-                        '&::placeholder': { color: colors.on.surfaceVariant },
-                      }}
                     />
                     {tagInput.trim() && (
                       <Chip
@@ -351,9 +238,9 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
                         }}
                       />
                     )}
-                  </Box>
-                </Box>
-              </Box>
+                  </div>
+                </div>
+              </div>
 
               <TextField
                 label="Review Notes (Internal)"
@@ -366,23 +253,14 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
               />
             </>
           )}
-        </Box>
+        </div>
 
         {/* Actions */}
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: `${spacing.stackMd}px` }}>
+        <div className="flex justify-end gap-4 mt-6">
           <Button
             variant="outlined"
             onClick={onSaveDraft}
-            sx={{
-              fontSize: '14px',
-              fontWeight: 500,
-              textTransform: 'none',
-              borderColor: colors.outlineVariant,
-              color: colors.on.surface,
-              borderRadius: borderRadius.default,
-              px: 3,
-              py: 1.5,
-            }}
+            className="text-sm font-medium border-gray-200 text-gray-900 rounded-lg px-6 py-2"
           >
             Save Draft
           </Button>
@@ -390,24 +268,14 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
             variant="contained"
             startIcon={<PublishIcon />}
             onClick={onPublish}
-            sx={{
-              fontSize: '14px',
-              fontWeight: 500,
-              textTransform: 'none',
-              backgroundColor: colors.primary.main,
-              color: colors.primary.on,
-              borderRadius: borderRadius.default,
-              px: 4,
-              py: 1.5,
-              '&:hover': { backgroundColor: colors.primary.deep },
-            }}
+            className="text-sm font-medium bg-violet-700 text-white rounded-lg px-8 py-2 hover:bg-violet-800"
           >
             Publish Exam
           </Button>
-        </Box>
-      </Box>
-    </Box>
-  </Box>
+        </div>
+      </div>
+    </main>
+    </div>
   );
 };
 

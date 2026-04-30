@@ -1,6 +1,5 @@
 import React from 'react';
-import { Chip as MuiChip, ChipProps as MuiChipProps } from '@mui/material';
-import { colors } from '../../../design-system/tokens';
+
 
 export type StatusChipVariant =
   | 'proctoring'
@@ -18,13 +17,13 @@ export interface StatusChipProps {
   size?: 'small' | 'medium';
 }
 
-const variantStyle: Record<StatusChipVariant, { backgroundColor: string; color: string }> = {
-  proctoring: { backgroundColor: '#DCFCE7', color: colors.secondary.main },
-  pending: { backgroundColor: '#FEF3C7', color: '#92400E' },
-  draft: { backgroundColor: colors.surface.container.highest, color: colors.on.surfaceVariant },
-  published: { backgroundColor: colors.primary.fixed, color: colors.primary.deep },
-  active: { backgroundColor: '#DCFCE7', color: colors.secondary.main },
-  neutral: { backgroundColor: colors.surface.container.highest, color: colors.on.surface },
+const variantClass: Record<StatusChipVariant, string> = {
+  proctoring: 'bg-green-100 text-green-700',
+  pending: 'bg-yellow-100 text-yellow-800',
+  draft: 'bg-gray-100 text-gray-500',
+  published: 'bg-blue-100 text-blue-700',
+  active: 'bg-green-100 text-green-700',
+  neutral: 'bg-gray-100 text-gray-700',
 };
 
 /**
@@ -40,21 +39,22 @@ const StatusChip: React.FC<StatusChipProps> = ({
   onDelete,
   size = 'small',
 }) => {
-  const style = variantStyle[variant];
-
   return (
-    <MuiChip
-      label={label}
-      icon={icon}
-      onDelete={onDelete}
-      size={size}
-      sx={{
-        ...style,
-        fontWeight: 600,
-        fontSize: size === 'small' ? '11px' : '12px',
-        '& .MuiChip-icon': { color: style.color },
-      }}
-    />
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-0.5 font-semibold ${size === 'small' ? 'text-xs' : 'text-sm'} ${variantClass[variant]}`}
+    >
+      {icon && <span className="mr-1">{icon}</span>}
+      {label}
+      {onDelete && (
+        <button
+          type="button"
+          onClick={onDelete}
+          className="ml-1 text-gray-400 hover:text-gray-700 focus:outline-none"
+        >
+          ×
+        </button>
+      )}
+    </span>
   );
 };
 

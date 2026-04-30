@@ -1,13 +1,7 @@
 import React from 'react';
-import { Box, Skeleton, Typography } from '@mui/material';
-import { colors, spacing } from '../../design-system/tokens';
-import {
-  AppTopBar,
-  TeacherManDashboardSidebar,
-  APP_BAR_HEIGHT,
-  TEACHER_SIDEBAR_WIDTH,
-} from '../organisms';
+import { AppTopBar, TeacherManDashboardSidebar } from '../organisms';
 import type { DashboardSection } from '../organisms';
+import { Skeleton } from '../molecules';
 
 export interface QuestionBankLayoutProps {
   userName?: string;
@@ -19,9 +13,7 @@ export interface QuestionBankLayoutProps {
   onSearch?: (query: string) => void;
   onNotifications?: () => void;
   onHelp?: () => void;
-  /** Slot: search/filter bar rendered above the question list */
   filterBar?: React.ReactNode;
-  /** Slot: results summary row (count + sort) */
   resultsBar?: React.ReactNode;
   isLoading?: boolean;
   children?: React.ReactNode;
@@ -42,7 +34,7 @@ const TeacherManQuestionBankLayout: React.FC<QuestionBankLayoutProps> = ({
   isLoading = false,
   children,
 }) => (
-  <Box sx={{ minHeight: '100vh', backgroundColor: colors.background }}>
+  <div className="min-h-screen bg-gray-50">
     <AppTopBar
       userName={userName}
       onSearch={onSearch}
@@ -58,90 +50,51 @@ const TeacherManQuestionBankLayout: React.FC<QuestionBankLayoutProps> = ({
       onSettings={onSettings}
       onLogout={onLogout}
     />
-    <Box
-      component="main"
-      sx={{
-        ml: `${TEACHER_SIDEBAR_WIDTH}px`,
-        pt: `${APP_BAR_HEIGHT}px`,
-        minHeight: '100vh',
-        overflowY: 'auto',
-      }}
-    >
-      <Box sx={{ pt: `${spacing.stackLg}px`, pb: '128px', px: `${spacing.margin}px` }}>
-        <Box sx={{ maxWidth: '1200px', mx: 'auto' }}>
+    <main className="ml-[256px] pt-[64px] min-h-screen overflow-y-auto">
+      <div className="pt-8 pb-32 px-6">
+        <div className="max-w-[1200px] mx-auto">
           {/* Page header */}
-          <Box sx={{ mb: `${spacing.stackLg}px` }}>
-            <Typography
-              variant="h2"
-              sx={{
-                fontSize: '32px',
-                fontWeight: 600,
-                color: colors.on.surface,
-                mb: `${spacing.stackSm}px`,
-                lineHeight: 1.25,
-              }}
-            >
-              Question Bank
-            </Typography>
-            <Typography sx={{ fontSize: '14px', color: colors.on.surfaceVariant }}>
-              Browse and filter approved questions to build your examination draft.
-            </Typography>
-          </Box>
-
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2 leading-tight">Question Bank</h2>
+            <div className="text-sm text-gray-500">Browse and filter approved questions to build your examination draft.</div>
+          </div>
           {isLoading ? (
             <>
-              <Skeleton variant="rounded" height={72} sx={{ mb: `${spacing.stackLg}px`, borderRadius: '8px' }} />
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: `${spacing.stackMd}px` }}>
-                <Skeleton variant="text" width={180} height={24} />
-                <Skeleton variant="text" width={120} height={24} />
-              </Box>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <Skeleton height={72} className="mb-8" />
+              <div className="flex justify-between items-center mb-6">
+                <Skeleton height={24} width={180} />
+                <Skeleton height={24} width={120} />
+              </div>
+              <div className="flex flex-col gap-3">
                 {[0, 1, 2, 3].map((i) => (
-                  <Skeleton key={i} variant="rounded" height={96} sx={{ borderRadius: '8px' }} />
+                  <Skeleton key={i} height={96} />
                 ))}
-              </Box>
+              </div>
             </>
           ) : (
             <>
               {/* Search + filter panel */}
               {filterBar && (
-                <Box
-                  sx={{
-                    backgroundColor: colors.surface.container.lowest,
-                    border: `1px solid ${colors.outlineVariant}`,
-                    borderRadius: '8px',
-                    p: '20px 24px',
-                    mb: `${spacing.stackLg}px`,
-                  }}
-                >
+                <div className="bg-white border border-gray-200 rounded-lg p-5 mb-8">
                   {filterBar}
-                </Box>
+                </div>
               )}
-
               {/* Results bar */}
               {resultsBar && (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    mb: '12px',
-                  }}
-                >
+                <div className="flex items-center justify-between mb-3">
                   {resultsBar}
-                </Box>
+                </div>
               )}
-
               {/* Question cards */}
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div className="flex flex-col gap-3">
                 {children}
-              </Box>
+              </div>
             </>
           )}
-        </Box>
-      </Box>
-    </Box>
-  </Box>
+        </div>
+      </div>
+    </main>
+  </div>
 );
 
 export default TeacherManQuestionBankLayout;

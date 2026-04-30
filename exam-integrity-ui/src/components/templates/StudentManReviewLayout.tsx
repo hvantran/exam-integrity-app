@@ -1,6 +1,5 @@
 import React from 'react';
-import { Box } from '@mui/material';
-import { colors, spacing } from '../../design-system/tokens';
+// Removed MUI Box and tokens, using Tailwind CSS
 import { AppTopBar, StudentManPortalSidebar, APP_BAR_HEIGHT, STUDENT_SIDEBAR_WIDTH } from '../organisms';
 import type { PortalSection } from '../organisms';
 
@@ -23,7 +22,7 @@ const StudentManReviewLayout: React.FC<ReviewLayoutProps> = ({
   onNotifications,
   children,
 }) => (
-  <Box sx={{ minHeight: '100vh', backgroundColor: colors.background }}>
+  <div className="min-h-screen bg-gray-50">
     <AppTopBar
       appTitle="Academic Management"
       userName={studentName}
@@ -37,20 +36,12 @@ const StudentManReviewLayout: React.FC<ReviewLayoutProps> = ({
       onNavigate={onNavigate}
       onHelp={onHelp}
     />
-    <Box
-      component="main"
-      sx={{
-        ml: `${STUDENT_SIDEBAR_WIDTH}px`,
-        pt: `${APP_BAR_HEIGHT}px`,
-        minHeight: '100vh',
-        overflowY: 'auto',
-      }}
-    >
-      <Box sx={{ p: `${spacing.margin}px`, maxWidth: spacing.containerMax, mx: 'auto' }}>
+    <main className="ml-[256px] pt-[64px] min-h-screen overflow-y-auto">
+      <div className="p-6 max-w-6xl mx-auto">
         {children}
-      </Box>
-    </Box>
-  </Box>
+      </div>
+    </main>
+  </div>
 );
 
 export default StudentManReviewLayout;

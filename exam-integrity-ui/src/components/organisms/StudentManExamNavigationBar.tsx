@@ -1,10 +1,4 @@
 import React from 'react';
-import { Box } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import FlagIcon from '@mui/icons-material/Flag';
-import { colors, borderRadius } from '../../design-system/tokens';
-import { Button } from '../atoms';
 
 export interface ExamNavigationBarProps {
   canGoPrev: boolean;
@@ -37,71 +31,61 @@ const StudentManExamNavigationBar: React.FC<ExamNavigationBarProps> = ({
   flaggedCount = 0,
   onReviewFlagged,
 }) => (
-  <Box
-    sx={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: 1.5,
-      flexWrap: 'wrap',
-      pt: 3,
-      borderTop: `1px solid ${colors.outlineVariant}`,
-      mt: 3,
-    }}
-  >
+  <div className="flex items-center gap-4 flex-wrap pt-3 border-t border-gray-200 mt-3 w-full">
     {/* Left cluster */}
-    <Button
-      variant="secondary"
-      disabled={!canGoPrev}
-      startIcon={<ArrowBackIcon sx={{ fontSize: 16 }} />}
+    <button
+      type="button"
+      className={`flex items-center gap-1 px-4 py-2 rounded font-medium border border-gray-300 bg-white text-gray-700 transition disabled:opacity-50 disabled:cursor-not-allowed hover:border-blue-500 hover:bg-blue-50`}
       onClick={onPrevious}
+      disabled={!canGoPrev}
     >
+      <span className="text-lg">⬅️</span>
       Back
-    </Button>
-
-    <Button
-      variant="secondary"
-      disabled={!canGoNext}
-      endIcon={<ArrowForwardIcon sx={{ fontSize: 16 }} />}
+    </button>
+    <button
+      type="button"
+      className={`flex items-center gap-1 px-4 py-2 rounded font-medium border border-gray-300 bg-white text-gray-700 transition disabled:opacity-50 disabled:cursor-not-allowed hover:border-blue-500 hover:bg-blue-50`}
       onClick={onNext}
+      disabled={!canGoNext}
     >
       Next
-    </Button>
+      <span className="text-lg">➡️</span>
+    </button>
 
     {/* Spacer */}
-    <Box sx={{ flex: 1 }} />
+    <div className="flex-1" />
 
     {/* Flag */}
-    <Button
-      variant="ghost"
-      startIcon={
-        <FlagIcon
-          sx={{
-            fontSize: 16,
-            color: isFlagged ? '#F59E0B' : colors.on.surfaceVariant,
-          }}
-        />
-      }
+    <button
+      type="button"
+      className={`flex items-center gap-1 px-4 py-2 rounded font-medium border ${isFlagged ? 'border-yellow-400 bg-yellow-50 text-yellow-800' : 'border-gray-300 bg-white text-gray-700'} transition hover:border-yellow-400 hover:bg-yellow-50`}
       onClick={onFlag}
     >
+      <span className="text-lg">🚩</span>
       {isFlagged ? 'Unflag' : 'Flag'}
-    </Button>
+    </button>
 
     {/* Review Flagged — only on last question and if flagged exist */}
     {isLastQuestion && flaggedCount > 0 && onReviewFlagged && (
-      <Button
-        variant="outlined"
+      <button
+        type="button"
+        className="ml-4 px-4 py-2 rounded border border-yellow-400 text-yellow-800 bg-yellow-50 font-semibold transition hover:bg-yellow-100"
         onClick={onReviewFlagged}
-        sx={{ marginLeft: 8, color: '#F59E0B', borderColor: '#F59E0B', fontWeight: 600 }}
       >
         Review Flagged ({flaggedCount})
-      </Button>
+      </button>
     )}
 
     {/* Submit — only shown on last question or always visible */}
-    <Button variant="danger" onClick={onSubmit}>
+    <button
+      type="button"
+      className="ml-4 px-4 py-2 rounded border border-red-500 text-white bg-red-500 font-semibold transition hover:bg-red-600"
+      onClick={onSubmit}
+    >
       Submit
-    </Button>
-  </Box>
+    </button>
+  </div>
 );
+// ...existing code...
 
 export default StudentManExamNavigationBar;
