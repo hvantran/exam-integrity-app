@@ -49,6 +49,7 @@ interface EditFormState {
   correctAnswer: string;
   points: number;
   tags: string;
+  imageData?: string; // Optional Base64 Data URI for the question image
 }
 
 const toEditForm = (q: DraftQuestionDTO): EditFormState => ({
@@ -61,6 +62,7 @@ const toEditForm = (q: DraftQuestionDTO): EditFormState => ({
   correctAnswer: q.correctAnswer ?? 'A',
   points: q.points,
   tags: q.rubric?.keywords?.join(', ') ?? '',
+  imageData: q.imageData ?? '',
 });
 
 const OPTION_LABELS = ['A', 'B', 'C', 'D'];
@@ -93,6 +95,7 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
       options: form.type === 'MCQ' ? form.options : undefined,
       correctAnswer: form.type === 'MCQ' ? form.correctAnswer : undefined,
       rubric: tagList.length ? { keywords: tagList } : undefined,
+      imageData: form.imageData || undefined,
     });
   };
 
@@ -167,6 +170,36 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
           onChange={e => setField('tags', e.target.value)}
         />
       </Box>
+
+
+      {/* Image Upload */}
+      <Button
+        variant="outlined"
+        component="label"
+        size="small"
+        sx={{ mb: 2 }}
+      >
+        Upload Image
+        <input
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+              setField('imageData', ev.target?.result as string);
+            };
+            reader.readAsDataURL(file);
+          }}
+        />
+      </Button>
+      {form.imageData && (
+        <Box sx={{ mb: 2 }}>
+          <img src={form.imageData} alt="Preview" style={{ maxHeight: 160, borderRadius: 8, border: '1px solid #ccc' }} />
+        </Box>
+      )}
 
       {/* Actions */}
       <Box className="flex gap-2 justify-end">
@@ -279,7 +312,7 @@ const QuestionBankPage: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteAllOpen, setDeleteAllOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
-  const [addForm, setAddForm] = useState<EditFormState>({ content: '', type: 'MCQ', difficulty: 'Medium', options: ['', '', '', ''], correctAnswer: 'A', points: 1, tags: '' });
+  const [addForm, setAddForm] = useState<EditFormState>({ content: '', type: 'MCQ', difficulty: 'Medium', options: ['', '', '', ''], correctAnswer: 'A', points: 1, tags: '', imageData: '' });
   const [addError, setAddError] = useState<string | null>(null);
 
   const navigate = useNavigate();
@@ -318,7 +351,7 @@ const QuestionBankPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['question-bank'] });
       setAddOpen(false);
-      setAddForm({ content: '', type: 'MCQ', difficulty: 'Medium', options: ['', '', '', ''], correctAnswer: 'A', points: 1, tags: '' });
+      setAddForm({ content: '', type: 'MCQ', difficulty: 'Medium', options: ['', '', '', ''], correctAnswer: 'A', points: 1, tags: '', imageData: '' });
       setAddError(null);
     },
     onError: (err: unknown) => {
@@ -338,6 +371,7 @@ const QuestionBankPage: React.FC = () => {
       options: addForm.type === 'MCQ' ? addForm.options : undefined,
       correctAnswer: addForm.type === 'MCQ' ? addForm.correctAnswer : undefined,
       rubric: tagList.length ? { keywords: tagList } : undefined,
+      imageData: addForm.imageData || undefined,
       reviewStatus: undefined,
       teacherNotes: undefined,
     } as DraftQuestionEditCommand);
@@ -570,6 +604,34 @@ const QuestionBankPage: React.FC = () => {
               onChange={e => setAddForm(f => ({ ...f, tags: e.target.value }))}
             />
           </Box>
+          {/* Image Upload */}
+          <Button
+            variant="outlined"
+            component="label"
+            size="small"
+            sx={{ mb: 2 }}
+          >
+            Upload Image
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                  setAddForm(f => ({ ...f, imageData: ev.target?.result as string }));
+                };
+                reader.readAsDataURL(file);
+              }}
+            />
+          </Button>
+          {addForm.imageData && (
+            <Box sx={{ mb: 2 }}>
+              <img src={addForm.imageData} alt="Preview" style={{ maxHeight: 160, borderRadius: 8, border: '1px solid #ccc' }} />
+            </Box>
+          )}
           {addError && (
             <Typography sx={{ fontSize: '12px', color: '#d32f2f', mt: 1 }}>{addError}</Typography>
           )}

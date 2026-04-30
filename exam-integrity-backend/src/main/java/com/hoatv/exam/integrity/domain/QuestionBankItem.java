@@ -42,6 +42,9 @@ public class QuestionBankItem {
 
     private Instant addedAt;
 
+    // Base64-encoded image data (Data URI)
+    private String imageData;
+
     // ----- Getters & Setters -----
 
     public String getId() { return id; }
@@ -76,4 +79,7 @@ public class QuestionBankItem {
 
     public Instant getAddedAt() { return addedAt; }
     public void setAddedAt(Instant addedAt) { this.addedAt = addedAt; }
+
+    public String getImageData() { return imageData; }
+    public void setImageData(String imageData) { this.imageData = imageData; }
 }

@@ -54,9 +54,15 @@ public class ExamService {
         return examRepository.findById(examId).map(exam -> {
             List<QuestionSummaryDTO> questions = exam.getQuestions().stream()
                 .map(q -> new QuestionSummaryDTO(
-                    q.getId(), q.getQuestionNumber(), q.getContent(),
+                    q.getId(),
+                    q.getQuestionNumber(),
+                    q.getContent(),
                     q.getType() != null ? q.getType().name() : "MCQ",
-                    q.getPoints(), q.getOptions(), q.isTruncated()))
+                    q.getPoints(),
+                    q.getOptions(),
+                    q.isTruncated(),
+                    q.getImageData()
+                ))
                 .collect(Collectors.toList());
             return new ExamDTO(exam.getId(), exam.getTitle(), exam.getDurationSeconds(),
                 exam.getTotalPoints(), questions.size(), exam.getTags(), questions);
@@ -158,6 +164,7 @@ public class ExamService {
         q.setPoints(item.getPoints() > 0 ? item.getPoints() : 1.0);
         q.setOptions(item.getOptions() != null ? item.getOptions() : List.of());
         q.setCorrectAnswer(item.getCorrectAnswer());
+        q.setImageData(item.getImageData());
         return q;
     }
     

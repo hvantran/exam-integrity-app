@@ -10,5 +10,6 @@ public record QuestionSummaryDTO(
     String type,
     double points,
     List<String> options,
-    boolean truncated
+    boolean truncated,
+    String imageData
 ) {}

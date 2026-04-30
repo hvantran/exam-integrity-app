@@ -14,5 +14,6 @@ public record DraftQuestionEditCommand(
     String correctAnswer,
     RubricDTO rubric,
     String reviewStatus,   // APPROVED | CORRECTED | EXCLUDED
-    String teacherNotes
+    String teacherNotes,
+    String imageData
 ) {}

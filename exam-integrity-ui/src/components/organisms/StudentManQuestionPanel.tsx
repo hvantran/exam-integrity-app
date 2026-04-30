@@ -16,6 +16,7 @@ export interface QuestionPanelProps {
   selectedAnswer?: string;
   disabled?: boolean;
   onAnswerChange: (value: string) => void;
+  imageData?: string;
 }
 
 const DOTTED_LINE = '      ..................................................';
@@ -37,6 +38,7 @@ const StudentManQuestionPanel: React.FC<QuestionPanelProps> = ({
   selectedAnswer,
   disabled = false,
   onAnswerChange,
+  imageData,
 }) => (
   <div className="bg-white min-w-[742px] border border-gray-300 border-l-4 border-l-blue-600 rounded-xl shadow-lg p-8">
     {/* Header */}
@@ -54,9 +56,15 @@ const StudentManQuestionPanel: React.FC<QuestionPanelProps> = ({
     <div className="border-b border-gray-200 mb-6" />
 
     {/* Question body */}
-    <div className="text-base font-normal leading-7 text-gray-900 mb-6 whitespace-pre-wrap">
+    <div className="text-base font-normal leading-7 text-gray-900 mb-6 break-words">
       {questionText}
     </div>
+    {/* Question image */}
+    {imageData && (
+      <div className="mb-6 flex justify-center">
+        <img src={imageData} alt="Question" className="max-h-64 object-contain border rounded shadow" />
+      </div>
+    )}
 
     {/* Answer area */}
     {questionType === 'MCQ' && options ? (

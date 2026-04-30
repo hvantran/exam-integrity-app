@@ -45,6 +45,9 @@ public class Question {
     /** True when OCR/parser detected the question text was cut off by a page break. */
     private boolean truncated;
 
+    /** Base64-encoded image data (Data URI) for question image, optional. */
+    private String imageData;
+
     public enum QuestionType {
         /** Single-choice or multi-choice with fixed options. */
         MCQ,
@@ -82,4 +85,7 @@ public class Question {
 
     public boolean isTruncated() { return truncated; }
     public void setTruncated(boolean truncated) { this.truncated = truncated; }
+
+    public String getImageData() { return imageData; }
+    public void setImageData(String imageData) { this.imageData = imageData; }
 }

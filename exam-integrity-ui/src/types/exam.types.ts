@@ -23,6 +23,7 @@ export interface QuestionSummaryDTO {
   points: number;
   options?: string[];
   truncated: boolean;
+  imageData?: string
 }
 
 export interface DraftQuestionDTO {
@@ -38,6 +39,7 @@ export interface DraftQuestionDTO {
   truncated: boolean;
   ocrConfidence?: number;
   parserConfidence: number;
+  imageData?: string; // Optional Base64 Data URI for the question image
   pageNumber?: number;
   parserWarnings?: string[];
   reviewStatus: 'PENDING' | 'APPROVED' | 'CORRECTED' | 'EXCLUDED';
@@ -78,6 +80,7 @@ export interface DraftQuestionEditCommand {
   options?: string[];
   correctAnswer?: string;
   rubric?: RubricDTO;
+  imageData?: string; // Optional Base64 Data URI for the question image
   reviewStatus?: 'APPROVED' | 'CORRECTED' | 'EXCLUDED';
   teacherNotes?: string;
 }

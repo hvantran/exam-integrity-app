@@ -106,9 +106,16 @@ public class SessionService {
             .or(() -> (questionNumber >= 1 && questionNumber <= questionList.size())
                 ? Optional.of(questionList.get(questionNumber - 1))
                 : Optional.empty())
-            .map(q -> new QuestionSummaryDTO(q.getId(), q.getQuestionNumber(), q.getContent(),
+            .map(q -> new QuestionSummaryDTO(
+                q.getId(),
+                q.getQuestionNumber(),
+                q.getContent(),
                 q.getType() != null ? q.getType().name() : "MCQ",
-                q.getPoints(), q.getOptions(), q.isTruncated()))
+                q.getPoints(),
+                q.getOptions(),
+                q.isTruncated(),
+                q.getImageData()
+            ))
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                 "Question " + questionNumber + " not found"));
     }

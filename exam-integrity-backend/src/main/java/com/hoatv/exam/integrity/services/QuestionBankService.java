@@ -93,6 +93,7 @@ public class QuestionBankService {
         }
         item.setTags(List.of());
         item.setAddedAt(Instant.now());
+        item.setImageData(cmd.imageData());
         return toDTO(bankRepository.save(item));
     }
 
@@ -119,6 +120,7 @@ public class QuestionBankService {
         if (cmd.points() > 0) item.setPoints(cmd.points());
         if (cmd.options() != null) item.setOptions(cmd.options());
         if (cmd.correctAnswer() != null) item.setCorrectAnswer(cmd.correctAnswer());
+        if (cmd.imageData() != null) item.setImageData(cmd.imageData());
         return toDTO(bankRepository.save(item));
     }
 
@@ -129,10 +131,22 @@ public class QuestionBankService {
             item.getRubric().getFormatChecks()
         );
         return new DraftQuestionDTO(
-            item.getId(), 0, item.getContent(), null,
+            item.getId(),
+            0,
+            item.getContent(),
+            null,
             item.getType() != null ? item.getType().name() : null,
-            item.getPoints(), item.getOptions(), item.getCorrectAnswer(),
-            rubric, false, null, 1.0, null, List.of(), "APPROVED"
+            item.getPoints(),
+            item.getOptions(),
+            item.getCorrectAnswer(),
+            rubric,
+            false,
+            item.getImageData(),
+            null,
+            1.0,
+            null,
+            List.of(),
+            "APPROVED"
         );
     }
 }

@@ -8,21 +8,23 @@ import java.util.List;
  * Teacher edits are sent back via DraftQuestionEditCommand.
  */
 public record DraftQuestionDTO(
-    String id,
-    int questionNumber,
-    String content,
-    String rawText,
-    String type,
-    double points,
-    List<String> options,
-    String correctAnswer,
-    RubricDTO rubric,
-    boolean truncated,
+        String id,
+        int questionNumber,
+        String content,
+        String rawText,
+        String type,
+        double points,
+        List<String> options,
+        String correctAnswer,
+        RubricDTO rubric,
+        boolean truncated,
 
-    // ── Integrity badges ──────────────────────────────────────────────────
-    Double ocrConfidence,       // null = text PDF (no OCR)
-    double parserConfidence,
-    Integer pageNumber,
-    List<String> parserWarnings,
-    String reviewStatus         // PENDING | APPROVED | CORRECTED | EXCLUDED
-) {}
+        // ── Integrity badges ──────────────────────────────────────────────────
+        String imageData, // Base64-encoded image data (Data URI)
+        Double ocrConfidence, // null = text PDF (no OCR)
+        double parserConfidence,
+        Integer pageNumber,
+        List<String> parserWarnings,
+        String reviewStatus // PENDING | APPROVED | CORRECTED | EXCLUDED
+) {
+}

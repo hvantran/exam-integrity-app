@@ -23,6 +23,7 @@ const ExamPage: React.FC = () => {
   const [flaggedMap, setFlaggedMap] = useState<Record<number, boolean>>({});
 
   const { data: session, isLoading: sessionLoading } = useSession(sessionId);
+  // Use any to allow imageUrl for now (should be DraftQuestionDTO ideally)
   const { data: question, isLoading: questionLoading } = useQuestion(sessionId, currentQuestion);
   const { data: exam } = useExam(session?.examId ?? '');
   const saveAnswer = useSaveAnswer(sessionId);
@@ -48,7 +49,7 @@ const ExamPage: React.FC = () => {
     text.replace(/^[A-Da-d][./、]\s*/u, '').trim();
 
   // Map string[] options from API to QuestionOption[] and strip prefix
-  const mappedOptions: QuestionOption[] | undefined = question?.options?.map((text, i) => ({
+  const mappedOptions: QuestionOption[] | undefined = question?.options?.map((text: string, i: number) => ({
     key: String.fromCharCode(65 + i), // A, B, C, D...
     text: stripOptionPrefix(text),
   }));
@@ -181,6 +182,7 @@ const ExamPage: React.FC = () => {
             if (answer) setAnsweredMap(m => ({ ...m, [flaggedQuestionNumber]: true }));
             saveAnswer.mutate({ questionId: question.id, payload: { answer, flaggedForReview: flaggedMap[flaggedQuestionNumber] ?? false } });
           }}
+          imageData={question.imageData}
         />
       ) : null}
 

@@ -43,17 +43,17 @@ public class ExamDraftService {
     private final String ingestionBaseUrl;
 
     public ExamDraftService(ExamDraftRepository draftRepository,
-                            ExamRepository examRepository,
-                            QuestionBankRepository bankRepository,
-                            RestClient ingestionRestClient,
-                            ObjectMapper objectMapper,
-                            @Value("${ingestion.service.base-url:http://localhost:8091}") String ingestionBaseUrl) {
-        this.draftRepository      = draftRepository;
-        this.examRepository       = examRepository;
-        this.bankRepository       = bankRepository;
-        this.ingestionRestClient  = ingestionRestClient;
-        this.objectMapper         = objectMapper;
-        this.ingestionBaseUrl     = ingestionBaseUrl;
+            ExamRepository examRepository,
+            QuestionBankRepository bankRepository,
+            RestClient ingestionRestClient,
+            ObjectMapper objectMapper,
+            @Value("${ingestion.service.base-url:http://localhost:8091}") String ingestionBaseUrl) {
+        this.draftRepository = draftRepository;
+        this.examRepository = examRepository;
+        this.bankRepository = bankRepository;
+        this.ingestionRestClient = ingestionRestClient;
+        this.objectMapper = objectMapper;
+        this.ingestionBaseUrl = ingestionBaseUrl;
     }
 
     // ── BE-01: Upload PDF ────────────────────────────────────────────────────
@@ -75,7 +75,10 @@ public class ExamDraftService {
         try {
             final byte[] bytes = file.getBytes();
             body.add("file", new ByteArrayResource(bytes) {
-                @Override public String getFilename() { return filename; }
+                @Override
+                public String getFilename() {
+                    return filename;
+                }
             });
         } catch (Exception e) {
             throw new ResponseStatusException(UNPROCESSABLE_ENTITY, "Cannot read uploaded file");
@@ -121,8 +124,8 @@ public class ExamDraftService {
 
     public List<ExamDraftSummaryDTO> listDrafts(String status) {
         List<ExamDraft> drafts = (status != null)
-            ? draftRepository.findByStatus(ExamDraft.DraftStatus.valueOf(status))
-            : draftRepository.findAll();
+                ? draftRepository.findByStatus(ExamDraft.DraftStatus.valueOf(status))
+                : draftRepository.findAll();
         return drafts.stream().map(d -> toSummaryDTO(d, null)).collect(Collectors.toList());
     }
 
@@ -136,8 +139,8 @@ public class ExamDraftService {
         }
         ExamDraftSummaryDTO summary = toSummaryDTO(draft, null);
         List<DraftQuestionDTO> questions = draft.getQuestions().stream()
-            .map(this::toDraftQuestionDTO)
-            .collect(Collectors.toList());
+                .map(this::toDraftQuestionDTO)
+                .collect(Collectors.toList());
         return new FullDraftDTO(summary, questions);
     }
 
@@ -148,13 +151,20 @@ public class ExamDraftService {
         requireEditable(draft);
 
         DraftQuestion q = findQuestionOrThrow(draft, questionId);
-        if (cmd.content()       != null) q.setContent(cmd.content());
-        if (cmd.type()          != null) q.setType(Question.QuestionType.valueOf(cmd.type()));
-        if (cmd.points()        > 0)     q.setPoints(cmd.points());
-        if (cmd.options()       != null) q.setOptions(cmd.options());
-        if (cmd.correctAnswer() != null) q.setCorrectAnswer(cmd.correctAnswer());
-        if (cmd.rubric()        != null) q.setRubric(toRubricDomain(cmd.rubric()));
-        if (cmd.reviewStatus()  != null) q.setReviewStatus(DraftQuestion.ReviewStatus.valueOf(cmd.reviewStatus()));
+        if (cmd.content() != null)
+            q.setContent(cmd.content());
+        if (cmd.type() != null)
+            q.setType(Question.QuestionType.valueOf(cmd.type()));
+        if (cmd.points() > 0)
+            q.setPoints(cmd.points());
+        if (cmd.options() != null)
+            q.setOptions(cmd.options());
+        if (cmd.correctAnswer() != null)
+            q.setCorrectAnswer(cmd.correctAnswer());
+        if (cmd.rubric() != null)
+            q.setRubric(toRubricDomain(cmd.rubric()));
+        if (cmd.reviewStatus() != null)
+            q.setReviewStatus(DraftQuestion.ReviewStatus.valueOf(cmd.reviewStatus()));
         draftRepository.save(draft);
     }
 
@@ -165,7 +175,8 @@ public class ExamDraftService {
         requireEditable(draft);
 
         boolean removed = draft.getQuestions().removeIf(q -> questionId.equals(q.getId()));
-        if (!removed) throw new ResponseStatusException(NOT_FOUND, "Question not found");
+        if (!removed)
+            throw new ResponseStatusException(NOT_FOUND, "Question not found");
         resequence(draft.getQuestions());
         draftRepository.save(draft);
     }
@@ -179,17 +190,23 @@ public class ExamDraftService {
         DraftQuestion q = new DraftQuestion();
         q.setId(UUID.randomUUID().toString());
         q.setContent(cmd.content() != null ? cmd.content() : "");
-        if (cmd.type() != null)           q.setType(Question.QuestionType.valueOf(cmd.type()));
-        if (cmd.points() > 0)             q.setPoints(cmd.points());
-        if (cmd.options() != null)        q.setOptions(cmd.options());
-        if (cmd.correctAnswer() != null)  q.setCorrectAnswer(cmd.correctAnswer());
-        if (cmd.rubric() != null)         q.setRubric(toRubricDomain(cmd.rubric()));
+        if (cmd.type() != null)
+            q.setType(Question.QuestionType.valueOf(cmd.type()));
+        if (cmd.points() > 0)
+            q.setPoints(cmd.points());
+        if (cmd.options() != null)
+            q.setOptions(cmd.options());
+        if (cmd.correctAnswer() != null)
+            q.setCorrectAnswer(cmd.correctAnswer());
+        if (cmd.rubric() != null)
+            q.setRubric(toRubricDomain(cmd.rubric()));
         q.setReviewStatus(DraftQuestion.ReviewStatus.APPROVED);
         q.setParserConfidence(1.0);
 
         List<DraftQuestion> questions = draft.getQuestions();
         int insertAt = (position != null && position > 0 && position <= questions.size())
-            ? position - 1 : questions.size();
+                ? position - 1
+                : questions.size();
         questions.add(insertAt, q);
         resequence(questions);
         draftRepository.save(draft);
@@ -207,19 +224,19 @@ public class ExamDraftService {
 
         // Validation
         List<DraftQuestion> approved = draft.getQuestions().stream()
-            .filter(q -> q.getReviewStatus() != DraftQuestion.ReviewStatus.EXCLUDED)
-            .filter(q -> {
-                // Auto-exclude essay questions that have no rubric — don't block publish
-                boolean essayWithoutRubric = (q.getType() == Question.QuestionType.ESSAY_SHORT
-                        || q.getType() == Question.QuestionType.ESSAY_LONG)
-                        && q.getRubric() == null;
-                if (essayWithoutRubric) {
-                    q.setReviewStatus(DraftQuestion.ReviewStatus.EXCLUDED);
-                    logger.warn("Auto-excluding essay question {} (no rubric) during publish", q.getId());
-                }
-                return !essayWithoutRubric;
-            })
-            .collect(Collectors.toList());
+                .filter(q -> q.getReviewStatus() != DraftQuestion.ReviewStatus.EXCLUDED)
+                .filter(q -> {
+                    // Auto-exclude essay questions that have no rubric — don't block publish
+                    boolean essayWithoutRubric = (q.getType() == Question.QuestionType.ESSAY_SHORT
+                            || q.getType() == Question.QuestionType.ESSAY_LONG)
+                            && q.getRubric() == null;
+                    if (essayWithoutRubric) {
+                        q.setReviewStatus(DraftQuestion.ReviewStatus.EXCLUDED);
+                        logger.warn("Auto-excluding essay question {} (no rubric) during publish", q.getId());
+                    }
+                    return !essayWithoutRubric;
+                })
+                .collect(Collectors.toList());
         if (approved.isEmpty()) {
             throw new ResponseStatusException(BAD_REQUEST, "No questions to publish");
         }
@@ -235,8 +252,8 @@ public class ExamDraftService {
         exam.setCreatedAt(Instant.now());
 
         List<Question> questions = approved.stream()
-            .map(this::toQuestion)
-            .collect(Collectors.toList());
+                .map(this::toQuestion)
+                .collect(Collectors.toList());
         // Renumber sequentially 1..N so student navigation by position always works,
         // regardless of which questions were excluded during review.
         for (int i = 0; i < questions.size(); i++) {
@@ -279,19 +296,19 @@ public class ExamDraftService {
 
     private ExamDraft findDraftOrThrow(String draftId) {
         return draftRepository.findById(draftId)
-            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Draft not found: " + draftId));
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Draft not found: " + draftId));
     }
 
     private DraftQuestion findQuestionOrThrow(ExamDraft draft, String questionId) {
         return draft.getQuestions().stream()
-            .filter(q -> questionId.equals(q.getId()))
-            .findFirst()
-            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Question not found: " + questionId));
+                .filter(q -> questionId.equals(q.getId()))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Question not found: " + questionId));
     }
 
     private void requireEditable(ExamDraft draft) {
         if (draft.getStatus() == ExamDraft.DraftStatus.APPROVED
-         || draft.getStatus() == ExamDraft.DraftStatus.REJECTED) {
+                || draft.getStatus() == ExamDraft.DraftStatus.REJECTED) {
             throw new ResponseStatusException(CONFLICT, "Draft is " + draft.getStatus() + ", cannot edit");
         }
     }
@@ -328,7 +345,8 @@ public class ExamDraftService {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
             StringBuilder sb = new StringBuilder();
-            for (byte b : hash) sb.append(String.format("%02x", b));
+            for (byte b : hash)
+                sb.append(String.format("%02x", b));
             return sb.toString();
         } catch (Exception e) {
             return UUID.randomUUID().toString(); // fallback — should never fail
@@ -337,7 +355,7 @@ public class ExamDraftService {
 
     @SuppressWarnings("unchecked")
     private ExamDraft buildDraftFromParsedExam(Map<?, ?> parsedExam, String filename,
-                                               String jobId, Integer examSetIndex) {
+            String jobId, Integer examSetIndex) {
         ExamDraft draft = new ExamDraft();
         draft.setOriginalFilename(filename);
         draft.setIngestionJobId(jobId);
@@ -345,19 +363,24 @@ public class ExamDraftService {
         draft.setStatus(ExamDraft.DraftStatus.PENDING_REVIEW);
         draft.setExamSetIndex(examSetIndex);
 
-        if (parsedExam == null) return draft;
+        if (parsedExam == null)
+            return draft;
 
         draft.setTitle(parsedExam.containsKey("title") ? (String) parsedExam.get("title") : filename);
         draft.setPdfType(parsedExam.containsKey("pdf_type") ? (String) parsedExam.get("pdf_type") : "text");
         draft.setOcrUsed(Boolean.TRUE.equals(parsedExam.get("ocr_used")));
         Object docOcr = parsedExam.get("document_ocr_confidence");
-        if (docOcr instanceof Number) draft.setDocumentOcrConfidence(((Number) docOcr).doubleValue());
+        if (docOcr instanceof Number)
+            draft.setDocumentOcrConfidence(((Number) docOcr).doubleValue());
         Object tp = parsedExam.get("total_points");
-        if (tp instanceof Number) draft.setTotalPoints(((Number) tp).doubleValue());
+        if (tp instanceof Number)
+            draft.setTotalPoints(((Number) tp).doubleValue());
         Object dp = parsedExam.get("detected_points_sum");
-        if (dp instanceof Number) draft.setDetectedPointsSum(((Number) dp).doubleValue());
+        if (dp instanceof Number)
+            draft.setDetectedPointsSum(((Number) dp).doubleValue());
         Object dur = parsedExam.get("duration_seconds");
-        if (dur instanceof Number) draft.setDurationSeconds(((Number) dur).intValue());
+        if (dur instanceof Number)
+            draft.setDurationSeconds(((Number) dur).intValue());
         Object mismatch = parsedExam.get("has_point_mismatch");
         draft.setHasPointMismatch(Boolean.TRUE.equals(mismatch));
 
@@ -383,29 +406,39 @@ public class ExamDraftService {
         DraftQuestion q = new DraftQuestion();
         q.setId(UUID.randomUUID().toString());
         Object qn = map.get("question_number");
-        if (qn instanceof Number) q.setQuestionNumber(((Number) qn).intValue());
+        if (qn instanceof Number)
+            q.setQuestionNumber(((Number) qn).intValue());
         q.setContent(map.containsKey("content") ? (String) map.get("content") : "");
         q.setRawText((String) map.get("raw_text"));
         String typeStr = map.containsKey("question_type") ? (String) map.get("question_type") : "MCQ";
-        try { q.setType(Question.QuestionType.valueOf(typeStr)); }
-        catch (Exception e) { q.setType(Question.QuestionType.MCQ); }
+        try {
+            q.setType(Question.QuestionType.valueOf(typeStr));
+        } catch (Exception e) {
+            q.setType(Question.QuestionType.MCQ);
+        }
         Object pts = map.get("points");
-        if (pts instanceof Number) q.setPoints(((Number) pts).doubleValue());
+        if (pts instanceof Number)
+            q.setPoints(((Number) pts).doubleValue());
         @SuppressWarnings("unchecked")
         List<String> opts = (List<String>) map.get("options");
-        if (opts != null) q.setOptions(opts);
+        if (opts != null)
+            q.setOptions(opts);
         q.setCorrectAnswer((String) map.get("correct_answer"));
         Object ocr = map.get("ocr_confidence");
-        if (ocr instanceof Number) q.setOcrConfidence(((Number) ocr).doubleValue());
+        if (ocr instanceof Number)
+            q.setOcrConfidence(((Number) ocr).doubleValue());
         Object pc = map.get("parser_confidence");
-        if (pc instanceof Number) q.setParserConfidence(((Number) pc).doubleValue());
+        if (pc instanceof Number)
+            q.setParserConfidence(((Number) pc).doubleValue());
         Object pn = map.get("page_number");
-        if (pn instanceof Number) q.setPageNumber(((Number) pn).intValue());
+        if (pn instanceof Number)
+            q.setPageNumber(((Number) pn).intValue());
         q.setTruncated(Boolean.TRUE.equals(map.get("is_truncated")));
         q.setReviewStatus(DraftQuestion.ReviewStatus.PENDING);
         @SuppressWarnings("unchecked")
         List<String> warns = (List<String>) map.get("warnings");
-        if (warns != null) q.setParserWarnings(warns);
+        if (warns != null)
+            q.setParserWarnings(warns);
         return q;
     }
 
@@ -425,36 +458,46 @@ public class ExamDraftService {
 
     private ExamDraftSummaryDTO toSummaryDTO(ExamDraft d, String overrideStatus) {
         String statusStr = overrideStatus != null ? overrideStatus
-            : (d.getStatus() != null ? d.getStatus().name() : "PENDING_REVIEW");
+                : (d.getStatus() != null ? d.getStatus().name() : "PENDING_REVIEW");
         int flagged = (int) d.getQuestions().stream()
-            .filter(q -> q.getParserConfidence() < 0.8 || (q.getOcrConfidence() != null && q.getOcrConfidence() < 0.75))
-            .count();
+                .filter(q -> q.getParserConfidence() < 0.8
+                        || (q.getOcrConfidence() != null && q.getOcrConfidence() < 0.75))
+                .count();
         return new ExamDraftSummaryDTO(
-            d.getId(), d.getTitle(), d.getOriginalFilename(), d.getPdfType(),
-            d.isOcrUsed(), d.getDocumentOcrConfidence(), d.getQuestions().size(),
-            flagged, d.isHasPointMismatch(), d.getTotalPoints(), d.getDetectedPointsSum(),
-            d.getTags(), statusStr, d.getUploadedAt(), d.getUploadedBy()
-        );
+                d.getId(), d.getTitle(), d.getOriginalFilename(), d.getPdfType(),
+                d.isOcrUsed(), d.getDocumentOcrConfidence(), d.getQuestions().size(),
+                flagged, d.isHasPointMismatch(), d.getTotalPoints(), d.getDetectedPointsSum(),
+                d.getTags(), statusStr, d.getUploadedAt(), d.getUploadedBy());
     }
 
     private DraftQuestionDTO toDraftQuestionDTO(DraftQuestion q) {
-        RubricDTO rubricDTO = q.getRubric() == null ? null : new RubricDTO(
-            q.getRubric().getKeywords(), q.getRubric().getExpectedSteps(),
-            q.getRubric().getFinalAnswer(), q.getRubric().getModelAnswer(),
-            q.getRubric().getFormatChecks()
-        );
+        RubricDTO rubricDTO = q.getRubric() == null ? null
+                : new RubricDTO(
+                        q.getRubric().getKeywords(), q.getRubric().getExpectedSteps(),
+                        q.getRubric().getFinalAnswer(), q.getRubric().getModelAnswer(),
+                        q.getRubric().getFormatChecks());
         return new DraftQuestionDTO(
-            q.getId(), q.getQuestionNumber(), q.getContent(), q.getRawText(),
-            q.getType() != null ? q.getType().name() : null,
-            q.getPoints(), q.getOptions(), q.getCorrectAnswer(), rubricDTO,
-            q.isTruncated(), q.getOcrConfidence(), q.getParserConfidence(),
-            q.getPageNumber(), q.getParserWarnings(),
-            q.getReviewStatus() != null ? q.getReviewStatus().name() : "PENDING"
-        );
+                q.getId(),
+                q.getQuestionNumber(),
+                q.getContent(),
+                q.getRawText(),
+                q.getType() != null ? q.getType().name() : null,
+                q.getPoints(),
+                q.getOptions(),
+                q.getCorrectAnswer(),
+                rubricDTO,
+                q.isTruncated(),
+                null, // imageData not present in DraftQuestion domain yet
+                q.getOcrConfidence(),
+                q.getParserConfidence(),
+                q.getPageNumber(),
+                q.getParserWarnings(),
+                q.getReviewStatus() != null ? q.getReviewStatus().name() : "PENDING");
     }
 
     private Rubric toRubricDomain(RubricDTO dto) {
-        if (dto == null) return null;
+        if (dto == null)
+            return null;
         Rubric r = new Rubric();
         r.setKeywords(dto.keywords() != null ? dto.keywords() : List.of());
         r.setExpectedSteps(dto.expectedSteps() != null ? dto.expectedSteps() : List.of());
