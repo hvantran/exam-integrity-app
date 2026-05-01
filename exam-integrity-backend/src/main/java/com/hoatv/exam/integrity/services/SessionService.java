@@ -3,6 +3,7 @@ package com.hoatv.exam.integrity.services;
 import com.hoatv.exam.integrity.domain.Exam;
 import com.hoatv.exam.integrity.domain.ExamSession;
 import com.hoatv.exam.integrity.domain.Question;
+import com.hoatv.exam.integrity.dtos.AnswerPartDTO;
 import com.hoatv.exam.integrity.dtos.QuestionSummaryDTO;
 import com.hoatv.exam.integrity.dtos.SessionDTO;
 import com.hoatv.exam.integrity.events.ExamSubmittedEvent;
@@ -106,28 +107,20 @@ public class SessionService {
             .or(() -> (questionNumber >= 1 && questionNumber <= questionList.size())
                 ? Optional.of(questionList.get(questionNumber - 1))
                 : Optional.empty())
-            .map(q -> new QuestionSummaryDTO(
-                q.getId(),
-                q.getQuestionNumber(),
-                q.getContent(),
-                q.getType() != null ? q.getType().name() : "MCQ",
-                q.getPoints(),
-                q.getOptions(),
-                q.isTruncated(),
-                q.getImageData()
-            ))
+            .map(this::toQuestionSummary)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                 "Question " + questionNumber + " not found"));
     }
 
     // BE-15: saveAnswer
-    public void saveAnswer(String sessionId, String questionId, String answer, boolean flaggedForReview) {
+    public void saveAnswer(String sessionId, String questionId, String answer, boolean flaggedForReview, List<AnswerPartDTO> answerParts) {
         ExamSession session = findSessionOrThrow(sessionId);
         if (session.getStatus() != ExamSession.SessionStatus.ACTIVE) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Session is not ACTIVE");
         }
         ExamSession.AnswerRecord record = new ExamSession.AnswerRecord();
-        record.setAnswer(answer);
+        record.setAnswer(normalizeAnswer(answer, answerParts));
+        record.setAnswerParts(toAnswerPartRecords(answerParts));
         record.setFlaggedForReview(flaggedForReview);
         record.setSavedAt(Instant.now());
         session.getAnswers().put(questionId, record);
@@ -174,5 +167,53 @@ public class SessionService {
         return new SessionDTO(s.getId(), s.getExamId(), s.getStudentId(),
             s.getStatus() != null ? s.getStatus().name() : "ACTIVE",
             s.getStartedAt(), remainingSeconds);
+    }
+
+    private QuestionSummaryDTO toQuestionSummary(Question question) {
+        QuestionStructureParser.ParsedQuestionContent parsedContent =
+            question.getType() == Question.QuestionType.MCQ
+                ? QuestionStructureParser.ParsedQuestionContent.empty()
+                : QuestionStructureParser.parse(question.getContent());
+
+        return new QuestionSummaryDTO(
+            question.getId(),
+            question.getQuestionNumber(),
+            question.getContent(),
+            parsedContent.stem(),
+            question.getType() != null ? question.getType().name() : "MCQ",
+            question.getPoints(),
+            question.getOptions(),
+            parsedContent.parts(),
+            question.isTruncated(),
+            question.getImageData()
+        );
+    }
+
+    private String normalizeAnswer(String answer, List<AnswerPartDTO> answerParts) {
+        if (answer != null && !answer.isBlank()) {
+            return answer;
+        }
+        if (answerParts == null || answerParts.isEmpty()) {
+            return answer;
+        }
+        return answerParts.stream()
+            .filter(part -> part != null && part.answer() != null && !part.answer().isBlank())
+            .map(part -> part.key() + ") " + part.answer().trim())
+            .collect(Collectors.joining("\n\n"));
+    }
+
+    private List<ExamSession.AnswerPartRecord> toAnswerPartRecords(List<AnswerPartDTO> answerParts) {
+        if (answerParts == null || answerParts.isEmpty()) {
+            return List.of();
+        }
+        return answerParts.stream()
+            .filter(Objects::nonNull)
+            .map(part -> {
+                ExamSession.AnswerPartRecord record = new ExamSession.AnswerPartRecord();
+                record.setKey(part.key());
+                record.setAnswer(part.answer());
+                return record;
+            })
+            .collect(Collectors.toList());
     }
 }

@@ -1,7 +1,7 @@
 /** FE-15: Student review/results page */
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CircularProgress, Alert } from '@mui/material';
+import { Alert } from '@mui/material';
 import { StudentManReviewLayout } from '../components/templates';
 import { ReviewDashboard } from '../components/organisms';
 import { useReviewDashboard } from '../hooks/useReviewDashboard';
@@ -27,9 +27,18 @@ const ReviewPage: React.FC = () => {
       activeSection="results"
       onNavigate={handleNavigate}
     >
-      <div className="p-4 min-h-[300px] flex items-center justify-center">
+      <div className="p-4 min-h-[300px]">
         {isLoading ? (
-          <CircularProgress />
+          <ReviewDashboard
+            isLoading
+            dashboard={{
+              sessionId: '',
+              totalEarned: 0,
+              totalMax: 0,
+              finalScore10: 0,
+              scores: [],
+            }}
+          />
         ) : !dashboard ? (
           <Alert severity="info">Scoring in progress… please wait.</Alert>
         ) : (

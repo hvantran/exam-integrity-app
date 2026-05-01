@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  CircularProgress, Alert, Button, Chip,
+  Alert, Button, Chip,
   Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, Table, TableHead, TableRow, TableCell, TableBody,
   IconButton, InputAdornment,
@@ -16,7 +16,8 @@ import { useQuery } from '@tanstack/react-query';
 import { questionBankService } from '../services/questionBankService';
 import type { DashboardSection } from '../components/organisms';
 import type { DraftQuestionDTO } from '../types/exam.types';
-import QuestionDisplay from '../components/molecules/QuestionDisplay/QuestionDisplay';
+import QuestionDisplay from '../components/molecules/QuestionDisplay';
+import { Skeleton } from '../components/molecules';
 import { colors } from '../design-system/tokens';
 
 const SECTION_ROUTES: Record<DashboardSection, string> = {
@@ -87,7 +88,12 @@ const ReplaceBankModal: React.FC<ReplaceBankModalProps> = ({ open, insertPositio
           }}
         />
         {isLoading ? (
-          <div className="flex justify-center py-4"><CircularProgress size={24} /></div>
+          <div className="py-2">
+            <Skeleton height={40} width="100%" className="mb-2" />
+            <Skeleton height={40} width="100%" className="mb-2" />
+            <Skeleton height={40} width="100%" className="mb-2" />
+            <Skeleton height={40} width="100%" />
+          </div>
         ) : (
           <Table size="small">
             <TableHead>
@@ -154,7 +160,20 @@ const QuestionReviewPage: React.FC = () => {
   const editQuestion = useEditQuestion(draftId);
   const removeQuestion = useRemoveQuestion(draftId);
 
-  if (isLoading) return <div className="flex justify-center items-center h-64"><CircularProgress /></div>;
+  if (isLoading) {
+    return (
+      <TeacherManQuestionReviewLayout
+        questionNumber={currentIdx + 1}
+        totalQuestions={1}
+        examName="Loading draft..."
+        isLoading
+        onNavigate={handleNavigate}
+        onLogout={handleLogout}
+        onSaveDraft={() => navigate('/teacher/ingestion')}
+        onPublish={() => {}}
+      />
+    );
+  }
   if (!draft) return <Alert severity="error">Draft not found.</Alert>;
 
   // Only show non-excluded questions in the reviewer

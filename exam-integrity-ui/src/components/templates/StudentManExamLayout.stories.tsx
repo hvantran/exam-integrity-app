@@ -36,10 +36,8 @@ export const ActiveExam: Story = {
         <StudentManExamNavigationBar
           canGoPrev
           canGoNext
-          isFlagged={false}
           onPrevious={() => {}}
           onNext={() => {}}
-          onFlag={() => {}}
           onSubmit={() => {}}
         />
       }
@@ -57,6 +55,8 @@ export const ActiveExam: Story = {
         questionType="MCQ"
         options={options}
         selectedAnswer="A"
+        isFlagged={false}
+        onFlag={() => {}}
         onAnswerChange={() => {}}
       />
     </StudentManExamLayout>

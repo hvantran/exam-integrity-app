@@ -23,10 +23,8 @@ export const Default: Story = {
   args: {
     canGoPrev: true,
     canGoNext: true,
-    isFlagged: false,
     onPrevious: () => {},
     onNext: () => {},
-    onFlag: () => {},
     onSubmit: () => {},
   },
 };
@@ -36,9 +34,22 @@ export const FirstQuestion: Story = {
 };
 
 export const LastQuestion: Story = {
-  args: { ...Default.args, canGoNext: false, isLastQuestion: true },
+  args: {
+    ...Default.args,
+    canGoNext: false,
+    isLastQuestion: true,
+    flaggedCount: 3,
+    onReviewFlagged: () => {},
+  },
 };
 
-export const Flagged: Story = {
-  args: { ...Default.args, isFlagged: true },
+export const ReviewModeNoMovement: Story = {
+  args: {
+    ...Default.args,
+    canGoPrev: false,
+    canGoNext: false,
+    flaggedCount: 1,
+    isLastQuestion: true,
+    onReviewFlagged: () => {},
+  },
 };

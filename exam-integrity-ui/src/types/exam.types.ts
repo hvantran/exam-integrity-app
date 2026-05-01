@@ -7,6 +7,16 @@ export interface QuestionOption {
   text: string;
 }
 
+export interface QuestionPart {
+  key: string;
+  prompt: string;
+}
+
+export interface AnswerPart {
+  key: string;
+  answer: string;
+}
+
 export interface RubricDTO {
   keywords?: string[];
   expectedSteps?: string[];
@@ -19,9 +29,11 @@ export interface QuestionSummaryDTO {
   id: string;
   questionNumber: number;
   content: string;
+  stem?: string;
   type: QuestionType;
   points: number;
   options?: string[];
+  questionParts?: QuestionPart[];
   truncated: boolean;
   imageData?: string
 }
@@ -114,6 +126,7 @@ export interface SessionDTO {
 export interface AnswerPayload {
   answer: string;
   flaggedForReview: boolean;
+  answerParts?: AnswerPart[];
 }
 
 export type ScoreStatus =

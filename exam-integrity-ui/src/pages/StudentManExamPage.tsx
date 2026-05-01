@@ -1,15 +1,26 @@
 /** FE-14: Student exam-taking page */
 import React, { useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { CircularProgress, Alert } from '@mui/material';
+import { Alert } from '@mui/material';
 import { StudentManExamLayout } from '../components/templates';
 import { StudentManExamHeader, StudentManQuestionPanel, StudentManExamNavigationBar, SubmitModal } from '../components/organisms';
+import { Skeleton } from '../components/molecules';
 import StudentManFlaggedSidebar from '../components/organisms/StudentManFlaggedSidebar';
 import type { QuestionOption } from '../components/organisms';
 import { useSession, useQuestion, useSaveAnswer, useSubmitExam } from '../hooks/useSession';
 import { useExam } from '../hooks/useExams';
 import { useWebSocketTimer } from '../hooks/useWebSocketTimer';
 import { useProctor } from '../hooks/useProctor';
+import type { AnswerPart } from '../types/exam.types';
+
+const hasAnswerPartsContent = (parts: AnswerPart[]): boolean =>
+  parts.some((part) => part.answer.trim().length > 0);
+
+const serializeAnswerParts = (parts: AnswerPart[]): string =>
+  parts
+    .filter((part) => part.answer.trim().length > 0)
+    .map((part) => `${part.key}) ${part.answer.trim()}`)
+    .join('\n\n');
 
 const ExamPage: React.FC = () => {
   const { sessionId = '' } = useParams<{ sessionId: string }>();
@@ -19,6 +30,7 @@ const ExamPage: React.FC = () => {
   const [flaggedReviewIndex, setFlaggedReviewIndex] = useState(0);
   // Store answers per question number
   const [answerMap, setAnswerMap] = useState<Record<number, string>>({});
+  const [answerPartsMap, setAnswerPartsMap] = useState<Record<number, AnswerPart[]>>({});
   const [answeredMap, setAnsweredMap] = useState<Record<number, boolean>>({});
   const [flaggedMap, setFlaggedMap] = useState<Record<number, boolean>>({});
 
@@ -36,7 +48,17 @@ const ExamPage: React.FC = () => {
   const { remaining } = useWebSocketTimer(sessionId, handleForceSubmit);
   useProctor(sessionId, session?.studentId ?? '');
 
-  if (sessionLoading) return <CircularProgress />;
+  if (sessionLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-[#f7fafc] to-[#e9eef6] px-4 md:px-8 py-8">
+        <div className="max-w-[1200px] mx-auto">
+          <Skeleton width="45%" height={28} className="mb-3" />
+          <Skeleton width="30%" height={18} className="mb-8" />
+          <Skeleton width="100%" height={460} />
+        </div>
+      </div>
+    );
+  }
   if (!session) return <Alert severity="error">Exam session not found.</Alert>;
 
   const displayRemaining = remaining ?? session.remainingSeconds;
@@ -124,7 +146,6 @@ const ExamPage: React.FC = () => {
               ? flaggedReviewIndex < flaggedNumbers.length - 1
               : flaggedQuestionNumber < totalQuestions
           }
-          isFlagged={flaggedMap[flaggedQuestionNumber] ?? false}
           isLastQuestion={
             inReviewFlagged
               ? flaggedReviewIndex === flaggedNumbers.length - 1
@@ -145,12 +166,6 @@ const ExamPage: React.FC = () => {
               setCurrentQuestion(q => Math.min(totalQuestions, q + 1));
             }
           }}
-          onFlag={() => {
-            if (!question) return;
-            const next = !flaggedMap[flaggedQuestionNumber];
-            setFlaggedMap(m => ({ ...m, [flaggedQuestionNumber]: next }));
-            saveAnswer.mutate({ questionId: question.id, payload: { answer: answerMap[flaggedQuestionNumber] || '', flaggedForReview: next } });
-          }}
           onSubmit={() => setShowSubmitModal(true)}
           onReviewFlagged={
             !inReviewFlagged && flaggedNumbers.length > 0
@@ -163,24 +178,70 @@ const ExamPage: React.FC = () => {
         />
       }
       proTips={[
-        "Hệ thống sẽ tự động nộp bài khi hết thời gian. Đảm bảo bạn đã chuẩn bị giấy nháp cho các phần tự luận.",
-        "Đọc kỹ yêu cầu đề bài (ví dụ: \"Đặt tính\") trước khi làm để tránh nhầm lẫn.",
-        "Sử dụng tính năng Flag for Review nếu bạn chưa chắc chắn về câu trả lời."
+        'Tập trung vào từng câu hỏi một và giữ nhịp làm bài ổn định.',
+        'Đánh dấu 🚩 câu chưa chắc chắn để quay lại sau, tránh mất thời gian dừng lâu.',
+        'Rà soát lại câu trả lời cuối mỗi nhóm câu để giảm lỗi bất cẩn.'
       ]}
     >
       {questionLoading ? (
-        <CircularProgress />
+        <StudentManQuestionPanel
+          questionNumber={flaggedQuestionNumber}
+          questionText=""
+          questionType="MCQ"
+          options={[]}
+          selectedAnswer=""
+          isLoading
+          onAnswerChange={() => {}}
+        />
       ) : question ? (
         <StudentManQuestionPanel
           questionNumber={flaggedQuestionNumber}
           questionText={question.content}
+          questionStem={question.stem}
           questionType={question.type}
           options={mappedOptions}
+          questionParts={question.questionParts}
           selectedAnswer={answerMap[flaggedQuestionNumber] || ''}
+          selectedAnswerParts={answerPartsMap[flaggedQuestionNumber] ?? []}
+          isFlagged={flaggedMap[flaggedQuestionNumber] ?? false}
+          onFlag={() => {
+            const next = !flaggedMap[flaggedQuestionNumber];
+            setFlaggedMap(m => ({ ...m, [flaggedQuestionNumber]: next }));
+            saveAnswer.mutate({
+              questionId: question.id,
+              payload: {
+                answer: answerMap[flaggedQuestionNumber] || '',
+                answerParts: answerPartsMap[flaggedQuestionNumber] ?? [],
+                flaggedForReview: next,
+              },
+            });
+          }}
           onAnswerChange={(answer: string) => {
             setAnswerMap(m => ({ ...m, [flaggedQuestionNumber]: answer }));
-            if (answer) setAnsweredMap(m => ({ ...m, [flaggedQuestionNumber]: true }));
-            saveAnswer.mutate({ questionId: question.id, payload: { answer, flaggedForReview: flaggedMap[flaggedQuestionNumber] ?? false } });
+            setAnswerPartsMap(m => ({ ...m, [flaggedQuestionNumber]: [] }));
+            setAnsweredMap(m => ({ ...m, [flaggedQuestionNumber]: answer.trim().length > 0 }));
+            saveAnswer.mutate({
+              questionId: question.id,
+              payload: {
+                answer,
+                answerParts: [],
+                flaggedForReview: flaggedMap[flaggedQuestionNumber] ?? false,
+              },
+            });
+          }}
+          onAnswerPartsChange={(parts: AnswerPart[]) => {
+            const serialized = serializeAnswerParts(parts);
+            setAnswerPartsMap(m => ({ ...m, [flaggedQuestionNumber]: parts }));
+            setAnswerMap(m => ({ ...m, [flaggedQuestionNumber]: serialized }));
+            setAnsweredMap(m => ({ ...m, [flaggedQuestionNumber]: hasAnswerPartsContent(parts) }));
+            saveAnswer.mutate({
+              questionId: question.id,
+              payload: {
+                answer: serialized,
+                answerParts: parts,
+                flaggedForReview: flaggedMap[flaggedQuestionNumber] ?? false,
+              },
+            });
           }}
           imageData={question.imageData}
         />

@@ -36,7 +36,9 @@ export const MCQ: Story = {
     questionType: 'MCQ',
     options: biologyOptions,
     selectedAnswer: 'A',
+    isFlagged: false,
     onAnswerChange: () => {},
+    onFlag: () => {},
   },
 };
 
@@ -60,10 +62,46 @@ export const Essay: Story = {
   },
 };
 
+export const EssayWithParts: Story = {
+  args: {
+    questionNumber: 7,
+    subject: 'Toán',
+    gradeLevel: 'Lớp 4',
+    questionText:
+      'Tính giá trị của biểu thức:\na) 12 523 + 20 492 : 4\nb) (15 320 – 3 105) x 8',
+    questionStem: 'Tính giá trị của biểu thức:',
+    questionType: 'ESSAY_SHORT',
+    questionParts: [
+      { key: 'a', prompt: '12 523 + 20 492 : 4' },
+      { key: 'b', prompt: '(15 320 – 3 105) x 8' },
+    ],
+    selectedAnswerParts: [
+      { key: 'a', answer: '' },
+      { key: 'b', answer: '' },
+    ],
+    onAnswerChange: () => {},
+    onAnswerPartsChange: () => {},
+  },
+};
+
 export const Disabled: Story = {
   args: {
     ...MCQ.args,
     disabled: true,
     selectedAnswer: 'A',
+  },
+};
+
+export const FlaggedQuestion: Story = {
+  args: {
+    ...MCQ.args,
+    isFlagged: true,
+  },
+};
+
+export const Loading: Story = {
+  args: {
+    ...MCQ.args,
+    isLoading: true,
   },
 };

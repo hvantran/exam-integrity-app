@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ProgressBar } from '../atoms';
-import { StudentManTimerDisplay, TeacherManProctoringStatusChip } from '../molecules';
+import { TimerDisplay, ProctoringStatusChip } from '../molecules';
 
 export interface ExamHeaderProps {
 	/** Application / exam brand name */
@@ -43,12 +43,12 @@ const StudentManExamHeader: React.FC<ExamHeaderProps> = ({
 
 					{/* Proctoring chip */}
 					<span className="hidden md:inline-block mr-2">
-						<TeacherManProctoringStatusChip active={isProctoringActive} />
+						<ProctoringStatusChip active={isProctoringActive} />
 					</span>
 
 					{/* Timer */}
 					<span className="mr-2">
-						<StudentManTimerDisplay remainingSeconds={remainingSeconds} />
+						<TimerDisplay remainingSeconds={remainingSeconds} />
 					</span>
 
 					{/* Action icons */}

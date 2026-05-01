@@ -5,7 +5,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.Indexed;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -67,6 +69,8 @@ public class ExamSession {
     public static class AnswerRecord {
         /** Student's free-text or MCQ answer. */
         private String answer;
+        /** Structured answers for sub-questions when the prompt is split in the UI. */
+        private List<AnswerPartRecord> answerParts = new ArrayList<>();
         /** True when student used "Flag for Review" button. */
         private boolean flaggedForReview;
         /** Wall-clock time when this answer was last saved. */
@@ -75,11 +79,25 @@ public class ExamSession {
         public String getAnswer() { return answer; }
         public void setAnswer(String answer) { this.answer = answer; }
 
+        public List<AnswerPartRecord> getAnswerParts() { return answerParts; }
+        public void setAnswerParts(List<AnswerPartRecord> answerParts) { this.answerParts = answerParts; }
+
         public boolean isFlaggedForReview() { return flaggedForReview; }
         public void setFlaggedForReview(boolean flaggedForReview) { this.flaggedForReview = flaggedForReview; }
 
         public Instant getSavedAt() { return savedAt; }
         public void setSavedAt(Instant savedAt) { this.savedAt = savedAt; }
+    }
+
+    public static class AnswerPartRecord {
+        private String key;
+        private String answer;
+
+        public String getKey() { return key; }
+        public void setKey(String key) { this.key = key; }
+
+        public String getAnswer() { return answer; }
+        public void setAnswer(String answer) { this.answer = answer; }
     }
 
     // ----- Getters & Setters -----

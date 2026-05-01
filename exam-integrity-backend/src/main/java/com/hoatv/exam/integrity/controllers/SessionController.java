@@ -56,7 +56,13 @@ public class SessionController {
             @PathVariable("sessionId") String sessionId,
             @PathVariable("questionId") String questionId,
             @Valid @RequestBody AnswerDTO answerDTO) {
-        sessionService.saveAnswer(sessionId, questionId, answerDTO.answer(), answerDTO.flaggedForReview());
+        sessionService.saveAnswer(
+            sessionId,
+            questionId,
+            answerDTO.answer(),
+            answerDTO.flaggedForReview(),
+            answerDTO.answerParts()
+        );
         return ResponseEntity.noContent().build();
     }
 

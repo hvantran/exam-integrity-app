@@ -27,7 +27,7 @@ const StudentManExamLayout: React.FC<ExamLayoutProps> = ({ header, children, sid
     </div>
 
     {/* Content area */}
-    <div className="flex flex-1 justify-center items-start px-2 md:px-8 py-4 md:py-12 gap-2 md:gap-8 max-w-[1440px] mx-auto w-full">
+    <div className="flex flex-1 justify-center items-start px-2 md:px-8 py-4 md:pt-12 gap-2 md:gap-8 max-w-[1440px] mx-auto w-full">
       {/* Paper column — 800px max, with card effect */}
       <div className="flex-1 max-w-[1040px] bg-white rounded-2xl shadow-[0_4px_24px_0_rgba(0,0,0,0.07)] p-2 md:p-8 min-h-[600px] flex flex-col">
         {/* Main content and ProTips side by side */}

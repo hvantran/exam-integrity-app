@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TeacherManDashboardLayout } from '../components/templates';
+import { Skeleton } from '../components/molecules';
 import { useExamList, useCreateExamFromBank, useDeleteExam } from '../hooks/useExams';
 import { useAuth } from '../context/AuthContext';
 import type { DashboardSection } from '../components/organisms';
@@ -272,8 +273,10 @@ const TeacherManDashboardPage: React.FC = () => {
 
             {/* Content */}
             {isLoading && (
-                <div className="flex justify-center py-12">
-                    <span className="loader h-8 w-8 border-4 border-violet-300 border-t-violet-700 rounded-full animate-spin"></span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 py-2">
+                    {Array.from({ length: 6 }).map((_, index) => (
+                        <Skeleton key={index} height={220} />
+                    ))}
                 </div>
             )}
 

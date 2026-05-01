@@ -7,9 +7,11 @@ public record QuestionSummaryDTO(
     String id,
     int questionNumber,
     String content,
+    String stem,
     String type,
     double points,
     List<String> options,
+    List<QuestionPartDTO> questionParts,
     boolean truncated,
     String imageData
 ) {}

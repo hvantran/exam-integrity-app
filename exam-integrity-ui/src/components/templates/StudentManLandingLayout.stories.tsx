@@ -2,7 +2,7 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box } from '@mui/material';
 import StudentManLandingLayout from './StudentManLandingLayout';
-import { StudentManExamCard } from '../molecules';
+import { ExamCard } from '../molecules';
 import { spacing } from '../../design-system/tokens';
 
 const meta: Meta<typeof StudentManLandingLayout> = {
@@ -31,7 +31,7 @@ const ExamGrid = () => (
       gap: `${spacing.gutter}px`,
     }}
   >
-    <StudentManExamCard
+    <ExamCard
       title="Thi giữa kỳ Toán lớp 4 - MÃ ĐỀ 01"
       subject="Toán"
       grade="Lớp 4"
@@ -41,7 +41,7 @@ const ExamGrid = () => (
       points={10}
       isHighlighted
     />
-    <StudentManExamCard
+    <ExamCard
       title="Kiểm tra Đọc hiểu Tuần 12"
       subject="Tiếng Việt"
       grade="Lớp 4"
@@ -50,7 +50,7 @@ const ExamGrid = () => (
       questionCount={15}
       points={10}
     />
-    <StudentManExamCard
+    <ExamCard
       title="Bài Test Thường Xuyên - Chủ đề 3"
       subject="Khoa học"
       grade="Lớp 4"

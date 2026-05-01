@@ -53,16 +53,25 @@ public class ExamService {
     public Optional<ExamDTO> getFullExam(String examId) {
         return examRepository.findById(examId).map(exam -> {
             List<QuestionSummaryDTO> questions = exam.getQuestions().stream()
-                .map(q -> new QuestionSummaryDTO(
-                    q.getId(),
-                    q.getQuestionNumber(),
-                    q.getContent(),
-                    q.getType() != null ? q.getType().name() : "MCQ",
-                    q.getPoints(),
-                    q.getOptions(),
-                    q.isTruncated(),
-                    q.getImageData()
-                ))
+                .map(q -> {
+                    QuestionStructureParser.ParsedQuestionContent parsedContent =
+                        q.getType() == Question.QuestionType.MCQ
+                            ? QuestionStructureParser.ParsedQuestionContent.empty()
+                            : QuestionStructureParser.parse(q.getContent());
+
+                    return new QuestionSummaryDTO(
+                        q.getId(),
+                        q.getQuestionNumber(),
+                        q.getContent(),
+                        parsedContent.stem(),
+                        q.getType() != null ? q.getType().name() : "MCQ",
+                        q.getPoints(),
+                        q.getOptions(),
+                        parsedContent.parts(),
+                        q.isTruncated(),
+                        q.getImageData()
+                    );
+                })
                 .collect(Collectors.toList());
             return new ExamDTO(exam.getId(), exam.getTitle(), exam.getDurationSeconds(),
                 exam.getTotalPoints(), questions.size(), exam.getTags(), questions);

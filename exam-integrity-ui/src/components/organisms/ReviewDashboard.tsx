@@ -1,14 +1,42 @@
 import React from 'react';
 
 import type { ReviewDashboard as ReviewDashboardType } from '../../types/exam.types';
-import { MistakeSummary } from '../molecules';
-import { CorrectionCard } from '../molecules';
+import { MistakeSummary, CorrectionCard, Skeleton } from '../molecules';
 
 interface Props {
   dashboard: ReviewDashboardType;
+  isLoading?: boolean;
 }
 
-const ReviewDashboard: React.FC<Props> = ({ dashboard }) => {
+const ReviewDashboard: React.FC<Props> = ({ dashboard, isLoading = false }) => {
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-10 px-2 md:px-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="p-8 mb-6 rounded-2xl border border-gray-200 shadow-lg bg-white">
+            <Skeleton width={180} height={28} className="mb-6" />
+            <Skeleton width={200} height={64} className="mb-4" />
+            <Skeleton width="100%" height={8} className="mb-4" />
+            <div className="flex gap-6">
+              <Skeleton width={130} height={20} />
+              <Skeleton width={130} height={20} />
+              <Skeleton width={120} height={20} className="ml-auto" />
+            </div>
+          </div>
+
+          <Skeleton width="100%" height={52} className="mb-6" />
+          <Skeleton width="48%" height={52} className="mb-6" />
+
+          <div className="mb-3">
+            <Skeleton width={180} height={24} />
+          </div>
+          <Skeleton width="100%" height={170} className="mb-4" />
+          <Skeleton width="100%" height={170} />
+        </div>
+      </div>
+    );
+  }
+
   const pct = Math.round((dashboard.totalEarned / Math.max(dashboard.totalMax, 1)) * 100);
   const correctCount = dashboard.scores.filter(s => s.status === 'CORRECT').length;
   const incorrectCount = dashboard.scores.length - correctCount;

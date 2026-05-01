@@ -640,6 +640,11 @@ paths:
               questionId: q-uuid-003
               answer: "A"
               flaggedForReview: false
+              answerParts:
+                - key: a
+                  answer: "6371"
+                - key: b
+                  answer: "97720"
       responses:
         '204':
           description: Saved
@@ -839,6 +844,11 @@ components:
         content:
           type: string
           example: "Tinh 12 x 34 = ?"
+        stem:
+          type: string
+          nullable: true
+          description: Shared instruction shown above structured sub-question prompts.
+          example: "Tính giá trị của biểu thức:"
         type:
           type: string
           enum: [MCQ, ESSAY_SHORT, ESSAY_LONG]
@@ -853,6 +863,12 @@ components:
           items:
             type: string
           example: ["A. 408", "B. 418", "C. 480", "D. 488"]
+        questionParts:
+          type: array
+          nullable: true
+          description: Present when an essay question is recognized as multiple labeled sub-questions.
+          items:
+            $ref: '#/components/schemas/QuestionPartDTO'
         truncated:
           type: boolean
           description: True if OCR cut off part of this question
@@ -1292,6 +1308,32 @@ components:
           default: false
           description: True if student marked this question for review before submitting
           example: false
+        answerParts:
+          type: array
+          nullable: true
+          description: Structured sub-question answers for short essay prompts rendered as separate answer boxes.
+          items:
+            $ref: '#/components/schemas/AnswerPartDTO'
+
+    QuestionPartDTO:
+      type: object
+      properties:
+        key:
+          type: string
+          example: a
+        prompt:
+          type: string
+          example: "12 523 + 20 492 : 4"
+
+    AnswerPartDTO:
+      type: object
+      properties:
+        key:
+          type: string
+          example: a
+        answer:
+          type: string
+          example: "6371"
 
     # -- Review / Scoring -----------------------------------------------------
     ReviewDashboardDTO:

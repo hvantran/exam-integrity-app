@@ -1,9 +1,7 @@
 /** FE-16: Student landing page — browse and start exams */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Box, Card, CardContent, Typography, Button, CircularProgress, Chip,
-} from '@mui/material';
+import { Skeleton } from '../components/molecules';
 import { StudentManLandingLayout } from '../components/templates';
 import { useExamList, useTagList } from '../hooks/useExams';
 import { useCreateSession } from '../hooks/useSession';
@@ -37,7 +35,22 @@ const LandingPage: React.FC = () => {
       onLogout={handleLogout}
     >
       {isLoading || isTagsLoading ? (
-        <div className="flex justify-center items-center min-h-[200px]"><CircularProgress /></div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div key={index} className="border rounded-xl bg-white shadow p-4 flex flex-col justify-between">
+              <div>
+                <Skeleton height={24} width="72%" className="mb-3" />
+                <Skeleton height={16} width="88%" className="mb-2" />
+                <Skeleton height={16} width="60%" className="mb-3" />
+                <div className="flex gap-2 mb-3">
+                  <Skeleton height={20} width={56} />
+                  <Skeleton height={20} width={56} />
+                </div>
+              </div>
+              <Skeleton height={40} width="100%" />
+            </div>
+          ))}
+        </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {(exams ?? []).map(exam => (

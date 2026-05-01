@@ -1,7 +1,7 @@
 /** FE-20: Teacher final publication page */
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CircularProgress, Alert } from '@mui/material';
+import { Alert } from '@mui/material';
 import { TeacherManFinalPublicationLayout } from '../components/templates';
 import { useDraft, usePublishDraft } from '../hooks/useDraft';
 import { useAuth } from '../context/AuthContext';
@@ -44,7 +44,17 @@ const FinalPublicationPage: React.FC = () => {
     );
   };
 
-  if (isLoading) return <div className="flex justify-center items-center h-64"><CircularProgress /></div>;
+  if (isLoading) {
+    return (
+      <TeacherManFinalPublicationLayout
+        isLoading
+        onNavigate={handleNavigate}
+        onLogout={handleLogout}
+        onSaveDraft={() => navigate(`/teacher/drafts/${draftId}/review`)}
+        onPublish={() => {}}
+      />
+    );
+  }
   if (!draft) return <Alert severity="error">Draft not found.</Alert>;
 
   // Only count questions that will actually be published (not excluded)

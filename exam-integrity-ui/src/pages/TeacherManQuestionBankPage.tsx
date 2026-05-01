@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Box, TextField, MenuItem, Select, FormControl, InputLabel, CircularProgress,
+  Box, TextField, MenuItem, Select, FormControl, InputLabel,
   Typography, Chip, IconButton, Button, Radio, RadioGroup, FormControlLabel,
   InputAdornment, Tooltip, Dialog, DialogTitle, DialogContent, DialogContentText,
   DialogActions,
@@ -497,12 +497,7 @@ const QuestionBankPage: React.FC = () => {
           </Box>
         }
       >
-        {isLoading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-            <CircularProgress size={32} sx={{ color: colors.primary.main }} />
-          </Box>
-        ) : (
-          <>
+        <>
             {data?.content.map((item, i) =>
               editingId === item.id ? (
                 <QuestionEditCard
@@ -530,7 +525,6 @@ const QuestionBankPage: React.FC = () => {
               </Box>
             )}
           </>
-        )}
       </TeacherManQuestionBankLayout>
 
       {/* Add Question dialog */}
