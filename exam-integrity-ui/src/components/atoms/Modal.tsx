@@ -1,12 +1,12 @@
 import React from 'react';
 import CloseIcon from '@mui/icons-material/Close';
-import { colors } from '../../design-system/tokens';
 
 export interface ModalProps {
   open: boolean;
   onClose: () => void;
   title: string;
-  titleColor?: string;
+  /** Tailwind text colour class e.g. "text-primary" (default) or "text-error-600" */
+  titleClassName?: string;
   /** Tailwind max-width class, e.g. "max-w-lg" (default) or "max-w-sm" */
   maxWidth?: string;
   children: React.ReactNode;
@@ -17,7 +17,7 @@ const Modal: React.FC<ModalProps> = ({
   open,
   onClose,
   title,
-  titleColor,
+  titleClassName,
   maxWidth = 'max-w-lg',
   children,
   actions,
@@ -27,7 +27,7 @@ const Modal: React.FC<ModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className={`bg-white rounded-xl shadow-2xl w-full ${maxWidth} flex flex-col max-h-[90vh]`}>
         <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b border-gray-100">
-          <h2 className="text-lg font-bold" style={{ color: titleColor ?? colors.primary.main }}>
+          <h2 className={`text-lg font-bold ${titleClassName ?? 'text-primary'}`}>
             {title}
           </h2>
           <button

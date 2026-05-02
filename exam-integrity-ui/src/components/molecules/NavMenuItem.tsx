@@ -1,5 +1,4 @@
 import React from 'react';
-import { colors, borderRadius } from '../../design-system/tokens';
 
 export interface NavMenuItemProps {
   icon: React.ReactNode;
@@ -27,39 +26,22 @@ const NavMenuItem: React.FC<NavMenuItemProps> = ({
     type="button"
     onClick={onClick}
     title={collapsed ? label : undefined}
-    className="w-full flex items-center gap-3 py-2.5 border-none text-left font-inherit transition-all duration-150"
-    style={{
-      paddingLeft: collapsed ? '12px' : '16px',
-      paddingRight: collapsed ? '12px' : '16px',
-      borderRadius: borderRadius.default,
-      backgroundColor: active ? colors.surface.container.low : 'transparent',
-      color: active ? colors.primary.main : colors.on.surfaceVariant,
-      borderLeft: active ? `3px solid ${colors.primary.main}` : '3px solid transparent',
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.backgroundColor = colors.surface.container.low;
-      e.currentTarget.style.color = colors.primary.main;
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.backgroundColor = active ? colors.surface.container.low : 'transparent';
-      e.currentTarget.style.color = active ? colors.primary.main : colors.on.surfaceVariant;
-    }}
+    className={[
+      'w-full flex items-center gap-3 py-2.5 border-none text-left transition-all duration-150 rounded',
+      collapsed ? 'px-3' : 'px-4',
+      active
+        ? 'bg-surface-low text-primary border-l-[3px] border-l-primary'
+        : 'bg-transparent text-on-surfaceVariant border-l-[3px] border-l-transparent hover:bg-surface-low hover:text-primary',
+    ].join(' ')}
   >
     <span
       className="flex items-center justify-center shrink-0"
-      style={{ color: 'inherit' }}
     >
       {icon}
     </span>
       {!collapsed && (
         <span
-          style={{
-            fontSize: '14px',
-            fontWeight: active ? 600 : 400,
-            lineHeight: '20px',
-            color: 'inherit',
-            whiteSpace: 'nowrap',
-          }}
+          className={`text-sm leading-5 whitespace-nowrap ${active ? 'font-semibold' : 'font-normal'}`}
         >
           {label}
         </span>

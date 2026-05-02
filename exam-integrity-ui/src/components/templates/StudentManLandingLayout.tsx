@@ -1,6 +1,5 @@
 import React from 'react';
-import { Chip } from '../atoms';
-import { colors, spacing, borderRadius } from '../../design-system/tokens';
+import { spacing } from '../../design-system/tokens';
 import { AppTopBar, StudentManPortalSidebar, APP_BAR_HEIGHT, STUDENT_SIDEBAR_WIDTH } from '../organisms';
 import type { PortalSection } from '../organisms';
 
@@ -42,7 +41,7 @@ const StudentManLandingLayout: React.FC<LandingLayoutProps> = ({
   onLogout,
   children,
 }) => (
-  <div className="min-h-screen" style={{ backgroundColor: colors.background }}>
+  <div className="min-h-screen bg-background">
     <AppTopBar
       appTitle="Academic Management"
       userName={studentName}
@@ -64,21 +63,12 @@ const StudentManLandingLayout: React.FC<LandingLayoutProps> = ({
     >
       <div className="mx-auto" style={{ padding: `${spacing.margin}px`, maxWidth: spacing.containerMax }}>
         {/* Page header */}
-        <div style={{ marginBottom: `${spacing.stackLg}px` }}>
-          <h1
-            style={{
-              fontSize: '32px',
-              fontWeight: 600,
-              color: colors.on.surface,
-              lineHeight: '40px',
-              letterSpacing: '-0.01em',
-              marginBottom: '8px',
-            }}
-          >
+        <div className="mb-8">
+          <h1 className="text-[32px] font-semibold text-on-surface leading-10 tracking-tight mb-2">
             {pageTitle}
           </h1>
           {pageSubtitle && (
-            <p style={{ fontSize: '16px', color: colors.on.surfaceVariant }}>
+            <p className="text-base text-on-surfaceVariant">
               {pageSubtitle}
             </p>
           )}
@@ -86,19 +76,20 @@ const StudentManLandingLayout: React.FC<LandingLayoutProps> = ({
 
         {/* Filter bar */}
         {filters.length > 0 && (
-          <div className="mb-6 flex flex-wrap gap-2" style={{ marginBottom: `${spacing.stackLg}px` }}>
+          <div className="mb-8 flex flex-wrap gap-2">
             {filters.map((f) => (
-              <Chip
+              <button
                 key={f.value}
-                label={f.label}
+                type="button"
                 onClick={() => onFilterChange?.(f.value)}
-                style={{
-                  backgroundColor: activeFilter === f.value ? colors.primary.fixed : colors.surface.container.default,
-                  color: activeFilter === f.value ? colors.primary.deep : colors.on.surfaceVariant,
-                  fontWeight: activeFilter === f.value ? 600 : 500,
-                  borderRadius: borderRadius.full,
-                }}
-              />
+                className={`inline-flex items-center rounded-full px-3 h-7 text-sm transition-colors ${
+                  activeFilter === f.value
+                    ? 'bg-primary-100 text-primary-deep font-semibold'
+                    : 'bg-surface-high text-on-surfaceVariant font-medium hover:bg-surface-low'
+                }`}
+              >
+                {f.label}
+              </button>
             ))}
           </div>
         )}

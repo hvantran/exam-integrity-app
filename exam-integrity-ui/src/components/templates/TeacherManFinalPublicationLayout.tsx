@@ -1,10 +1,9 @@
 import React, { useState, KeyboardEvent } from 'react';
 import { TextField } from '@mui/material';
 import { Skeleton } from '../molecules';
-import { Chip, Button } from '../atoms';
+import { Button } from '../atoms';
 import PublishIcon from '@mui/icons-material/Publish';
 import {Add as AddIcon, CheckCircleOutlined, FunctionsOutlined, ChromeReaderModeOutlined} from '@mui/icons-material';
-import { colors, spacing, borderRadius } from '../../design-system/tokens';
 import {
   AppTopBar,
   TeacherManDashboardSidebar,
@@ -48,10 +47,10 @@ const StatCard: React.FC<{ icon: React.ReactNode; value: string | number; label:
   icon,
   value,
   label,
-  iconColor = '#6D28D9', // fallback color
+  iconColor,
 }) => (
   <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 flex flex-col items-center justify-center text-center gap-2">
-    <span className="material-symbols-outlined" style={{ fontSize: 36, color: iconColor, fontFamily: 'Material Symbols Outlined' }}>{icon}</span>
+    <span className={`material-symbols-outlined text-[36px] ${iconColor ?? 'text-violet-700'}`}>{icon}</span>
     <span className="text-3xl font-semibold text-gray-900 leading-none">{value}</span>
     <span className="text-xs font-semibold uppercase tracking-wider text-gray-500 mt-0.5">{label}</span>
   </div>
@@ -140,19 +139,19 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
                   icon=<CheckCircleOutlined/>
                   value={stats.approvedQuestions ?? 0}
                   label="Approved Questions"
-                  iconColor={colors.secondary.main}
+                  iconColor="text-secondary"
                 />
                 <StatCard
                   icon=<FunctionsOutlined/>
                   value={stats.totalPoints ?? 0}
                   label="Total Points"
-                  iconColor={colors.primary.main}
+                  iconColor="text-primary"
                 />
                 <StatCard
                   icon=<ChromeReaderModeOutlined/>
                   value={stats.essayRubricsStatus ?? 'Ready'}
                   label="Essay Rubrics"
-                  iconColor={colors.secondary.main}
+                  iconColor="text-secondary"
                 />
               </>
             )}
@@ -185,7 +184,7 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <div
-                    style={{ fontSize: '12px', fontWeight: 500, color: colors.on.surfaceVariant, marginBottom: 6, marginLeft: 2 }}
+                    className="text-xs font-medium text-on-surfaceVariant mb-1.5 ml-0.5"
                   >
                     Duaration (seconds)
                   </div>
@@ -204,17 +203,10 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
                   <div className="text-xs font-medium text-gray-500 mb-1 ml-1">Tags</div>
                   <div className="flex flex-wrap items-center gap-2 min-h-[56px] border border-gray-200 rounded px-3 py-2 focus-within:border-violet-700 focus-within:border-2">
                     {tags.map(tag => (
-                      <Chip
-                        key={tag}
-                        label={tag}
-                        size="small"
-                        onDelete={() => removeTag(tag)}
-                        style={{
-                          backgroundColor: `${colors.primary.main}18`,
-                          color: colors.primary.main,
-                          fontWeight: 500,
-                        }}
-                      />
+                      <span key={tag} className="inline-flex items-center gap-1 text-xs font-medium bg-primary-100 text-primary rounded px-2 h-6">
+                        {tag}
+                        <button type="button" onClick={() => removeTag(tag)} className="text-primary hover:text-primary-deep leading-none">&times;</button>
+                      </span>
                     ))}
                     <input
                       className="border-none outline-none flex-1 min-w-[120px] text-sm bg-transparent font-inherit placeholder:text-gray-400"
@@ -225,17 +217,14 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
                       placeholder={tags.length === 0 ? 'Enter tag then press Enter…' : 'Add tag…'}
                     />
                     {tagInput.trim() && (
-                      <Chip
-                        label={tagInput.trim()}
-                        size="small"
-                        icon={<AddIcon sx={{ fontSize: 14 }} />}
+                      <button
+                        type="button"
                         onClick={() => addTag(tagInput)}
-                        style={{
-                          backgroundColor: colors.surface.container.high,
-                          color: colors.on.surface,
-                          border: `1px dashed ${colors.outlineVariant}`,
-                        }}
-                      />
+                        className="inline-flex items-center gap-1 text-xs text-on-surface bg-surface-high border border-dashed border-outlineVariant rounded px-2 h-6"
+                      >
+                        <AddIcon sx={{ fontSize: 14 }} />
+                        {tagInput.trim()}
+                      </button>
                     )}
                   </div>
                 </div>

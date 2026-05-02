@@ -2,8 +2,7 @@ import React from 'react';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import GradeIcon from '@mui/icons-material/Grade';
-import { colors, borderRadius, shadow, spacing } from '../../design-system/tokens';
-import { Button, Chip } from '../atoms';
+import { Button } from '../atoms';
 
 export interface ExamCardProps {
   title: string;
@@ -42,76 +41,53 @@ const ExamCard: React.FC<ExamCardProps> = ({
   isHighlighted = false,
   onStart,
 }) => {
-  const accentColor = isHighlighted ? colors.primary.container : colors.surface.container.highest;
-
   return (
     <div
-      className="relative flex h-full flex-col overflow-hidden"
-      style={{
-        backgroundColor: colors.surface.container.lowest,
-        border: `1px solid ${colors.outlineVariant}`,
-        borderRadius: borderRadius.lg,
-        padding: `${spacing.stackLg}px`,
-      }}
+      className="relative flex h-full flex-col overflow-hidden rounded-lg bg-surface-lowest border border-outlineVariant p-8"
     >
       {/* Left accent bar — 4px Trust Blue strip per spec */}
       <div
-        className="absolute bottom-0 left-0 top-0 w-1"
-        style={{ backgroundColor: accentColor, borderRadius: `${borderRadius.lg} 0 0 ${borderRadius.lg}` }}
+        className={`absolute bottom-0 left-0 top-0 w-1 rounded-l-lg ${isHighlighted ? 'bg-primary-container' : 'bg-surface-highest'}`}
       />
 
       <div className="flex-1">
         {/* Tags */}
-        <div className="mb-4 flex flex-wrap gap-2" style={{ marginBottom: `${spacing.stackMd}px` }}>
+        <div className="mb-4 flex flex-wrap gap-2">
           {[subject, grade, type].filter(Boolean).map((tag) => (
-            <Chip
+            <span
               key={tag}
-              label={tag}
-              size="small"
-              className="uppercase"
-              style={{ backgroundColor: colors.surface.container.low, color: colors.primary.container }}
-            />
+              className="uppercase inline-flex items-center text-[11px] font-semibold tracking-wide bg-surface-low text-primary-container rounded-sm px-1.5 h-5"
+            >
+              {tag}
+            </span>
           ))}
         </div>
 
         {/* Title */}
-        <div
-          style={{
-            fontSize: '20px',
-            fontWeight: 600,
-            lineHeight: '28px',
-            color: colors.on.surface,
-            marginBottom: `${spacing.stackMd}px`,
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-          }}
-        >
+        <div className="text-xl font-semibold leading-7 text-on-surface mb-4 line-clamp-2">
           {title}
         </div>
 
         {/* Metadata row */}
         <div
-          className="mt-4 flex flex-wrap gap-4 pt-4"
-          style={{ marginTop: `${spacing.stackMd}px`, paddingTop: `${spacing.stackMd}px`, borderTop: `1px solid ${colors.surface.container.highest}` }}
+          className="mt-4 flex flex-wrap gap-4 pt-4 border-t border-surface-highest"
         >
-          <div className="flex items-center gap-1" style={{ color: colors.on.surfaceVariant }}>
-            <ScheduleIcon style={{ fontSize: 18 }} />
-            <span style={{ fontSize: '14px', fontWeight: 500, lineHeight: '20px' }}>
+          <div className="flex items-center gap-1 text-on-surfaceVariant">
+            <ScheduleIcon sx={{ fontSize: 18 }} />
+            <span className="text-sm font-medium leading-5">
               {durationMinutes} min
             </span>
           </div>
-          <div className="flex items-center gap-1" style={{ color: colors.on.surfaceVariant }}>
-            <FormatListNumberedIcon style={{ fontSize: 18 }} />
-            <span style={{ fontSize: '14px', fontWeight: 500, lineHeight: '20px' }}>
+          <div className="flex items-center gap-1 text-on-surfaceVariant">
+            <FormatListNumberedIcon sx={{ fontSize: 18 }} />
+            <span className="text-sm font-medium leading-5">
               {questionCount} questions
             </span>
           </div>
           {points !== undefined && (
-            <div className="flex items-center gap-1" style={{ color: colors.on.surfaceVariant }}>
-              <GradeIcon style={{ fontSize: 18 }} />
-              <span style={{ fontSize: '14px', fontWeight: 500, lineHeight: '20px' }}>
+            <div className="flex items-center gap-1 text-on-surfaceVariant">
+              <GradeIcon sx={{ fontSize: 18 }} />
+              <span className="text-sm font-medium leading-5">
                 {points} pts
               </span>
             </div>

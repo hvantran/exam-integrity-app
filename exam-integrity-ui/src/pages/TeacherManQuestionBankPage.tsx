@@ -15,7 +15,6 @@ import { questionBankService } from '../services/questionBankService';
 import type { DraftQuestionDTO, QuestionType } from '../types/exam.types';
 import type { DraftQuestionEditCommand } from '../types/exam.types';
 import { useAuth } from '../context/AuthContext';
-import { colors, borderRadius } from '../design-system/tokens';
 import type { DashboardSection } from '../components/organisms';
 
 const SECTION_ROUTES: Record<DashboardSection, string> = {
@@ -101,15 +100,10 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
 
   return (
     <div
-      className="rounded-lg p-3 shadow-lg"
-      style={{
-        backgroundColor: colors.surface.container.lowest,
-        border: `2px solid ${colors.primary.main}`,
-        borderLeft: `4px solid ${colors.primary.main}`,
-      }}
+      className="rounded-lg p-3 shadow-lg bg-surface-lowest border-2 border-l-4 border-primary"
     >
       {/* Header */}
-      <p className="text-xs font-semibold tracking-wide uppercase mb-2" style={{ color: colors.primary.main }}>
+      <p className="text-xs font-semibold tracking-wide uppercase mb-2 text-primary">
         Edit Question
       </p>
 
@@ -134,7 +128,7 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
       {/* Answer options (MCQ only) */}
       {form.type === 'MCQ' && (
         <div className="mb-2">
-          <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: colors.on.surfaceVariant }}>
+          <p className="text-xs font-semibold uppercase tracking-wide mb-1 text-on-surfaceVariant">
             Answer Options
           </p>
           {OPTION_LABELS.map((label, idx) => (
@@ -147,7 +141,7 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
                 onChange={e => setField('correctAnswer', e.target.value)}
                 className="accent-violet-600 w-4 h-4 shrink-0"
               />
-              <span className="text-sm font-semibold min-w-[20px]" style={{ color: colors.on.surface }}>{label}</span>
+              <span className="text-sm font-semibold min-w-[20px] text-on-surface">{label}</span>
               <input
                 className={`${inputCls} flex-1`}
                 placeholder={`Option ${label}`}
@@ -179,8 +173,7 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
 
       {/* Image Upload */}
       <label
-        className="inline-flex items-center gap-1.5 mb-2 px-3 py-1.5 text-sm border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition"
-        style={{ color: colors.on.surface }}
+        className="inline-flex items-center gap-1.5 mb-2 px-3 py-1.5 text-sm border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition text-on-surface"
       >
         Upload Image
         <input
@@ -200,7 +193,7 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
       </label>
       {form.imageData && (
         <div className="mb-2">
-          <img src={form.imageData} alt="Preview" style={{ maxHeight: 160, borderRadius: 8, border: '1px solid #ccc' }} />
+          <img src={form.imageData} alt="Preview" className="max-h-40 rounded-lg border border-gray-300" />
         </div>
       )}
 
@@ -226,82 +219,53 @@ interface QuestionCardProps {
   onEdit: () => void;
 }
 const QuestionCard: React.FC<QuestionCardProps> = ({ question, index, onEdit }) => {
-  const [hovered, setHovered] = useState(false);
   const tags = question.rubric?.keywords ?? [];
 
   return (
     <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        backgroundColor: colors.surface.container.lowest,
-        border: `1px solid ${colors.outlineVariant}`,
-        borderRadius: borderRadius.lg,
-        padding: '16px 20px',
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: 16,
-        transition: 'box-shadow 0.15s',
-        boxShadow: hovered ? '0px 2px 12px rgba(0,0,0,0.06)' : 'none',
-        position: 'relative',
-      }}
+      className="group rounded-lg px-5 py-4 flex items-start gap-4 relative bg-surface-lowest border border-outlineVariant transition-shadow hover:shadow-md"
     >
       {/* Index */}
-      <span style={{ fontSize: '13px', fontWeight: 600, color: colors.on.surfaceVariant, minWidth: '28px', paddingTop: '2px' }}>
+      <span className="text-[13px] font-semibold text-on-surfaceVariant min-w-[28px] pt-0.5 shrink-0">
         {index + 1}.
       </span>
 
       {/* Main content */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{
-          fontSize: '14px', color: colors.on.surface, lineHeight: 1.5, marginBottom: 8,
-          overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-        } as React.CSSProperties}>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm text-on-surface leading-relaxed mb-2 line-clamp-2">
           {question.content}
         </p>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <Chip
-            label={question.type ?? 'MCQ'}
-            size="small"
-            style={{
-              fontSize: '11px', fontWeight: 600,
-              backgroundColor: colors.surface.container.default,
-              color: colors.on.surfaceVariant,
-              borderRadius: '4px', height: '22px',
-            }}
-          />
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: colors.on.surfaceVariant }}>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="inline-flex items-center text-[11px] font-semibold bg-surface-high text-on-surfaceVariant rounded px-1.5 h-[22px]">
+            {question.type ?? 'MCQ'}
+          </span>
+          <div className="flex items-center gap-1 text-on-surfaceVariant">
             <StarOutlineIcon sx={{ fontSize: '14px' }} />
-            <span style={{ fontSize: '12px' }}>{question.points} pts</span>
+            <span className="text-xs">{question.points} pts</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: colors.on.surfaceVariant }}>
+          <div className="flex items-center gap-1 text-on-surfaceVariant">
             <HistoryIcon sx={{ fontSize: '14px' }} />
-            <span style={{ fontSize: '12px' }}>0 uses</span>
+            <span className="text-xs">0 uses</span>
           </div>
           {tags.slice(0, 3).map(tag => (
-            <Chip
-              key={tag}
-              label={tag}
-              size="small"
-              style={{ fontSize: '11px', backgroundColor: colors.surface.container.low, borderRadius: '4px', height: '20px' }}
-            />
+            <span key={tag} className="inline-flex items-center text-[11px] bg-surface-low text-on-surfaceVariant rounded px-1.5 h-5">
+              {tag}
+            </span>
           ))}
         </div>
       </div>
 
       {/* Actions (shown on hover) */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4, opacity: hovered ? 1 : 0, transition: 'opacity 0.15s' }}>
+      <div className="flex items-center gap-1 transition-opacity duration-150 opacity-0 group-hover:opacity-100">
         <button
           title="Edit question"
           onClick={onEdit}
-          className="rounded-full p-1 transition hover:bg-violet-50"
-          style={{ color: colors.primary.main }}
+          className="rounded-full p-1 transition hover:bg-violet-50 text-primary"
         >
           <EditIcon sx={{ fontSize: '18px' }} />
         </button>
         <button
-          className="flex items-center gap-1 text-xs px-2 py-1 rounded border transition hover:bg-red-50"
-          style={{ color: '#d32f2f', borderColor: '#d32f2f' }}
+          className="flex items-center gap-1 text-xs px-2 py-1 rounded border transition hover:bg-red-50 text-error-600 border-error-600"
         >
           <DeleteSweepIcon sx={{ fontSize: '16px' }} />
           Delete
@@ -324,7 +288,7 @@ interface McqOptionsProps {
 
 const McqOptionsForm: React.FC<McqOptionsProps> = ({ options, correctAnswer, idPrefix, onOptionChange, onCorrectAnswerChange }) => (
   <div className="mb-4">
-    <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: colors.on.surfaceVariant }}>
+    <p className="text-xs font-semibold uppercase tracking-wide mb-2 text-on-surfaceVariant">
       Answer Options
     </p>
     {OPTION_LABELS.map((label, idx) => (
@@ -337,7 +301,7 @@ const McqOptionsForm: React.FC<McqOptionsProps> = ({ options, correctAnswer, idP
           onChange={e => onCorrectAnswerChange(e.target.value)}
           className="accent-violet-600 w-4 h-4 shrink-0"
         />
-        <span className="text-sm font-semibold min-w-[20px]" style={{ color: colors.on.surface }}>{label}</span>
+        <span className="text-sm font-semibold min-w-[20px] text-on-surface">{label}</span>
         <input
           className={`${inputCls} flex-1`}
           placeholder={`Option ${label}`}
@@ -457,8 +421,8 @@ const QuestionBankPage: React.FC = () => {
             {/* Search */}
             <div className="relative flex-1 min-w-[500px]">
               <SearchIcon
-                sx={{ fontSize: '18px', color: colors.on.surfaceVariant }}
-                className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none"
+                sx={{ fontSize: '18px' }}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-on-surfaceVariant"
               />
               <input
                 className={`${inputCls} pl-8`}
@@ -488,25 +452,18 @@ const QuestionBankPage: React.FC = () => {
 
             {/* Active tag chips */}
             {tagFilters.map(tag => (
-              <Chip
-                key={tag}
-                label={tag}
-                size="small"
-                onDelete={() => removeTagFilter(tag)}
-                deleteIcon={<CloseIcon sx={{ fontSize: '14px' }} />}
-                style={{
-                  backgroundColor: colors.primary.fixed,
-                  color: colors.primary.deep,
-                  fontWeight: 600,
-                  fontSize: '12px',
-                }}
-              />
+              <span key={tag} className="inline-flex items-center gap-1 text-xs font-semibold bg-primary-100 text-primary-deep rounded-full px-2 h-6 shrink-0">
+                {tag}
+                <button type="button" onClick={() => removeTagFilter(tag)} className="leading-none hover:opacity-70">
+                  <CloseIcon sx={{ fontSize: '14px' }} />
+                </button>
+              </span>
             ))}
           </div>
         }
         resultsBar={
           <div className="flex items-center justify-between w-full">
-            <span style={{ fontSize: '13px', color: colors.on.surfaceVariant }}>
+            <span className="text-[13px] text-on-surfaceVariant">
               Showing <strong>{data?.totalElements ?? 0}</strong> results
             </span>
             <div className="flex gap-2 items-center">
@@ -664,11 +621,11 @@ const QuestionBankPage: React.FC = () => {
         </label>
         {addForm.imageData && (
           <div className="mb-3">
-            <img src={addForm.imageData} alt="Preview" style={{ maxHeight: 160, borderRadius: 8, border: '1px solid #ccc' }} />
+            <img src={addForm.imageData} alt="Preview" className="max-h-40 rounded-lg border border-gray-300" />
           </div>
         )}
         {addError && (
-          <p className="text-xs mt-1" style={{ color: '#d32f2f' }}>{addError}</p>
+          <p className="text-xs mt-1 text-error-600">{addError}</p>
         )}
       </Modal>
 
@@ -677,7 +634,7 @@ const QuestionBankPage: React.FC = () => {
         open={deleteAllOpen}
         onClose={() => setDeleteAllOpen(false)}
         title="Delete All Questions"
-        titleColor="#d32f2f"
+        titleClassName="text-error-600"
         maxWidth="max-w-sm"
         actions={
           <>

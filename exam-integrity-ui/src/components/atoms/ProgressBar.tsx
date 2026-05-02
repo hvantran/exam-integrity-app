@@ -1,5 +1,4 @@
 import React from 'react';
-import { colors } from '../../design-system/tokens';
 
 export interface ProgressBarProps {
   /** 0–100 */
@@ -24,13 +23,10 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ value, urgent = false, fixed 
     aria-valuemax={100}
     aria-valuenow={Math.min(100, Math.max(0, value))}
   >
-    <div className="h-1 w-full overflow-hidden" style={{ backgroundColor: colors.outlineVariant }}>
+    <div className="h-1 w-full overflow-hidden bg-outlineVariant">
       <div
-        className="h-full transition-all duration-300"
-        style={{
-          width: `${Math.min(100, Math.max(0, value))}%`,
-          backgroundColor: urgent ? colors.tertiary.main : colors.primary.main,
-        }}
+        className={`h-full transition-all duration-300 ${urgent ? 'bg-error-600' : 'bg-primary'}`}
+        style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
       />
     </div>
   </div>
