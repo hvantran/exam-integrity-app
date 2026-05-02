@@ -1,11 +1,5 @@
 import React from 'react';
-import { Box, Typography, keyframes } from '@mui/material';
 import { colors, borderRadius } from '../../design-system/tokens';
-
-const pulse = keyframes`
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.6; transform: scale(1.35); }
-`;
 
 export interface ProctoringStatusChipProps {
   active?: boolean;
@@ -28,35 +22,27 @@ const ProctoringStatusChip: React.FC<ProctoringStatusChipProps> = ({
   const textColor = active ? colors.secondary.main : colors.on.surfaceVariant;
 
   return (
-    <Box
-      sx={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '6px',
-        px: '10px',
-        py: '4px',
+    <span
+      className="inline-flex items-center gap-1.5 px-2.5 py-1"
+      style={{
         borderRadius: borderRadius.full,
         backgroundColor: bgColor,
         border: `1px solid ${active ? '#86EFAC' : colors.outlineVariant}`,
       }}
     >
-      <Box
-        sx={{
+      <span
+        className={active ? 'animate-pulse shrink-0' : 'shrink-0'}
+        style={{
           width: 8,
           height: 8,
           borderRadius: '50%',
           backgroundColor: dotColor,
-          flexShrink: 0,
-          ...(active && { animation: `${pulse} 1.8s ease-in-out infinite` }),
         }}
       />
-      <Typography
-        component="span"
-        sx={{ fontSize: '12px', fontWeight: 600, color: textColor, whiteSpace: 'nowrap' }}
-      >
+      <span style={{ fontSize: '12px', fontWeight: 600, color: textColor, whiteSpace: 'nowrap' }}>
         {displayLabel}
-      </Typography>
-    </Box>
+      </span>
+    </span>
   );
 };
 

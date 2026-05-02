@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Box, Typography } from '@mui/material';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import { colors } from '../../design-system/tokens';
 
@@ -46,19 +45,10 @@ const TimerDisplay: React.FC<TimerDisplayProps> = ({ remainingSeconds, showIcon 
   const color = isUrgent ? colors.tertiary.main : colors.secondary.main;
 
   return (
-    <Box
-      sx={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '6px',
-        color,
-        transition: 'color 0.5s ease',
-      }}
-    >
-      {showIcon && <ScheduleIcon sx={{ fontSize: 18, color }} />}
-      <Typography
-        component="span"
-        sx={{
+    <div className="inline-flex items-center gap-1.5 transition-colors duration-500" style={{ color }}>
+      {showIcon && <ScheduleIcon style={{ fontSize: 18, color }} />}
+      <span
+        style={{
           fontFamily: '"Space Grotesk", monospace',
           fontSize: '16px',
           fontWeight: 700,
@@ -68,16 +58,13 @@ const TimerDisplay: React.FC<TimerDisplayProps> = ({ remainingSeconds, showIcon 
         }}
       >
         {mm}:{ss}
-      </Typography>
+      </span>
       {isUrgent && (
-        <Typography
-          component="span"
-          sx={{ fontSize: '11px', fontWeight: 600, color, opacity: 0.85 }}
-        >
+        <span style={{ fontSize: '11px', fontWeight: 600, color, opacity: 0.85 }}>
           Time running out
-        </Typography>
+        </span>
       )}
-    </Box>
+    </div>
   );
 };
 

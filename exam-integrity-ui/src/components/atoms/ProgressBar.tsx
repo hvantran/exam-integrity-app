@@ -1,5 +1,4 @@
 import React from 'react';
-import { LinearProgress, Box } from '@mui/material';
 import { colors } from '../../design-system/tokens';
 
 export interface ProgressBarProps {
@@ -18,27 +17,23 @@ export interface ProgressBarProps {
  * viewport. Color transitions from Trust Blue to Warning Red when `urgent`.
  */
 const ProgressBar: React.FC<ProgressBarProps> = ({ value, urgent = false, fixed = false }) => (
-  <Box
-    sx={
-      fixed
-        ? { position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200 }
-        : { width: '100%' }
-    }
+  <div
+    className={fixed ? 'fixed left-0 right-0 top-0 z-[200]' : 'w-full'}
+    role="progressbar"
+    aria-valuemin={0}
+    aria-valuemax={100}
+    aria-valuenow={Math.min(100, Math.max(0, value))}
   >
-    <LinearProgress
-      variant="determinate"
-      value={Math.min(100, Math.max(0, value))}
-      sx={{
-        height: 4,
-        borderRadius: 0,
-        backgroundColor: colors.outlineVariant,
-        '& .MuiLinearProgress-bar': {
+    <div className="h-1 w-full overflow-hidden" style={{ backgroundColor: colors.outlineVariant }}>
+      <div
+        className="h-full transition-all duration-300"
+        style={{
+          width: `${Math.min(100, Math.max(0, value))}%`,
           backgroundColor: urgent ? colors.tertiary.main : colors.primary.main,
-          transition: 'background-color 0.5s ease',
-        },
-      }}
-    />
-  </Box>
+        }}
+      />
+    </div>
+  </div>
 );
 
 export default ProgressBar;

@@ -1,14 +1,8 @@
 /** FE-19: Teacher question bank page — Stitch "Question Bank Explorer" design */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Box, TextField, MenuItem, Select, FormControl, InputLabel,
-  Typography, IconButton, Button, Radio, RadioGroup, FormControlLabel,
-  InputAdornment, Tooltip, Dialog, DialogTitle, DialogContent, DialogContentText,
-  DialogActions,
-} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { Chip } from '../components/atoms';
+import { Chip, Button, Modal, Select } from '../components/atoms';
 import EditIcon from '@mui/icons-material/Edit';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import CloseIcon from '@mui/icons-material/Close';
@@ -40,6 +34,11 @@ const TYPE_OPTIONS: { value: QuestionType; label: string }[] = [
   { value: 'ESSAY_LONG', label: 'Essay (Long)' },
 ];
 
+// ── Input style helpers ───────────────────────────────────────────────────────
+
+const inputCls = 'border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-white w-full';
+const labelCls = 'block text-xs font-medium text-gray-500 mb-1';
+
 /* ------------------------------------------------------------------ */
 /* Inline Edit Form                                                     */
 /* ------------------------------------------------------------------ */
@@ -51,7 +50,7 @@ interface EditFormState {
   correctAnswer: string;
   points: number;
   tags: string;
-  imageData?: string; // Optional Base64 Data URI for the question image
+  imageData?: string;
 }
 
 const toEditForm = (q: DraftQuestionDTO): EditFormState => ({
@@ -69,7 +68,6 @@ const toEditForm = (q: DraftQuestionDTO): EditFormState => ({
 
 const OPTION_LABELS = ['A', 'B', 'C', 'D'];
 
-/** Strip leading option prefixes like "A.", "A/", "A.", "B.", "B/" etc. from answer text */
 const stripOptionPrefix = (text: string): string =>
   text.replace(/^[A-Da-d][./、]\s*/u, '').trim();
 
@@ -102,90 +100,93 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
   };
 
   return (
-    <Box className="bg-surface border-2 border-primary border-l-4 rounded-lg p-3 shadow-lg">
+    <div
+      className="rounded-lg p-3 shadow-lg"
+      style={{
+        backgroundColor: colors.surface.container.lowest,
+        border: `2px solid ${colors.primary.main}`,
+        borderLeft: `4px solid ${colors.primary.main}`,
+      }}
+    >
       {/* Header */}
-      <Typography className="text-xs font-semibold tracking-wide text-primary uppercase mb-2">
+      <p className="text-xs font-semibold tracking-wide uppercase mb-2" style={{ color: colors.primary.main }}>
         Edit Question
-      </Typography>
+      </p>
 
       {/* Content */}
-      <TextField
-        label="Question Content"
-        multiline
-        minRows={3}
-        fullWidth
+      <textarea
+        className={`${inputCls} resize-y min-h-[72px] mb-2`}
+        placeholder="Question Content"
+        rows={3}
         value={form.content}
         onChange={e => setField('content', e.target.value)}
-        className="mb-2"
       />
 
-      <Box className="flex gap-2 mb-2">
-        <FormControl size="small" className="flex-1">
-          <InputLabel>Difficulty Level</InputLabel>
-          <Select value={form.difficulty} label="Difficulty Level" onChange={e => setField('difficulty', e.target.value)}>
-            {DIFFICULTY_OPTIONS.map(d => <MenuItem key={d} value={d}>{d}</MenuItem>)}
-          </Select>
-        </FormControl>
-      </Box>
+      <div className="flex gap-2 mb-2">
+        <Select
+          value={form.difficulty}
+          onChange={val => setField('difficulty', val)}
+          options={DIFFICULTY_OPTIONS.map(d => ({ value: d, label: d }))}
+          className="flex-1"
+        />
+      </div>
 
       {/* Answer options (MCQ only) */}
       {form.type === 'MCQ' && (
-        <Box className="mb-2">
-          <Typography className="text-xs font-semibold text-on-surface mb-1 uppercase tracking-wide">
+        <div className="mb-2">
+          <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: colors.on.surfaceVariant }}>
             Answer Options
-          </Typography>
-          <RadioGroup value={form.correctAnswer} onChange={e => setField('correctAnswer', e.target.value)}>
-            {OPTION_LABELS.map((label, idx) => (
-              <Box key={label} className="flex items-center gap-1 mb-1">
-                <Radio value={label} size="small" className="p-1" />
-                <Typography className="text-sm font-semibold text-on-surface min-w-[20px]">{label}</Typography>
-                <TextField
-                  size="small"
-                  fullWidth
-                  placeholder={`Option ${label}`}
-                  value={form.options[idx] ?? ''}
-                  onChange={e => setOption(idx, e.target.value)}
-                  className="flex-1"
-                />
-              </Box>
-            ))}
-          </RadioGroup>
-        </Box>
+          </p>
+          {OPTION_LABELS.map((label, idx) => (
+            <label key={label} className="flex items-center gap-1 mb-1 cursor-pointer">
+              <input
+                type="radio"
+                name={`correctAnswer-${question.id}`}
+                value={label}
+                checked={form.correctAnswer === label}
+                onChange={e => setField('correctAnswer', e.target.value)}
+                className="accent-violet-600 w-4 h-4 shrink-0"
+              />
+              <span className="text-sm font-semibold min-w-[20px]" style={{ color: colors.on.surface }}>{label}</span>
+              <input
+                className={`${inputCls} flex-1`}
+                placeholder={`Option ${label}`}
+                value={form.options[idx] ?? ''}
+                onChange={e => setOption(idx, e.target.value)}
+              />
+            </label>
+          ))}
+        </div>
       )}
 
       {/* Points + Tags row */}
-      <Box className="flex gap-2 mb-3">
-        <TextField
-          label="Points"
+      <div className="flex gap-2 mb-3">
+        <input
           type="number"
-          size="small"
+          className={`${inputCls} w-24`}
+          placeholder="Points"
+          min={0}
           value={form.points}
           onChange={e => setField('points', Number(e.target.value))}
-          className="w-30"
-          inputProps={{ min: 0 }}
         />
-        <TextField
-          label="Tags / Keywords (comma separated)"
-          size="small"
-          fullWidth
+        <input
+          className={`${inputCls} flex-1`}
+          placeholder="Tags / Keywords (comma separated)"
           value={form.tags}
           onChange={e => setField('tags', e.target.value)}
         />
-      </Box>
-
+      </div>
 
       {/* Image Upload */}
-      <Button
-        variant="outlined"
-        component="label"
-        size="small"
-        sx={{ mb: 2 }}
+      <label
+        className="inline-flex items-center gap-1.5 mb-2 px-3 py-1.5 text-sm border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition"
+        style={{ color: colors.on.surface }}
       >
         Upload Image
         <input
           type="file"
           accept="image/*"
-          hidden
+          className="hidden"
           onChange={async (e) => {
             const file = e.target.files?.[0];
             if (!file) return;
@@ -196,25 +197,23 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
             reader.readAsDataURL(file);
           }}
         />
-      </Button>
+      </label>
       {form.imageData && (
-        <Box sx={{ mb: 2 }}>
+        <div className="mb-2">
           <img src={form.imageData} alt="Preview" style={{ maxHeight: 160, borderRadius: 8, border: '1px solid #ccc' }} />
-        </Box>
+        </div>
       )}
 
       {/* Actions */}
-      <Box className="flex gap-2 justify-end">
-        <Button variant="outlined" size="small" onClick={onCancel} disabled={isSaving}
-          className="border-outline text-on-surface">
+      <div className="flex gap-2 justify-end">
+        <Button variant="outlined" size="sm" onClick={onCancel} disabled={isSaving}>
           Cancel
         </Button>
-        <Button variant="contained" size="small" onClick={handleSave} disabled={isSaving}
-          className="bg-primary hover:bg-primary-deep text-primary-on">
+        <Button variant="primary" size="sm" onClick={handleSave} disabled={isSaving}>
           {isSaving ? 'Saving…' : 'Save Changes'}
         </Button>
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 
@@ -231,75 +230,124 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, index, onEdit }) 
   const tags = question.rubric?.keywords ?? [];
 
   return (
-    <Box
+    <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      sx={{
+      style={{
         backgroundColor: colors.surface.container.lowest,
         border: `1px solid ${colors.outlineVariant}`,
         borderRadius: borderRadius.lg,
-        p: '16px 20px',
+        padding: '16px 20px',
         display: 'flex',
         alignItems: 'flex-start',
-        gap: 2,
+        gap: 16,
         transition: 'box-shadow 0.15s',
         boxShadow: hovered ? '0px 2px 12px rgba(0,0,0,0.06)' : 'none',
         position: 'relative',
       }}
     >
       {/* Index */}
-      <Typography sx={{ fontSize: '13px', fontWeight: 600, color: colors.on.surfaceVariant, minWidth: '28px', pt: '2px' }}>
+      <span style={{ fontSize: '13px', fontWeight: 600, color: colors.on.surfaceVariant, minWidth: '28px', paddingTop: '2px' }}>
         {index + 1}.
-      </Typography>
+      </span>
 
       {/* Main content */}
-      <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Typography sx={{
-          fontSize: '14px', color: colors.on.surface, lineHeight: 1.5, mb: 1,
-          overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'
-        }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{
+          fontSize: '14px', color: colors.on.surface, lineHeight: 1.5, marginBottom: 8,
+          overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+        } as React.CSSProperties}>
           {question.content}
-        </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-          <Chip label={question.type ?? 'MCQ'} size="small"
-            style={{ fontSize: '11px', fontWeight: 600, backgroundColor: colors.surface.container.default, color: colors.on.surfaceVariant, borderRadius: '4px', height: '22px' }} />
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: colors.on.surfaceVariant }}>
+        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <Chip
+            label={question.type ?? 'MCQ'}
+            size="small"
+            style={{
+              fontSize: '11px', fontWeight: 600,
+              backgroundColor: colors.surface.container.default,
+              color: colors.on.surfaceVariant,
+              borderRadius: '4px', height: '22px',
+            }}
+          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: colors.on.surfaceVariant }}>
             <StarOutlineIcon sx={{ fontSize: '14px' }} />
-            <Typography sx={{ fontSize: '12px' }}>{question.points} pts</Typography>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: colors.on.surfaceVariant }}>
+            <span style={{ fontSize: '12px' }}>{question.points} pts</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: colors.on.surfaceVariant }}>
             <HistoryIcon sx={{ fontSize: '14px' }} />
-            <Typography sx={{ fontSize: '12px' }}>0 uses</Typography>
-          </Box>
+            <span style={{ fontSize: '12px' }}>0 uses</span>
+          </div>
           {tags.slice(0, 3).map(tag => (
-            <Chip key={tag} label={tag} size="small"
-              style={{ fontSize: '11px', backgroundColor: colors.surface.container.low, borderRadius: '4px', height: '20px' }} />
+            <Chip
+              key={tag}
+              label={tag}
+              size="small"
+              style={{ fontSize: '11px', backgroundColor: colors.surface.container.low, borderRadius: '4px', height: '20px' }}
+            />
           ))}
-        </Box>
-      </Box>
+        </div>
+      </div>
 
       {/* Actions (shown on hover) */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, opacity: hovered ? 1 : 0, transition: 'opacity 0.15s' }}>
-        <Tooltip title="Edit question">
-          <IconButton size="small" onClick={onEdit}
-            sx={{ color: colors.primary.main, '&:hover': { backgroundColor: colors.primary.fixed } }}>
-            <EditIcon sx={{ fontSize: '18px' }} />
-          </IconButton>
-        </Tooltip>
-        <Button size="small" startIcon={<DeleteSweepIcon sx={{ fontSize: '16px' }} />}
-          sx={{
-            fontSize: '12px',
-            color: '#d32f2f',
-            borderColor: '#d32f2f',
-            textTransform: 'none',
-            '&:hover': { backgroundColor: '#d32f2f14', borderColor: '#b71c1c' },
-          }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, opacity: hovered ? 1 : 0, transition: 'opacity 0.15s' }}>
+        <button
+          title="Edit question"
+          onClick={onEdit}
+          className="rounded-full p-1 transition hover:bg-violet-50"
+          style={{ color: colors.primary.main }}
+        >
+          <EditIcon sx={{ fontSize: '18px' }} />
+        </button>
+        <button
+          className="flex items-center gap-1 text-xs px-2 py-1 rounded border transition hover:bg-red-50"
+          style={{ color: '#d32f2f', borderColor: '#d32f2f' }}
+        >
+          <DeleteSweepIcon sx={{ fontSize: '16px' }} />
           Delete
-        </Button>
-      </Box>
-    </Box>
+        </button>
+      </div>
+    </div>
   );
 };
+
+/* ------------------------------------------------------------------ */
+/* MCQ Options Form (shared between Add and Edit dialogs)              */
+/* ------------------------------------------------------------------ */
+interface McqOptionsProps {
+  options: string[];
+  correctAnswer: string;
+  idPrefix: string;
+  onOptionChange: (idx: number, val: string) => void;
+  onCorrectAnswerChange: (val: string) => void;
+}
+
+const McqOptionsForm: React.FC<McqOptionsProps> = ({ options, correctAnswer, idPrefix, onOptionChange, onCorrectAnswerChange }) => (
+  <div className="mb-4">
+    <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: colors.on.surfaceVariant }}>
+      Answer Options
+    </p>
+    {OPTION_LABELS.map((label, idx) => (
+      <label key={label} className="flex items-center gap-2 mb-2 cursor-pointer">
+        <input
+          type="radio"
+          name={`${idPrefix}-correctAnswer`}
+          value={label}
+          checked={correctAnswer === label}
+          onChange={e => onCorrectAnswerChange(e.target.value)}
+          className="accent-violet-600 w-4 h-4 shrink-0"
+        />
+        <span className="text-sm font-semibold min-w-[20px]" style={{ color: colors.on.surface }}>{label}</span>
+        <input
+          className={`${inputCls} flex-1`}
+          placeholder={`Option ${label}`}
+          value={options[idx] ?? ''}
+          onChange={e => onOptionChange(idx, e.target.value)}
+        />
+      </label>
+    ))}
+  </div>
+);
 
 /* ------------------------------------------------------------------ */
 /* Page                                                                 */
@@ -314,7 +362,10 @@ const QuestionBankPage: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteAllOpen, setDeleteAllOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
-  const [addForm, setAddForm] = useState<EditFormState>({ content: '', type: 'MCQ', difficulty: 'Medium', options: ['', '', '', ''], correctAnswer: 'A', points: 1, tags: '', imageData: '' });
+  const [addForm, setAddForm] = useState<EditFormState>({
+    content: '', type: 'MCQ', difficulty: 'Medium',
+    options: ['', '', '', ''], correctAnswer: 'A', points: 1, tags: '', imageData: '',
+  });
   const [addError, setAddError] = useState<string | null>(null);
 
   const navigate = useNavigate();
@@ -324,7 +375,6 @@ const QuestionBankPage: React.FC = () => {
   const handleLogout = () => { logout(); navigate('/login', { replace: true }); };
   const handleNavigate = (section: DashboardSection) => navigate(SECTION_ROUTES[section]);
 
-  // Reset to page 1 when filters change
   React.useEffect(() => { setPage(1); }, [q, type, tagFilters]);
 
   const { data, isLoading } = useQuery({
@@ -403,43 +453,38 @@ const QuestionBankPage: React.FC = () => {
         onNavigate={handleNavigate}
         onLogout={handleLogout}
         filterBar={
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
+          <div className="flex gap-2 items-center overflow-x-auto">
             {/* Search */}
-            <TextField
-              placeholder="Search questions…"
-              value={q}
-              onChange={e => setQ(e.target.value)}
-              size="small"
-              sx={{ flex: '1 1 220px', minWidth: '180px' }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon sx={{ fontSize: '18px', color: colors.on.surfaceVariant }} />
-                  </InputAdornment>
-                ),
-              }}
-            />
+            <div className="relative flex-1 min-w-[500px]">
+              <SearchIcon
+                sx={{ fontSize: '18px', color: colors.on.surfaceVariant }}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none"
+              />
+              <input
+                className={`${inputCls} pl-8`}
+                placeholder="Search questions…"
+                value={q}
+                onChange={e => setQ(e.target.value)}
+              />
+            </div>
 
             {/* Type */}
-            <FormControl size="small" sx={{ minWidth: 160 }}>
-              <InputLabel>Type</InputLabel>
-              <Select value={type} label="Type" onChange={e => setType(e.target.value as QuestionType | '')}>
-                <MenuItem value="">All Types</MenuItem>
-                {TYPE_OPTIONS.map(o => <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>)}
-              </Select>
-            </FormControl>
+            <Select
+              value={type}
+              onChange={val => setType(val as QuestionType | '')}
+              options={TYPE_OPTIONS}
+              placeholder="All Types"
+              className="min-w-[160px]"
+            />
 
             {/* Tag input */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <TextField
-                placeholder="Add tag filter…"
-                value={tagInput}
-                onChange={e => setTagInput(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTagFilter(); } }}
-                size="small"
-                sx={{ width: 160 }}
-              />
-            </Box>
+            <input
+              className={`${inputCls} w-36 shrink-0`}
+              placeholder="Add tag filter…"
+              value={tagInput}
+              onChange={e => setTagInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTagFilter(); } }}
+            />
 
             {/* Active tag chips */}
             {tagFilters.map(tag => (
@@ -449,220 +494,208 @@ const QuestionBankPage: React.FC = () => {
                 size="small"
                 onDelete={() => removeTagFilter(tag)}
                 deleteIcon={<CloseIcon sx={{ fontSize: '14px' }} />}
-                style={{ backgroundColor: colors.primary.fixed, color: colors.primary.deep, fontWeight: 600, fontSize: '12px' }}
+                style={{
+                  backgroundColor: colors.primary.fixed,
+                  color: colors.primary.deep,
+                  fontWeight: 600,
+                  fontSize: '12px',
+                }}
               />
             ))}
-          </Box>
+          </div>
         }
         resultsBar={
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-            <Typography sx={{ fontSize: '13px', color: colors.on.surfaceVariant }}>
+          <div className="flex items-center justify-between w-full">
+            <span style={{ fontSize: '13px', color: colors.on.surfaceVariant }}>
               Showing <strong>{data?.totalElements ?? 0}</strong> results
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-              <Tooltip title="Add a new question to the bank">
+            </span>
+            <div className="flex gap-2 items-center">
+              <span title="Add a new question to the bank">
                 <Button
-                  size="small"
-                  variant="contained"
+                  size="sm"
+                  variant="primary"
                   startIcon={<AddCircleOutlineIcon sx={{ fontSize: '16px' }} />}
                   onClick={() => { setAddOpen(true); setAddError(null); }}
-                  sx={{
-                    fontSize: '12px',
-                    textTransform: 'none',
-                    backgroundColor: colors.primary.main,
-                    '&:hover': { backgroundColor: colors.primary.deep },
-                  }}
                 >
                   Add Question
                 </Button>
-              </Tooltip>
+              </span>
               {(data?.totalElements ?? 0) > 0 && (
-                <Tooltip title="Delete all questions from the bank">
+                <span title="Delete all questions from the bank">
                   <Button
-                    size="small"
-                    variant="outlined"
+                    size="sm"
+                    variant="danger"
                     startIcon={<DeleteSweepIcon sx={{ fontSize: '16px' }} />}
                     onClick={() => setDeleteAllOpen(true)}
-                    sx={{
-                      fontSize: '12px',
-                      color: '#d32f2f',
-                      borderColor: '#d32f2f',
-                      textTransform: 'none',
-                      '&:hover': { backgroundColor: '#d32f2f14', borderColor: '#b71c1c' },
-                    }}
                   >
                     Delete All
                   </Button>
-                </Tooltip>
+                </span>
               )}
-            </Box>
-          </Box>
+            </div>
+          </div>
         }
       >
         <>
-            {data?.content.map((item, i) =>
-              editingId === item.id ? (
-                <QuestionEditCard
-                  key={item.id}
-                  question={item}
-                  isSaving={isSaving}
-                  onSave={(id, cmd) => updateQuestion({ id, cmd })}
-                  onCancel={() => setEditingId(null)}
-                />
-              ) : (
-                <QuestionCard
-                  key={item.id}
-                  question={item}
-                  index={(page - 1) * PAGE_SIZE + i}
-                  onEdit={() => setEditingId(item.id)}
-                />
-              )
-            )}
+          {data?.content.map((item, i) =>
+            editingId === item.id ? (
+              <QuestionEditCard
+                key={item.id}
+                question={item}
+                isSaving={isSaving}
+                onSave={(id, cmd) => updateQuestion({ id, cmd })}
+                onCancel={() => setEditingId(null)}
+              />
+            ) : (
+              <QuestionCard
+                key={item.id}
+                question={item}
+                index={i}
+                onEdit={() => setEditingId(item.id)}
+              />
+            )
+          )}
 
-            {data && data.totalPages > 1 && (
-              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-                <Button variant="outlined" onClick={() => setPage(p => p + 1)} sx={{ borderColor: colors.outlineVariant, color: colors.on.surface, borderRadius: borderRadius.default }}>
-                  Load More Results
-                </Button>
-              </Box>
-            )}
-          </>
+          {data && data.totalPages > 1 && (
+            <div className="flex justify-center mt-6">
+              <Button
+                variant="outlined"
+                onClick={() => setPage(p => p + 1)}
+              >
+                Load More Results
+              </Button>
+            </div>
+          )}
+        </>
       </TeacherManQuestionBankLayout>
 
-      {/* Add Question dialog */}
-      <Dialog open={addOpen} onClose={() => { setAddOpen(false); setAddError(null); }} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontWeight: 700, color: colors.primary.main }}>Add New Question</DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
-          <TextField
-            label="Question Content"
-            multiline
-            minRows={3}
-            fullWidth
-            value={addForm.content}
-            onChange={e => setAddForm(f => ({ ...f, content: e.target.value }))}
-            sx={{ mt: 1, mb: 2 }}
+      {/* Add Question modal */}
+      <Modal
+        open={addOpen}
+        onClose={() => { setAddOpen(false); setAddError(null); }}
+        title="Add New Question"
+        actions={
+          <>
+            <Button variant="outlined" size="sm" onClick={() => { setAddOpen(false); setAddError(null); }} disabled={isAdding}>
+              Cancel
+            </Button>
+            <Button variant="primary" size="sm" onClick={handleAddSubmit} disabled={isAdding}>
+              {isAdding ? 'Saving…' : 'Add Question'}
+            </Button>
+          </>
+        }
+      >
+        <textarea
+          className={`${inputCls} resize-y min-h-[72px] mb-4`}
+          placeholder="Question Content"
+          rows={3}
+          value={addForm.content}
+          onChange={e => setAddForm(f => ({ ...f, content: e.target.value }))}
+        />
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <label className={labelCls}>Question Type</label>
+            <Select
+              value={addForm.type}
+              onChange={val => setAddForm(f => ({ ...f, type: val as QuestionType }))}
+              options={TYPE_OPTIONS}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Difficulty Level</label>
+            <Select
+              value={addForm.difficulty}
+              onChange={val => setAddForm(f => ({ ...f, difficulty: val }))}
+              options={DIFFICULTY_OPTIONS.map(d => ({ value: d, label: d }))}
+            />
+          </div>
+        </div>
+
+        {addForm.type === 'MCQ' && (
+          <McqOptionsForm
+            options={addForm.options}
+            correctAnswer={addForm.correctAnswer}
+            idPrefix="add"
+            onOptionChange={(idx, val) => setAddForm(f => {
+              const opts = [...f.options]; opts[idx] = val; return { ...f, options: opts };
+            })}
+            onCorrectAnswerChange={val => setAddForm(f => ({ ...f, correctAnswer: val }))}
           />
-          <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-            <FormControl size="small" sx={{ flex: 1 }}>
-              <InputLabel>Question Type</InputLabel>
-              <Select value={addForm.type} label="Question Type"
-                onChange={e => setAddForm(f => ({ ...f, type: e.target.value as QuestionType }))}>
-                {TYPE_OPTIONS.map(o => <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>)}
-              </Select>
-            </FormControl>
-            <FormControl size="small" sx={{ flex: 1 }}>
-              <InputLabel>Difficulty Level</InputLabel>
-              <Select value={addForm.difficulty} label="Difficulty Level"
-                onChange={e => setAddForm(f => ({ ...f, difficulty: e.target.value }))}>
-                {DIFFICULTY_OPTIONS.map(d => <MenuItem key={d} value={d}>{d}</MenuItem>)}
-              </Select>
-            </FormControl>
-          </Box>
-          {addForm.type === 'MCQ' && (
-            <Box sx={{ mb: 2 }}>
-              <Typography sx={{ fontSize: '12px', fontWeight: 600, color: colors.on.surfaceVariant, mb: 1, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Answer Options
-              </Typography>
-              <RadioGroup value={addForm.correctAnswer} onChange={e => setAddForm(f => ({ ...f, correctAnswer: e.target.value }))}>
-                {OPTION_LABELS.map((label, idx) => (
-                  <Box key={label} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                    <Radio value={label} size="small" sx={{ p: '4px' }} />
-                    <Typography sx={{ fontSize: '13px', fontWeight: 600, color: colors.on.surface, minWidth: '20px' }}>{label}</Typography>
-                    <TextField
-                      size="small"
-                      fullWidth
-                      placeholder={`Option ${label}`}
-                      value={addForm.options[idx] ?? ''}
-                      onChange={e => setAddForm(f => {
-                        const opts = [...f.options]; opts[idx] = e.target.value; return { ...f, options: opts };
-                      })}
-                    />
-                  </Box>
-                ))}
-              </RadioGroup>
-            </Box>
-          )}
-          <Box sx={{ display: 'flex', gap: 2, mb: 1 }}>
-            <TextField
-              label="Points"
+        )}
+
+        <div className="flex gap-3 mb-3">
+          <div>
+            <label className={labelCls}>Points</label>
+            <input
               type="number"
-              size="small"
+              className={`${inputCls} w-24`}
+              min={0}
               value={addForm.points}
               onChange={e => setAddForm(f => ({ ...f, points: Number(e.target.value) }))}
-              sx={{ width: 120 }}
-              inputProps={{ min: 0 }}
             />
-            <TextField
-              label="Tags / Keywords (comma separated)"
-              size="small"
-              fullWidth
+          </div>
+          <div className="flex-1">
+            <label className={labelCls}>Tags / Keywords (comma separated)</label>
+            <input
+              className={inputCls}
               value={addForm.tags}
               onChange={e => setAddForm(f => ({ ...f, tags: e.target.value }))}
             />
-          </Box>
-          {/* Image Upload */}
-          <Button
-            variant="outlined"
-            component="label"
-            size="small"
-            sx={{ mb: 2 }}
-          >
-            Upload Image
-            <input
-              type="file"
-              accept="image/*"
-              hidden
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                  setAddForm(f => ({ ...f, imageData: ev.target?.result as string }));
-                };
-                reader.readAsDataURL(file);
-              }}
-            />
-          </Button>
-          {addForm.imageData && (
-            <Box sx={{ mb: 2 }}>
-              <img src={addForm.imageData} alt="Preview" style={{ maxHeight: 160, borderRadius: 8, border: '1px solid #ccc' }} />
-            </Box>
-          )}
-          {addError && (
-            <Typography sx={{ fontSize: '12px', color: '#d32f2f', mt: 1 }}>{addError}</Typography>
-          )}
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
-          <Button variant="outlined" size="small" onClick={() => { setAddOpen(false); setAddError(null); }} disabled={isAdding}
-            sx={{ borderColor: colors.outlineVariant, color: colors.on.surfaceVariant }}>
-            Cancel
-          </Button>
-          <Button variant="contained" size="small" onClick={handleAddSubmit} disabled={isAdding}
-            sx={{ backgroundColor: colors.primary.main, '&:hover': { backgroundColor: colors.primary.deep } }}>
-            {isAdding ? 'Saving…' : 'Add Question'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+          </div>
+        </div>
 
-      {/* Delete All confirmation dialog */}
-      <Dialog open={deleteAllOpen} onClose={() => setDeleteAllOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ fontWeight: 700, color: '#d32f2f' }}>Delete All Questions</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            This will permanently delete <strong>all {data?.totalElements ?? ''} questions</strong> from the question bank. This action cannot be undone.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
-          <Button variant="outlined" size="small" onClick={() => setDeleteAllOpen(false)} disabled={isDeleting}
-            sx={{ borderColor: colors.outlineVariant, color: colors.on.surfaceVariant }}>
-            Cancel
-          </Button>
-          <Button variant="contained" size="small" onClick={() => deleteAllQuestions()} disabled={isDeleting}
-            sx={{ backgroundColor: '#d32f2f', '&:hover': { backgroundColor: '#b71c1c' } }}>
-            {isDeleting ? 'Deleting…' : 'Delete All'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        {/* Image Upload */}
+        <label className="inline-flex items-center gap-1.5 mb-3 px-3 py-1.5 text-sm border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition">
+          Upload Image
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              const reader = new FileReader();
+              reader.onload = (ev) => {
+                setAddForm(f => ({ ...f, imageData: ev.target?.result as string }));
+              };
+              reader.readAsDataURL(file);
+            }}
+          />
+        </label>
+        {addForm.imageData && (
+          <div className="mb-3">
+            <img src={addForm.imageData} alt="Preview" style={{ maxHeight: 160, borderRadius: 8, border: '1px solid #ccc' }} />
+          </div>
+        )}
+        {addError && (
+          <p className="text-xs mt-1" style={{ color: '#d32f2f' }}>{addError}</p>
+        )}
+      </Modal>
+
+      {/* Delete All confirmation modal */}
+      <Modal
+        open={deleteAllOpen}
+        onClose={() => setDeleteAllOpen(false)}
+        title="Delete All Questions"
+        titleColor="#d32f2f"
+        maxWidth="max-w-sm"
+        actions={
+          <>
+            <Button variant="outlined" size="sm" onClick={() => setDeleteAllOpen(false)} disabled={isDeleting}>
+              Cancel
+            </Button>
+            <Button variant="danger" size="sm" onClick={() => deleteAllQuestions()} disabled={isDeleting}>
+              {isDeleting ? 'Deleting…' : 'Delete All'}
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm text-gray-600 leading-relaxed">
+          This will permanently delete{' '}
+          <strong>all {data?.totalElements ?? ''} questions</strong> from the question bank.
+          This action cannot be undone.
+        </p>
+      </Modal>
     </>
   );
 };

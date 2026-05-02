@@ -1,6 +1,6 @@
 import AddIcon from '@mui/icons-material/Add';
-import { Button } from '@mui/material';
 import React from 'react';
+import { Button } from '../atoms';
 import { Skeleton } from '../molecules';
 import type { DashboardSection } from '../organisms';
 import {
@@ -62,10 +62,10 @@ const TeacherManIngestionLayout: React.FC<IngestionLayoutProps> = ({
             <div className="text-sm text-gray-500 mt-1">Manage and review uploaded exam PDFs.</div>
           </div>
           <Button
-            variant="contained"
+            variant="primary"
             startIcon={<AddIcon />}
             onClick={onImportExam}
-            className="bg-violet-700 text-white font-medium text-sm px-6 py-2 rounded hover:bg-violet-800"
+            className="font-medium"
           >
             Import New Exam
           </Button>

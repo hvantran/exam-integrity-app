@@ -1,15 +1,12 @@
 import React from 'react';
-import { Button, Divider } from '@mui/material';
+import { Button } from '../atoms';
 import { Skeleton } from '../molecules';
 import FindReplaceIcon from '@mui/icons-material/FindReplace';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import { colors, spacing } from '../../design-system/tokens';
 import {
   AppTopBar,
   TeacherManDashboardSidebar,
-  APP_BAR_HEIGHT,
-  TEACHER_SIDEBAR_WIDTH,
 } from '../organisms';
 import type { DashboardSection } from '../organisms';
 
@@ -86,8 +83,8 @@ const TeacherManQuestionReviewLayout: React.FC<QuestionReviewLayoutProps> = ({
             <span className="text-sm text-gray-500">{examName}</span>
           </div>
           <div className="flex gap-2">
-            <Button variant="outlined" onClick={onSaveDraft} className="text-sm font-medium border-gray-200 text-violet-700 rounded px-4 py-2">Save Draft</Button>
-            <Button variant="contained" onClick={onPublish} className="text-sm font-medium bg-violet-700 text-white rounded px-4 py-2 hover:bg-violet-800">Publish</Button>
+            <Button variant="outlined" onClick={onSaveDraft} size="sm">Save Draft</Button>
+            <Button variant="primary" onClick={onPublish} size="sm">Publish</Button>
           </div>
         </div>
       )}
@@ -105,49 +102,25 @@ const TeacherManQuestionReviewLayout: React.FC<QuestionReviewLayoutProps> = ({
           <div className="flex gap-2">
             <Button
               variant="outlined"
+              size="sm"
               startIcon={<FindReplaceIcon />}
               onClick={onReplace}
-              sx={{
-                fontSize: '14px',
-                fontWeight: 500,
-                textTransform: 'none',
-                borderColor: colors.outlineVariant,
-                color: colors.on.surface,
-                borderRadius: '8px',
-                '&:hover': { backgroundColor: colors.surface.container.highest },
-              }}
             >
               Replace from Bank
             </Button>
             <Button
-              variant="outlined"
+              variant="secondary"
+              size="sm"
               startIcon={<CheckCircleOutlineIcon />}
               onClick={onApprove}
-              sx={{
-                fontSize: '14px',
-                fontWeight: 500,
-                textTransform: 'none',
-                borderColor: colors.secondary.main,
-                color: colors.secondary.main,
-                borderRadius: '8px',
-                '&:hover': { backgroundColor: `${colors.secondary.main}14` },
-              }}
             >
               Approve
             </Button>
             <Button
-              variant="outlined"
+              variant="danger"
+              size="sm"
               startIcon={<DeleteOutlineIcon />}
               onClick={onDelete}
-              sx={{
-                fontSize: '14px',
-                fontWeight: 500,
-                textTransform: 'none',
-                borderColor: '#FFDAD6',
-                color: '#BA1A1A',
-                borderRadius: '8px',
-                '&:hover': { backgroundColor: '#FFDAD6' },
-              }}
             >
               Delete Question
             </Button>

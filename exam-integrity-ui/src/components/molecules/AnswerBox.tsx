@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Box, FormControl, RadioGroup, FormControlLabel, Radio, Typography, TextField,
+  FormControl, RadioGroup, FormControlLabel, Radio, TextField,
 } from '@mui/material';
 import type { QuestionType } from '../../types/exam.types';
 import { colors, borderRadius } from '../../design-system/tokens';
@@ -27,17 +27,17 @@ const AnswerBox: React.FC<Props> = ({ questionId, questionType, options, value, 
   if (isLoading) {
     const itemCount = Math.max(options?.length ?? 0, questionType === 'MCQ' ? 4 : 1);
     return (
-      <Box sx={{ width: '100%', mt: 1 }}>
+      <div style={{ width: '100%', marginTop: 8 }}>
         {questionType === 'MCQ' ? (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {Array.from({ length: itemCount }).map((_, idx) => (
               <Skeleton key={idx} height={50} width="100%" />
             ))}
-          </Box>
+          </div>
         ) : (
           <Skeleton height={208} width="100%" />
         )}
-      </Box>
+      </div>
     );
   }
 
@@ -58,18 +58,20 @@ const AnswerBox: React.FC<Props> = ({ questionId, questionType, options, value, 
                 value={opt}
                 control={<Radio size="small" />}
                 label={
-                  <Typography sx={{ fontSize: '15px', color: colors.on.surface }}>
-                    <Box component="span" sx={{ fontWeight: 600, color: colors.primary.main, mr: 1 }}>
+                  <span style={{ fontSize: '15px', color: colors.on.surface }}>
+                    <span style={{ fontWeight: 600, color: colors.primary.main, marginRight: 8 }}>
                       {key}.
-                    </Box>
+                    </span>
                     {opt.replace(/^[A-E]\.\s*/, '')}
-                  </Typography>
+                  </span>
                 }
                 sx={{
-                  mx: 0,
-                  mb: 1,
-                  px: 2,
-                  py: 1.25,
+                  marginLeft: 0,
+                  marginBottom: 8,
+                  paddingLeft: 16,
+                  paddingRight: 16,
+                  paddingTop: 10,
+                  paddingBottom: 10,
                   borderRadius: borderRadius.default,
                   border: `1.5px solid ${selected ? colors.primary.main : colors.outlineVariant}`,
                   backgroundColor: selected ? `${colors.primary.main}12` : colors.surface.container.lowest,
@@ -88,7 +90,7 @@ const AnswerBox: React.FC<Props> = ({ questionId, questionType, options, value, 
   }
 
   return (
-    <Box sx={{ mt: 1 }}>
+    <div style={{ marginTop: 8 }}>
       <TextField
         multiline
         rows={8}
@@ -110,7 +112,7 @@ const AnswerBox: React.FC<Props> = ({ questionId, questionType, options, value, 
           },
         }}
       />
-    </Box>
+    </div>
   );
 };
 

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
+import { Button } from '../atoms';
 // Removed MUI tokens, using Tailwind CSS
 import { AppTopBar, TeacherManDashboardSidebar, APP_BAR_HEIGHT, TEACHER_SIDEBAR_WIDTH } from '../organisms';
 import type { DashboardSection } from '../organisms';
@@ -63,9 +63,9 @@ const TeacherManReportsLayout: React.FC<ReportsLayoutProps> = ({
           <Button
             startIcon={<DownloadIcon />}
             variant="outlined"
-            size="small"
+            size="sm"
             onClick={onExport}
-            className="border-gray-200 text-gray-500"
+            className="text-gray-600"
           >
             Xuat bao cao
           </Button>

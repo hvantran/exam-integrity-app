@@ -1,10 +1,9 @@
 import React from 'react';
-import { Box, Typography, Button } from '@mui/material';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import GradeIcon from '@mui/icons-material/Grade';
 import { colors, borderRadius, shadow, spacing } from '../../design-system/tokens';
-import { Chip } from '../atoms';
+import { Button, Chip } from '../atoms';
 
 export interface ExamCardProps {
   title: string;
@@ -46,37 +45,24 @@ const ExamCard: React.FC<ExamCardProps> = ({
   const accentColor = isHighlighted ? colors.primary.container : colors.surface.container.highest;
 
   return (
-    <Box
-      sx={{
-        position: 'relative',
+    <div
+      className="relative flex h-full flex-col overflow-hidden"
+      style={{
         backgroundColor: colors.surface.container.lowest,
         border: `1px solid ${colors.outlineVariant}`,
         borderRadius: borderRadius.lg,
         padding: `${spacing.stackLg}px`,
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        overflow: 'hidden',
-        transition: 'box-shadow 0.3s ease',
-        '&:hover': { boxShadow: shadow.cardActive },
       }}
     >
       {/* Left accent bar — 4px Trust Blue strip per spec */}
-      <Box
-        sx={{
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: 4,
-          backgroundColor: accentColor,
-          borderRadius: `${borderRadius.lg} 0 0 ${borderRadius.lg}`,
-        }}
+      <div
+        className="absolute bottom-0 left-0 top-0 w-1"
+        style={{ backgroundColor: accentColor, borderRadius: `${borderRadius.lg} 0 0 ${borderRadius.lg}` }}
       />
 
-      <Box sx={{ flex: 1 }}>
+      <div className="flex-1">
         {/* Tags */}
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '8px', mb: `${spacing.stackMd}px` }}>
+        <div className="mb-4 flex flex-wrap gap-2" style={{ marginBottom: `${spacing.stackMd}px` }}>
           {[subject, grade, type].filter(Boolean).map((tag) => (
             <Chip
               key={tag}
@@ -86,16 +72,16 @@ const ExamCard: React.FC<ExamCardProps> = ({
               style={{ backgroundColor: colors.surface.container.low, color: colors.primary.container }}
             />
           ))}
-        </Box>
+        </div>
 
         {/* Title */}
-        <Typography
-          sx={{
+        <div
+          style={{
             fontSize: '20px',
             fontWeight: 600,
             lineHeight: '28px',
             color: colors.on.surface,
-            mb: `${spacing.stackMd}px`,
+            marginBottom: `${spacing.stackMd}px`,
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
@@ -103,69 +89,47 @@ const ExamCard: React.FC<ExamCardProps> = ({
           }}
         >
           {title}
-        </Typography>
+        </div>
 
         {/* Metadata row */}
-        <Box
-          sx={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '16px',
-            mt: `${spacing.stackMd}px`,
-            pt: `${spacing.stackMd}px`,
-            borderTop: `1px solid ${colors.surface.container.highest}`,
-          }}
+        <div
+          className="mt-4 flex flex-wrap gap-4 pt-4"
+          style={{ marginTop: `${spacing.stackMd}px`, paddingTop: `${spacing.stackMd}px`, borderTop: `1px solid ${colors.surface.container.highest}` }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: '4px', color: colors.on.surfaceVariant }}>
-            <ScheduleIcon sx={{ fontSize: 18 }} />
-            <Typography sx={{ fontSize: '14px', fontWeight: 500, lineHeight: '20px' }}>
+          <div className="flex items-center gap-1" style={{ color: colors.on.surfaceVariant }}>
+            <ScheduleIcon style={{ fontSize: 18 }} />
+            <span style={{ fontSize: '14px', fontWeight: 500, lineHeight: '20px' }}>
               {durationMinutes} min
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: '4px', color: colors.on.surfaceVariant }}>
-            <FormatListNumberedIcon sx={{ fontSize: 18 }} />
-            <Typography sx={{ fontSize: '14px', fontWeight: 500, lineHeight: '20px' }}>
+            </span>
+          </div>
+          <div className="flex items-center gap-1" style={{ color: colors.on.surfaceVariant }}>
+            <FormatListNumberedIcon style={{ fontSize: 18 }} />
+            <span style={{ fontSize: '14px', fontWeight: 500, lineHeight: '20px' }}>
               {questionCount} questions
-            </Typography>
-          </Box>
+            </span>
+          </div>
           {points !== undefined && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: '4px', color: colors.on.surfaceVariant }}>
-              <GradeIcon sx={{ fontSize: 18 }} />
-              <Typography sx={{ fontSize: '14px', fontWeight: 500, lineHeight: '20px' }}>
+            <div className="flex items-center gap-1" style={{ color: colors.on.surfaceVariant }}>
+              <GradeIcon style={{ fontSize: 18 }} />
+              <span style={{ fontSize: '14px', fontWeight: 500, lineHeight: '20px' }}>
                 {points} pts
-              </Typography>
-            </Box>
+              </span>
+            </div>
           )}
-        </Box>
-      </Box>
+        </div>
+      </div>
 
       {/* CTA button */}
       <Button
-        variant={isHighlighted ? 'contained' : 'outlined'}
+        variant={isHighlighted ? 'primary' : 'outlined'}
         fullWidth
         onClick={onStart}
-        sx={{
-          mt: `${spacing.stackLg}px`,
-          py: '12px',
-          fontSize: '14px',
-          fontWeight: 500,
-          borderRadius: borderRadius.default,
-          ...(isHighlighted
-            ? {
-                backgroundColor: colors.primary.deep,
-                color: colors.primary.on,
-                '&:hover': { backgroundColor: '#001d66' },
-              }
-            : {
-                borderColor: colors.outlineVariant,
-                color: colors.primary.deep,
-                '&:hover': { backgroundColor: colors.surface.container.low },
-              }),
-        }}
+        className="mt-6"
+        size="md"
       >
         Start Exam
       </Button>
-    </Box>
+    </div>
   );
 };
 

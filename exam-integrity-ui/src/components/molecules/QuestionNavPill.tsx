@@ -1,5 +1,4 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
 import { colors, borderRadius } from '../../design-system/tokens';
 
 export type QuestionState = 'unanswered' | 'answered' | 'flagged' | 'current';
@@ -47,35 +46,22 @@ const QuestionNavPill: React.FC<QuestionNavPillProps> = ({
   const style = stateStyle[state];
 
   return (
-    <Box
-      component="button"
+    <button
+      type="button"
       onClick={onClick}
-      sx={{
-        width: 36,
-        height: 36,
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+      className="inline-flex h-9 w-9 items-center justify-center transition-all duration-150 active:scale-95"
+      style={{
         borderRadius: borderRadius.default,
         border: `1px solid ${style.border}`,
         backgroundColor: style.bg,
         color: style.text,
         cursor: onClick ? 'pointer' : 'default',
-        transition: 'all 0.15s ease',
-        fontFamily: 'inherit',
-        '&:hover': onClick
-          ? { filter: 'brightness(0.95)', transform: 'translateY(-1px)' }
-          : {},
-        '&:active': { transform: 'scale(0.95)' },
       }}
     >
-      <Typography
-        component="span"
-        sx={{ fontSize: '13px', fontWeight: state === 'current' ? 700 : 500, lineHeight: 1 }}
-      >
+      <span style={{ fontSize: '13px', fontWeight: state === 'current' ? 700 : 500, lineHeight: 1 }}>
         {questionNumber}
-      </Typography>
-    </Box>
+      </span>
+    </button>
   );
 };
 

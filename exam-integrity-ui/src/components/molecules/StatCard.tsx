@@ -1,5 +1,4 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
 import { colors, borderRadius, shadow } from '../../design-system/tokens';
 
 export interface StatCardProps {
@@ -34,30 +33,24 @@ const StatCard: React.FC<StatCardProps> = ({
   const accentColor = variantColor[variant];
 
   return (
-    <Box
-      sx={{
+    <div
+      className="flex min-w-40 flex-col gap-2"
+      style={{
         backgroundColor: colors.surface.container.lowest,
         border: `1px solid ${colors.outlineVariant}`,
         borderRadius: borderRadius.lg,
         boxShadow: shadow.cardActive,
         padding: '20px 24px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px',
-        minWidth: 160,
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px', color: accentColor }}>
+      <div className="flex items-center gap-2" style={{ color: accentColor }}>
         {icon}
-        <Typography
-          variant="caption"
-          sx={{ fontWeight: 600, fontSize: '11px', letterSpacing: '0.06em', color: colors.on.surfaceVariant, textTransform: 'uppercase' }}
-        >
+        <span style={{ fontWeight: 600, fontSize: '11px', letterSpacing: '0.06em', color: colors.on.surfaceVariant, textTransform: 'uppercase' }}>
           {label}
-        </Typography>
-      </Box>
-      <Typography
-        sx={{
+        </span>
+      </div>
+      <div
+        style={{
           fontSize: '28px',
           fontWeight: 700,
           lineHeight: 1.1,
@@ -66,13 +59,13 @@ const StatCard: React.FC<StatCardProps> = ({
         }}
       >
         {value}
-      </Typography>
+      </div>
       {sublabel && (
-        <Typography sx={{ fontSize: '12px', color: colors.on.surfaceVariant }}>
+        <div style={{ fontSize: '12px', color: colors.on.surfaceVariant }}>
           {sublabel}
-        </Typography>
+        </div>
       )}
-    </Box>
+    </div>
   );
 };
 

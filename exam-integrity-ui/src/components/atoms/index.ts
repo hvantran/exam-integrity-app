@@ -12,3 +12,9 @@ export type { ProgressBarProps } from './ProgressBar';
 
 export { default as Chip } from './Chip';
 export type { ChipProps, ChipVariant, ChipSize, ChipColor } from './Chip';
+
+export { default as Modal } from './Modal';
+export type { ModalProps } from './Modal';
+
+export { default as Select } from './Select';
+export type { SelectProps, SelectOption } from './Select';

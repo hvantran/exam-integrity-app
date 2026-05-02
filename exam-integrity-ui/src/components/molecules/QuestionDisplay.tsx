@@ -7,7 +7,6 @@
  *  - Essay:       clean prose; rubric keywords as chips
  */
 import React from 'react';
-import { Box, Typography } from '@mui/material';
 import { Chip } from '../atoms';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import type { DraftQuestionDTO } from '../../types/exam.types';
@@ -25,14 +24,14 @@ function renderWithBlanks(text: string): React.ReactNode {
     <>
       {parts.map((part, i) =>
         BLANK_RE.test(part) ? (
-          <Box
+          <span
             key={i}
-            component="span"
-            sx={{
+            style={{
               display: 'inline-block',
               minWidth: 72,
               borderBottom: `2px solid ${colors.primary.main}`,
-              mx: 0.5,
+              marginLeft: 4,
+              marginRight: 4,
               verticalAlign: 'bottom',
               height: '1.15em',
             }}
@@ -64,21 +63,21 @@ const OPTION_LABELS = ['A', 'B', 'C', 'D', 'E', 'F'];
 
 function McqQuestion({ q }: { q: DraftQuestionDTO }) {
   return (
-    <Box>
-      <Typography
-        sx={{
+    <div>
+      <p
+        style={{
           fontFamily: typography.fontFamily.sans,
           fontSize: '0.95rem',
           fontWeight: 500,
           color: colors.on.surface,
-          mb: 2,
+          marginBottom: 16,
           whiteSpace: 'pre-wrap',
           lineHeight: 1.7,
         }}
       >
         {renderWithBlanks(q.content)}
-      </Typography>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+      </p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {(q.options ?? []).map((opt, i) => {
           const label = OPTION_LABELS[i] ?? String(i + 1);
           const isCorrect =
@@ -86,14 +85,16 @@ function McqQuestion({ q }: { q: DraftQuestionDTO }) {
             q.correctAnswer === opt ||
             (q.correctAnswer ?? '').toUpperCase().startsWith(label);
           return (
-            <Box
+            <div
               key={i}
-              sx={{
+              style={{
                 display: 'flex',
                 alignItems: 'flex-start',
-                gap: 1.5,
-                px: 2,
-                py: 1,
+                gap: 12,
+                paddingLeft: 16,
+                paddingRight: 16,
+                paddingTop: 8,
+                paddingBottom: 8,
                 borderRadius: borderRadius.default,
                 border: `1.5px solid ${isCorrect ? colors.primary.main : colors.outlineVariant}`,
                 backgroundColor: isCorrect
@@ -101,8 +102,8 @@ function McqQuestion({ q }: { q: DraftQuestionDTO }) {
                   : colors.surface.container.low,
               }}
             >
-              <Box
-                sx={{
+              <div
+                style={{
                   minWidth: 26,
                   height: 26,
                   borderRadius: '50%',
@@ -112,35 +113,35 @@ function McqQuestion({ q }: { q: DraftQuestionDTO }) {
                   alignItems: 'center',
                   justifyContent: 'center',
                   flexShrink: 0,
-                  mt: '2px',
+                  marginTop: 2,
                 }}
               >
-                <Typography
-                  sx={{
+                <span
+                  style={{
                     fontSize: '0.72rem',
                     fontWeight: 700,
                     color: isCorrect ? colors.primary.on : colors.on.surfaceVariant,
                   }}
                 >
                   {label}
-                </Typography>
-              </Box>
-              <Typography
-                sx={{
+                </span>
+              </div>
+              <span
+                style={{
                   fontFamily: typography.fontFamily.sans,
                   fontSize: '0.9rem',
                   color: colors.on.surface,
                   lineHeight: 1.7,
-                  pt: '3px',
+                  paddingTop: 3,
                 }}
               >
                 {renderWithBlanks(opt)}
-              </Typography>
-            </Box>
+              </span>
+            </div>
           );
         })}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 
@@ -153,32 +154,32 @@ function CalculationQuestion({ q }: { q: DraftQuestionDTO }) {
   const expressions = promptPart ? parts.slice(1) : parts;
 
   return (
-    <Box>
+    <div>
       {promptPart && (
-        <Typography
-          sx={{
+        <p
+          style={{
             fontFamily: typography.fontFamily.sans,
             fontSize: '0.95rem',
             fontWeight: 500,
             color: colors.on.surface,
-            mb: 1.5,
+            marginBottom: 12,
           }}
         >
           {promptPart}
-        </Typography>
+        </p>
       )}
-      <Box
-        sx={{
+      <div
+        style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-          gap: 1.5,
+          gap: 12,
         }}
       >
         {expressions.map((expr, i) => (
-          <Box
+          <div
             key={i}
-            sx={{
-              p: 1.5,
+            style={{
+              padding: 12,
               borderRadius: borderRadius.default,
               border: `1px solid ${colors.outlineVariant}`,
               backgroundColor: colors.surface.container.low,
@@ -190,10 +191,10 @@ function CalculationQuestion({ q }: { q: DraftQuestionDTO }) {
             }}
           >
             {renderWithBlanks(expr)}
-          </Box>
+          </div>
         ))}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 
@@ -202,31 +203,31 @@ function CalculationQuestion({ q }: { q: DraftQuestionDTO }) {
 function EssayQuestion({ q }: { q: DraftQuestionDTO }) {
   const keywords = q.rubric?.keywords ?? [];
   return (
-    <Box>
-      <Typography
-        sx={{
+    <div>
+      <p
+        style={{
           fontFamily: typography.fontFamily.sans,
           fontSize: '0.95rem',
           fontWeight: 500,
           color: colors.on.surface,
           whiteSpace: 'pre-wrap',
           lineHeight: 1.8,
-          mb: keywords.length > 0 ? 2 : 0,
+          marginBottom: keywords.length > 0 ? 16 : 0,
         }}
       >
         {renderWithBlanks(q.content)}
-      </Typography>
+      </p>
       {keywords.length > 0 && (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, alignItems: 'center' }}>
-          <Typography variant="caption" sx={{ color: colors.on.surfaceVariant }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+          <span style={{ fontSize: '0.75rem', color: colors.on.surfaceVariant }}>
             Rubric keywords:
-          </Typography>
+          </span>
           {keywords.map(k => (
             <Chip key={k} label={k} size="small" variant="outlined" />
           ))}
-        </Box>
+        </div>
       )}
-    </Box>
+    </div>
   );
 }
 
@@ -241,15 +242,15 @@ export interface QuestionDisplayProps {
 const QuestionDisplay: React.FC<QuestionDisplayProps> = ({ question: q, index, isLoading = false }) => {
   if (isLoading) {
     return (
-      <Box sx={{ mb: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
           <Skeleton height={22} width={92} />
           <Skeleton height={22} width={108} />
           <Skeleton height={22} width={56} />
-        </Box>
-        <Box
-          sx={{
-            p: 2,
+        </div>
+        <div
+          style={{
+            padding: 16,
             borderRadius: borderRadius.default,
             border: `1px solid ${colors.outlineVariant}`,
             backgroundColor: colors.surface.container.lowest,
@@ -261,8 +262,8 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({ question: q, index, i
           <Skeleton height={46} width="100%" className="mb-2" />
           <Skeleton height={46} width="100%" className="mb-2" />
           <Skeleton height={46} width="100%" />
-        </Box>
-      </Box>
+        </div>
+      </div>
     );
   }
 
@@ -286,22 +287,24 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({ question: q, index, i
   const lowConfidence = q.parserConfidence < 0.7;
 
   return (
-    <Box sx={{ mb: 3 }}>
+    <div style={{ marginBottom: 24 }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1, mb: 1.5 }}>
-        <Box
-          sx={{
-            px: 1.5,
-            py: 0.25,
+      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+        <div
+          style={{
+            paddingLeft: 12,
+            paddingRight: 12,
+            paddingTop: 2,
+            paddingBottom: 2,
             borderRadius: borderRadius.default,
             backgroundColor: colors.surface.container.highest,
             border: `1px solid ${colors.outlineVariant}`,
           }}
         >
-          <Typography sx={{ fontSize: '0.8rem', fontWeight: 700, color: colors.primary.main }}>
+          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: colors.primary.main }}>
             Question {q.questionNumber > 0 ? q.questionNumber : index + 1}
-          </Typography>
-        </Box>
+          </span>
+        </div>
         <Chip label={typeLabel} size="small" variant="outlined" className="text-[0.7rem]" style={{ height: 22 }} />
         {q.points > 0 && (
           <Chip
@@ -312,19 +315,19 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({ question: q, index, i
           />
         )}
         {lowConfidence && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <WarningAmberIcon sx={{ fontSize: 15, color: 'warning.main' }} />
-            <Typography sx={{ fontSize: '0.7rem', color: 'warning.main' }}>
+            <span style={{ fontSize: '0.7rem', color: '#f59e0b' }}>
               Low confidence ({Math.round(q.parserConfidence * 100)}%)
-            </Typography>
-          </Box>
+            </span>
+          </div>
         )}
-      </Box>
+      </div>
 
       {/* Body card */}
-      <Box
-        sx={{
-          p: 2,
+      <div
+        style={{
+          padding: 16,
           borderRadius: borderRadius.default,
           border: `1px solid ${lowConfidence ? '#f59e0b66' : colors.outlineVariant}`,
           backgroundColor: colors.surface.container.lowest,
@@ -337,11 +340,11 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({ question: q, index, i
         ) : (
           <EssayQuestion q={q} />
         )}
-      </Box>
+      </div>
 
       {/* Parser warnings */}
       {warnings.length > 0 && (
-        <Box sx={{ mt: 0.75, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+        <div style={{ marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
           {warnings.map((w, i) => (
             <Chip
               key={i}
@@ -354,9 +357,9 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({ question: q, index, i
               style={{ height: 22 }}
             />
           ))}
-        </Box>
+        </div>
       )}
-    </Box>
+    </div>
   );
 };
 

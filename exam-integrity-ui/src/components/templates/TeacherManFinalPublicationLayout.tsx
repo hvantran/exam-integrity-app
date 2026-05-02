@@ -1,7 +1,7 @@
 import React, { useState, KeyboardEvent } from 'react';
-import { Box, Button, TextField, Typography } from '@mui/material';
+import { TextField } from '@mui/material';
 import { Skeleton } from '../molecules';
-import { Chip } from '../atoms';
+import { Chip, Button } from '../atoms';
 import PublishIcon from '@mui/icons-material/Publish';
 import {Add as AddIcon, CheckCircleOutlined, FunctionsOutlined, ChromeReaderModeOutlined} from '@mui/icons-material';
 import { colors, spacing, borderRadius } from '../../design-system/tokens';
@@ -184,11 +184,11 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Typography
-                    sx={{ fontSize: '12px', fontWeight: 500, color: colors.on.surfaceVariant, mb: 0.75, ml: 0.25 }}
+                  <div
+                    style={{ fontSize: '12px', fontWeight: 500, color: colors.on.surfaceVariant, marginBottom: 6, marginLeft: 2 }}
                   >
                     Duaration (seconds)
-                  </Typography>
+                  </div>
                   <TextField
                     fullWidth
                     type="number"
@@ -259,15 +259,13 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
           <Button
             variant="outlined"
             onClick={onSaveDraft}
-            className="text-sm font-medium border-gray-200 text-gray-900 rounded-lg px-6 py-2"
           >
             Save Draft
           </Button>
           <Button
-            variant="contained"
-            startIcon={<PublishIcon />}
+            variant="primary"
             onClick={onPublish}
-            className="text-sm font-medium bg-violet-700 text-white rounded-lg px-8 py-2 hover:bg-violet-800"
+            startIcon={<PublishIcon sx={{ marginRight: 1, fontSize: 18 }} />}
           >
             Publish Exam
           </Button>

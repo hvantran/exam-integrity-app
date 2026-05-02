@@ -1,5 +1,4 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
 import { colors } from '../../design-system/tokens';
 
 export type BadgeColor = 'primary' | 'secondary' | 'error' | 'neutral' | 'warning';
@@ -40,27 +39,21 @@ const Badge: React.FC<BadgeProps> = ({ count, color = 'primary', max, size = 'md
     max !== undefined && typeof count === 'number' && count > max ? `${max}+` : count;
 
   return (
-    <Box
-      component="span"
-      sx={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+    <span
+      className="inline-flex items-center justify-center rounded-full"
+      style={{
         minWidth,
         height,
-        px,
-        borderRadius: '9999px',
+        paddingLeft: px,
+        paddingRight: px,
         backgroundColor: bg,
         color: text,
       }}
     >
-      <Typography
-        component="span"
-        sx={{ fontSize, fontWeight: 600, lineHeight: 1, fontFamily: 'inherit' }}
-      >
+      <span style={{ fontSize, fontWeight: 600, lineHeight: 1, fontFamily: 'inherit' }}>
         {displayValue}
-      </Typography>
-    </Box>
+      </span>
+    </span>
   );
 };
 

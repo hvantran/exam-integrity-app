@@ -1,5 +1,4 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
 import { Chip } from '../atoms';
 import { colors, spacing, borderRadius } from '../../design-system/tokens';
 import { AppTopBar, StudentManPortalSidebar, APP_BAR_HEIGHT, STUDENT_SIDEBAR_WIDTH } from '../organisms';
@@ -43,7 +42,7 @@ const StudentManLandingLayout: React.FC<LandingLayoutProps> = ({
   onLogout,
   children,
 }) => (
-  <Box sx={{ minHeight: '100vh', backgroundColor: colors.background }}>
+  <div className="min-h-screen" style={{ backgroundColor: colors.background }}>
     <AppTopBar
       appTitle="Academic Management"
       userName={studentName}
@@ -59,40 +58,35 @@ const StudentManLandingLayout: React.FC<LandingLayoutProps> = ({
       onNavigate={onNavigate}
       onHelp={onHelp}
     />
-    <Box
-      component="main"
-      sx={{
-        ml: `${STUDENT_SIDEBAR_WIDTH}px`,
-        pt: `${APP_BAR_HEIGHT}px`,
-        minHeight: '100vh',
-        overflowY: 'auto',
-      }}
+    <main
+      className="min-h-screen overflow-y-auto"
+      style={{ marginLeft: `${STUDENT_SIDEBAR_WIDTH}px`, paddingTop: `${APP_BAR_HEIGHT}px` }}
     >
-      <Box sx={{ p: `${spacing.margin}px`, maxWidth: spacing.containerMax, mx: 'auto' }}>
+      <div className="mx-auto" style={{ padding: `${spacing.margin}px`, maxWidth: spacing.containerMax }}>
         {/* Page header */}
-        <Box sx={{ mb: `${spacing.stackLg}px` }}>
-          <Typography
-            sx={{
+        <div style={{ marginBottom: `${spacing.stackLg}px` }}>
+          <h1
+            style={{
               fontSize: '32px',
               fontWeight: 600,
               color: colors.on.surface,
               lineHeight: '40px',
               letterSpacing: '-0.01em',
-              mb: '8px',
+              marginBottom: '8px',
             }}
           >
             {pageTitle}
-          </Typography>
+          </h1>
           {pageSubtitle && (
-            <Typography sx={{ fontSize: '16px', color: colors.on.surfaceVariant }}>
+            <p style={{ fontSize: '16px', color: colors.on.surfaceVariant }}>
               {pageSubtitle}
-            </Typography>
+            </p>
           )}
-        </Box>
+        </div>
 
         {/* Filter bar */}
         {filters.length > 0 && (
-          <Box sx={{ display: 'flex', gap: '8px', flexWrap: 'wrap', mb: `${spacing.stackLg}px` }}>
+          <div className="mb-6 flex flex-wrap gap-2" style={{ marginBottom: `${spacing.stackLg}px` }}>
             {filters.map((f) => (
               <Chip
                 key={f.value}
@@ -106,13 +100,13 @@ const StudentManLandingLayout: React.FC<LandingLayoutProps> = ({
                 }}
               />
             ))}
-          </Box>
+          </div>
         )}
 
         {children}
-      </Box>
-    </Box>
-  </Box>
+      </div>
+    </main>
+  </div>
 );
 
 export default StudentManLandingLayout;

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Box, Typography, Tooltip } from '@mui/material';
 import { colors, borderRadius } from '../../design-system/tokens';
 
 export interface NavMenuItemProps {
@@ -24,48 +23,37 @@ const NavMenuItem: React.FC<NavMenuItemProps> = ({
   collapsed = false,
   onClick,
 }) => (
-  <Tooltip title={collapsed ? label : ''} placement="right">
-    <Box
-      component="button"
-      onClick={onClick}
-      sx={{
-        width: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-        px: collapsed ? '12px' : '16px',
-        py: '10px',
-        borderRadius: borderRadius.default,
-        border: 'none',
-        backgroundColor: active ? colors.surface.container.low : 'transparent',
-        color: active ? colors.primary.main : colors.on.surfaceVariant,
-        cursor: 'pointer',
-        textAlign: 'left',
-        fontFamily: 'inherit',
-        transition: 'all 0.15s ease',
-        borderLeft: active ? `3px solid ${colors.primary.main}` : '3px solid transparent',
-        '&:hover': {
-          backgroundColor: colors.surface.container.low,
-          color: colors.primary.main,
-        },
-      }}
+  <button
+    type="button"
+    onClick={onClick}
+    title={collapsed ? label : undefined}
+    className="w-full flex items-center gap-3 py-2.5 border-none text-left font-inherit transition-all duration-150"
+    style={{
+      paddingLeft: collapsed ? '12px' : '16px',
+      paddingRight: collapsed ? '12px' : '16px',
+      borderRadius: borderRadius.default,
+      backgroundColor: active ? colors.surface.container.low : 'transparent',
+      color: active ? colors.primary.main : colors.on.surfaceVariant,
+      borderLeft: active ? `3px solid ${colors.primary.main}` : '3px solid transparent',
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.backgroundColor = colors.surface.container.low;
+      e.currentTarget.style.color = colors.primary.main;
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.backgroundColor = active ? colors.surface.container.low : 'transparent';
+      e.currentTarget.style.color = active ? colors.primary.main : colors.on.surfaceVariant;
+    }}
+  >
+    <span
+      className="flex items-center justify-center shrink-0"
+      style={{ color: 'inherit' }}
     >
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-          color: 'inherit',
-          '& svg': { fontSize: 20 },
-        }}
-      >
-        {icon}
-      </Box>
+      {icon}
+    </span>
       {!collapsed && (
-        <Typography
-          component="span"
-          sx={{
+        <span
+          style={{
             fontSize: '14px',
             fontWeight: active ? 600 : 400,
             lineHeight: '20px',
@@ -74,10 +62,9 @@ const NavMenuItem: React.FC<NavMenuItemProps> = ({
           }}
         >
           {label}
-        </Typography>
+        </span>
       )}
-    </Box>
-  </Tooltip>
+  </button>
 );
 
 export default NavMenuItem;
