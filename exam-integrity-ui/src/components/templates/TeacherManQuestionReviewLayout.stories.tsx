@@ -96,6 +96,16 @@ const ParsedContentEditor = () => (
   </Box>
 );
 
+const InteractiveReviewLayout = (args: React.ComponentProps<typeof TeacherManQuestionReviewLayout>) => {
+  return (
+    <TeacherManQuestionReviewLayout
+      {...args}
+      leftPanel={<OriginalScanPlaceholder />}
+      rightPanel={<ParsedContentEditor />}
+    />
+  );
+};
+
 export const Default: Story = {
   args: {
     userName: 'Dr. Nguyen',
@@ -104,13 +114,7 @@ export const Default: Story = {
     totalQuestions: 40,
     examName: 'Math K12 - Final Exam II',
   },
-  render: (args) => (
-    <TeacherManQuestionReviewLayout
-      {...args}
-      leftPanel={<OriginalScanPlaceholder />}
-      rightPanel={<ParsedContentEditor />}
-    />
-  ),
+  render: (args) => <InteractiveReviewLayout {...args} />,
 };
 
 export const NoExamName: Story = {
@@ -119,13 +123,7 @@ export const NoExamName: Story = {
     questionNumber: 1,
     totalQuestions: 25,
   },
-  render: (args) => (
-    <TeacherManQuestionReviewLayout
-      {...args}
-      leftPanel={<OriginalScanPlaceholder />}
-      rightPanel={<ParsedContentEditor />}
-    />
-  ),
+  render: (args) => <InteractiveReviewLayout {...args} />,
 };
 
 export const Loading: Story = {

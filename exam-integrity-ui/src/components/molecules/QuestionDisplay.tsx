@@ -2,13 +2,20 @@
  * QuestionDisplay — renders a DraftQuestionDTO in a teacher-friendly way.
  *
  * Strategies by question type:
- *  - MCQ:         A/B/C/D option cards with correct-answer highlight
+ *  - MCQ:         A/B/C/D option cards with correct-answer highlight + inline answer selector
  *  - Calculation: sub-expressions in a grid; dotted lines → styled answer blank
  *  - Essay:       clean prose; rubric keywords as chips
+ * 
+ * Features:
+ *  - Inline score editing (right-aligned)
+ *  - Inline image upload (right-aligned)
+ *  - MCQ correct-answer selector (A/B/C/D)
  */
 import React from 'react';
 import { Chip } from '../atoms';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import ImageOutlined from '@mui/icons-material/ImageOutlined';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import type { DraftQuestionDTO } from '../../types/exam.types';
 import { colors, typography, borderRadius } from '../../design-system/tokens';
 import Skeleton from './Skeleton';
@@ -61,7 +68,15 @@ function splitExpressions(content: string): string[] {
 
 const OPTION_LABELS = ['A', 'B', 'C', 'D', 'E', 'F'];
 
-function McqQuestion({ q }: { q: DraftQuestionDTO }) {
+function McqQuestion({ 
+  q,
+  selectedAnswer,
+  onCorrectAnswerChange 
+}: { 
+  q: DraftQuestionDTO;
+  selectedAnswer?: string;
+  onCorrectAnswerChange?: (value: string) => void;
+}) {
   return (
     <div>
       <p
@@ -81,6 +96,7 @@ function McqQuestion({ q }: { q: DraftQuestionDTO }) {
         {(q.options ?? []).map((opt, i) => {
           const label = OPTION_LABELS[i] ?? String(i + 1);
           const isCorrect =
+            (selectedAnswer && selectedAnswer === label) ||
             q.correctAnswer === label ||
             q.correctAnswer === opt ||
             (q.correctAnswer ?? '').toUpperCase().startsWith(label);
@@ -100,7 +116,10 @@ function McqQuestion({ q }: { q: DraftQuestionDTO }) {
                 backgroundColor: isCorrect
                   ? `${colors.primary.main}18`
                   : colors.surface.container.low,
+                cursor: onCorrectAnswerChange ? 'pointer' : 'default',
+                transition: 'all 0.2s ease',
               }}
+              onClick={() => onCorrectAnswerChange?.(label)}
             >
               <div
                 style={{
@@ -237,9 +256,31 @@ export interface QuestionDisplayProps {
   question: DraftQuestionDTO;
   index: number;
   isLoading?: boolean;
+  questionScore?: number | '';
+  onQuestionScoreChange?: (value: number | '') => void;
+  onQuestionScoreBlur?: () => void;
+  questionImageData?: string;
+  onQuestionImageUpload?: (file: File) => void;
+  onQuestionImageRemove?: () => void;
+  selectedCorrectAnswer?: string;
+  onCorrectAnswerChange?: (value: string) => void;
+  onCorrectAnswerBlur?: () => void;
 }
 
-const QuestionDisplay: React.FC<QuestionDisplayProps> = ({ question: q, index, isLoading = false }) => {
+const QuestionDisplay: React.FC<QuestionDisplayProps> = ({ 
+  question: q, 
+  index, 
+  isLoading = false,
+  questionScore = '',
+  onQuestionScoreChange,
+  onQuestionScoreBlur,
+  questionImageData,
+  onQuestionImageUpload,
+  onQuestionImageRemove,
+  selectedCorrectAnswer,
+  onCorrectAnswerChange,
+  onCorrectAnswerBlur,
+}) => {
   if (isLoading) {
     return (
       <div style={{ marginBottom: 24 }}>
@@ -285,46 +326,139 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({ question: q, index, i
 
   const warnings = q.parserWarnings ?? [];
   const lowConfidence = q.parserConfidence < 0.7;
+  const hasImage = !!questionImageData;
 
   return (
     <div style={{ marginBottom: 24 }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
-        <div
-          style={{
-            paddingLeft: 12,
-            paddingRight: 12,
-            paddingTop: 2,
-            paddingBottom: 2,
-            borderRadius: borderRadius.default,
-            backgroundColor: colors.surface.container.highest,
-            border: `1px solid ${colors.outlineVariant}`,
-          }}
-        >
-          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: colors.primary.main }}>
-            Question {q.questionNumber > 0 ? q.questionNumber : index + 1}
-          </span>
-        </div>
-        <Chip label={typeLabel} size="small" variant="outlined" className="text-[0.7rem]" style={{ height: 22 }} />
-        {q.points > 0 && (
-          <Chip
-            label={`${q.points} pts`}
-            size="small"
-            className="text-[0.7rem]"
-            style={{ height: 22, backgroundColor: `${colors.primary.main}18` }}
-          />
-        )}
-        {lowConfidence && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <WarningAmberIcon sx={{ fontSize: 15, color: 'warning.main' }} />
-            <span style={{ fontSize: '0.7rem', color: '#f59e0b' }}>
-              Low confidence ({Math.round(q.parserConfidence * 100)}%)
+      {/* Header with left content and right controls */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+          <div
+            style={{
+              paddingLeft: 12,
+              paddingRight: 12,
+              paddingTop: 2,
+              paddingBottom: 2,
+              borderRadius: borderRadius.default,
+              backgroundColor: colors.surface.container.highest,
+              border: `1px solid ${colors.outlineVariant}`,
+            }}
+          >
+            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: colors.primary.main }}>
+              Question {q.questionNumber > 0 ? q.questionNumber : index + 1}
             </span>
           </div>
-        )}
+          <Chip label={typeLabel} size="small" variant="outlined" className="text-[0.7rem]" style={{ height: 22 }} />
+          {lowConfidence && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <WarningAmberIcon sx={{ fontSize: 15, color: 'warning.main' }} />
+              <span style={{ fontSize: '0.7rem', color: '#f59e0b' }}>
+                Low confidence ({Math.round(q.parserConfidence * 100)}%)
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Right side controls: Score input + Image upload/remove */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          {/* Score input */}
+          {onQuestionScoreChange && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: colors.on.surfaceVariant }}>
+                Score:
+              </label>
+              <input
+                type="number"
+                min={0.5}
+                step={0.5}
+                value={questionScore}
+                onChange={(e) => {
+                  const nextValue = e.target.value;
+                  if (nextValue === '') {
+                    onQuestionScoreChange('');
+                    return;
+                  }
+                  const parsedValue = Number(nextValue);
+                  if (Number.isFinite(parsedValue)) {
+                    onQuestionScoreChange(Math.max(0, parsedValue));
+                  }
+                }}
+                onBlur={onQuestionScoreBlur}
+                style={{
+                  width: 48,
+                  padding: '4px 6px',
+                  border: `1px solid ${colors.outlineVariant}`,
+                  borderRadius: '4px',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                }}
+              />
+            </div>
+          )}
+
+          {/* Image upload/remove button */}
+          {onQuestionImageUpload && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              {hasImage && onQuestionImageRemove && (
+                <button
+                  onClick={onQuestionImageRemove}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 4,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#ef4444',
+                    transition: 'color 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = '#dc2626')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = '#ef4444')}
+                  title="Remove image"
+                >
+                  <DeleteOutlineIcon sx={{ fontSize: 18 }} />
+                </button>
+              )}
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  border: `1px solid ${colors.outlineVariant}`,
+                  backgroundColor: hasImage ? `${colors.primary.main}18` : colors.surface.container.highest,
+                  transition: 'all 0.2s ease',
+                  color: hasImage ? colors.primary.main : colors.on.surfaceVariant,
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = `${colors.primary.main}24`)}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = hasImage ? `${colors.primary.main}18` : colors.surface.container.highest)}
+              >
+                <ImageOutlined sx={{ fontSize: 16, marginRight: 1 }} />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const selectedFile = e.target.files?.[0];
+                    if (selectedFile && onQuestionImageUpload) {
+                      onQuestionImageUpload(selectedFile);
+                    }
+                    e.currentTarget.value = '';
+                  }}
+                  style={{ display: 'none' }}
+                />
+                <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>
+                  {hasImage ? 'Change' : 'Upload'}
+                </span>
+              </label>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Body card */}
+      {/* Body card with image preview + question content */}
       <div
         style={{
           padding: 16,
@@ -333,8 +467,28 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({ question: q, index, i
           backgroundColor: colors.surface.container.lowest,
         }}
       >
+        {/* Image preview at top if available */}
+        {hasImage && (
+          <div style={{ marginBottom: 16 }}>
+            <img
+              src={questionImageData}
+              alt="Question"
+              style={{
+                maxHeight: 200,
+                maxWidth: '100%',
+                borderRadius: '6px',
+                border: `1px solid ${colors.outlineVariant}`,
+                objectFit: 'contain',
+              }}
+            />
+          </div>
+        )}
+
+        {/* Question content based on type */}
         {q.type === 'MCQ' ? (
-          <McqQuestion q={q} />
+          <div onBlur={onCorrectAnswerBlur}>
+            <McqQuestion q={q} selectedAnswer={selectedCorrectAnswer} onCorrectAnswerChange={onCorrectAnswerChange} />
+          </div>
         ) : isCalc ? (
           <CalculationQuestion q={q} />
         ) : (

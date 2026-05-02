@@ -3,7 +3,7 @@ import { TextField } from '@mui/material';
 import { Skeleton } from '../molecules';
 import { Button } from '../atoms';
 import PublishIcon from '@mui/icons-material/Publish';
-import {Add as AddIcon, CheckCircleOutlined, FunctionsOutlined, ChromeReaderModeOutlined} from '@mui/icons-material';
+import {Add as AddIcon, CheckCircleOutlined, FunctionsOutlined, ChromeReaderModeOutlined, ImageOutlined} from '@mui/icons-material';
 import {
   AppTopBar,
   TeacherManDashboardSidebar,
@@ -11,6 +11,7 @@ import {
   TEACHER_SIDEBAR_WIDTH,
 } from '../organisms';
 import type { DashboardSection } from '../organisms';
+import type { DraftQuestionDTO } from '../../types/exam.types';
 
 export interface FinalPublicationStats {
   approvedQuestions?: number;
@@ -41,6 +42,7 @@ export interface FinalPublicationLayoutProps {
   onFormChange?: (field: keyof FinalPublicationFormValues, value: string | string[] | number) => void;
   onSaveDraft?: () => void;
   onPublish?: () => void;
+  questions?: DraftQuestionDTO[];
 }
 
 const StatCard: React.FC<{ icon: React.ReactNode; value: string | number; label: string; iconColor?: string }> = ({
@@ -57,7 +59,7 @@ const StatCard: React.FC<{ icon: React.ReactNode; value: string | number; label:
 );
 
 const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = ({
-  userName = 'Giao vien',
+  userName = 'Admin',
   userRole,
   onNavigate,
   onCreateExam,
@@ -77,6 +79,7 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
   onFormChange,
   onSaveDraft,
   onPublish,
+  questions = [],
 }) => {
   const [tagInput, setTagInput] = useState('');
 
@@ -242,6 +245,82 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
             </>
           )}
         </div>
+
+        {/* Questions Verification Section */}
+        {questions.length > 0 && (
+          <div className="bg-white border border-gray-200 rounded-lg p-6 flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-2xl font-semibold text-gray-900">Questions Verification</h3>
+              <span className="text-sm text-gray-500">{questions.length} questions</span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-200 bg-gray-50">
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">#</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Type</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Points</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Correct Answer (MCQ)</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Image</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {questions.map((q) => {
+                    const isMcq = q.type === 'MCQ';
+                    const hasImage = !!q.imageData;
+                    const statusColors: Record<string, string> = {
+                      'PENDING': 'bg-yellow-50 text-yellow-700',
+                      'APPROVED': 'bg-green-50 text-green-700',
+                      'CORRECTED': 'bg-blue-50 text-blue-700',
+                      'EXCLUDED': 'bg-red-50 text-red-700',
+                    };
+                    const statusColor = statusColors[q.reviewStatus] || 'bg-gray-50 text-gray-700';
+
+                    return (
+                      <tr key={q.id} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="px-4 py-3 font-medium text-gray-900">{q.questionNumber}</td>
+                        <td className="px-4 py-3 text-gray-600">{q.type}</td>
+                        <td className="px-4 py-3 font-semibold text-gray-900">{q.points ?? 0}</td>
+                        <td className="px-4 py-3 text-gray-600">
+                          {isMcq ? (
+                            q.correctAnswer ? (
+                              <span className="px-2 py-1 bg-violet-100 text-violet-700 rounded text-xs font-semibold">
+                                {q.correctAnswer}
+                              </span>
+                            ) : (
+                              <span className="text-gray-400 italic">Not set</span>
+                            )
+                          ) : (
+                            <span className="text-gray-400 italic">—</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          {hasImage ? (
+                            <div className="flex items-center gap-1 text-green-700">
+                              <ImageOutlined sx={{ fontSize: 16 }} />
+                              <span className="text-xs font-medium">Uploaded</span>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-gray-400">None</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${statusColor}`}>
+                            {q.reviewStatus}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <div className="text-xs text-gray-500 pt-2 border-t border-gray-100">
+              Verify all questions have the correct score, answer selection (for MCQ), and required images before publishing.
+            </div>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="flex justify-end gap-4 mt-6">

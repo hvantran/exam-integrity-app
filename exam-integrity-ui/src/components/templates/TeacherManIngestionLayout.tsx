@@ -24,7 +24,7 @@ export interface IngestionLayoutProps {
 }
 
 const TeacherManIngestionLayout: React.FC<IngestionLayoutProps> = ({
-  userName = 'Giao vien',
+  userName = 'Admin',
   userRole,
   onNavigate,
   onCreateExam,

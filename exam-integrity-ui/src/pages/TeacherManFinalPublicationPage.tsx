@@ -1,6 +1,6 @@
 /** FE-20: Teacher final publication page */
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Alert } from '@mui/material';
 import { TeacherManFinalPublicationLayout } from '../components/templates';
 import { useDraft, usePublishDraft } from '../hooks/useDraft';
@@ -20,6 +20,7 @@ const SECTION_ROUTES: Record<DashboardSection, string> = {
 const FinalPublicationPage: React.FC = () => {
   const { draftId = '' } = useParams<{ draftId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { logout } = useAuth();
   const handleLogout = () => { logout(); navigate('/login', { replace: true }); };
   const handleNavigate = (section: DashboardSection) => navigate(SECTION_ROUTES[section]);
@@ -58,8 +59,20 @@ const FinalPublicationPage: React.FC = () => {
   }
   if (!draft) return <Alert severity="error">Draft not found.</Alert>;
 
+  const locationState = location.state as { pendingQuestionImages?: Record<string, string> } | null;
+  const pendingQuestionImages = locationState?.pendingQuestionImages ?? {};
+
   // Only count questions that will actually be published (not excluded)
-  const activeQuestions = draft.questions.filter(q => q.reviewStatus !== 'EXCLUDED');
+  const activeQuestions = draft.questions
+    .filter(q => q.reviewStatus !== 'EXCLUDED')
+    .map(q => {
+      const pendingImage = pendingQuestionImages[q.id];
+      if (pendingImage === undefined) return q;
+      return {
+        ...q,
+        imageData: pendingImage,
+      };
+    });
   const approved = activeQuestions.filter(q => q.reviewStatus === 'APPROVED' || q.reviewStatus === 'CORRECTED').length;
   const readyCount = activeQuestions.length;           // pending + approved + corrected
   const activePoints = activeQuestions.reduce((sum, q) => sum + (q.points ?? 0), 0);
@@ -82,6 +95,7 @@ const FinalPublicationPage: React.FC = () => {
       onPublish={handlePublish}
       onNavigate={handleNavigate}
       onLogout={handleLogout}
+      questions={activeQuestions}
     />
   );
 };

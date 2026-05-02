@@ -21,7 +21,7 @@ export interface ReportsLayoutProps {
 
 const TeacherManReportsLayout: React.FC<ReportsLayoutProps> = ({
   activeSection = 'reports',
-  userName = 'Giao vien',
+  userName = 'Admin',
   activeTab = 0,
   tabs = ['Tong quan', 'Toan ven hoc thuat', 'Hieu suat', 'So sanh'],
   onTabChange,

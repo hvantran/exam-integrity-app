@@ -38,7 +38,7 @@ export interface QuestionReviewLayoutProps {
 }
 
 const TeacherManQuestionReviewLayout: React.FC<QuestionReviewLayoutProps> = ({
-  userName = 'Giao vien',
+  userName = 'Admin',
   userRole,
   onNavigate,
   onCreateExam,
@@ -83,8 +83,8 @@ const TeacherManQuestionReviewLayout: React.FC<QuestionReviewLayoutProps> = ({
             <span className="text-sm text-gray-500">{examName}</span>
           </div>
           <div className="flex gap-2">
-            <Button variant="outlined" onClick={onSaveDraft} size="sm">Save Draft</Button>
-            <Button variant="primary" onClick={onPublish} size="sm">Publish</Button>
+            <Button variant="outlined" onClick={onSaveDraft} size="sm" disabled={isLoading}>Save Draft</Button>
+            <Button variant="primary" onClick={onPublish} size="sm" disabled={isLoading}>Publish</Button>
           </div>
         </div>
       )}
@@ -150,7 +150,7 @@ const TeacherManQuestionReviewLayout: React.FC<QuestionReviewLayoutProps> = ({
             <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200 flex-shrink-0">
               <span className="text-lg font-semibold text-gray-900">Parsed Content</span>
             </div>
-            <div className="flex-1 p-6 overflow-y-auto flex flex-col gap-2">
+            <div className="flex-1 p-6 overflow-y-auto flex flex-col gap-4">
               {isLoading ? (
                 <>
                   <Skeleton height={72} className="mb-2" />

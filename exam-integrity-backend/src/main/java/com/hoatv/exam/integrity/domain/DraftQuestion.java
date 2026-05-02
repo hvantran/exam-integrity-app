@@ -50,6 +50,9 @@ public class DraftQuestion {
      */
     private Rubric rubric;
 
+    /** Base64-encoded image data (Data URI) attached by teacher during review. */
+    private String imageData;
+
     /** True when the parser detected the question text was cut by a page break. */
     private boolean truncated;
 
@@ -164,6 +167,9 @@ public class DraftQuestion {
 
     public Rubric getRubric() { return rubric; }
     public void setRubric(Rubric rubric) { this.rubric = rubric; }
+
+    public String getImageData() { return imageData; }
+    public void setImageData(String imageData) { this.imageData = imageData; }
 
     public boolean isTruncated() { return truncated; }
     public void setTruncated(boolean truncated) { this.truncated = truncated; }

@@ -163,6 +163,8 @@ public class ExamDraftService {
             q.setCorrectAnswer(cmd.correctAnswer());
         if (cmd.rubric() != null)
             q.setRubric(toRubricDomain(cmd.rubric()));
+        if (cmd.imageData() != null)
+            q.setImageData(cmd.imageData());
         if (cmd.reviewStatus() != null)
             q.setReviewStatus(DraftQuestion.ReviewStatus.valueOf(cmd.reviewStatus()));
         draftRepository.save(draft);
@@ -200,6 +202,8 @@ public class ExamDraftService {
             q.setCorrectAnswer(cmd.correctAnswer());
         if (cmd.rubric() != null)
             q.setRubric(toRubricDomain(cmd.rubric()));
+        if (cmd.imageData() != null)
+            q.setImageData(cmd.imageData());
         q.setReviewStatus(DraftQuestion.ReviewStatus.APPROVED);
         q.setParserConfidence(1.0);
 
@@ -332,6 +336,7 @@ public class ExamDraftService {
                 item.setOptions(q.getOptions());
                 item.setCorrectAnswer(q.getCorrectAnswer());
                 item.setRubric(q.getRubric());
+                item.setImageData(q.getImageData());
                 item.setTags(tags != null ? tags : List.of());
                 item.setSourceExamId(examId);
                 item.setAddedAt(Instant.now());
@@ -423,6 +428,11 @@ public class ExamDraftService {
         List<String> opts = (List<String>) map.get("options");
         if (opts != null)
             q.setOptions(opts);
+        Object imageData = map.get("image_data");
+        if (imageData == null)
+            imageData = map.get("imageData");
+        if (imageData instanceof String)
+            q.setImageData((String) imageData);
         q.setCorrectAnswer((String) map.get("correct_answer"));
         Object ocr = map.get("ocr_confidence");
         if (ocr instanceof Number)
@@ -453,6 +463,7 @@ public class ExamDraftService {
         q.setCorrectAnswer(dq.getCorrectAnswer());
         q.setRubric(dq.getRubric());
         q.setTruncated(dq.isTruncated());
+        q.setImageData(dq.getImageData());
         return q;
     }
 
@@ -487,7 +498,7 @@ public class ExamDraftService {
                 q.getCorrectAnswer(),
                 rubricDTO,
                 q.isTruncated(),
-                null, // imageData not present in DraftQuestion domain yet
+                q.getImageData(),
                 q.getOcrConfidence(),
                 q.getParserConfidence(),
                 q.getPageNumber(),
