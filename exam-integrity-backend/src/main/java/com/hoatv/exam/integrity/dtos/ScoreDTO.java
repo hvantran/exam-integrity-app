@@ -7,6 +7,8 @@ public record ScoreDTO(
     double earnedPoints,
     double maxPoints,
     String status,
+    String questionType,
+    String questionText,
     String studentAnswer,
     String correctAnswer,
     String explanation,

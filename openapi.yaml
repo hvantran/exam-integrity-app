@@ -26,8 +26,16 @@ info:
     POST /api/sessions                               (create session, starts Redis timer)
       -> GET  /api/sessions/{sessionId}/questions/N  (load each question)
       -> PATCH /api/sessions/{sessionId}/answers/{questionId}  (auto-save answers)
-      -> POST /api/sessions/{sessionId}/submit       (submit, triggers async scoring)
-      -> GET  /api/sessions/{sessionId}/review       (poll until scoring complete)
+      -> POST /api/sessions/{sessionId}/submit       (submit, auto-grade MCQ, queue essays for teacher grading)
+      -> GET  /api/sessions/{sessionId}/review       (load per-question results and pending essay states)
+      -> GET  /api/sessions/student/{studentId}/results (student exam history)
+
+    ### Teacher Grading Workflow
+    ```
+    GET  /api/sessions/teacher/scoring               (list submitted sessions with pending essays)
+      -> GET  /api/sessions/{sessionId}/review       (inspect answers and current scores)
+      -> PATCH /api/sessions/{sessionId}/scores/{questionId} (award essay points manually)
+    ```
     ```
 
     ### Real-time Timer (WebSocket STOMP)
@@ -659,18 +667,18 @@ paths:
       operationId: submitExam
       summary: Submit the exam
       description: |
-        Marks the session as `SUBMITTED` and publishes an `exam.submitted` Kafka event.
-        Scoring runs **asynchronously** via the scoring-worker service.
+        Marks the session as `SUBMITTED`, scores all MCQ questions immediately,
+        and creates teacher-review score records for essay questions.
 
         **UI flow**:
         1. Show confirmation modal: "Are you sure? You cannot change your answers after submission."
         2. On confirm, call this endpoint.
-        3. On `202`, redirect student to `/review/{sessionId}` and begin polling.
+        3. On `204`, redirect student to `/review/{sessionId}`.
       parameters:
         - $ref: '#/components/parameters/sessionId'
       responses:
-        '202':
-          description: Accepted -- scoring started asynchronously
+        '204':
+          description: Submitted -- results are available immediately for MCQ and pending for essay questions
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -680,17 +688,17 @@ paths:
     get:
       tags: [Exam Session]
       operationId: getReviewDashboard
-      summary: Get review dashboard (poll until complete)
+      summary: Get review dashboard for a submitted session
       description: |
         Returns scores and corrections for all questions after submission.
 
-        **Polling**: Poll every 2 seconds. Scoring is complete when no `ScoreDTO`
-        has `status=PENDING_ESSAY`.
-
         **Score formula**:
         - MCQ: `CORRECT` (full points) or `INCORRECT` (zero)
-        - Essay: `EssayScore = MaxPoint x (0.35xKeyword + 0.25xSteps + 0.20xFinalAnswer + 0.15xSemantic + 0.05xFormat)`
+        - Essay: teacher awards a score from `0` to `maxPoints`
         - Final: `finalScore10 = (totalEarned / totalMax) x 10`
+
+        Essay questions awaiting teacher grading keep `status=SELF_GRADE_REQUIRED`
+        with `earnedPoints=0` until a teacher submits the score.
       parameters:
         - $ref: '#/components/parameters/sessionId'
       responses:
@@ -700,8 +708,68 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ReviewDashboardDTO'
-        '202':
-          description: Scoring still in progress -- keep polling
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/sessions/student/{studentId}/results:
+    get:
+      tags: [Exam Session]
+      operationId: getStudentResults
+      summary: List submitted exam results for a student
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Submitted session summaries for the student
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SessionResultSummaryDTO'
+
+  /api/sessions/teacher/scoring:
+    get:
+      tags: [Exam Session]
+      operationId: getTeacherScoringQueue
+      summary: List submitted sessions with essay questions pending teacher grading
+      responses:
+        '200':
+          description: Teacher scoring queue
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SessionResultSummaryDTO'
+
+  /api/sessions/{sessionId}/scores/{questionId}:
+    patch:
+      tags: [Exam Session]
+      operationId: updateTeacherScore
+      summary: Save a teacher score for one essay question
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+        - $ref: '#/components/parameters/questionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeacherScoreUpdateDTO'
+      responses:
+        '200':
+          description: Updated review dashboard after teacher grading
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewDashboardDTO'
+        '400':
+          description: Score is invalid or the question is not an essay
         '404':
           $ref: '#/components/responses/NotFound'
 
@@ -1375,6 +1443,13 @@ components:
         questionNumber:
           type: integer
           example: 3
+        questionType:
+          type: string
+          enum: [MCQ, ESSAY_SHORT, ESSAY_LONG]
+          example: ESSAY_SHORT
+        questionText:
+          type: string
+          example: "a) Tinh 6371 + 5000"
         earnedPoints:
           type: number
           format: double
@@ -1404,8 +1479,55 @@ components:
         explanation:
           type: string
           example: "Keyword 'buoc giai' missing from answer"
-        scoreBreakdown:
-          $ref: '#/components/schemas/ScoreBreakdownDTO'
+        scoreBreakdownJson:
+          type: string
+          nullable: true
+          example: '{"keywords":0.8}'
+
+    SessionResultSummaryDTO:
+      type: object
+      properties:
+        sessionId:
+          type: string
+        examId:
+          type: string
+        examTitle:
+          type: string
+        studentId:
+          type: string
+        status:
+          type: string
+          enum: [ACTIVE, SUBMITTED, FORCE_SUBMITTED, FLAGGED]
+        submittedAt:
+          type: string
+          format: date-time
+          nullable: true
+        totalEarned:
+          type: number
+          format: double
+        totalMax:
+          type: number
+          format: double
+        finalScore10:
+          type: number
+          format: double
+        pendingEssayCount:
+          type: integer
+          minimum: 0
+
+    TeacherScoreUpdateDTO:
+      type: object
+      required: [earnedPoints]
+      properties:
+        earnedPoints:
+          type: number
+          format: double
+          minimum: 0
+          example: 1.5
+        explanation:
+          type: string
+          nullable: true
+          example: "Good structure, but one step was missing."
 
     ScoreBreakdownDTO:
       type: object

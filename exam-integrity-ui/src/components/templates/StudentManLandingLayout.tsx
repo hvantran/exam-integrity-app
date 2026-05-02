@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Typography, Chip } from '@mui/material';
+import { Box, Typography } from '@mui/material';
+import { Chip } from '../atoms';
 import { colors, spacing, borderRadius } from '../../design-system/tokens';
 import { AppTopBar, StudentManPortalSidebar, APP_BAR_HEIGHT, STUDENT_SIDEBAR_WIDTH } from '../organisms';
 import type { PortalSection } from '../organisms';
@@ -97,13 +98,11 @@ const StudentManLandingLayout: React.FC<LandingLayoutProps> = ({
                 key={f.value}
                 label={f.label}
                 onClick={() => onFilterChange?.(f.value)}
-                sx={{
+                style={{
                   backgroundColor: activeFilter === f.value ? colors.primary.fixed : colors.surface.container.default,
                   color: activeFilter === f.value ? colors.primary.deep : colors.on.surfaceVariant,
                   fontWeight: activeFilter === f.value ? 600 : 500,
                   borderRadius: borderRadius.full,
-                  cursor: 'pointer',
-                  '&:hover': { backgroundColor: activeFilter === f.value ? colors.primary.fixedDim : colors.surface.container.high },
                 }}
               />
             ))}

@@ -1,6 +1,13 @@
 /** FE-05: sessionService — exam session lifecycle */
 import apiClient from './apiClient';
-import type { SessionDTO, QuestionSummaryDTO, AnswerPayload, ReviewDashboardDTO } from '../types/exam.types';
+import type {
+  SessionDTO,
+  QuestionSummaryDTO,
+  AnswerPayload,
+  ReviewDashboardDTO,
+  SessionResultSummaryDTO,
+  TeacherScoreUpdatePayload,
+} from '../types/exam.types';
 
 const API = process.env.REACT_APP_API_BASE_URL ?? 'http://localhost:8090/exam-integrity-backend';
 const BASE = `${API}/api/sessions`;
@@ -20,4 +27,10 @@ export const sessionService = {
     apiClient.post(`${BASE}/${sessionId}/submit`).then(() => {}),
   getReviewDashboard: (sessionId: string): Promise<ReviewDashboardDTO | null> =>
     apiClient.get<ReviewDashboardDTO>(`${BASE}/${sessionId}/review`).then(r => r.data).catch(() => null),
+  getStudentResults: (studentId: string): Promise<SessionResultSummaryDTO[]> =>
+    apiClient.get<SessionResultSummaryDTO[]>(`${BASE}/student/${studentId}/results`).then(r => r.data),
+  getTeacherScoringQueue: (): Promise<SessionResultSummaryDTO[]> =>
+    apiClient.get<SessionResultSummaryDTO[]>(`${BASE}/teacher/scoring`).then(r => r.data),
+  updateTeacherScore: (sessionId: string, questionId: string, payload: TeacherScoreUpdatePayload): Promise<ReviewDashboardDTO> =>
+    apiClient.patch<ReviewDashboardDTO>(`${BASE}/${sessionId}/scores/${questionId}`, payload).then(r => r.data),
 };

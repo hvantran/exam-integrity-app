@@ -1,6 +1,7 @@
 /** FE-14: Student exam-taking page */
-import React, { useState, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useCallback, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Alert } from '@mui/material';
 import { StudentManExamLayout } from '../components/templates';
 import { StudentManExamHeader, StudentManQuestionPanel, StudentManExamNavigationBar, SubmitModal } from '../components/organisms';
@@ -24,6 +25,8 @@ const serializeAnswerParts = (parts: AnswerPart[]): string =>
 
 const ExamPage: React.FC = () => {
   const { sessionId = '' } = useParams<{ sessionId: string }>();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [reviewFlaggedMode, setReviewFlaggedMode] = useState(false);
@@ -35,18 +38,30 @@ const ExamPage: React.FC = () => {
   const [flaggedMap, setFlaggedMap] = useState<Record<number, boolean>>({});
 
   const { data: session, isLoading: sessionLoading } = useSession(sessionId);
-  // Use any to allow imageUrl for now (should be DraftQuestionDTO ideally)
   const { data: question, isLoading: questionLoading } = useQuestion(sessionId, currentQuestion);
   const { data: exam } = useExam(session?.examId ?? '');
   const saveAnswer = useSaveAnswer(sessionId);
   const submitExam = useSubmitExam(sessionId);
 
   const handleForceSubmit = useCallback(() => {
-    submitExam.mutate();
-  }, [submitExam]);
+    queryClient.invalidateQueries({ queryKey: ['student-results'] });
+    queryClient.invalidateQueries({ queryKey: ['session', sessionId] });
+    navigate('/my-exams', { replace: true });
+  }, [navigate, queryClient, sessionId]);
 
   const { remaining } = useWebSocketTimer(sessionId, handleForceSubmit);
   useProctor(sessionId, session?.studentId ?? '');
+
+  const displayRemaining = remaining ?? session?.remainingSeconds ?? null;
+  const totalQuestions = exam?.questionCount ?? 0;
+  const answeredCount = Object.values(answeredMap).filter(Boolean).length;
+
+  useEffect(() => {
+    if (session?.status === 'FORCE_SUBMITTED') {
+      queryClient.invalidateQueries({ queryKey: ['student-results'] });
+      navigate('/my-exams', { replace: true });
+    }
+  }, [navigate, queryClient, session?.status]);
 
   if (sessionLoading) {
     return (
@@ -61,10 +76,6 @@ const ExamPage: React.FC = () => {
   }
   if (!session) return <Alert severity="error">Exam session not found.</Alert>;
 
-  const displayRemaining = remaining ?? session.remainingSeconds;
-  const totalQuestions = exam?.questionCount ?? 0;
-  const answeredCount = Object.values(answeredMap).filter(Boolean).length;
-
 
   // Utility to strip leading option prefixes like "A.", "B/", etc.
   const stripOptionPrefix = (text: string): string =>
@@ -75,30 +86,6 @@ const ExamPage: React.FC = () => {
     key: String.fromCharCode(65 + i), // A, B, C, D...
     text: stripOptionPrefix(text),
   }));
-
-  // If time is up, disable UI and show message
-  const timeUp = (displayRemaining !== null && displayRemaining <= 0) || remaining === 0;
-  if (timeUp) {
-    return (
-      <StudentManExamLayout
-        header={
-          <StudentManExamHeader
-            remainingSeconds={0}
-            currentQuestion={currentQuestion}
-            totalQuestions={totalQuestions}
-          />
-        }
-        sidebar={null}
-        footer={null}
-      >
-        <div className="mt-8 text-lg text-on-surface">
-          <Alert severity="warning" className="text-base">
-            Time is up! Your exam is being submitted. You can no longer answer questions.
-          </Alert>
-        </div>
-      </StudentManExamLayout>
-    );
-  }
 
   // Compute flagged question numbers
   const flaggedNumbers = Object.entries(flaggedMap)
@@ -114,7 +101,7 @@ const ExamPage: React.FC = () => {
     <StudentManExamLayout
       header={
         <StudentManExamHeader
-          remainingSeconds={displayRemaining}
+          remainingSeconds={displayRemaining ?? 0}
           currentQuestion={flaggedQuestionNumber}
           totalQuestions={totalQuestions}
         />

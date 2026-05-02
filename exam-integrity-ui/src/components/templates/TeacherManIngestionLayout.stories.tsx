@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { Box, Chip, Typography, Button } from '@mui/material';
+import { Box, Typography, Button } from '@mui/material';
+import { Chip } from '../atoms';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import WarningIcon from '@mui/icons-material/Warning';
 import TeacherManIngestionLayout from './TeacherManIngestionLayout';
@@ -59,7 +60,7 @@ const ExamCard: React.FC<ExamCardProps> = ({ filename, status, ocrConfidence, fl
         <Chip
           label={status}
           size="small"
-          sx={{
+          style={{
             backgroundColor: statusColors[status],
             color: statusTextColors[status],
             fontSize: '12px',

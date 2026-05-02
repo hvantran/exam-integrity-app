@@ -6,7 +6,13 @@ import { StudentManLandingLayout } from '../components/templates';
 import { useExamList, useTagList } from '../hooks/useExams';
 import { useCreateSession } from '../hooks/useSession';
 import { useAuth } from '../context/AuthContext';
+import type { PortalSection } from '../components/organisms';
 
+const PORTAL_ROUTES: Record<PortalSection, string> = {
+  dashboard: '/',
+  'my-exams': '/my-exams',
+  results: '/my-exams',
+};
 
 
 const LandingPage: React.FC = () => {
@@ -25,13 +31,16 @@ const LandingPage: React.FC = () => {
   const studentId = user?.username ?? 'guest';
 
   const handleLogout = () => { logout(); navigate('/login', { replace: true }); };
+  const handleNavigate = (section: PortalSection) => navigate(PORTAL_ROUTES[section]);
 
   return (
     <StudentManLandingLayout
       studentName={user?.username ?? 'Student'}
+      activeSection="dashboard"
       filters={filterOptions}
       activeFilter={activeFilter}
       onFilterChange={setActiveFilter}
+      onNavigate={handleNavigate}
       onLogout={handleLogout}
     >
       {isLoading || isTagsLoading ? (

@@ -4,7 +4,7 @@ import { APP_BAR_HEIGHT } from './AppTopBar';
 
 export const TEACHER_SIDEBAR_WIDTH = 256;
 
-export type DashboardSection = 'dashboard' | 'ingestion' | 'review' | 'question-bank' | 'reports';
+export type DashboardSection = 'dashboard' | 'ingestion' | 'review' | 'scoring' | 'question-bank' | 'reports';
 
 export interface DashboardSidebarProps {
   activeSection?: DashboardSection;
@@ -20,6 +20,7 @@ const navItems: { section: DashboardSection; icon: React.ReactNode; label: strin
   { section: 'dashboard',      icon: <span className="text-lg">🏠</span>, label: 'Dashboard' },
   { section: 'ingestion',      icon: <span className="text-lg">📤</span>, label: 'Upload Exam' },
   { section: 'review',         icon: <span className="text-lg">📝</span>, label: 'Review' },
+  { section: 'scoring',        icon: <span className="text-lg">✅</span>, label: 'Scoring' },
   { section: 'question-bank',  icon: <span className="text-lg">📚</span>, label: 'Question Bank' },
   { section: 'reports',        icon: <span className="text-lg">📊</span>, label: 'Reports' },
 ];

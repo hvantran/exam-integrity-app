@@ -3,11 +3,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box, TextField, MenuItem, Select, FormControl, InputLabel,
-  Typography, Chip, IconButton, Button, Radio, RadioGroup, FormControlLabel,
+  Typography, IconButton, Button, Radio, RadioGroup, FormControlLabel,
   InputAdornment, Tooltip, Dialog, DialogTitle, DialogContent, DialogContentText,
   DialogActions,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import { Chip } from '../components/atoms';
 import EditIcon from '@mui/icons-material/Edit';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import CloseIcon from '@mui/icons-material/Close';
@@ -27,6 +28,7 @@ const SECTION_ROUTES: Record<DashboardSection, string> = {
   dashboard:        '/teacher/dashboard',
   ingestion:        '/teacher/ingestion',
   review:           '/teacher/ingestion',
+  scoring:          '/teacher/scoring',
   'question-bank':  '/teacher/question-bank',
   reports:          '/teacher/ingestion',
 };
@@ -260,7 +262,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, index, onEdit }) 
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
           <Chip label={question.type ?? 'MCQ'} size="small"
-            sx={{ fontSize: '11px', fontWeight: 600, backgroundColor: colors.surface.container.default, color: colors.on.surfaceVariant, borderRadius: '4px', height: '22px' }} />
+            style={{ fontSize: '11px', fontWeight: 600, backgroundColor: colors.surface.container.default, color: colors.on.surfaceVariant, borderRadius: '4px', height: '22px' }} />
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: colors.on.surfaceVariant }}>
             <StarOutlineIcon sx={{ fontSize: '14px' }} />
             <Typography sx={{ fontSize: '12px' }}>{question.points} pts</Typography>
@@ -271,7 +273,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, index, onEdit }) 
           </Box>
           {tags.slice(0, 3).map(tag => (
             <Chip key={tag} label={tag} size="small"
-              sx={{ fontSize: '11px', backgroundColor: colors.surface.container.low, borderRadius: '4px', height: '20px' }} />
+              style={{ fontSize: '11px', backgroundColor: colors.surface.container.low, borderRadius: '4px', height: '20px' }} />
           ))}
         </Box>
       </Box>
@@ -446,8 +448,8 @@ const QuestionBankPage: React.FC = () => {
                 label={tag}
                 size="small"
                 onDelete={() => removeTagFilter(tag)}
-                deleteIcon={<CloseIcon sx={{ fontSize: '14px !important' }} />}
-                sx={{ backgroundColor: colors.primary.fixed, color: colors.primary.deep, fontWeight: 600, fontSize: '12px' }}
+                deleteIcon={<CloseIcon sx={{ fontSize: '14px' }} />}
+                style={{ backgroundColor: colors.primary.fixed, color: colors.primary.deep, fontWeight: 600, fontSize: '12px' }}
               />
             ))}
           </Box>

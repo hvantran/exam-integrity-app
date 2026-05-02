@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TeacherManDashboardLayout } from '../components/templates';
 import { Skeleton } from '../components/molecules';
+import { Chip } from '../components/atoms';
 import { useExamList, useCreateExamFromBank, useDeleteExam } from '../hooks/useExams';
 import { useAuth } from '../context/AuthContext';
 import type { DashboardSection } from '../components/organisms';
@@ -12,6 +13,7 @@ const SECTION_ROUTES: Record<DashboardSection, string> = {
     dashboard: '/teacher/dashboard',
     ingestion: '/teacher/ingestion',
     review: '/teacher/ingestion',
+    scoring: '/teacher/scoring',
     'question-bank': '/teacher/question-bank',
     reports: '/teacher/ingestion',
 };
@@ -104,10 +106,13 @@ const CreateExamDialog: React.FC<CreateExamDialogProps> = ({ open, onClose, onSu
                         {tags.length > 0 && (
                             <div className="flex flex-wrap gap-1">
                                 {tags.map(t => (
-                                    <span key={t} className="bg-primary-container text-primary text-xs px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
-                                        {t}
-                                        <button type="button" className="ml-1 text-primary hover:text-primary-deep" onClick={() => handleRemoveTag(t)}>&times;</button>
-                                    </span>
+                                    <Chip
+                                        key={t}
+                                        label={t}
+                                        size="small"
+                                        onDelete={() => handleRemoveTag(t)}
+                                        style={{ backgroundColor: `${colors.primary.main}18`, color: colors.primary.main }}
+                                    />
                                 ))}
                             </div>
                         )}

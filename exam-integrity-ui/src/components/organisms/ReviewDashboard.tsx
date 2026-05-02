@@ -39,7 +39,8 @@ const ReviewDashboard: React.FC<Props> = ({ dashboard, isLoading = false }) => {
 
   const pct = Math.round((dashboard.totalEarned / Math.max(dashboard.totalMax, 1)) * 100);
   const correctCount = dashboard.scores.filter(s => s.status === 'CORRECT').length;
-  const incorrectCount = dashboard.scores.length - correctCount;
+  const pendingCount = dashboard.scores.filter(s => s.status === 'SELF_GRADE_REQUIRED' || s.status === 'PENDING_ESSAY').length;
+  const incorrectCount = dashboard.scores.filter(s => s.status !== 'CORRECT' && s.status !== 'SELF_GRADE_REQUIRED' && s.status !== 'PENDING_ESSAY').length;
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-2 md:px-8">
@@ -78,6 +79,13 @@ const ReviewDashboard: React.FC<Props> = ({ dashboard, isLoading = false }) => {
               <span className="font-semibold text-base">Incorrect</span>
               <span className="font-bold text-lg ml-1">{incorrectCount}</span>
             </div>
+            {pendingCount > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🕒</span>
+                <span className="font-semibold text-base">Awaiting Teacher</span>
+                <span className="font-bold text-lg ml-1">{pendingCount}</span>
+              </div>
+            )}
             <span className="text-base opacity-90 ml-auto">
               {dashboard.totalEarned.toFixed(1)} / {dashboard.totalMax.toFixed(1)} pts
             </span>

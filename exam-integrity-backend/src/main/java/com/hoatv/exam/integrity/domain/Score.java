@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 
 /**
  * MongoDB document for a scored question within a session.
- * Written by ScoringOrchestratorService once the Kafka scoring pipeline completes.
+ * Written when a student submits and updated later if a teacher grades an essay.
  *
  * Collection: scores
  */
@@ -23,6 +23,10 @@ public class Score {
     @Indexed
     private String questionId;
 
+    private int questionNumber;
+
+    private String questionType;
+
     /** Points awarded. 0 if wrong; partial for essays. */
     private double earnedPoints;
 
@@ -30,6 +34,9 @@ public class Score {
 
     /** Student's submitted answer text (verbatim). */
     private String studentAnswer;
+
+    /** Reference answer shown back to the student during review. */
+    private String correctAnswer;
 
     /**
      * Essay scoring breakdown.
@@ -55,9 +62,9 @@ public class Score {
         INCORRECT,
         /** Essay with partial keyword/step matches (0 < earned < max). */
         PARTIAL,
-        /** Teacher manually reviewed and overrode automatic score. */
+        /** Essay answer is waiting for manual teacher grading. */
         SELF_GRADE_REQUIRED,
-        /** Kafka consumer has not yet processed this question. */
+        /** Legacy async essay status kept for backward compatibility with older data. */
         PENDING_ESSAY,
         /** Question text was truncated; auto-score unreliable. */
         INCOMPLETE_QUESTION,
@@ -107,6 +114,12 @@ public class Score {
     public String getQuestionId() { return questionId; }
     public void setQuestionId(String questionId) { this.questionId = questionId; }
 
+    public int getQuestionNumber() { return questionNumber; }
+    public void setQuestionNumber(int questionNumber) { this.questionNumber = questionNumber; }
+
+    public String getQuestionType() { return questionType; }
+    public void setQuestionType(String questionType) { this.questionType = questionType; }
+
     public double getEarnedPoints() { return earnedPoints; }
     public void setEarnedPoints(double earnedPoints) { this.earnedPoints = earnedPoints; }
 
@@ -115,6 +128,9 @@ public class Score {
 
     public String getStudentAnswer() { return studentAnswer; }
     public void setStudentAnswer(String studentAnswer) { this.studentAnswer = studentAnswer; }
+
+    public String getCorrectAnswer() { return correctAnswer; }
+    public void setCorrectAnswer(String correctAnswer) { this.correctAnswer = correctAnswer; }
 
     public ScoreBreakdown getScoreBreakdown() { return scoreBreakdown; }
     public void setScoreBreakdown(ScoreBreakdown scoreBreakdown) { this.scoreBreakdown = scoreBreakdown; }

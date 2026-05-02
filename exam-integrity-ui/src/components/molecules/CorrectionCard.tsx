@@ -1,10 +1,11 @@
 import React from 'react';
-import { Box, Chip, Typography, Divider } from '@mui/material';
+import { Box, Typography, Divider } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import type { ScoreResult } from '../../types/exam.types';
 import { colors, borderRadius, shadow } from '../../design-system/tokens';
 import Skeleton from './Skeleton';
+import { Chip } from '../atoms';
 
 interface Props {
   score: ScoreResult;
@@ -39,6 +40,22 @@ const CorrectionCard: React.FC<Props> = ({ score, isLoading = false }) => {
     );
   }
 
+  const isPendingTeacherReview = score.status === 'SELF_GRADE_REQUIRED' || score.status === 'PENDING_ESSAY';
+  const statusLabel = isPendingTeacherReview
+    ? 'Awaiting Review'
+    : score.status === 'INCORRECT'
+      ? 'Incorrect'
+      : 'Incomplete';
+  const statusChipSx = isPendingTeacherReview
+    ? {
+        backgroundColor: '#FEF3C7',
+        color: '#92400E',
+      }
+    : {
+        backgroundColor: `${colors.error}18`,
+        color: colors.error,
+      };
+
   return (
     <Box
       sx={{
@@ -65,11 +82,10 @@ const CorrectionCard: React.FC<Props> = ({ score, isLoading = false }) => {
         Question {score.questionNumber}
       </Typography>
       <Chip
-        label={score.status === 'INCORRECT' ? 'Incorrect' : 'Incomplete'}
+        label={statusLabel}
         size="small"
-        sx={{
-          backgroundColor: `${colors.error}18`,
-          color: colors.error,
+        style={{
+          ...statusChipSx,
           fontWeight: 600,
           fontSize: '11px',
         }}
@@ -94,20 +110,22 @@ const CorrectionCard: React.FC<Props> = ({ score, isLoading = false }) => {
         </Box>
       </Box>
 
-      <Divider sx={{ my: 1.5 }} />
+      {!isPendingTeacherReview && score.correctAnswer && <Divider sx={{ my: 1.5 }} />}
 
       {/* Correct answer */}
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mb: score.explanation ? 2 : 0 }}>
-        <CheckCircleIcon sx={{ color: colors.secondary.main, fontSize: 18, mt: '2px', flexShrink: 0 }} />
-        <Box>
-          <Typography sx={{ fontSize: '12px', color: colors.on.surfaceVariant, mb: 0.5 }}>
-            Correct Answer
-          </Typography>
-          <Typography sx={{ fontSize: '14px', color: colors.secondary.main, fontWeight: 500 }}>
-            {score.correctAnswer}
-          </Typography>
+      {!isPendingTeacherReview && score.correctAnswer && (
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mb: score.explanation ? 2 : 0 }}>
+          <CheckCircleIcon sx={{ color: colors.secondary.main, fontSize: 18, mt: '2px', flexShrink: 0 }} />
+          <Box>
+            <Typography sx={{ fontSize: '12px', color: colors.on.surfaceVariant, mb: 0.5 }}>
+              Correct Answer
+            </Typography>
+            <Typography sx={{ fontSize: '14px', color: colors.secondary.main, fontWeight: 500 }}>
+              {score.correctAnswer}
+            </Typography>
+          </Box>
         </Box>
-      </Box>
+      )}
 
       {/* Explanation */}
       {score.explanation && (

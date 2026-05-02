@@ -35,25 +35,28 @@ public class TimerBroadcastScheduler {
         Set<String> activeIds = sessionService.getActiveSessionIds();
         for (String sessionId : activeIds) {
             long remaining = sessionService.getRemainingSeconds(sessionId);
-            pushToSession(sessionId, remaining);
             if (remaining <= 0) {
                 try {
                     sessionService.submitExam(sessionId, true);
+                    // Only broadcast FORCE_SUBMIT when the session was actually just submitted
+                    pushForceSubmit(sessionId);
                 } catch (Exception e) {
-                    // Already submitted — safe to ignore
+                    // Already submitted or not found — stale entry cleaned up by submitExam; skip broadcast
                     logger.debug("Force-submit skipped for session {}: {}", sessionId, e.getMessage());
                 }
+            } else {
+                pushTick(sessionId, remaining);
             }
         }
     }
 
-    private void pushToSession(String sessionId, long remaining) {
-        String destination = "/topic/session/" + sessionId;
-        if (remaining <= 0) {
-            messagingTemplate.convertAndSend(destination, Map.of("type", "FORCE_SUBMIT"));
-            logger.info("FORCE_SUBMIT sent to session {}", sessionId);
-        } else {
-            messagingTemplate.convertAndSend(destination, Map.of("type", "TICK", "remaining", remaining));
-        }
+    private void pushForceSubmit(String sessionId) {
+        messagingTemplate.convertAndSend("/topic/session/" + sessionId, Map.of("type", "FORCE_SUBMIT"));
+        logger.info("FORCE_SUBMIT sent to session {}", sessionId);
+    }
+
+    private void pushTick(String sessionId, long remaining) {
+        messagingTemplate.convertAndSend("/topic/session/" + sessionId,
+            Map.of("type", "TICK", "remaining", remaining));
     }
 }

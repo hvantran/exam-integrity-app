@@ -13,8 +13,5 @@ import org.springframework.kafka.config.TopicBuilder;
 public class KafkaConfig {
 
     @Bean public NewTopic examIngestedTopic()   { return TopicBuilder.name("exam.ingested").partitions(3).replicas(1).build(); }
-    @Bean public NewTopic examSubmittedTopic()  { return TopicBuilder.name("exam.submitted").partitions(3).replicas(1).build(); }
-    @Bean public NewTopic scoringRequestTopic() { return TopicBuilder.name("scoring.request").partitions(3).replicas(1).build(); }
-    @Bean public NewTopic scoringResultTopic()  { return TopicBuilder.name("scoring.result").partitions(3).replicas(1).build(); }
     @Bean public NewTopic proctorAlertTopic()   { return TopicBuilder.name("proctor.alert").partitions(3).replicas(1).build(); }
 }

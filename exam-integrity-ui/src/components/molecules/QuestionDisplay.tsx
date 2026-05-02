@@ -7,7 +7,8 @@
  *  - Essay:       clean prose; rubric keywords as chips
  */
 import React from 'react';
-import { Box, Chip, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
+import { Chip } from '../atoms';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import type { DraftQuestionDTO } from '../../types/exam.types';
 import { colors, typography, borderRadius } from '../../design-system/tokens';
@@ -301,12 +302,13 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({ question: q, index, i
             Question {q.questionNumber > 0 ? q.questionNumber : index + 1}
           </Typography>
         </Box>
-        <Chip label={typeLabel} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />
+        <Chip label={typeLabel} size="small" variant="outlined" className="text-[0.7rem]" style={{ height: 22 }} />
         {q.points > 0 && (
           <Chip
             label={`${q.points} pts`}
             size="small"
-            sx={{ fontSize: '0.7rem', height: 22, backgroundColor: `${colors.primary.main}18` }}
+            className="text-[0.7rem]"
+            style={{ height: 22, backgroundColor: `${colors.primary.main}18` }}
           />
         )}
         {lowConfidence && (
@@ -348,7 +350,8 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({ question: q, index, i
               size="small"
               color="warning"
               variant="outlined"
-              sx={{ fontSize: '0.7rem', height: 22 }}
+              className="text-[0.7rem]"
+              style={{ height: 22 }}
             />
           ))}
         </Box>

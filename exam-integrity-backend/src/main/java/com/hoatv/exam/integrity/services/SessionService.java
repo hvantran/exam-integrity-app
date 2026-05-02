@@ -6,14 +6,12 @@ import com.hoatv.exam.integrity.domain.Question;
 import com.hoatv.exam.integrity.dtos.AnswerPartDTO;
 import com.hoatv.exam.integrity.dtos.QuestionSummaryDTO;
 import com.hoatv.exam.integrity.dtos.SessionDTO;
-import com.hoatv.exam.integrity.events.ExamSubmittedEvent;
 import com.hoatv.exam.integrity.repositories.ExamRepository;
 import com.hoatv.exam.integrity.repositories.SessionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -31,21 +29,20 @@ import java.util.stream.Collectors;
 public class SessionService {
 
     private static final Logger logger = LoggerFactory.getLogger(SessionService.class);
-    private static final String EXAM_SUBMITTED_TOPIC = "exam.submitted";
 
     private final SessionRepository sessionRepository;
     private final ExamRepository examRepository;
     private final StringRedisTemplate redisTemplate;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final SessionReviewService sessionReviewService;
 
     public SessionService(SessionRepository sessionRepository,
                           ExamRepository examRepository,
                           StringRedisTemplate redisTemplate,
-                          KafkaTemplate<String, Object> kafkaTemplate) {
+                          SessionReviewService sessionReviewService) {
         this.sessionRepository = sessionRepository;
         this.examRepository    = examRepository;
         this.redisTemplate     = redisTemplate;
-        this.kafkaTemplate     = kafkaTemplate;
+        this.sessionReviewService = sessionReviewService;
     }
 
     // BE-11: createSession
@@ -132,6 +129,8 @@ public class SessionService {
         ExamSession session = findSessionOrThrow(sessionId);
         if (session.getStatus() == ExamSession.SessionStatus.SUBMITTED
          || session.getStatus() == ExamSession.SessionStatus.FORCE_SUBMITTED) {
+            // Clean up Redis even when already submitted to evict stale active_sessions entries
+            redisTemplate.opsForSet().remove("active_sessions", sessionId);
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Already submitted");
         }
         session.setStatus(forceSubmit ? ExamSession.SessionStatus.FORCE_SUBMITTED
@@ -142,14 +141,7 @@ public class SessionService {
         redisTemplate.delete("timer:" + sessionId);
         redisTemplate.opsForSet().remove("active_sessions", sessionId);
 
-        Map<String, String> answers = session.getAnswers().entrySet().stream()
-            .collect(Collectors.toMap(
-                Map.Entry::getKey,
-                e -> e.getValue().getAnswer() != null ? e.getValue().getAnswer() : ""
-            ));
-        kafkaTemplate.send(EXAM_SUBMITTED_TOPIC, sessionId,
-            new ExamSubmittedEvent(sessionId, session.getExamId(), session.getStudentId(),
-                answers, session.getSubmittedAt(), forceSubmit));
+        sessionReviewService.initializeScores(session);
         logger.info("Session {} submitted (force={})", sessionId, forceSubmit);
     }
 

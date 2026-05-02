@@ -24,6 +24,10 @@ export const ReviewActive: Story = {
   args: { ...Default.args, activeSection: 'review' },
 };
 
+export const ScoringActive: Story = {
+  args: { ...Default.args, activeSection: 'scoring' },
+};
+
 export const ReportsActive: Story = {
   args: { ...Default.args, activeSection: 'reports' },
 };

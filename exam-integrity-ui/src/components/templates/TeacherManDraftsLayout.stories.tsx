@@ -1,7 +1,8 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import TeacherManDraftsLayout from './TeacherManDraftsLayout';
-import { Box, Table, TableHead, TableBody, TableRow, TableCell, Chip, TableContainer, Paper } from '@mui/material';
+import { Box, Table, TableHead, TableBody, TableRow, TableCell, TableContainer, Paper } from '@mui/material';
+import { Chip } from '../atoms';
 import { colors } from '../../design-system/tokens';
 
 const meta: Meta<typeof TeacherManDraftsLayout> = {
@@ -38,7 +39,7 @@ export const Default: Story = {
                 <TableCell sx={{ fontSize: '13px', color: colors.on.surfaceVariant }}>{row.subject}</TableCell>
                 <TableCell sx={{ fontSize: '13px', color: colors.on.surfaceVariant }}>{row.updated}</TableCell>
                 <TableCell>
-                  <Chip label={row.status} size="small" sx={{ backgroundColor: `${colors.primary.main}12`, color: colors.primary.main, fontSize: '11px' }} />
+                  <Chip label={row.status} size="small" style={{ backgroundColor: `${colors.primary.main}12`, color: colors.primary.main, fontSize: '11px' }} />
                 </TableCell>
               </TableRow>
             ))}

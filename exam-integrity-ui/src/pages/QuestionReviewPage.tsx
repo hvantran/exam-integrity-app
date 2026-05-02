@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Alert, Button, Chip,
+  Alert, Button,
   Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, Table, TableHead, TableRow, TableCell, TableBody,
   IconButton, InputAdornment,
@@ -18,12 +18,14 @@ import type { DashboardSection } from '../components/organisms';
 import type { DraftQuestionDTO } from '../types/exam.types';
 import QuestionDisplay from '../components/molecules/QuestionDisplay';
 import { Skeleton } from '../components/molecules';
+import { Chip } from '../components/atoms';
 import { colors } from '../design-system/tokens';
 
 const SECTION_ROUTES: Record<DashboardSection, string> = {
   dashboard:        '/teacher/dashboard',
   ingestion:        '/teacher/ingestion',
   review:           '/teacher/ingestion',
+  scoring:          '/teacher/scoring',
   'question-bank':  '/teacher/question-bank',
   reports:          '/teacher/ingestion',
 };

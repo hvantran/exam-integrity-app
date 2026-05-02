@@ -10,8 +10,8 @@ import type { PortalSection } from '../components/organisms';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
   dashboard:    '/',
-  'my-exams':  '/',
-  results:     '/',
+  'my-exams':  '/my-exams',
+  results:     '/my-exams',
 };
 
 const ReviewPage: React.FC = () => {
@@ -24,7 +24,7 @@ const ReviewPage: React.FC = () => {
   return (
     <StudentManReviewLayout
       studentName={user?.username ?? 'Student'}
-      activeSection="results"
+      activeSection="my-exams"
       onNavigate={handleNavigate}
     >
       <div className="p-4 min-h-[300px]">
@@ -40,7 +40,7 @@ const ReviewPage: React.FC = () => {
             }}
           />
         ) : !dashboard ? (
-          <Alert severity="info">Scoring in progress… please wait.</Alert>
+          <Alert severity="info">Result is not available for this session yet.</Alert>
         ) : (
           <ReviewDashboard dashboard={dashboard} />
         )}

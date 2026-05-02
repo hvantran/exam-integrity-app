@@ -1,6 +1,7 @@
 import React, { useState, KeyboardEvent } from 'react';
-import { Box, Button, Chip, TextField, Typography } from '@mui/material';
+import { Box, Button, TextField, Typography } from '@mui/material';
 import { Skeleton } from '../molecules';
+import { Chip } from '../atoms';
 import PublishIcon from '@mui/icons-material/Publish';
 import {Add as AddIcon, CheckCircleOutlined, FunctionsOutlined, ChromeReaderModeOutlined} from '@mui/icons-material';
 import { colors, spacing, borderRadius } from '../../design-system/tokens';
@@ -208,11 +209,10 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
                         label={tag}
                         size="small"
                         onDelete={() => removeTag(tag)}
-                        sx={{
+                        style={{
                           backgroundColor: `${colors.primary.main}18`,
                           color: colors.primary.main,
                           fontWeight: 500,
-                          '& .MuiChip-deleteIcon': { color: colors.primary.main, opacity: 0.7 },
                         }}
                       />
                     ))}
@@ -230,10 +230,9 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
                         size="small"
                         icon={<AddIcon sx={{ fontSize: 14 }} />}
                         onClick={() => addTag(tagInput)}
-                        sx={{
+                        style={{
                           backgroundColor: colors.surface.container.high,
                           color: colors.on.surface,
-                          cursor: 'pointer',
                           border: `1px dashed ${colors.outlineVariant}`,
                         }}
                       />

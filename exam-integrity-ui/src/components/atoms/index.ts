@@ -9,3 +9,6 @@ export type { StatusChipProps, StatusChipVariant } from './StatusChip';
 
 export { default as ProgressBar } from './ProgressBar';
 export type { ProgressBarProps } from './ProgressBar';
+
+export { default as Chip } from './Chip';
+export type { ChipProps, ChipVariant, ChipSize, ChipColor } from './Chip';

@@ -12,6 +12,7 @@ const SECTION_ROUTES: Record<DashboardSection, string> = {
   dashboard:        '/teacher/dashboard',
   ingestion:        '/teacher/ingestion',
   review:           '/teacher/ingestion',
+  scoring:          '/teacher/scoring',
   'question-bank':  '/teacher/question-bank',
   reports:          '/teacher/ingestion',
 };

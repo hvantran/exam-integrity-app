@@ -72,19 +72,6 @@ services:
       timeout: 5s
       retries: 5
 
-  scoring-worker:
-    build:
-      context: ./scoring-worker
-      dockerfile: Dockerfile
-    container_name: exam-scoring-worker
-    environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      SCORING_REQUEST_TOPIC: scoring.request
-      SCORING_RESULT_TOPIC: scoring.result
-    depends_on:
-      kafka:
-        condition: service_healthy
-
   exam-integrity-backend:
     build:
       context: ./exam-integrity-backend

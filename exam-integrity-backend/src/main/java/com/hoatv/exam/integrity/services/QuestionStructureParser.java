@@ -13,6 +13,9 @@ public final class QuestionStructureParser {
     private static final Pattern PART_PATTERN = Pattern.compile("^\\s*((?:[A-Za-z]|\\d+))[.)]\\s*(.+)\\s*$");
     private static final Pattern INLINE_LABEL_PATTERN = Pattern.compile("(?:^|\\s)([A-Za-z])[.)]\\s*");
     private static final Pattern FILLER_PATTERN = Pattern.compile("^[.\\s_…]+$");
+    private static final Pattern UNLABELED_DUAL_PART_PATTERN = Pattern.compile(
+        "^\\s*(.+?[+\\-–xX×:÷].+?)\\s{3,}(.+?[+\\-–xX×:÷].+?)\\s*$"
+    );
 
     private QuestionStructureParser() {
     }
@@ -28,6 +31,7 @@ public final class QuestionStructureParser {
         String currentKey = null;
         StringBuilder currentPrompt = null;
         boolean foundPart = false;
+        boolean unlabeledMode = false;
 
         for (String rawLine : lines) {
             String line = rawLine == null ? "" : rawLine.trim();
@@ -46,6 +50,19 @@ public final class QuestionStructureParser {
                 currentKey = lastInlinePart.key();
                 currentPrompt = new StringBuilder(lastInlinePart.prompt());
                 foundPart = true;
+                continue;
+            }
+
+            List<QuestionPartDTO> unlabeledParts = extractUnlabeledDualParts(line, parts.size() + 1);
+            if (!unlabeledParts.isEmpty() && (unlabeledMode || (!foundPart && currentKey == null))) {
+                if (currentKey != null && currentPrompt != null) {
+                    parts.add(new QuestionPartDTO(currentKey, currentPrompt.toString().trim()));
+                    currentKey = null;
+                    currentPrompt = null;
+                }
+                parts.addAll(unlabeledParts);
+                foundPart = true;
+                unlabeledMode = true;
                 continue;
             }
 
@@ -127,5 +144,27 @@ public final class QuestionStructureParser {
     }
 
     private record InlineLabel(String key, int labelStart, int contentStart) {
+    }
+
+    private static List<QuestionPartDTO> extractUnlabeledDualParts(String line, int startIndex) {
+        if (line == null || line.isBlank() || FILLER_PATTERN.matcher(line).matches()) {
+            return List.of();
+        }
+
+        Matcher matcher = UNLABELED_DUAL_PART_PATTERN.matcher(line);
+        if (!matcher.matches()) {
+            return List.of();
+        }
+
+        String leftPrompt = matcher.group(1).trim();
+        String rightPrompt = matcher.group(2).trim();
+        if (leftPrompt.isBlank() || rightPrompt.isBlank()) {
+            return List.of();
+        }
+
+        return List.of(
+            new QuestionPartDTO(String.valueOf(startIndex), leftPrompt),
+            new QuestionPartDTO(String.valueOf(startIndex + 1), rightPrompt)
+        );
     }
 }

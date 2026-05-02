@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { Box, Button, Chip, Typography } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
+import { Chip } from '../atoms';
 import SortIcon from '@mui/icons-material/Sort';
 import SearchIcon from '@mui/icons-material/Search';
 import StarIcon from '@mui/icons-material/Star';
@@ -72,7 +73,7 @@ const FilterBar = () => (
             label={tag}
             size="small"
             onDelete={() => {}}
-            sx={{ backgroundColor: colors.surface.container.high, fontSize: '12px', fontWeight: 600, letterSpacing: '0.05em' }}
+            style={{ backgroundColor: colors.surface.container.high, fontSize: '12px', fontWeight: 600, letterSpacing: '0.05em' }}
           />
         ))}
         <Box
@@ -149,7 +150,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ type, points, uses, text, t
           label={type}
           size="small"
           variant="outlined"
-          sx={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.05em', borderColor: colors.outlineVariant }}
+          style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.05em', borderColor: colors.outlineVariant }}
         />
         <Typography sx={{ fontSize: '14px', fontWeight: 500, color: colors.on.surfaceVariant, display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <StarIcon sx={{ fontSize: 16 }} /> {points} pts
@@ -176,7 +177,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ type, points, uses, text, t
     <Typography sx={{ fontSize: '14px', color: colors.on.surface, mb: 2 }}>{text}</Typography>
     <Box sx={{ display: 'flex', gap: 1 }}>
       {tags.map((tag) => (
-        <Chip key={tag} label={tag} size="small" sx={{ backgroundColor: colors.surface.container.high, fontSize: '12px' }} />
+        <Chip key={tag} label={tag} size="small" style={{ backgroundColor: colors.surface.container.high, fontSize: '12px' }} />
       ))}
     </Box>
   </Box>

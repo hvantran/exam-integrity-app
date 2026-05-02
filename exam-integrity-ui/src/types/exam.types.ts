@@ -144,10 +144,30 @@ export interface ScoreDTO {
   earnedPoints: number;
   maxPoints: number;
   status: ScoreStatus;
+  questionType?: QuestionType;
+  questionText?: string;
   studentAnswer?: string;
   correctAnswer?: string;
   explanation?: string;
   scoreBreakdownJson?: string;
+}
+
+export interface SessionResultSummaryDTO {
+  sessionId: string;
+  examId: string;
+  examTitle: string;
+  studentId: string;
+  status: SessionDTO['status'];
+  submittedAt?: string;
+  totalEarned: number;
+  totalMax: number;
+  finalScore10: number;
+  pendingEssayCount: number;
+}
+
+export interface TeacherScoreUpdatePayload {
+  earnedPoints: number;
+  explanation?: string;
 }
 
 export interface ReviewDashboardDTO {

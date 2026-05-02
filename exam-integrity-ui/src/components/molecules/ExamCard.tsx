@@ -1,9 +1,10 @@
 import React from 'react';
-import { Box, Typography, Chip, Button } from '@mui/material';
+import { Box, Typography, Button } from '@mui/material';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import GradeIcon from '@mui/icons-material/Grade';
 import { colors, borderRadius, shadow, spacing } from '../../design-system/tokens';
+import { Chip } from '../atoms';
 
 export interface ExamCardProps {
   title: string;
@@ -81,17 +82,8 @@ const ExamCard: React.FC<ExamCardProps> = ({
               key={tag}
               label={tag}
               size="small"
-              sx={{
-                height: 20,
-                fontSize: '11px',
-                fontWeight: 600,
-                letterSpacing: '0.05em',
-                textTransform: 'uppercase',
-                backgroundColor: colors.surface.container.low,
-                color: colors.primary.container,
-                borderRadius: borderRadius.sm,
-                '& .MuiChip-label': { px: '6px', py: 0 },
-              }}
+              className="uppercase"
+              style={{ backgroundColor: colors.surface.container.low, color: colors.primary.container }}
             />
           ))}
         </Box>

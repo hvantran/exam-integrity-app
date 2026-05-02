@@ -8,6 +8,7 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import LandingPage from './pages/StudentManDashboardPage';
+import StudentManMyExamsPage from './pages/StudentManMyExamsPage';
 import ExamPage from './pages/StudentManExamPage';
 import ReviewPage from './pages/ReviewPage';
 import IngestionPage from './pages/TeacherManExamPdfUploadPage';
@@ -15,6 +16,7 @@ import QuestionReviewPage from './pages/QuestionReviewPage';
 import QuestionBankPage from './pages/TeacherManQuestionBankPage';
 import FinalPublicationPage from './pages/TeacherManFinalPublicationPage';
 import TeacherManDashboardPage from './pages/TeacherManDashboardPage';
+import TeacherManScoringPage from './pages/TeacherManScoringPage';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -52,6 +54,14 @@ const App: React.FC = () => (
               element={
                 <ProtectedRoute>
                   <ReviewPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-exams"
+              element={
+                <ProtectedRoute>
+                  <StudentManMyExamsPage />
                 </ProtectedRoute>
               }
             />
@@ -94,6 +104,14 @@ const App: React.FC = () => (
               element={
                 <ProtectedRoute allowedRoles={['ADMIN']}>
                   <QuestionBankPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/teacher/scoring"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN']}>
+                  <TeacherManScoringPage />
                 </ProtectedRoute>
               }
             />

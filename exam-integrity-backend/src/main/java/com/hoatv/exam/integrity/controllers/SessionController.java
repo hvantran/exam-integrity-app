@@ -2,7 +2,7 @@ package com.hoatv.exam.integrity.controllers;
 
 import com.hoatv.exam.integrity.dtos.*;
 import com.hoatv.exam.integrity.services.SessionService;
-import com.hoatv.exam.integrity.services.ScoringOrchestratorService;
+import com.hoatv.exam.integrity.services.SessionReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.*;
 public class SessionController {
 
     private final SessionService sessionService;
-    private final ScoringOrchestratorService scoringService;
+    private final SessionReviewService sessionReviewService;
 
     public SessionController(SessionService sessionService,
-                             ScoringOrchestratorService scoringService) {
+                             SessionReviewService sessionReviewService) {
         this.sessionService = sessionService;
-        this.scoringService = scoringService;
+        this.sessionReviewService = sessionReviewService;
     }
 
     @PostMapping
@@ -69,16 +69,32 @@ public class SessionController {
     @PostMapping("/{sessionId}/submit")
     public ResponseEntity<Void> submitExam(@PathVariable("sessionId") String sessionId) {
         sessionService.submitExam(sessionId, false);
-        return ResponseEntity.accepted().build();
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{sessionId}/review")
     public ResponseEntity<ReviewDashboardDTO> getReviewDashboard(@PathVariable("sessionId") String sessionId) {
-        return scoringService.getReviewDashboard(sessionId)
-            .map(dash -> dash.scores().stream()
-                .anyMatch(s -> "PENDING_ESSAY".equals(s.status()))
-                ? ResponseEntity.accepted().<ReviewDashboardDTO>build()
-                : ResponseEntity.ok(dash))
+        return sessionReviewService.getReviewDashboard(sessionId)
+            .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/student/{studentId}/results")
+    public ResponseEntity<java.util.List<SessionResultSummaryDTO>> getStudentResults(
+            @PathVariable("studentId") String studentId) {
+        return ResponseEntity.ok(sessionReviewService.getStudentResults(studentId));
+    }
+
+    @GetMapping("/teacher/scoring")
+    public ResponseEntity<java.util.List<SessionResultSummaryDTO>> getTeacherScoringQueue() {
+        return ResponseEntity.ok(sessionReviewService.getTeacherScoringQueue());
+    }
+
+    @PatchMapping("/{sessionId}/scores/{questionId}")
+    public ResponseEntity<ReviewDashboardDTO> updateTeacherScore(
+            @PathVariable("sessionId") String sessionId,
+            @PathVariable("questionId") String questionId,
+            @Valid @RequestBody TeacherScoreUpdateDTO updateDTO) {
+        return ResponseEntity.ok(sessionReviewService.gradeEssay(sessionId, questionId, updateDTO));
     }
 }

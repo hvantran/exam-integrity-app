@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { Box, TextField, Typography, Chip } from '@mui/material';
+import { Box, TextField, Typography } from '@mui/material';
+import { Chip } from '../atoms';
 import TeacherManQuestionReviewLayout from './TeacherManQuestionReviewLayout';
 import { colors, spacing, borderRadius } from '../../design-system/tokens';
 
@@ -78,7 +79,7 @@ const ParsedContentEditor = () => (
     />
     {['A', 'B', 'C', 'D'].map((opt, i) => (
       <Box key={opt} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Chip label={opt} size="small" sx={{ fontWeight: 700, minWidth: 32 }} color={i === 2 ? 'primary' : 'default'} />
+        <Chip label={opt} size="small" style={{ fontWeight: 700, minWidth: 32 }} color={i === 2 ? 'primary' : 'default'} />
         <TextField
           fullWidth
           size="small"
