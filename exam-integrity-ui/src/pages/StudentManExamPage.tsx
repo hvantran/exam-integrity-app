@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Alert } from '@mui/material';
 import { StudentManExamLayout } from '../components/templates';
-import { StudentManExamHeader, StudentManQuestionPanel, StudentManExamNavigationBar, SubmitModal } from '../components/organisms';
+import { StudentManExamHeader, StudentManQuestionPanel, StudentManExamNavigationBar, StudentManSubmitModal } from '../components/organisms';
 import { Skeleton } from '../components/molecules';
 import StudentManFlaggedSidebar from '../components/organisms/StudentManFlaggedSidebar';
 import type { QuestionOption } from '../components/organisms';
@@ -234,7 +234,7 @@ const ExamPage: React.FC = () => {
         />
       ) : null}
 
-      <SubmitModal
+      <StudentManSubmitModal
         open={showSubmitModal}
         answeredCount={answeredCount}
         totalCount={totalQuestions}

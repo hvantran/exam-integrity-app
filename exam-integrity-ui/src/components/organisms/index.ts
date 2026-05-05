@@ -19,6 +19,6 @@ export { default as StudentManPortalSidebar } from './StudentManPortalSidebar';
 export type { PortalSidebarProps, PortalSection } from './StudentManPortalSidebar';
 export { STUDENT_SIDEBAR_WIDTH } from './StudentManPortalSidebar';
 
-export { default as SubmitModal } from './SubmitModal';
+export { default as StudentManSubmitModal } from './StudentManSubmitModal';
 
 export { default as ReviewDashboard } from './ReviewDashboard';

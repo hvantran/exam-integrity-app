@@ -14,7 +14,7 @@ interface Props {
  * Submission confirmation dialog using Zen Integrity System design tokens.
  * NEVER uses browser confirm() or alert().
  */
-const SubmitModal: React.FC<Props> = ({ open, answeredCount, totalCount, onBack, onFinalSubmit }) => {
+const StudentManSubmitModal: React.FC<Props> = ({ open, answeredCount, totalCount, onBack, onFinalSubmit }) => {
   const unanswered = totalCount - answeredCount;
   const pct = Math.round((answeredCount / Math.max(totalCount, 1)) * 100);
 
@@ -78,4 +78,4 @@ const SubmitModal: React.FC<Props> = ({ open, answeredCount, totalCount, onBack,
   )
 }
 
-export default SubmitModal;
+export default StudentManSubmitModal;
