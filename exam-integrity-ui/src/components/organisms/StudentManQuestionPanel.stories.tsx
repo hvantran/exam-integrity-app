@@ -62,6 +62,66 @@ export const Essay: Story = {
   },
 };
 
+export const MathSimpleAddition: Story = {
+  args: {
+    questionNumber: 8,
+    subject: 'Toan',
+    gradeLevel: 'Lop 4',
+    questionText: '4 722 + 5 369',
+    questionType: 'ESSAY_SHORT',
+    selectedAnswer: '10091',
+    onAnswerChange: () => {},
+  },
+};
+
+export const MathSimpleSubtraction: Story = {
+  args: {
+    questionNumber: 9,
+    subject: 'Toan',
+    gradeLevel: 'Lop 4',
+    questionText: '14 751 - 10 162',
+    questionType: 'ESSAY_SHORT',
+    selectedAnswer: '',
+    onAnswerChange: () => {},
+  },
+};
+
+export const MathSimpleMultiplication: Story = {
+  args: {
+    questionNumber: 10,
+    subject: 'Toan',
+    gradeLevel: 'Lop 4',
+    questionText: '5 037 x 4',
+    questionType: 'ESSAY_SHORT',
+    selectedAnswer: '',
+    onAnswerChange: () => {},
+  },
+};
+
+export const MathComplexMixedOperators: Story = {
+  args: {
+    questionNumber: 11,
+    subject: 'Toan',
+    gradeLevel: 'Lop 4',
+    questionText: '93 645 : 9 x 5',
+    questionType: 'ESSAY_SHORT',
+    selectedAnswer: 'Step 1: 93 645 : 9 = 10 405\nStep 2: 10 405 x 5 = 52 025\n52 025',
+    onAnswerChange: () => {},
+  },
+};
+
+export const MathComplexPrecedence: Story = {
+  args: {
+    questionNumber: 12,
+    subject: 'Toan',
+    gradeLevel: 'Lop 4',
+    questionText: '12 740 + 5 037 x 4',
+    questionType: 'ESSAY_SHORT',
+    selectedAnswer: 'Step 1: 5 037 x 4 = 20 148\nStep 2: 12 740 + 20 148 = 32 888\n32 888',
+    onAnswerChange: () => {},
+  },
+};
+
 export const EssayWithParts: Story = {
   args: {
     questionNumber: 7,

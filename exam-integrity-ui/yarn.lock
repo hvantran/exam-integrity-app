@@ -1998,7 +1998,7 @@
     rxjs "7.8.2"
     tslib "2.8.1"
 
-"@pmmmwh/react-refresh-webpack-plugin@^0.5.3":
+"@pmmmwh/react-refresh-webpack-plugin@^0.5.1", "@pmmmwh/react-refresh-webpack-plugin@^0.5.3":
   version "0.5.17"
   resolved "https://registry.npmjs.org/@pmmmwh/react-refresh-webpack-plugin/-/react-refresh-webpack-plugin-0.5.17.tgz#8c2f34ca8651df74895422046e11ce5a120e7930"
   integrity sha512-tXDyE1/jzFsHXjhRZQ3hMl0IVhYe5qula43LDWIhVfjp9G/nT5OQY5AORVOrkEGAUltBJOfOWeETbmhm6kHhuQ==
@@ -2308,6 +2308,17 @@
   version "8.6.18"
   resolved "https://registry.npmjs.org/@storybook/manager-api/-/manager-api-8.6.18.tgz#f87705d42c33abbc423356dde5ea3a727745065d"
   integrity sha512-BjIp12gEMgzFkEsgKpDIbZdnSWTZpm2dlws8WiPJCpgJtG+HWSxZ0/Ms30Au9yfwzQEKRSbV/5zpsKMGc2SIJw==
+
+"@storybook/preset-create-react-app@8.6.18":
+  version "8.6.18"
+  resolved "https://registry.npmjs.org/@storybook/preset-create-react-app/-/preset-create-react-app-8.6.18.tgz#dbd10ee3f6de9f5f95b0c3e70413ddac15471c20"
+  integrity sha512-9d470WlhG55o0GZzx5D/JveRp5mdT9y+gmx/6p6ZGSivQccjCRUfyNmOzwvLUR02K0BcP86WI2Sj6VpClTK44Q==
+  dependencies:
+    "@pmmmwh/react-refresh-webpack-plugin" "^0.5.1"
+    "@storybook/react-docgen-typescript-plugin" "1.0.6--canary.9.0c3f3b7.0"
+    "@types/semver" "^7.5.6"
+    pnp-webpack-plugin "^1.7.0"
+    semver "^7.5.4"
 
 "@storybook/preset-react-webpack@8.6.18":
   version "8.6.18"
@@ -2912,7 +2923,7 @@
   resolved "https://registry.npmjs.org/@types/retry/-/retry-0.12.0.tgz#2b35eccfcee7d38cd72ad99232fbd58bffb3c84d"
   integrity sha512-wWKOClTTiizcZhXnPY4wikVAwmdYHp8q6DmC+EJUzAMsycb7HB32Kh9RN4+0gExjmPmZSAQjgURXIGATPegAvA==
 
-"@types/semver@^7.3.12", "@types/semver@^7.3.4":
+"@types/semver@^7.3.12", "@types/semver@^7.3.4", "@types/semver@^7.5.6":
   version "7.7.1"
   resolved "https://registry.npmjs.org/@types/semver/-/semver-7.7.1.tgz#3ce3af1a5524ef327d2da9e4fd8b6d95c8d70528"
   integrity sha512-FmgJfu+MOcQ370SD0ev7EI8TlCAfKYU+B4m5T3yXc1CiRN94g/SZPtsCkk506aUDtlMnFZvasDwHHUcZUEaYuA==
@@ -8393,6 +8404,13 @@ pkg-up@^3.1.0:
   dependencies:
     find-up "^3.0.0"
 
+pnp-webpack-plugin@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.npmjs.org/pnp-webpack-plugin/-/pnp-webpack-plugin-1.7.0.tgz#65741384f6d8056f36e2255a8d67ffc20866f5c9"
+  integrity sha512-2Rb3vm+EXble/sMXNSu6eoBx8e79gKqhNq9F5ZWW6ERNCTE/Q0wQNne5541tE5vKjfM8hpNCYL+LGc1YTfI0dg==
+  dependencies:
+    ts-pnp "^1.1.6"
+
 polished@^4.2.2:
   version "4.3.1"
   resolved "https://registry.npmjs.org/polished/-/polished-4.3.1.tgz#5a00ae32715609f83d89f6f31d0f0261c6170548"
@@ -10621,6 +10639,11 @@ ts-interface-checker@^0.1.9:
   version "0.1.13"
   resolved "https://registry.npmjs.org/ts-interface-checker/-/ts-interface-checker-0.1.13.tgz#784fd3d679722bc103b1b4b8030bcddb5db2a699"
   integrity sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==
+
+ts-pnp@^1.1.6:
+  version "1.2.0"
+  resolved "https://registry.npmjs.org/ts-pnp/-/ts-pnp-1.2.0.tgz#a500ad084b0798f1c3071af391e65912c86bca92"
+  integrity sha512-csd+vJOb/gkzvcCHgTGSChYpy5f1/XKNsmvBGO4JXS+z1v2HobugDz4s1IeFXM3wZB44uczs+eazB5Q/ccdhQw==
 
 tsconfig-paths@^3.15.0:
   version "3.15.0"

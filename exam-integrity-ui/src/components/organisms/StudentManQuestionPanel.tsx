@@ -3,6 +3,8 @@ import { Flag } from 'lucide-react';
 import type { AnswerPart, QuestionPart, QuestionType } from '../../types/exam.types';
 import Button from '../atoms/Button';
 import { Skeleton } from '../molecules';
+import { MathQuestionInput } from '../molecules/MathInput';
+import { analyzeFormula } from '../../utils/mathFormulaAnalyzer';
 
 export interface QuestionOption {
   key: string;
@@ -187,14 +189,34 @@ const StudentManQuestionPanel: React.FC<QuestionPanelProps> = ({
                 <p className="text-sm md:text-[15px] leading-6 text-slate-900 break-words">{part.prompt}</p>
               </div>
             </div>
-            <textarea
-              rows={4}
-              placeholder="Nhập câu trả lời cho phần này"
-              value={answerPartMap.get(part.key) ?? ''}
-              disabled={disabled}
-              onChange={(event) => updateAnswerPart(part.key, event.target.value)}
-              className="w-full text-sm leading-6 border border-slate-300 rounded-xl p-3 bg-white resize-vertical text-slate-900 outline-none focus:border-sky-400"
-            />
+            {(() => {
+              const partFormula = analyzeFormula(part.prompt);
+              const isMathPart = [
+                'SIMPLE_ADDITION',
+                'SIMPLE_SUBTRACTION',
+                'SIMPLE_MULTIPLICATION',
+                'SIMPLE_DIVISION',
+                'COMPLEX_FORMULA',
+              ].includes(partFormula.type);
+              return isMathPart ? (
+                <MathQuestionInput
+                  questionText={part.prompt}
+                  value={answerPartMap.get(part.key) ?? ''}
+                  disabled={disabled}
+                  tags={gradeLevel ? [gradeLevel] : []}
+                  onChange={(val) => updateAnswerPart(part.key, val)}
+                />
+              ) : (
+                <textarea
+                  rows={4}
+                  placeholder="Nhập câu trả lời cho phần này"
+                  value={answerPartMap.get(part.key) ?? ''}
+                  disabled={disabled}
+                  onChange={(event) => updateAnswerPart(part.key, event.target.value)}
+                  className="w-full text-sm leading-6 border border-slate-300 rounded-xl p-3 bg-white resize-vertical text-slate-900 outline-none focus:border-sky-400"
+                />
+              );
+            })()}
           </section>
         ))}
       </div>

@@ -55,6 +55,7 @@ const ExamPage: React.FC = () => {
   const displayRemaining = remaining ?? session?.remainingSeconds ?? null;
   const totalQuestions = exam?.questionCount ?? 0;
   const answeredCount = Object.values(answeredMap).filter(Boolean).length;
+  const gradeLevelTag = exam?.tags?.find((tag) => /grade\s*\d+/i.test(tag));
 
   useEffect(() => {
     if (session?.status === 'FORCE_SUBMITTED') {
@@ -183,6 +184,7 @@ const ExamPage: React.FC = () => {
       ) : question ? (
         <StudentManQuestionPanel
           questionNumber={flaggedQuestionNumber}
+          gradeLevel={gradeLevelTag}
           questionText={question.content}
           questionStem={question.stem}
           questionType={question.type}
