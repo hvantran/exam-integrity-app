@@ -228,19 +228,8 @@ public class ExamDraftService {
 
         // Validation
         List<DraftQuestion> approved = draft.getQuestions().stream()
-                .filter(q -> q.getReviewStatus() != DraftQuestion.ReviewStatus.EXCLUDED)
-                .filter(q -> {
-                    // Auto-exclude essay questions that have no rubric — don't block publish
-                    boolean essayWithoutRubric = (q.getType() == Question.QuestionType.ESSAY_SHORT
-                            || q.getType() == Question.QuestionType.ESSAY_LONG)
-                            && q.getRubric() == null;
-                    if (essayWithoutRubric) {
-                        q.setReviewStatus(DraftQuestion.ReviewStatus.EXCLUDED);
-                        logger.warn("Auto-excluding essay question {} (no rubric) during publish", q.getId());
-                    }
-                    return !essayWithoutRubric;
-                })
-                .collect(Collectors.toList());
+            .filter(q -> q.getReviewStatus() != DraftQuestion.ReviewStatus.EXCLUDED)
+            .collect(Collectors.toList());
         if (approved.isEmpty()) {
             throw new ResponseStatusException(BAD_REQUEST, "No questions to publish");
         }

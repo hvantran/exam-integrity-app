@@ -125,7 +125,7 @@ const CreateExamDialog: React.FC<CreateExamDialogProps> = ({ open, onClose, onSu
                                 <input
                                     type="number"
                                     min={0}
-                                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                                     value={mcqCount}
                                     onChange={e => setMcqCount(Math.max(0, Number(e.target.value)))}
                                 />
@@ -135,7 +135,7 @@ const CreateExamDialog: React.FC<CreateExamDialogProps> = ({ open, onClose, onSu
                                 <input
                                     type="number"
                                     min={0}
-                                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                                     value={essayShortCount}
                                     onChange={e => setEssayShortCount(Math.max(0, Number(e.target.value)))}
                                 />
@@ -145,7 +145,7 @@ const CreateExamDialog: React.FC<CreateExamDialogProps> = ({ open, onClose, onSu
                                 <input
                                     type="number"
                                     min={0}
-                                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                                     value={essayLongCount}
                                     onChange={e => setEssayLongCount(Math.max(0, Number(e.target.value)))}
                                 />
@@ -155,7 +155,7 @@ const CreateExamDialog: React.FC<CreateExamDialogProps> = ({ open, onClose, onSu
                     <div>
                         <label className="block text-xs font-medium text-gray-700 mb-1">Notes</label>
                         <textarea
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                             value={reviewNotes}
                             onChange={e => setReviewNotes(e.target.value)}
                             rows={2}
@@ -164,7 +164,7 @@ const CreateExamDialog: React.FC<CreateExamDialogProps> = ({ open, onClose, onSu
                     </div>
                     <div className="flex justify-end gap-2 pt-2">
                         <button type="button" className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700" onClick={handleClose} disabled={isLoading}>Cancel</button>
-                        <button type="submit" className="px-4 py-2 rounded bg-primary text-white font-semibold hover:bg-violet-800 disabled:opacity-60" disabled={isLoading || !title.trim() || (mcqCount + essayShortCount + essayLongCount === 0)}>
+                        <button type="submit" className="px-4 py-2 rounded bg-primary text-white font-semibold hover:bg-primary-800 disabled:opacity-60" disabled={isLoading || !title.trim() || (mcqCount + essayShortCount + essayLongCount === 0)}>
                             {isLoading ? 'Creating…' : 'Create Exam'}
                         </button>
                     </div>
@@ -203,7 +203,7 @@ const ExamCard: React.FC<ExamCardProps> = ({ title, durationSeconds, questionCou
         {tags && tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mb-2">
                 {tags.map(t => (
-                    <span key={t} className="bg-violet-100 text-primary text-xs px-2 py-0.5 rounded-full font-medium">{t}</span>
+                    <span key={t} className="bg-primary-100 text-primary text-xs px-2 py-0.5 rounded-full font-medium">{t}</span>
                 ))}
             </div>
         )}

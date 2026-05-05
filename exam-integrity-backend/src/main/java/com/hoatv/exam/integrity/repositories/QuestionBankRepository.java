@@ -17,15 +17,15 @@ public interface QuestionBankRepository extends MongoRepository<QuestionBankItem
     Page<QuestionBankItem> findByTagsIn(List<String> tags, Pageable pageable);
     Page<QuestionBankItem> findByTypeAndTagsIn(Question.QuestionType type, List<String> tags, Pageable pageable);
 
-    @Query("{ $text: { $search: ?0 } }")
+    @Query("{ content: { $regex: ?0, $options: 'i' } }")
     Page<QuestionBankItem> searchByText(String query, Pageable pageable);
 
-    @Query("{ $text: { $search: ?0 }, type: ?1 }")
+    @Query("{ content: { $regex: ?0, $options: 'i' }, type: ?1 }")
     Page<QuestionBankItem> searchByTextAndType(String query, Question.QuestionType type, Pageable pageable);
 
-    @Query("{ $text: { $search: ?0 }, tags: { $in: ?1 } }")
+    @Query("{ content: { $regex: ?0, $options: 'i' }, tags: { $in: ?1 } }")
     Page<QuestionBankItem> searchByTextAndTags(String query, List<String> tags, Pageable pageable);
 
-    @Query("{ $text: { $search: ?0 }, type: ?1, tags: { $in: ?2 } }")
+    @Query("{ content: { $regex: ?0, $options: 'i' }, type: ?1, tags: { $in: ?2 } }")
     Page<QuestionBankItem> searchByTextTypeAndTags(String query, Question.QuestionType type, List<String> tags, Pageable pageable);
 }

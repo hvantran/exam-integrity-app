@@ -17,6 +17,7 @@ import java.security.MessageDigest;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 @Service
 public class QuestionBankService {
@@ -36,16 +37,17 @@ public class QuestionBankService {
         }
         boolean hasText = q != null && !q.isBlank();
         boolean hasTags = tags != null && !tags.isEmpty();
+        String escapedText = hasText ? Pattern.quote(q.trim()) : q;
 
         Page<QuestionBankItem> results;
         if (hasText && qType != null && hasTags) {
-            results = bankRepository.searchByTextTypeAndTags(q, qType, tags, pageable);
+            results = bankRepository.searchByTextTypeAndTags(escapedText, qType, tags, pageable);
         } else if (hasText && qType != null) {
-            results = bankRepository.searchByTextAndType(q, qType, pageable);
+            results = bankRepository.searchByTextAndType(escapedText, qType, pageable);
         } else if (hasText && hasTags) {
-            results = bankRepository.searchByTextAndTags(q, tags, pageable);
+            results = bankRepository.searchByTextAndTags(escapedText, tags, pageable);
         } else if (hasText) {
-            results = bankRepository.searchByText(q, pageable);
+            results = bankRepository.searchByText(escapedText, pageable);
         } else if (qType != null && hasTags) {
             results = bankRepository.findByTypeAndTagsIn(qType, tags, pageable);
         } else if (qType != null) {

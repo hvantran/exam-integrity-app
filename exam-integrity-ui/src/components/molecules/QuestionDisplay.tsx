@@ -407,6 +407,7 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                     border: 'none',
                     cursor: 'pointer',
                     padding: 4,
+
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',

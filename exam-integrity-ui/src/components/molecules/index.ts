@@ -24,3 +24,6 @@ export { default as ExamTips } from './ExamTips';
 export { default as CorrectionCard } from './CorrectionCard';
 
 export { default as MistakeSummary } from './MistakeSummary';
+
+export { default as ScrollArea } from './ScrollArea';
+export type { ScrollAreaProps } from './ScrollArea';

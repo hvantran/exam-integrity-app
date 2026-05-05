@@ -146,7 +146,7 @@ const TeacherManQuestionReviewLayout: React.FC<QuestionReviewLayoutProps> = ({
           </div>
 
           {/* Right panel: Parsed Content */}
-          <div className="flex flex-col bg-white border border-gray-200 border-l-4 border-l-violet-700 rounded-xl overflow-hidden">
+          <div className="flex flex-col bg-white border border-gray-200 border-l-4 border-l-primary-700 rounded-xl overflow-hidden">
             <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200 flex-shrink-0">
               <span className="text-lg font-semibold text-gray-900">Parsed Content</span>
             </div>

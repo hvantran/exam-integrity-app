@@ -10,6 +10,7 @@ import StarOutlineIcon from '@mui/icons-material/StarOutline';
 import HistoryIcon from '@mui/icons-material/History';
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import { TeacherManQuestionBankLayout } from '../components/templates';
+import { ScrollArea, Skeleton } from '../components/molecules';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { questionBankService } from '../services/questionBankService';
 import type { DraftQuestionDTO, QuestionType } from '../types/exam.types';
@@ -35,7 +36,7 @@ const TYPE_OPTIONS: { value: QuestionType; label: string }[] = [
 
 // ── Input style helpers ───────────────────────────────────────────────────────
 
-const inputCls = 'border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-white w-full';
+const inputCls = 'border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white';
 const labelCls = 'block text-xs font-medium text-gray-500 mb-1';
 
 /* ------------------------------------------------------------------ */
@@ -109,7 +110,7 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
 
       {/* Content */}
       <textarea
-        className={`${inputCls} resize-y min-h-[72px] mb-2`}
+        className={`${inputCls} resize-y min-h-[72px] w-full mb-2`}
         placeholder="Question Content"
         rows={3}
         value={form.content}
@@ -139,7 +140,7 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
                 value={label}
                 checked={form.correctAnswer === label}
                 onChange={e => setField('correctAnswer', e.target.value)}
-                className="accent-violet-600 w-4 h-4 shrink-0"
+                className="accent-primary-600 w-4 h-4 shrink-0"
               />
               <span className="text-sm font-semibold min-w-[20px] text-on-surface">{label}</span>
               <input
@@ -260,7 +261,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, index, onEdit }) 
         <button
           title="Edit question"
           onClick={onEdit}
-          className="rounded-full p-1 transition hover:bg-violet-50 text-primary"
+          className="rounded-full p-1 transition hover:bg-primary-50 text-primary"
         >
           <EditIcon sx={{ fontSize: '18px' }} />
         </button>
@@ -299,7 +300,7 @@ const McqOptionsForm: React.FC<McqOptionsProps> = ({ options, correctAnswer, idP
           value={label}
           checked={correctAnswer === label}
           onChange={e => onCorrectAnswerChange(e.target.value)}
-          className="accent-violet-600 w-4 h-4 shrink-0"
+          className="accent-primary-600 w-4 h-4 shrink-0"
         />
         <span className="text-sm font-semibold min-w-[20px] text-on-surface">{label}</span>
         <input
@@ -341,7 +342,7 @@ const QuestionBankPage: React.FC = () => {
 
   React.useEffect(() => { setPage(1); }, [q, type, tagFilters]);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isFetching } = useQuery({
     queryKey: ['question-bank', q, type, tagFilters, page],
     queryFn: () => questionBankService.search({
       q: q || undefined,
@@ -352,6 +353,17 @@ const QuestionBankPage: React.FC = () => {
     }),
     placeholderData: (prev) => prev,
   });
+
+  const hasMore = (data?.content.length ?? 0) < (data?.totalElements ?? 0);
+  const isLoadingMore = isFetching && !isLoading;
+
+  const questionListLoader = (
+    <div className="w-full flex flex-col gap-3" aria-label="Loading more questions">
+      {[0, 1, 2].map((i) => (
+        <Skeleton key={i} height={96} />
+      ))}
+    </div>
+  );
 
   const { mutate: updateQuestion, isPending: isSaving } = useMutation({
     mutationFn: ({ id, cmd }: { id: string; cmd: DraftQuestionEditCommand }) =>
@@ -493,7 +505,13 @@ const QuestionBankPage: React.FC = () => {
           </div>
         }
       >
-        <>
+        <ScrollArea
+          hasMore={hasMore}
+          isLoading={isLoadingMore}
+          onLoadMore={() => setPage((p) => p + 1)}
+          loader={questionListLoader}
+          endMessage={(data?.totalElements ?? 0) > 0 ? <span>All results loaded</span> : null}
+        >
           {data?.content.map((item, i) =>
             editingId === item.id ? (
               <QuestionEditCard
@@ -513,17 +531,7 @@ const QuestionBankPage: React.FC = () => {
             )
           )}
 
-          {data && data.totalPages > 1 && (
-            <div className="flex justify-center mt-6">
-              <Button
-                variant="outlined"
-                onClick={() => setPage(p => p + 1)}
-              >
-                Load More Results
-              </Button>
-            </div>
-          )}
-        </>
+        </ScrollArea>
       </TeacherManQuestionBankLayout>
 
       {/* Add Question modal */}
@@ -543,7 +551,7 @@ const QuestionBankPage: React.FC = () => {
         }
       >
         <textarea
-          className={`${inputCls} resize-y min-h-[72px] mb-4`}
+          className={`${inputCls} resize-y min-h-[72px] mb-4 w-full`}
           placeholder="Question Content"
           rows={3}
           value={addForm.content}

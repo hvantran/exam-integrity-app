@@ -52,7 +52,7 @@ const StatCard: React.FC<{ icon: React.ReactNode; value: string | number; label:
   iconColor,
 }) => (
   <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 flex flex-col items-center justify-center text-center gap-2">
-    <span className={`material-symbols-outlined text-[36px] ${iconColor ?? 'text-violet-700'}`}>{icon}</span>
+    <span className={`material-symbols-outlined text-[36px] ${iconColor ?? 'text-primary-700'}`}>{icon}</span>
     <span className="text-3xl font-semibold text-gray-900 leading-none">{value}</span>
     <span className="text-xs font-semibold uppercase tracking-wider text-gray-500 mt-0.5">{label}</span>
   </div>
@@ -204,7 +204,7 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
                 {/* Tags chip input */}
                 <div>
                   <div className="text-xs font-medium text-gray-500 mb-1 ml-1">Tags</div>
-                  <div className="flex flex-wrap items-center gap-2 min-h-[56px] border border-gray-200 rounded px-3 py-2 focus-within:border-violet-700 focus-within:border-2">
+                  <div className="flex flex-wrap items-center gap-2 min-h-[56px] border border-gray-200 rounded px-3 py-2 focus-within:border-primary-700 focus-within:border-2">
                     {tags.map(tag => (
                       <span key={tag} className="inline-flex items-center gap-1 text-xs font-medium bg-primary-100 text-primary rounded px-2 h-6">
                         {tag}
@@ -285,7 +285,7 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
                         <td className="px-4 py-3 text-gray-600">
                           {isMcq ? (
                             q.correctAnswer ? (
-                              <span className="px-2 py-1 bg-violet-100 text-violet-700 rounded text-xs font-semibold">
+                              <span className="px-2 py-1 bg-primary-100 text-primary-700 rounded text-xs font-semibold">
                                 {q.correctAnswer}
                               </span>
                             ) : (

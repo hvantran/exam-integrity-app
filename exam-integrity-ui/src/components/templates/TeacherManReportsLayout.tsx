@@ -51,7 +51,7 @@ const TeacherManReportsLayout: React.FC<ReportsLayoutProps> = ({
           {tabs.map((label, i) => (
             <button
               key={i}
-              className={`px-4 py-2 text-sm font-medium rounded-t ${activeTab === i ? 'text-violet-700 border-b-2 border-violet-700 bg-gray-50' : 'text-gray-500 hover:text-violet-700'} focus:outline-none`}
+              className={`px-4 py-2 text-sm font-medium rounded-t ${activeTab === i ? 'text-primary-700 border-b-2 border-primary-700 bg-gray-50' : 'text-gray-500 hover:text-primary-700'} focus:outline-none`}
               onClick={() => onTabChange?.(i)}
               type="button"
             >

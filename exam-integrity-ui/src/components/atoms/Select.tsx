@@ -17,7 +17,7 @@ export interface SelectProps {
 }
 
 const baseCls =
-  'border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-white w-full';
+  'border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white w-full';
 
 const Select: React.FC<SelectProps> = ({
   value,
