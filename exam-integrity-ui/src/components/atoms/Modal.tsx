@@ -1,5 +1,5 @@
 import React from 'react';
-import CloseIcon from '@mui/icons-material/Close';
+import { X } from 'lucide-react';
 
 export interface ModalProps {
   open: boolean;
@@ -30,13 +30,16 @@ const Modal: React.FC<ModalProps> = ({
           <h2 className={`text-lg font-bold ${titleClassName ?? 'text-primary'}`}>
             {title}
           </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition rounded-full p-1"
-            aria-label="Close"
-          >
-            <CloseIcon sx={{ fontSize: 20 }} />
-          </button>
+          {React.createElement(
+            'button',
+            {
+              onClick: onClose,
+              className: 'text-gray-400 hover:text-gray-600 transition rounded-full p-1',
+              'aria-label': 'Close',
+              type: 'button',
+            },
+            <X size={20} />,
+          )}
         </div>
         <div className="px-6 py-4 overflow-y-auto flex-1">{children}</div>
         <div className="px-6 pb-5 pt-3 flex justify-end gap-2 border-t border-gray-100">

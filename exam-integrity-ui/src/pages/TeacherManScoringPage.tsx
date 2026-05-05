@@ -1,6 +1,7 @@
 import React from 'react';
 import { Alert, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '../components/atoms';
 import type { DashboardSection } from '../components/organisms';
 import { TeacherManDashboardLayout } from '../components/templates';
 import { useAuth } from '../context/AuthContext';
@@ -85,10 +86,12 @@ const TeacherManScoringPage: React.FC = () => {
               {queue.map((item) => {
                 const isSelected = item.sessionId === selectedSummary?.sessionId;
                 return (
-                  <button
+                  <Button
                     key={item.sessionId}
                     type="button"
                     onClick={() => setSelectedSessionId(item.sessionId)}
+                    variant="ghost"
+                    size="md"
                     className={`w-full rounded-2xl border p-4 text-left shadow-sm transition ${isSelected ? 'border-blue-600 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-300'}`}
                   >
                     <div className="flex items-start justify-between gap-3">
@@ -106,7 +109,7 @@ const TeacherManScoringPage: React.FC = () => {
                     <div className="mt-2 text-sm text-gray-600">
                       Current score: {item.totalEarned.toFixed(1)} / {item.totalMax.toFixed(1)} pts
                     </div>
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -198,7 +201,7 @@ const TeacherManScoringPage: React.FC = () => {
                           <div className="text-sm text-gray-500">
                             Status: <span className="font-semibold text-gray-700">{score.status.replaceAll('_', ' ')}</span>
                           </div>
-                          <button
+                          <Button
                             type="button"
                             disabled={isInvalid || teacherScore.isPending}
                             onClick={() => teacherScore.mutate({
@@ -208,10 +211,12 @@ const TeacherManScoringPage: React.FC = () => {
                                 explanation: draft.explanation.trim() || undefined,
                               },
                             })}
+                            variant="primary"
+                            size="sm"
                             className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
                           >
                             {teacherScore.isPending ? 'Saving…' : 'Save score'}
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     );

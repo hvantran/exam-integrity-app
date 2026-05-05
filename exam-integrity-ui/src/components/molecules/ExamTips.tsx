@@ -1,5 +1,5 @@
 import React from 'react';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { Info } from 'lucide-react';
 import { colors, borderRadius } from '../../design-system/tokens';
 
 /**
@@ -14,7 +14,7 @@ const ExamTips: React.FC = () => (
       border: `1px solid ${colors.primary.main}30`,
     }}
   >
-    <InfoOutlinedIcon style={{ color: colors.primary.main, fontSize: 20, flexShrink: 0, marginTop: '1px' }} />
+    <Info size={20} style={{ color: colors.primary.main, flexShrink: 0, marginTop: '1px' }} />
     <div>
       <div style={{ fontWeight: 600, fontSize: '13px', color: colors.primary.main, marginBottom: '2px' }}>
         Exam Instructions

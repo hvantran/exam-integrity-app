@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { ProgressBar } from '../atoms';
+import { Settings } from 'lucide-react';
+import { Button, ProgressBar } from '../atoms';
 import { TimerDisplay, ProctoringStatusChip } from '../molecules';
 
 export interface ExamHeaderProps {
@@ -52,13 +53,15 @@ const StudentManExamHeader: React.FC<ExamHeaderProps> = ({
 					</span>
 
 					{/* Action icons */}
-					<button
+					<Button
 						onClick={onSettings}
+						variant="ghost"
+						size="sm"
+						icon={<Settings size={16} className="text-slate-400" />}
 						className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
-						title="Settings"
 					>
-						<span role="img" aria-label="settings">⚙️</span>
-					</button>
+						<span className="sr-only">Settings</span>
+					</Button>
 				</div>
 			</header>
 		</>

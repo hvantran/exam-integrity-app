@@ -1,5 +1,5 @@
-import AddIcon from '@mui/icons-material/Add';
 import React from 'react';
+import { Plus } from 'lucide-react';
 import { Button } from '../atoms';
 import { Skeleton } from '../molecules';
 import type { DashboardSection } from '../organisms';
@@ -63,7 +63,7 @@ const TeacherManIngestionLayout: React.FC<IngestionLayoutProps> = ({
           </div>
           <Button
             variant="primary"
-            startIcon={<AddIcon />}
+            icon={<Plus size={18} />}
             onClick={onImportExam}
             className="font-medium"
           >

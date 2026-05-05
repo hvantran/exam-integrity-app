@@ -1,10 +1,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box } from '@mui/material';
-import GroupIcon from '@mui/icons-material/Group';
-import ScheduleIcon from '@mui/icons-material/Schedule';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import FactCheckIcon from '@mui/icons-material/FactCheck';
+import { Users, Clock, AlertTriangle, CheckSquare } from 'lucide-react';
 import StatCard from './StatCard';
 
 const meta: Meta<typeof StatCard> = {
@@ -18,7 +15,7 @@ type Story = StoryObj<typeof StatCard>;
 
 export const StudentsActive: Story = {
   args: {
-    icon: <GroupIcon />,
+    icon: <Users size={18} />,
     value: '42 / 45',
     label: 'Students Active',
     variant: 'default',
@@ -27,7 +24,7 @@ export const StudentsActive: Story = {
 
 export const TimeRemaining: Story = {
   args: {
-    icon: <ScheduleIcon />,
+    icon: <Clock size={18} />,
     value: '00:45:12',
     label: 'Time Remaining',
     variant: 'success',
@@ -36,7 +33,7 @@ export const TimeRemaining: Story = {
 
 export const FlagsRaised: Story = {
   args: {
-    icon: <WarningAmberIcon />,
+    icon: <AlertTriangle size={18} />,
     value: 2,
     label: 'Flags Raised',
     sublabel: 'Pending review',
@@ -46,7 +43,7 @@ export const FlagsRaised: Story = {
 
 export const NeedsGrading: Story = {
   args: {
-    icon: <FactCheckIcon />,
+    icon: <CheckSquare size={18} />,
     value: 12,
     label: 'Needs Grading',
     sublabel: 'Exams queued',
@@ -57,10 +54,10 @@ export const NeedsGrading: Story = {
 export const Dashboard: Story = {
   render: () => (
     <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-      <StatCard icon={<GroupIcon />} value="42 / 45" label="Students Active" />
-      <StatCard icon={<ScheduleIcon />} value="00:45:12" label="Time Remaining" variant="success" />
-      <StatCard icon={<WarningAmberIcon />} value={2} label="Flags Raised" sublabel="Pending" variant="warning" />
-      <StatCard icon={<FactCheckIcon />} value={12} label="Needs Grading" />
+      <StatCard icon={<Users size={18} />} value="42 / 45" label="Students Active" />
+      <StatCard icon={<Clock size={18} />} value="00:45:12" label="Time Remaining" variant="success" />
+      <StatCard icon={<AlertTriangle size={18} />} value={2} label="Flags Raised" sublabel="Pending" variant="warning" />
+      <StatCard icon={<CheckSquare size={18} />} value={12} label="Needs Grading" />
     </Box>
   ),
 };

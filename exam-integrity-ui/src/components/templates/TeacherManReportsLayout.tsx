@@ -1,5 +1,5 @@
 import React from 'react';
-import DownloadIcon from '@mui/icons-material/Download';
+import { Download } from 'lucide-react';
 import { Button } from '../atoms';
 // Removed MUI tokens, using Tailwind CSS
 import { AppTopBar, TeacherManDashboardSidebar, APP_BAR_HEIGHT, TEACHER_SIDEBAR_WIDTH } from '../organisms';
@@ -49,19 +49,21 @@ const TeacherManReportsLayout: React.FC<ReportsLayoutProps> = ({
       <div className="sticky top-[64px] z-70 bg-white border-b border-gray-200 flex items-center justify-between px-6 pr-8">
         <div className="flex space-x-2 min-h-[48px]">
           {tabs.map((label, i) => (
-            <button
+            <Button
               key={i}
+              variant="ghost"
+              size="md"
               className={`px-4 py-2 text-sm font-medium rounded-t ${activeTab === i ? 'text-primary-700 border-b-2 border-primary-700 bg-gray-50' : 'text-gray-500 hover:text-primary-700'} focus:outline-none`}
               onClick={() => onTabChange?.(i)}
               type="button"
             >
               {label}
-            </button>
+            </Button>
           ))}
         </div>
         {onExport && (
           <Button
-            startIcon={<DownloadIcon />}
+            icon={<Download size={18} />}
             variant="outlined"
             size="sm"
             onClick={onExport}

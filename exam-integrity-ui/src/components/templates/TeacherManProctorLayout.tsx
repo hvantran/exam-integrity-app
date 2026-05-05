@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '../atoms';
 
 
 const PROCTOR_APP_BAR_HEIGHT = 64;
@@ -58,13 +59,15 @@ const TeacherManProctorLayout: React.FC<ProctorLayoutProps> = ({
           {navLabels.map(({ section, label }) => {
             const isActive = activeNavSection === section;
             return (
-              <button
+              <Button
                 key={section}
                 onClick={() => onNavigate?.(section)}
+                variant="ghost"
+                size="md"
                 className={`px-3 py-2 border-b-2 bg-transparent text-sm font-${isActive ? 'semibold' : 'normal'} ${isActive ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-blue-600'} transition-colors`}
               >
                 {label}
-              </button>
+              </Button>
             );
           })}
         </nav>
@@ -82,13 +85,15 @@ const TeacherManProctorLayout: React.FC<ProctorLayoutProps> = ({
           <span className="font-mono text-sm font-medium text-gray-900 tracking-wider">{timerDisplay}</span>
         </span>
         {onSubmit && (
-          <button
+          <Button
             type="button"
             onClick={onSubmit}
+            variant="primary"
+            size="md"
             className="px-4 py-2 bg-blue-600 text-white rounded font-semibold text-sm hover:bg-blue-700 transition-colors"
           >
             Nop bai
-          </button>
+          </Button>
         )}
       </div>
     </header>

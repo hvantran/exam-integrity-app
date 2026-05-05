@@ -13,9 +13,7 @@
  */
 import React from 'react';
 import { Chip } from '../atoms';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import ImageOutlined from '@mui/icons-material/ImageOutlined';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import { AlertTriangle, Image, Trash2 } from 'lucide-react';
 import type { DraftQuestionDTO } from '../../types/exam.types';
 import { colors, typography, borderRadius } from '../../design-system/tokens';
 import Skeleton from './Skeleton';
@@ -351,7 +349,7 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
           <Chip label={typeLabel} size="small" variant="outlined" className="text-[0.7rem]" style={{ height: 22 }} />
           {lowConfidence && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <WarningAmberIcon sx={{ fontSize: 15, color: 'warning.main' }} />
+              <AlertTriangle size={15} className="text-amber-500" />
               <span style={{ fontSize: '0.7rem', color: '#f59e0b' }}>
                 Low confidence ({Math.round(q.parserConfidence * 100)}%)
               </span>
@@ -400,26 +398,32 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
           {onQuestionImageUpload && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               {hasImage && onQuestionImageRemove && (
-                <button
-                  onClick={onQuestionImageRemove}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: 4,
-
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#ef4444',
-                    transition: 'color 0.2s ease',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = '#dc2626')}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = '#ef4444')}
-                  title="Remove image"
-                >
-                  <DeleteOutlineIcon sx={{ fontSize: 18 }} />
-                </button>
+                React.createElement(
+                  'button',
+                  {
+                    onClick: onQuestionImageRemove,
+                    style: {
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 4,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#ef4444',
+                      transition: 'color 0.2s ease',
+                    },
+                    onMouseEnter: (e: React.MouseEvent<HTMLButtonElement>) => {
+                      e.currentTarget.style.color = '#dc2626';
+                    },
+                    onMouseLeave: (e: React.MouseEvent<HTMLButtonElement>) => {
+                      e.currentTarget.style.color = '#ef4444';
+                    },
+                    title: 'Remove image',
+                    type: 'button',
+                  },
+                  <Trash2 size={18} />,
+                )
               )}
               <label
                 style={{
@@ -437,7 +441,7 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = `${colors.primary.main}24`)}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = hasImage ? `${colors.primary.main}18` : colors.surface.container.highest)}
               >
-                <ImageOutlined sx={{ fontSize: 16, marginRight: 1 }} />
+                <Image size={16} style={{ marginRight: 4 }} />
                 <input
                   type="file"
                   accept="image/*"
@@ -503,7 +507,7 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
           {warnings.map((w, i) => (
             <Chip
               key={i}
-              icon={<WarningAmberIcon sx={{ fontSize: 13 }} />}
+              icon={<AlertTriangle size={13} />}
               label={w}
               size="small"
               color="warning"

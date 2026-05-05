@@ -2,8 +2,7 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Typography, Button } from '@mui/material';
 import { Chip } from '../atoms';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import WarningIcon from '@mui/icons-material/Warning';
+import { MoreVertical, AlertTriangle } from 'lucide-react';
 import TeacherManIngestionLayout from './TeacherManIngestionLayout';
 import { colors, spacing, borderRadius } from '../../design-system/tokens';
 
@@ -70,7 +69,7 @@ const ExamCard: React.FC<ExamCardProps> = ({ filename, status, ocrConfidence, fl
           }}
         />
       </Box>
-      <MoreVertIcon sx={{ color: colors.outline, fontSize: 20 }} />
+      <MoreVertical size={20} color={colors.outline} />
     </Box>
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: `${spacing.stackMd}px` }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -92,7 +91,7 @@ const ExamCard: React.FC<ExamCardProps> = ({ filename, status, ocrConfidence, fl
       </Box>
       {warning && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, backgroundColor: '#FFDAD6', color: '#BA1A1A', p: 1, borderRadius: borderRadius.default }}>
-          <WarningIcon sx={{ fontSize: 16 }} />
+          <AlertTriangle size={16} />
           <Typography sx={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.05em' }}>{warning}</Typography>
         </Box>
       )}

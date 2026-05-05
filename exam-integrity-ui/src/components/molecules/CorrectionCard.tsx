@@ -1,6 +1,5 @@
 import React from 'react';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
+import { CheckCircle2, XCircle } from 'lucide-react';
 import type { ScoreResult } from '../../types/exam.types';
 import { colors, borderRadius, shadow } from '../../design-system/tokens';
 import Skeleton from './Skeleton';
@@ -91,7 +90,7 @@ const CorrectionCard: React.FC<Props> = ({ score, isLoading = false }) => {
       <div className="px-3 py-2">
         {/* Student answer */}
         <div className="mb-2 flex items-start gap-1.5">
-          <CancelIcon style={{ color: colors.error, fontSize: 18, marginTop: '2px', flexShrink: 0 }} />
+          <XCircle size={18} style={{ color: colors.error, marginTop: '2px', flexShrink: 0 }} />
           <div>
             <div style={{ fontSize: '12px', color: colors.on.surfaceVariant, marginBottom: '2px' }}>
               Your Answer
@@ -109,7 +108,7 @@ const CorrectionCard: React.FC<Props> = ({ score, isLoading = false }) => {
         {/* Correct answer */}
         {!isPendingTeacherReview && score.correctAnswer && (
           <div className={`flex items-start gap-1.5 ${score.explanation ? 'mb-2' : ''}`}>
-            <CheckCircleIcon style={{ color: colors.secondary.main, fontSize: 18, marginTop: '2px', flexShrink: 0 }} />
+            <CheckCircle2 size={18} style={{ color: colors.secondary.main, marginTop: '2px', flexShrink: 0 }} />
             <div>
               <div style={{ fontSize: '12px', color: colors.on.surfaceVariant, marginBottom: '2px' }}>
                 Correct Answer

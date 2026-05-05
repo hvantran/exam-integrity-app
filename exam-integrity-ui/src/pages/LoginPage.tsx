@@ -4,9 +4,7 @@ import {
   Box, Button, CircularProgress, IconButton,
   InputAdornment, TextField, Typography, Alert,
 } from '@mui/material';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import SchoolIcon from '@mui/icons-material/School';
+import { Eye, EyeOff, GraduationCap } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { colors, borderRadius, shadow, spacing } from '../design-system/tokens';
 
@@ -55,7 +53,7 @@ const LoginPage: React.FC = () => {
         {/* Logo + heading */}
         <div className="text-center">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary mb-3">
-            <SchoolIcon sx={{ color: '#fff', fontSize: 30 }} />
+            <GraduationCap size={30} color="#fff" />
           </div>
           <div className="text-2xl font-bold text-on-surface tracking-tight">ExamIntegrity</div>
           <div className="text-sm text-on-surface mt-1">Sign in to continue</div>
@@ -95,7 +93,7 @@ const LoginPage: React.FC = () => {
                   edge="end"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </IconButton>
               </InputAdornment>
             ),

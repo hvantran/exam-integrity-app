@@ -7,8 +7,7 @@ import {
   TextField, Table, TableHead, TableRow, TableCell, TableBody,
   IconButton, InputAdornment,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import CloseIcon from '@mui/icons-material/Close';
+import { Search, X } from 'lucide-react';
 import { TeacherManQuestionReviewLayout } from '../components/templates';
 import { useDraft, useEditQuestion, useRemoveQuestion, useAddQuestion } from '../hooks/useDraft';
 import { useAuth } from '../context/AuthContext';
@@ -100,7 +99,7 @@ const ReplaceBankModal: React.FC<ReplaceBankModalProps> = ({ open, insertPositio
       <DialogTitle>
         <div className="flex items-center justify-between w-full">
           <span>Select questions from the bank</span>
-          <IconButton size="small" onClick={onClose}><CloseIcon fontSize="small" /></IconButton>
+          <IconButton size="small" onClick={onClose}><X size={18} /></IconButton>
         </div>
       </DialogTitle>
       <DialogContent dividers>
@@ -113,7 +112,7 @@ const ReplaceBankModal: React.FC<ReplaceBankModalProps> = ({ open, insertPositio
           className="mb-4"
           InputProps={{
             startAdornment: (
-              <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment>
+              <InputAdornment position="start"><Search size={18} /></InputAdornment>
             ),
           }}
         />
@@ -480,16 +479,18 @@ const QuestionReviewPage: React.FC = () => {
             {total > 0 && (
               <div className="flex flex-wrap gap-2 mb-4">
                 {questions.map((q, i) => (
-                  <button
+                  <Button
                     key={q.id}
                     type="button"
                     onClick={() => setCurrentIdx(i)}
+                    variant="outlined"
+                    size="small"
                     className={`px-3 py-1 rounded border text-xs font-medium transition-colors duration-150 ${currentIdx === i
                       ? 'bg-primary text-primary-on border-primary font-bold'
                       : 'bg-surface text-on-surface border-outline'} hover:opacity-85`}
                   >
                     {`Question ${q.questionNumber > 0 ? q.questionNumber : i + 1}`}
-                  </button>
+                  </Button>
                 ))}
               </div>
             )}

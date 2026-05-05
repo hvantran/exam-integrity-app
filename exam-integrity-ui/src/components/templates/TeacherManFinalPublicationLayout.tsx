@@ -2,8 +2,7 @@ import React, { useState, KeyboardEvent } from 'react';
 import { TextField } from '@mui/material';
 import { Skeleton } from '../molecules';
 import { Button } from '../atoms';
-import PublishIcon from '@mui/icons-material/Publish';
-import {Add as AddIcon, CheckCircleOutlined, FunctionsOutlined, ChromeReaderModeOutlined, ImageOutlined} from '@mui/icons-material';
+import { Send, CircleCheck, Sigma, BookOpen, Plus, Image } from 'lucide-react';
 import {
   AppTopBar,
   TeacherManDashboardSidebar,
@@ -52,7 +51,7 @@ const StatCard: React.FC<{ icon: React.ReactNode; value: string | number; label:
   iconColor,
 }) => (
   <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 flex flex-col items-center justify-center text-center gap-2">
-    <span className={`material-symbols-outlined text-[36px] ${iconColor ?? 'text-primary-700'}`}>{icon}</span>
+    <span className={iconColor ?? 'text-primary-700'}>{icon}</span>
     <span className="text-3xl font-semibold text-gray-900 leading-none">{value}</span>
     <span className="text-xs font-semibold uppercase tracking-wider text-gray-500 mt-0.5">{label}</span>
   </div>
@@ -139,19 +138,19 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
             : (
               <>
                 <StatCard
-                  icon=<CheckCircleOutlined/>
+                  icon={<CircleCheck size={36} />}
                   value={stats.approvedQuestions ?? 0}
                   label="Approved Questions"
                   iconColor="text-secondary"
                 />
                 <StatCard
-                  icon=<FunctionsOutlined/>
+                  icon={<Sigma size={36} />}
                   value={stats.totalPoints ?? 0}
                   label="Total Points"
                   iconColor="text-primary"
                 />
                 <StatCard
-                  icon=<ChromeReaderModeOutlined/>
+                  icon={<BookOpen size={36} />}
                   value={stats.essayRubricsStatus ?? 'Ready'}
                   label="Essay Rubrics"
                   iconColor="text-secondary"
@@ -208,7 +207,7 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
                     {tags.map(tag => (
                       <span key={tag} className="inline-flex items-center gap-1 text-xs font-medium bg-primary-100 text-primary rounded px-2 h-6">
                         {tag}
-                        <button type="button" onClick={() => removeTag(tag)} className="text-primary hover:text-primary-deep leading-none">&times;</button>
+                        <Button type="button" variant="ghost" size="sm" onClick={() => removeTag(tag)} className="!min-w-0 !h-5 !px-1 !py-0 text-primary hover:text-primary-deep leading-none">&times;</Button>
                       </span>
                     ))}
                     <input
@@ -220,14 +219,16 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
                       placeholder={tags.length === 0 ? 'Enter tag then press Enter…' : 'Add tag…'}
                     />
                     {tagInput.trim() && (
-                      <button
+                      <Button
                         type="button"
                         onClick={() => addTag(tagInput)}
+                        variant="outlined"
+                        size="sm"
                         className="inline-flex items-center gap-1 text-xs text-on-surface bg-surface-high border border-dashed border-outlineVariant rounded px-2 h-6"
                       >
-                        <AddIcon sx={{ fontSize: 14 }} />
+                        <Plus size={14} />
                         {tagInput.trim()}
-                      </button>
+                      </Button>
                     )}
                   </div>
                 </div>
@@ -298,7 +299,7 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
                         <td className="px-4 py-3">
                           {hasImage ? (
                             <div className="flex items-center gap-1 text-green-700">
-                              <ImageOutlined sx={{ fontSize: 16 }} />
+                              <Image size={16} />
                               <span className="text-xs font-medium">Uploaded</span>
                             </div>
                           ) : (
@@ -333,7 +334,7 @@ const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = 
           <Button
             variant="primary"
             onClick={onPublish}
-            startIcon={<PublishIcon sx={{ marginRight: 1, fontSize: 18 }} />}
+            icon={<Send size={18} />}
           >
             Publish Exam
           </Button>

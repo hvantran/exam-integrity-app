@@ -3,10 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Typography, Grid, Paper } from '@mui/material';
 import TeacherManDashboardLayout from './TeacherManDashboardLayout';
 import { StatCard } from '../molecules';
-import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import FlagIcon from '@mui/icons-material/Flag';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import { Users, Clock, Flag, CircleCheck } from 'lucide-react';
 
 const meta: Meta<typeof TeacherManDashboardLayout> = {
   title: 'Templates/TeacherManDashboardLayout',
@@ -25,16 +22,16 @@ const OverviewContent = () => (
     </Typography>
     <Grid container spacing={3} sx={{ mb: 4 }}>
       <Grid item xs={12} sm={6} md={3}>
-        <StatCard icon={<PeopleAltIcon />} value="1,248" label="Học sinh đang thi" variant="default" />
+        <StatCard icon={<Users size={18} />} value="1,248" label="Học sinh đang thi" variant="default" />
       </Grid>
       <Grid item xs={12} sm={6} md={3}>
-        <StatCard icon={<AccessTimeIcon />} value="42:17" label="Thời gian còn lại" variant="warning" />
+        <StatCard icon={<Clock size={18} />} value="42:17" label="Thời gian còn lại" variant="warning" />
       </Grid>
       <Grid item xs={12} sm={6} md={3}>
-        <StatCard icon={<FlagIcon />} value="7" label="Cờ cần xét duyệt" variant="warning" />
+        <StatCard icon={<Flag size={18} />} value="7" label="Cờ cần xét duyệt" variant="warning" />
       </Grid>
       <Grid item xs={12} sm={6} md={3}>
-        <StatCard icon={<CheckCircleOutlineIcon />} value="312" label="Đã hoàn thành" variant="success" />
+        <StatCard icon={<CircleCheck size={18} />} value="312" label="Đã hoàn thành" variant="success" />
       </Grid>
     </Grid>
     <Paper sx={{ p: 3, borderRadius: 2, border: '1px solid #e4e7eb' }}>

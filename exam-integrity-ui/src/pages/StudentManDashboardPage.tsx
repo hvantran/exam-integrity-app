@@ -1,6 +1,7 @@
 /** FE-16: Student landing page — browse and start exams */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '../components/atoms';
 import { Skeleton } from '../components/molecules';
 import { StudentManLandingLayout } from '../components/templates';
 import { useExamList, useTagList } from '../hooks/useExams';
@@ -73,13 +74,14 @@ const LandingPage: React.FC = () => {
                   {exam.tags?.map(t => <span key={t} className="text-primary text-xs px-2 py-0.5 rounded-full font-medium">{t}</span>)}
                 </div>
               </div>
-              <button
+              <Button
                 className="mt-2 w-full bg-primary hover:bg-primary-deep text-primary-on font-semibold py-2 rounded"
                 onClick={() => createSession.mutate({ examId: exam.id, studentId })}
                 disabled={createSession.isPending}
+                variant="primary"
               >
                 Start Exam
-              </button>
+              </Button>
             </div>
           ))}
         </div>

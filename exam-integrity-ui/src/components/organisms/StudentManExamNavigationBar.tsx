@@ -1,4 +1,5 @@
 import React from 'react';
+import { ArrowLeft, ArrowRight, ClipboardEdit } from 'lucide-react';
 import Button from '../atoms/Button';
 
 export interface ExamNavigationBarProps {
@@ -49,7 +50,7 @@ const StudentManExamNavigationBar: React.FC<ExamNavigationBarProps> = ({
       <div className="mt-3 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <Button
           variant={toneToVariant.accent}
-          startIcon={<span aria-hidden="true">⬅️</span>}
+          icon={<ArrowLeft size={18} className="text-white/90" />}
           onClick={onPrevious}
           disabled={!canGoPrev}
           className="min-w-[122px]"
@@ -61,7 +62,7 @@ const StudentManExamNavigationBar: React.FC<ExamNavigationBarProps> = ({
           {hasFlaggedReviewAction && onReviewFlagged && (
             <Button
               variant={toneToVariant.warning}
-              startIcon={<span aria-hidden="true">📝</span>}
+              icon={<ClipboardEdit size={18} className="text-warning-700" />}
               onClick={onReviewFlagged}
             >
               {`Review Flagged (${flaggedCount})`}
@@ -69,7 +70,8 @@ const StudentManExamNavigationBar: React.FC<ExamNavigationBarProps> = ({
           )}
           <Button
             variant={toneToVariant.accent}
-            endIcon={<span aria-hidden="true">➡️</span>}
+            icon={<ArrowRight size={18} className="text-white/90" />}
+            iconPlacement="right"
             onClick={onNext}
             disabled={!canGoNext}
             className="min-w-[122px]"

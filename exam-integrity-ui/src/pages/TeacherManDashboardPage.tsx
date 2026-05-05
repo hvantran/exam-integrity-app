@@ -3,12 +3,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TeacherManDashboardLayout } from '../components/templates';
 import { Skeleton } from '../components/molecules';
-import { Chip } from '../components/atoms';
+import { Button, Chip } from '../components/atoms';
 import { useExamList, useCreateExamFromBank, useDeleteExam } from '../hooks/useExams';
 import { useAuth } from '../context/AuthContext';
 import type { DashboardSection } from '../components/organisms';
 import type { CreateExamFromBankCommand } from '../types/exam.types';
 import { colors } from '../design-system/tokens';
+import { Clock, Minus, Trash2 } from 'lucide-react';
 const SECTION_ROUTES: Record<DashboardSection, string> = {
     dashboard: '/teacher/dashboard',
     ingestion: '/teacher/ingestion',
@@ -69,7 +70,7 @@ const CreateExamDialog: React.FC<CreateExamDialogProps> = ({ open, onClose, onSu
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-on-surface bg-opacity-30">
             <div className="bg-surface rounded-xl shadow-lg w-full max-w-lg p-6 relative">
-                <button className="absolute top-3 right-3 text-on-surface hover:text-primary" onClick={handleClose}>&times;</button>
+                <Button variant="ghost" size="sm" className="!absolute !top-3 !right-3 !min-w-0 !p-1 !rounded-full" onClick={handleClose}>&times;</Button>
                 <h2 className="text-lg font-bold mb-4">Create Exam from Question Bank</h2>
                 {error && <div className="mb-2 text-error bg-errorContainer rounded px-2 py-1 text-sm">{error}</div>}
                 <form className="space-y-4" onSubmit={e => { e.preventDefault(); handleSubmit(); }}>
@@ -163,10 +164,10 @@ const CreateExamDialog: React.FC<CreateExamDialogProps> = ({ open, onClose, onSu
                         />
                     </div>
                     <div className="flex justify-end gap-2 pt-2">
-                        <button type="button" className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700" onClick={handleClose} disabled={isLoading}>Cancel</button>
-                        <button type="submit" className="px-4 py-2 rounded bg-primary text-white font-semibold hover:bg-primary-800 disabled:opacity-60" disabled={isLoading || !title.trim() || (mcqCount + essayShortCount + essayLongCount === 0)}>
+                        <Button type="button" variant="neutral" onClick={handleClose} disabled={isLoading}>Cancel</Button>
+                        <Button type="submit" variant="primary" disabled={isLoading || !title.trim() || (mcqCount + essayShortCount + essayLongCount === 0)}>
                             {isLoading ? 'Creating…' : 'Create Exam'}
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </div>
@@ -191,11 +192,11 @@ const ExamCard: React.FC<ExamCardProps> = ({ title, durationSeconds, questionCou
         <div className="font-semibold text-base text-gray-900 mb-2">{title}</div>
         <div className="flex gap-4 mb-2 text-xs text-gray-500">
             <span className="inline-flex items-center gap-1">
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
+                <Clock size={16} className="text-gray-400" />
                 {Math.round(durationSeconds / 60)} min
             </span>
             <span className="inline-flex items-center gap-1">
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M8 12h8" /></svg>
+                <Minus size={16} className="text-gray-400" />
                 {questionCount} questions
             </span>
             <span>{totalPoints} pts</span>
@@ -208,14 +209,9 @@ const ExamCard: React.FC<ExamCardProps> = ({ title, durationSeconds, questionCou
             </div>
         )}
         <div className="flex justify-end mt-3">
-            <button
-                className="flex items-center gap-1 text-xs text-error-700 border border-red-700 rounded px-3 py-1 hover:bg-red-50 transition"
-                onClick={onDelete}
-                type="button"
-            >
-                <svg className="w-4 h-4 text-error-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6" /></svg>
+            <Button variant="outlined" size="sm" className="text-xs" onClick={onDelete} type="button" icon={<Trash2 size={16} className="text-error-700" />}>
                 Delete
-            </button>
+            </Button>
         </div>
     </div>
 );
@@ -267,13 +263,10 @@ const TeacherManDashboardPage: React.FC = () => {
                     <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
                     <div className="text-sm text-gray-500 mt-1">Published exams available to students</div>
                 </div>
-                <button
-                    className="inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg px-4 py-2 transition"
-                    onClick={() => setDialogOpen(true)}
-                >
+                <Button variant="primary" onClick={() => setDialogOpen(true)}>
                     <span className="text-lg font-bold">+</span>
                     Create Exam from Bank
-                </button>
+                </Button>
             </div>
 
             {/* Content */}
@@ -321,7 +314,7 @@ const TeacherManDashboardPage: React.FC = () => {
             {deleteTarget && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
                     <div className="bg-white rounded-xl shadow-lg w-full max-w-xs p-6 relative">
-                        <button className="absolute top-3 right-3 text-gray-400 hover:text-gray-600" onClick={() => { if (!deleteExam.isPending) setDeleteTarget(null); }}>&times;</button>
+                        <Button variant="ghost" size="sm" className="!absolute !top-3 !right-3 !min-w-0 !p-1 !rounded-full" onClick={() => { if (!deleteExam.isPending) setDeleteTarget(null); }}>&times;</Button>
                         <h2 className="text-lg font-bold mb-3">Delete Exam</h2>
                         {deleteError && <div className="mb-2 text-red-600 bg-red-50 rounded px-2 py-1 text-sm">{deleteError}</div>}
                         <div className="mb-4 text-gray-700">
@@ -329,10 +322,10 @@ const TeacherManDashboardPage: React.FC = () => {
                             <span className="text-gray-500 text-xs">Questions in the question bank will not be affected.</span>
                         </div>
                         <div className="flex justify-end gap-2 mt-4">
-                            <button className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700" onClick={() => setDeleteTarget(null)} disabled={deleteExam.isPending}>Cancel</button>
-                            <button className="px-4 py-2 rounded bg-red-700 text-white font-semibold hover:bg-red-800 disabled:opacity-60" onClick={handleDeleteConfirm} disabled={deleteExam.isPending}>
+                            <Button variant="neutral" onClick={() => setDeleteTarget(null)} disabled={deleteExam.isPending}>Cancel</Button>
+                            <Button variant="danger" onClick={handleDeleteConfirm} disabled={deleteExam.isPending}>
                                 {deleteExam.isPending ? 'Deleting…' : 'Delete'}
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>

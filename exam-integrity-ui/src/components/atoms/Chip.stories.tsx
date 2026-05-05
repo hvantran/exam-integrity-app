@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Meta, StoryObj } from '@storybook/react';
 import Chip from './Chip';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import {CircleCheckIcon} from 'lucide-react';
 
 const meta: Meta<typeof Chip> = {
   title: 'Atoms/Chip',
@@ -122,7 +122,7 @@ export const Medium: Story = {
 export const WithIcon: Story = {
   args: {
     label: 'Verified',
-    icon: <CheckCircleIcon />,
+    icon: <CircleCheckIcon />,
     color: 'success',
   },
 };
@@ -205,7 +205,7 @@ export const RemovableTags: Story = {
 export const IconWithDelete: Story = {
   args: {
     label: 'Verified Tag',
-    icon: <CheckCircleIcon />,
+    icon: <CircleCheckIcon />,
     onDelete: () => alert('Removed!'),
     color: 'success',
   },

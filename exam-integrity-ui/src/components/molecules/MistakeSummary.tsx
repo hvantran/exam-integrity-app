@@ -1,5 +1,5 @@
 import React from 'react';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import { AlertTriangle } from 'lucide-react';
 import { colors, borderRadius } from '../../design-system/tokens';
 
 interface Props {
@@ -17,7 +17,7 @@ const MistakeSummary: React.FC<Props> = ({ missedNumbers }) => {
         border: `1px solid ${colors.tertiary.main}50`,
       }}
     >
-      <WarningAmberIcon style={{ color: colors.tertiary.main, fontSize: 20, flexShrink: 0, marginTop: '2px' }} />
+      <AlertTriangle size={20} style={{ color: colors.tertiary.main, flexShrink: 0, marginTop: '2px' }} />
       <div>
         <div style={{ fontWeight: 600, fontSize: '13px', color: colors.tertiary.main, marginBottom: '2px' }}>
           Questions to Review

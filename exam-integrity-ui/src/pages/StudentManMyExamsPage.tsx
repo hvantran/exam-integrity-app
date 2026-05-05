@@ -1,6 +1,7 @@
 import React from 'react';
 import { Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '../components/atoms';
 import { ReviewDashboard } from '../components/organisms';
 import type { PortalSection } from '../components/organisms';
 import { StudentManLandingLayout } from '../components/templates';
@@ -58,10 +59,12 @@ const StudentManMyExamsPage: React.FC = () => {
             {sessions.map((session) => {
               const isSelected = session.sessionId === selectedSummary?.sessionId;
               return (
-                <button
+                <Button
                   key={session.sessionId}
                   type="button"
                   onClick={() => setSelectedSessionId(session.sessionId)}
+                  variant="ghost"
+                  size="md"
                   className={`rounded-2xl border p-5 text-left shadow-sm transition ${isSelected ? 'border-blue-600 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-300'}`}
                 >
                   <div className="flex items-start justify-between gap-3 mb-3">
@@ -82,7 +85,7 @@ const StudentManMyExamsPage: React.FC = () => {
                     </div>
                     <span className="text-sm font-semibold text-blue-700">View details</span>
                   </div>
-                </button>
+                </Button>
               );
             })}
           </div>

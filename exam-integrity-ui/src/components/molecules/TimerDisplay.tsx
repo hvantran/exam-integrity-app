@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import ScheduleIcon from '@mui/icons-material/Schedule';
+import { Clock } from 'lucide-react';
 import { colors } from '../../design-system/tokens';
 
 export interface TimerDisplayProps {
@@ -46,7 +46,7 @@ const TimerDisplay: React.FC<TimerDisplayProps> = ({ remainingSeconds, showIcon 
 
   return (
     <div className="inline-flex items-center gap-1.5 transition-colors duration-500" style={{ color }}>
-      {showIcon && <ScheduleIcon style={{ fontSize: 18, color }} />}
+      {showIcon && <Clock size={18} style={{ color }} />}
       <span
         style={{
           fontFamily: '"Space Grotesk", monospace',

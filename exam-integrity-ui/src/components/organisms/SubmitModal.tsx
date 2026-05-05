@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '../atoms';
 
 
 interface Props {
@@ -57,18 +58,20 @@ const SubmitModal: React.FC<Props> = ({ open, answeredCount, totalCount, onBack,
         )}
 
         <div className="flex justify-end gap-3 mt-6">
-          <button
+          <Button
             onClick={onBack}
+            variant="neutral"
             className="px-4 py-2 rounded bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition-colors"
           >
             Back
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={onFinalSubmit}
+            variant="primary"
             className="px-4 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors"
           >
             Submit
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import Button from './Button';
+import { ArrowRight } from 'lucide-react';
 
 const meta: Meta<typeof Button> = {
   title: 'Atoms/Button',
@@ -14,6 +15,14 @@ const meta: Meta<typeof Button> = {
     size: {
       control: 'select',
       options: ['sm', 'md', 'lg'],
+    },
+    iconPlacement: {
+      control: 'select',
+      options: ['left', 'right'],
+    },
+    textJustify: {
+      control: 'select',
+      options: ['left', 'center', 'right'],
     },
   },
 };
@@ -107,5 +116,22 @@ export const FullWidth: Story = {
     variant: 'primary',
     fullWidth: true,
     children: 'Tạo bài thi mới',
+  },
+};
+
+export const WithLeftIcon: Story = {
+  args: {
+    variant: 'primary',
+    icon: <ArrowRight size={16} />,
+    children: 'Tiếp tục',
+  },
+};
+
+export const WithRightIcon: Story = {
+  args: {
+    variant: 'secondary',
+    icon: <ArrowRight size={16} />,
+    iconPlacement: 'right',
+    children: 'Xem chi tiết',
   },
 };

@@ -1,19 +1,15 @@
 import React from 'react';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import AnalyticsIcon from '@mui/icons-material/Analytics';
-import SupportAgentIcon from '@mui/icons-material/SupportAgent';
-import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
-import { APP_BAR_HEIGHT } from './AppTopBar';
+import { LayoutDashboard, ClipboardList, BarChart2, Headphones, LogOut } from 'lucide-react';
+import { Button } from '../atoms';
 
 export const STUDENT_SIDEBAR_WIDTH = 256;
 
 export type PortalSection = 'dashboard' | 'my-exams' | 'results';
 
 const NAV_ITEMS: { id: PortalSection; label: string; Icon: React.ElementType }[] = [
-  { id: 'dashboard', label: 'Dashboard', Icon: DashboardIcon },
-  { id: 'my-exams', label: 'My Exams', Icon: AssignmentIcon },
-  { id: 'results', label: 'Results', Icon: AnalyticsIcon },
+  { id: 'dashboard', label: 'Dashboard', Icon: LayoutDashboard },
+  { id: 'my-exams', label: 'My Exams', Icon: ClipboardList },
+  { id: 'results', label: 'Results', Icon: BarChart2 },
 ];
 
 export interface PortalSidebarProps {
@@ -22,7 +18,7 @@ export interface PortalSidebarProps {
   studentRole?: string;
   onNavigate?: (section: PortalSection) => void;
   onHelp?: () => void;
-  onLogOut?: () => void;
+  onLogout?: () => void;
 }
 
 /**
@@ -38,7 +34,7 @@ const StudentManPortalSidebar: React.FC<PortalSidebarProps> = ({
   studentRole = 'Learning Center',
   onNavigate,
   onHelp,
-  onLogOut: onLogout,
+  onLogout,
 }) => (
   <aside
     className="fixed left-0 top-16 w-[256px] h-[calc(100vh-64px)] z-80 flex flex-col gap-2 pt-8 pb-8 border-r border-gray-200 bg-white overflow-y-auto"
@@ -70,7 +66,7 @@ const StudentManPortalSidebar: React.FC<PortalSidebarProps> = ({
                 : 'border-l-4 border-transparent text-gray-500 hover:bg-gray-50 mx-2'
             }`}
           >
-            <Icon style={{ fontSize: 22 }} />
+            <Icon size={22} className={isActive ? 'text-blue-600' : 'text-slate-400'} />
             {label}
           </a>
         );
@@ -78,23 +74,29 @@ const StudentManPortalSidebar: React.FC<PortalSidebarProps> = ({
     </nav>
 
     {/* Help button */}
-    <div className="px-4 mt-auto pb-2">
-      <button
+    <div className="mt-auto pb-2">
+      <Button
         type="button"
         onClick={onHelp}
-        className="w-full flex items-center justify-center gap-2 border border-gray-300 text-gray-500 text-sm font-medium rounded-lg py-2 hover:bg-gray-50 transition"
+        variant="ghost"
+        textJustify="left"
+        size="md"
+        icon={<Headphones size={18} className="text-slate-400" />}
+        className="w-full flex items-center gap-2 border border-gray-300 text-gray-500 text-sm font-medium rounded-lg py-2 hover:bg-gray-50 transition"
       >
-        <SupportAgentIcon style={{ fontSize: 18 }} />
         Online Help
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
         onClick={onLogout}
-        className="w-full flex items-center justify-center gap-2 border border-gray-300 text-gray-500 text-sm font-medium rounded-lg py-2 hover:bg-gray-50 transition"
+        variant="ghost"
+        textJustify="left"
+        size="md"
+        icon={<LogOut size={18} className="text-slate-400" />}
+        className="w-full flex items-center gap-2 border border-gray-300 text-gray-500 text-sm font-medium rounded-lg py-2 hover:bg-gray-50 transition"
       >
-        <LogoutRoundedIcon style={{ fontSize: 18 }} />
         Logout
-      </button>
+      </Button>
     </div>
   </aside>
 );

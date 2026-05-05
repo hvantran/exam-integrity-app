@@ -1,5 +1,6 @@
 import React from 'react';
 import { spacing } from '../../design-system/tokens';
+import { Button } from '../atoms';
 import { AppTopBar, StudentManPortalSidebar, APP_BAR_HEIGHT, STUDENT_SIDEBAR_WIDTH } from '../organisms';
 import type { PortalSection } from '../organisms';
 
@@ -56,6 +57,7 @@ const StudentManLandingLayout: React.FC<LandingLayoutProps> = ({
       studentRole={studentRole}
       onNavigate={onNavigate}
       onHelp={onHelp}
+      onLogout={onLogout}
     />
     <main
       className="min-h-screen overflow-y-auto"
@@ -78,10 +80,12 @@ const StudentManLandingLayout: React.FC<LandingLayoutProps> = ({
         {filters.length > 0 && (
           <div className="mb-8 flex flex-wrap gap-2">
             {filters.map((f) => (
-              <button
+              <Button
                 key={f.value}
                 type="button"
                 onClick={() => onFilterChange?.(f.value)}
+                variant="ghost"
+                size="sm"
                 className={`inline-flex items-center rounded-full px-3 h-7 text-sm transition-colors ${
                   activeFilter === f.value
                     ? 'bg-primary-100 text-primary-deep font-semibold'
@@ -89,7 +93,7 @@ const StudentManLandingLayout: React.FC<LandingLayoutProps> = ({
                 }`}
               >
                 {f.label}
-              </button>
+              </Button>
             ))}
           </div>
         )}

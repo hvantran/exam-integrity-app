@@ -1,5 +1,7 @@
 
 import React from 'react';
+import { Flag } from 'lucide-react';
+import { Button } from '../atoms';
 
 export interface StudentManFlaggedSidebarProps {
   flaggedMap: Record<number, boolean>;
@@ -31,14 +33,16 @@ const StudentManFlaggedSidebar: React.FC<StudentManFlaggedSidebarProps> = ({ fla
       <ul className="space-y-1">
         {flaggedNumbers.map(num => (
           <li key={num}>
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="md"
               className={`w-full flex items-center px-3 py-2 rounded-lg transition text-left ${num === currentQuestion ? 'bg-blue-50 border border-blue-500 text-blue-700 font-semibold' : 'bg-white border border-gray-200 text-gray-700'} hover:bg-blue-100`}
               onClick={() => onJumpTo(num)}
             >
-              <span className="mr-2 text-lg">🚩</span>
+              <Flag size={16} className={`mr-2 ${num === currentQuestion ? 'text-blue-600' : 'text-amber-600'}`} />
               <span className="text-sm">Question {num}</span>
-            </button>
+            </Button>
           </li>
         ))}
       </ul>

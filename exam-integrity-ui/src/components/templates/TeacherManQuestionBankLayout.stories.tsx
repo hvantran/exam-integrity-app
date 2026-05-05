@@ -2,11 +2,7 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Button, Typography } from '@mui/material';
 import { Chip } from '../atoms';
-import SortIcon from '@mui/icons-material/Sort';
-import SearchIcon from '@mui/icons-material/Search';
-import StarIcon from '@mui/icons-material/Star';
-import HistoryIcon from '@mui/icons-material/History';
-import AddIcon from '@mui/icons-material/Add';
+import { ArrowUpDown, Search, Star, History, Plus } from 'lucide-react';
 import TeacherManQuestionBankLayout from './TeacherManQuestionBankLayout';
 import { colors, spacing, borderRadius } from '../../design-system/tokens';
 
@@ -22,7 +18,7 @@ type Story = StoryObj<typeof TeacherManQuestionBankLayout>;
 const FilterBar = () => (
   <>
     <Box sx={{ position: 'relative' }}>
-      <SearchIcon sx={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: colors.on.surfaceVariant, fontSize: 20 }} />
+      <Search size={20} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: colors.on.surfaceVariant }} />
       <Box
         component="input"
         placeholder="Search content, keywords, or subjects..."
@@ -89,7 +85,7 @@ const FilterBar = () => (
             color: colors.on.surfaceVariant,
           }}
         >
-          <AddIcon sx={{ fontSize: 16 }} />
+          <Plus size={16} />
         </Box>
       </Box>
     </Box>
@@ -103,7 +99,7 @@ const ResultsBar = () => (
     </Typography>
     <Button
       variant="text"
-      startIcon={<SortIcon />}
+      startIcon={<ArrowUpDown size={16} />}
       sx={{ fontSize: '14px', fontWeight: 500, textTransform: 'none', color: colors.primary.main }}
     >
       Sort by: Recent
@@ -153,10 +149,10 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ type, points, uses, text, t
           style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.05em', borderColor: colors.outlineVariant }}
         />
         <Typography sx={{ fontSize: '14px', fontWeight: 500, color: colors.on.surfaceVariant, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <StarIcon sx={{ fontSize: 16 }} /> {points} pts
+          <Star size={16} /> {points} pts
         </Typography>
         <Typography sx={{ fontSize: '14px', fontWeight: 500, color: colors.on.surfaceVariant, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <HistoryIcon sx={{ fontSize: 16 }} /> {uses} uses
+          <History size={16} /> {uses} uses
         </Typography>
       </Box>
       <Button

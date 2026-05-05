@@ -2,21 +2,21 @@ import React from 'react';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'outlined' | 'neutral' | 'accent' | 'warning';
 export type ButtonSize = 'sm' | 'md' | 'lg';
+export type ButtonIconPlacement = 'left' | 'right';
+export type ButtonTextJustify = 'left' | 'center' | 'right';
 
-export interface ButtonProps {
+export interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'size'> {
   /** Visual style variant */
   variant?: ButtonVariant;
   size?: ButtonSize;
-  disabled?: boolean;
   loading?: boolean;
   /** Full-width block button */
   fullWidth?: boolean;
-  startIcon?: React.ReactNode;
-  endIcon?: React.ReactNode;
-  onClick?: () => void;
-  type?: 'button' | 'submit' | 'reset';
+  icon?: React.ReactNode;
+  iconPlacement?: ButtonIconPlacement;
+  /** Controls inline-flex content justification; defaults to 'center' */
+  textJustify?: ButtonTextJustify;
   children: React.ReactNode;
-  className?: string;
 }
 
 const sizeClassMap: Record<ButtonSize, string> = {
@@ -48,41 +48,51 @@ const variantClassMap: Record<ButtonVariant, string> = {
  * - warning  → soft caution action for review flows
  * - danger   → filled Warning Red (submit / destructive actions)
  */
+const textJustifyClassMap: Record<ButtonTextJustify, string> = {
+  left: 'justify-start',
+  center: 'justify-center',
+  right: 'justify-end',
+};
+
 const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   size = 'md',
   disabled = false,
   loading = false,
   fullWidth = false,
-  startIcon,
-  endIcon,
+  icon,
+  iconPlacement = 'left',
+  textJustify = 'center',
   onClick,
   type = 'button',
   children,
   className = '',
+  ...rest
 }) => {
-  const baseClass = 'inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition duration-150 text-center disabled:opacity-45 disabled:cursor-not-allowed';
+  const baseClass = `inline-flex items-center ${textJustifyClassMap[textJustify]} gap-2 rounded-md font-semibold transition duration-150 text-center disabled:opacity-45 disabled:cursor-not-allowed`;
   const widthClass = fullWidth ? 'w-full' : '';
+  const resolvedIcon = loading ? (
+    <span
+      className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+      aria-hidden="true"
+    />
+  ) : icon;
 
-  return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled || loading}
-      className={`${baseClass} ${sizeClassMap[size]} ${variantClassMap[variant]} ${widthClass} ${className}`.trim()}
-    >
-      {loading ? (
-        <span
-          className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
-          aria-hidden="true"
-        />
-      ) : (
-        startIcon
-      )}
+  const content = (
+    <>
+      {iconPlacement === 'left' && resolvedIcon}
       <span>{children}</span>
-      {endIcon}
-    </button>
+      {iconPlacement === 'right' && resolvedIcon}
+    </>
   );
+
+  return React.createElement('button', {
+    type,
+    onClick,
+    disabled: disabled || loading,
+    className: `${baseClass} ${sizeClassMap[size]} ${variantClassMap[variant]} ${widthClass} ${className}`.trim(),
+    ...rest,
+  }, content);
 };
 
 export default Button;

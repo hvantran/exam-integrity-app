@@ -1,9 +1,7 @@
 import React from 'react';
 import { Button } from '../atoms';
 import { Skeleton } from '../molecules';
-import FindReplaceIcon from '@mui/icons-material/FindReplace';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import { Replace, Trash2, CircleCheck } from 'lucide-react';
 import {
   AppTopBar,
   TeacherManDashboardSidebar,
@@ -103,7 +101,7 @@ const TeacherManQuestionReviewLayout: React.FC<QuestionReviewLayoutProps> = ({
             <Button
               variant="outlined"
               size="sm"
-              startIcon={<FindReplaceIcon />}
+              icon={<Replace size={18} />}
               onClick={onReplace}
             >
               Replace from Bank
@@ -111,7 +109,7 @@ const TeacherManQuestionReviewLayout: React.FC<QuestionReviewLayoutProps> = ({
             <Button
               variant="secondary"
               size="sm"
-              startIcon={<CheckCircleOutlineIcon />}
+              icon={<CircleCheck size={18} />}
               onClick={onApprove}
             >
               Approve
@@ -119,7 +117,7 @@ const TeacherManQuestionReviewLayout: React.FC<QuestionReviewLayoutProps> = ({
             <Button
               variant="danger"
               size="sm"
-              startIcon={<DeleteOutlineIcon />}
+              icon={<Trash2 size={18} />}
               onClick={onDelete}
             >
               Delete Question

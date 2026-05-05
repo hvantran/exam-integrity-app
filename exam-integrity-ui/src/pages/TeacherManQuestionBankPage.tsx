@@ -1,14 +1,8 @@
 /** FE-19: Teacher question bank page — Stitch "Question Bank Explorer" design */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import SearchIcon from '@mui/icons-material/Search';
 import { Chip, Button, Modal, Select } from '../components/atoms';
-import EditIcon from '@mui/icons-material/Edit';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import CloseIcon from '@mui/icons-material/Close';
-import StarOutlineIcon from '@mui/icons-material/StarOutline';
-import HistoryIcon from '@mui/icons-material/History';
-import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
+import { Search, Pencil, PlusCircle, X, Star, History, Trash2 } from 'lucide-react';
 import { TeacherManQuestionBankLayout } from '../components/templates';
 import { ScrollArea, Skeleton } from '../components/molecules';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -241,11 +235,11 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, index, onEdit }) 
             {question.type ?? 'MCQ'}
           </span>
           <div className="flex items-center gap-1 text-on-surfaceVariant">
-            <StarOutlineIcon sx={{ fontSize: '14px' }} />
+            <Star size={14} />
             <span className="text-xs">{question.points} pts</span>
           </div>
           <div className="flex items-center gap-1 text-on-surfaceVariant">
-            <HistoryIcon sx={{ fontSize: '14px' }} />
+            <History size={14} />
             <span className="text-xs">0 uses</span>
           </div>
           {tags.slice(0, 3).map(tag => (
@@ -258,19 +252,23 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, index, onEdit }) 
 
       {/* Actions (shown on hover) */}
       <div className="flex items-center gap-1 transition-opacity duration-150 opacity-0 group-hover:opacity-100">
-        <button
+        <Button
           title="Edit question"
           onClick={onEdit}
+          variant="ghost"
+          size="sm"
           className="rounded-full p-1 transition hover:bg-primary-50 text-primary"
         >
-          <EditIcon sx={{ fontSize: '18px' }} />
-        </button>
-        <button
+          <Pencil size={18} />
+        </Button>
+        <Button
+          variant="danger"
+          size="sm"
           className="flex items-center gap-1 text-xs px-2 py-1 rounded border transition hover:bg-red-50 text-error-600 border-error-600"
         >
-          <DeleteSweepIcon sx={{ fontSize: '16px' }} />
+          <Trash2 size={16} />
           Delete
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -432,8 +430,8 @@ const QuestionBankPage: React.FC = () => {
           <div className="flex gap-2 items-center overflow-x-auto">
             {/* Search */}
             <div className="relative flex-1 min-w-[500px]">
-              <SearchIcon
-                sx={{ fontSize: '18px' }}
+              <Search
+                size={18}
                 className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-on-surfaceVariant"
               />
               <input
@@ -466,9 +464,9 @@ const QuestionBankPage: React.FC = () => {
             {tagFilters.map(tag => (
               <span key={tag} className="inline-flex items-center gap-1 text-xs font-semibold bg-primary-100 text-primary-deep rounded-full px-2 h-6 shrink-0">
                 {tag}
-                <button type="button" onClick={() => removeTagFilter(tag)} className="leading-none hover:opacity-70">
-                  <CloseIcon sx={{ fontSize: '14px' }} />
-                </button>
+                <Button type="button" variant="ghost" size="sm" onClick={() => removeTagFilter(tag)} className="!min-w-0 !h-5 !px-1 !py-0 leading-none hover:opacity-70">
+                  <X size={14} />
+                </Button>
               </span>
             ))}
           </div>
@@ -483,7 +481,7 @@ const QuestionBankPage: React.FC = () => {
                 <Button
                   size="sm"
                   variant="primary"
-                  startIcon={<AddCircleOutlineIcon sx={{ fontSize: '16px' }} />}
+                    icon={<PlusCircle size={16} />}
                   onClick={() => { setAddOpen(true); setAddError(null); }}
                 >
                   Add Question
@@ -494,7 +492,7 @@ const QuestionBankPage: React.FC = () => {
                   <Button
                     size="sm"
                     variant="danger"
-                    startIcon={<DeleteSweepIcon sx={{ fontSize: '16px' }} />}
+                      icon={<Trash2 size={16} />}
                     onClick={() => setDeleteAllOpen(true)}
                   >
                     Delete All

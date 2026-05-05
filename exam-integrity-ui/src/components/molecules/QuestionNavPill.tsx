@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '../atoms';
 import { colors, borderRadius } from '../../design-system/tokens';
 
 export type QuestionState = 'unanswered' | 'answered' | 'flagged' | 'current';
@@ -46,9 +47,11 @@ const QuestionNavPill: React.FC<QuestionNavPillProps> = ({
   const style = stateStyle[state];
 
   return (
-    <button
+    <Button
       type="button"
       onClick={onClick}
+      variant="ghost"
+      size="md"
       className="inline-flex h-9 w-9 items-center justify-center transition-all duration-150 active:scale-95"
       style={{
         borderRadius: borderRadius.default,
@@ -61,7 +64,7 @@ const QuestionNavPill: React.FC<QuestionNavPillProps> = ({
       <span style={{ fontSize: '13px', fontWeight: state === 'current' ? 700 : 500, lineHeight: 1 }}>
         {questionNumber}
       </span>
-    </button>
+    </Button>
   );
 };
 

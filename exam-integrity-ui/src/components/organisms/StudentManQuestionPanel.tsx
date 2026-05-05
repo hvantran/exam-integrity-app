@@ -1,4 +1,5 @@
 import React from 'react';
+import { Flag } from 'lucide-react';
 import type { AnswerPart, QuestionPart, QuestionType } from '../../types/exam.types';
 import Button from '../atoms/Button';
 import { Skeleton } from '../molecules';
@@ -122,7 +123,7 @@ const StudentManQuestionPanel: React.FC<QuestionPanelProps> = ({
       {onFlag && (
         <Button
           variant={isFlagged ? 'warning' : 'neutral'}
-          startIcon={<span aria-hidden="true">🚩</span>}
+          icon={<Flag size={16} className={isFlagged ? 'text-warning-700' : 'text-slate-500'} />}
           onClick={onFlag}
           className="shrink-0"
         >

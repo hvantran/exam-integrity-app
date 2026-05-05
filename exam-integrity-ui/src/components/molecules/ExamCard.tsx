@@ -1,7 +1,5 @@
 import React from 'react';
-import ScheduleIcon from '@mui/icons-material/Schedule';
-import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
-import GradeIcon from '@mui/icons-material/Grade';
+import { Clock, ListOrdered, Star } from 'lucide-react';
 import { Button } from '../atoms';
 
 export interface ExamCardProps {
@@ -73,20 +71,20 @@ const ExamCard: React.FC<ExamCardProps> = ({
           className="mt-4 flex flex-wrap gap-4 pt-4 border-t border-surface-highest"
         >
           <div className="flex items-center gap-1 text-on-surfaceVariant">
-            <ScheduleIcon sx={{ fontSize: 18 }} />
+            <Clock size={18} />
             <span className="text-sm font-medium leading-5">
               {durationMinutes} min
             </span>
           </div>
           <div className="flex items-center gap-1 text-on-surfaceVariant">
-            <FormatListNumberedIcon sx={{ fontSize: 18 }} />
+            <ListOrdered size={18} />
             <span className="text-sm font-medium leading-5">
               {questionCount} questions
             </span>
           </div>
           {points !== undefined && (
             <div className="flex items-center gap-1 text-on-surfaceVariant">
-              <GradeIcon sx={{ fontSize: 18 }} />
+              <Star size={18} />
               <span className="text-sm font-medium leading-5">
                 {points} pts
               </span>

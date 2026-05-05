@@ -1,4 +1,6 @@
 import React from 'react';
+import { Home, Upload, ClipboardEdit, CheckSquare, BookOpen, BarChart2, Settings, LogOut } from 'lucide-react';
+import { Button } from '../atoms';
 
 import { APP_BAR_HEIGHT } from './AppTopBar';
 
@@ -17,12 +19,12 @@ export interface DashboardSidebarProps {
 }
 
 const navItems: { section: DashboardSection; icon: React.ReactNode; label: string }[] = [
-  { section: 'dashboard',      icon: <span className="text-lg">🏠</span>, label: 'Dashboard' },
-  { section: 'ingestion',      icon: <span className="text-lg">📤</span>, label: 'Upload Exam' },
-  { section: 'review',         icon: <span className="text-lg">📝</span>, label: 'Review' },
-  { section: 'scoring',        icon: <span className="text-lg">✅</span>, label: 'Scoring' },
-  { section: 'question-bank',  icon: <span className="text-lg">📚</span>, label: 'Question Bank' },
-  { section: 'reports',        icon: <span className="text-lg">📊</span>, label: 'Reports' },
+  { section: 'dashboard',      icon: <Home size={18} />, label: 'Dashboard' },
+  { section: 'ingestion',      icon: <Upload size={18} />, label: 'Upload Exam' },
+  { section: 'review',         icon: <ClipboardEdit size={18} />, label: 'Review' },
+  { section: 'scoring',        icon: <CheckSquare size={18} />, label: 'Scoring' },
+  { section: 'question-bank',  icon: <BookOpen size={18} />, label: 'Question Bank' },
+  { section: 'reports',        icon: <BarChart2 size={18} />, label: 'Reports' },
 ];
 
 
@@ -50,34 +52,43 @@ const TeacherManDashboardSidebar: React.FC<DashboardSidebarProps> = ({
     {/* Navigation */}
     <div className="flex-1 flex flex-col">
       {navItems.map(({ section, icon, label }) => (
-        <button
+        <Button
           key={section}
+          icon={icon}
+          textJustify='left'
           onClick={() => onNavigate?.(section)}
+          variant="ghost"
+          size="md"
           className={`flex items-center gap-3 px-4 py-3 mr-4 rounded-r-xl border-l-4 text-left w-full outline-none transition-colors ${activeSection === section ? 'border-l-blue-600 bg-white text-blue-600 font-semibold' : 'border-l-transparent text-gray-500 font-medium hover:bg-gray-100'}`}
         >
-          {icon}
           {label}
-        </button>
+        </Button>
       ))}
     </div>
 
     {/* Bottom section */}
     <div className="border-t border-gray-200 mx-4 mb-2" />
     <div className="flex flex-col">
-      <button
+      <Button
         onClick={onSettings}
+        variant="ghost"
+        icon={<Settings size={18} />}
+        textJustify='left'
+        size="md"
         className="flex items-center gap-3 px-4 py-3 mr-4 rounded-r-xl border-l-4 border-l-transparent text-gray-500 font-medium hover:bg-gray-100 text-left w-full outline-none transition-colors"
       >
-        <span className="text-lg">⚙️</span>
         Settings
-      </button>
-      <button
+      </Button>
+      <Button
         onClick={onLogout}
+        variant="ghost"
+        icon={<LogOut size={18} />}
+        textJustify='left'
+        size="md"
         className="flex items-center gap-3 px-4 py-3 mr-4 rounded-r-xl border-l-4 border-l-transparent text-gray-500 font-medium hover:bg-gray-100 text-left w-full outline-none transition-colors"
       >
-        <span className="text-lg">🚪</span>
         Logout
-      </button>
+      </Button>
     </div>
   </nav>
 );
