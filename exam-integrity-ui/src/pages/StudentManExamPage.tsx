@@ -4,7 +4,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Alert } from '@mui/material';
 import { StudentManExamLayout } from '../components/templates';
-import { StudentManExamHeader, StudentManQuestionPanel, StudentManExamNavigationBar, StudentManSubmitModal } from '../components/organisms';
+import {
+  StudentManExamHeader,
+  StudentManQuestionPanel,
+  StudentManExamNavigationBar,
+  StudentManSubmitModal,
+} from '../components/organisms';
 import { Skeleton } from '../components/molecules';
 import StudentManFlaggedSidebar from '../components/organisms/StudentManFlaggedSidebar';
 import type { QuestionOption } from '../components/organisms';
@@ -77,16 +82,17 @@ const ExamPage: React.FC = () => {
   }
   if (!session) return <Alert severity="error">Exam session not found.</Alert>;
 
-
   // Utility to strip leading option prefixes like "A.", "B/", etc.
   const stripOptionPrefix = (text: string): string =>
     text.replace(/^[A-Da-d][./、]\s*/u, '').trim();
 
   // Map string[] options from API to QuestionOption[] and strip prefix
-  const mappedOptions: QuestionOption[] | undefined = question?.options?.map((text: string, i: number) => ({
-    key: String.fromCharCode(65 + i), // A, B, C, D...
-    text: stripOptionPrefix(text),
-  }));
+  const mappedOptions: QuestionOption[] | undefined = question?.options?.map(
+    (text: string, i: number) => ({
+      key: String.fromCharCode(65 + i), // A, B, C, D...
+      text: stripOptionPrefix(text),
+    }),
+  );
 
   // Compute flagged question numbers
   const flaggedNumbers = Object.entries(flaggedMap)
@@ -96,7 +102,9 @@ const ExamPage: React.FC = () => {
 
   // If in review flagged mode, show only flagged questions and navigation
   const inReviewFlagged = reviewFlaggedMode && flaggedNumbers.length > 0;
-  const flaggedQuestionNumber = inReviewFlagged ? flaggedNumbers[flaggedReviewIndex] : currentQuestion;
+  const flaggedQuestionNumber = inReviewFlagged
+    ? flaggedNumbers[flaggedReviewIndex]
+    : currentQuestion;
 
   return (
     <StudentManExamLayout
@@ -112,7 +120,7 @@ const ExamPage: React.FC = () => {
           flaggedMap={flaggedMap}
           totalQuestions={totalQuestions}
           currentQuestion={flaggedQuestionNumber}
-          onJumpTo={q => {
+          onJumpTo={(q) => {
             if (inReviewFlagged) {
               const idx = flaggedNumbers.indexOf(q);
               if (idx !== -1) setFlaggedReviewIndex(idx);
@@ -124,11 +132,7 @@ const ExamPage: React.FC = () => {
       }
       footer={
         <StudentManExamNavigationBar
-          canGoPrev={
-            inReviewFlagged
-              ? flaggedReviewIndex > 0
-              : flaggedQuestionNumber > 1
-          }
+          canGoPrev={inReviewFlagged ? flaggedReviewIndex > 0 : flaggedQuestionNumber > 1}
           canGoNext={
             inReviewFlagged
               ? flaggedReviewIndex < flaggedNumbers.length - 1
@@ -142,25 +146,25 @@ const ExamPage: React.FC = () => {
           flaggedCount={flaggedNumbers.length}
           onPrevious={() => {
             if (inReviewFlagged) {
-              setFlaggedReviewIndex(i => Math.max(0, i - 1));
+              setFlaggedReviewIndex((i) => Math.max(0, i - 1));
             } else {
-              setCurrentQuestion(q => Math.max(1, q - 1));
+              setCurrentQuestion((q) => Math.max(1, q - 1));
             }
           }}
           onNext={() => {
             if (inReviewFlagged) {
-              setFlaggedReviewIndex(i => Math.min(flaggedNumbers.length - 1, i + 1));
+              setFlaggedReviewIndex((i) => Math.min(flaggedNumbers.length - 1, i + 1));
             } else {
-              setCurrentQuestion(q => Math.min(totalQuestions, q + 1));
+              setCurrentQuestion((q) => Math.min(totalQuestions, q + 1));
             }
           }}
           onSubmit={() => setShowSubmitModal(true)}
           onReviewFlagged={
             !inReviewFlagged && flaggedNumbers.length > 0
               ? () => {
-                setReviewFlaggedMode(true);
-                setFlaggedReviewIndex(0);
-              }
+                  setReviewFlaggedMode(true);
+                  setFlaggedReviewIndex(0);
+                }
               : undefined
           }
         />
@@ -168,7 +172,7 @@ const ExamPage: React.FC = () => {
       proTips={[
         'Tập trung vào từng câu hỏi một và giữ nhịp làm bài ổn định.',
         'Đánh dấu 🚩 câu chưa chắc chắn để quay lại sau, tránh mất thời gian dừng lâu.',
-        'Rà soát lại câu trả lời cuối mỗi nhóm câu để giảm lỗi bất cẩn.'
+        'Rà soát lại câu trả lời cuối mỗi nhóm câu để giảm lỗi bất cẩn.',
       ]}
     >
       {questionLoading ? (
@@ -195,7 +199,7 @@ const ExamPage: React.FC = () => {
           isFlagged={flaggedMap[flaggedQuestionNumber] ?? false}
           onFlag={() => {
             const next = !flaggedMap[flaggedQuestionNumber];
-            setFlaggedMap(m => ({ ...m, [flaggedQuestionNumber]: next }));
+            setFlaggedMap((m) => ({ ...m, [flaggedQuestionNumber]: next }));
             saveAnswer.mutate({
               questionId: question.id,
               payload: {
@@ -206,9 +210,9 @@ const ExamPage: React.FC = () => {
             });
           }}
           onAnswerChange={(answer: string) => {
-            setAnswerMap(m => ({ ...m, [flaggedQuestionNumber]: answer }));
-            setAnswerPartsMap(m => ({ ...m, [flaggedQuestionNumber]: [] }));
-            setAnsweredMap(m => ({ ...m, [flaggedQuestionNumber]: answer.trim().length > 0 }));
+            setAnswerMap((m) => ({ ...m, [flaggedQuestionNumber]: answer }));
+            setAnswerPartsMap((m) => ({ ...m, [flaggedQuestionNumber]: [] }));
+            setAnsweredMap((m) => ({ ...m, [flaggedQuestionNumber]: answer.trim().length > 0 }));
             saveAnswer.mutate({
               questionId: question.id,
               payload: {
@@ -220,9 +224,12 @@ const ExamPage: React.FC = () => {
           }}
           onAnswerPartsChange={(parts: AnswerPart[]) => {
             const serialized = serializeAnswerParts(parts);
-            setAnswerPartsMap(m => ({ ...m, [flaggedQuestionNumber]: parts }));
-            setAnswerMap(m => ({ ...m, [flaggedQuestionNumber]: serialized }));
-            setAnsweredMap(m => ({ ...m, [flaggedQuestionNumber]: hasAnswerPartsContent(parts) }));
+            setAnswerPartsMap((m) => ({ ...m, [flaggedQuestionNumber]: parts }));
+            setAnswerMap((m) => ({ ...m, [flaggedQuestionNumber]: serialized }));
+            setAnsweredMap((m) => ({
+              ...m,
+              [flaggedQuestionNumber]: hasAnswerPartsContent(parts),
+            }));
             saveAnswer.mutate({
               questionId: question.id,
               payload: {
@@ -241,7 +248,10 @@ const ExamPage: React.FC = () => {
         answeredCount={answeredCount}
         totalCount={totalQuestions}
         onBack={() => setShowSubmitModal(false)}
-        onFinalSubmit={() => { submitExam.mutate(); setShowSubmitModal(false); }}
+        onFinalSubmit={() => {
+          submitExam.mutate();
+          setShowSubmitModal(false);
+        }}
       />
     </StudentManExamLayout>
   );

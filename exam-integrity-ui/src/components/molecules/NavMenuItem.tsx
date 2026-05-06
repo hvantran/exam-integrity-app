@@ -37,18 +37,14 @@ const NavMenuItem: React.FC<NavMenuItemProps> = ({
     onClick={onClick}
     title={collapsed ? label : undefined}
   >
-    <span
-      className="flex items-center justify-center shrink-0"
-    >
-      {icon}
-    </span>
-      {!collapsed && (
-        <span
-          className={`text-sm leading-5 whitespace-nowrap ${active ? 'font-semibold' : 'font-normal'}`}
-        >
-          {label}
-        </span>
-      )}
+    <span className="flex items-center justify-center shrink-0">{icon}</span>
+    {!collapsed && (
+      <span
+        className={`text-sm leading-5 whitespace-nowrap ${active ? 'font-semibold' : 'font-normal'}`}
+      >
+        {label}
+      </span>
+    )}
   </Button>
 );
 

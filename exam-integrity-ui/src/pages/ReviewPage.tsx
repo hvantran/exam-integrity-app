@@ -9,9 +9,9 @@ import { useAuth } from '../context/AuthContext';
 import type { PortalSection } from '../components/organisms';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
-  dashboard:    '/',
-  'my-exams':  '/my-exams',
-  results:     '/my-exams',
+  dashboard: '/',
+  'my-exams': '/my-exams',
+  results: '/my-exams',
 };
 
 const ReviewPage: React.FC = () => {

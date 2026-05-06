@@ -26,21 +26,14 @@ const config: StorybookConfig = {
           loader: require.resolve('babel-loader'),
           options: {
             presets: [
-              [
-                require.resolve('babel-preset-react-app'),
-                { flow: false, typescript: true },
-              ],
+              [require.resolve('babel-preset-react-app'), { flow: false, typescript: true }],
             ],
           },
         },
       ],
     });
     if (config.resolve) {
-      config.resolve.extensions = [
-        ...(config.resolve.extensions ?? []),
-        '.ts',
-        '.tsx',
-      ];
+      config.resolve.extensions = [...(config.resolve.extensions ?? []), '.ts', '.tsx'];
     }
     return config;
   },

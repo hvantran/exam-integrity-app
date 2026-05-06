@@ -74,7 +74,12 @@ export const typography = {
     bodyMd: { fontSize: '16px', fontWeight: 400, lineHeight: '24px' },
     labelCaps: { fontSize: '12px', fontWeight: 600, lineHeight: '16px', letterSpacing: '0.05em' },
     uiLabel: { fontSize: '14px', fontWeight: 500, lineHeight: '20px' },
-    mathDisplay: { fontSize: '18px', fontWeight: 500, lineHeight: '26px', fontFamily: '"Space Grotesk", monospace' },
+    mathDisplay: {
+      fontSize: '18px',
+      fontWeight: 500,
+      lineHeight: '26px',
+      fontFamily: '"Space Grotesk", monospace',
+    },
   },
 };
 

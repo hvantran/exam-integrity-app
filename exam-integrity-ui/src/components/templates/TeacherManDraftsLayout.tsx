@@ -1,6 +1,11 @@
 import React from 'react';
 // Removed MUI Box and tokens, using Tailwind CSS
-import { AppTopBar, TeacherManDashboardSidebar, APP_BAR_HEIGHT, TEACHER_SIDEBAR_WIDTH } from '../organisms';
+import {
+  AppTopBar,
+  TeacherManDashboardSidebar,
+  APP_BAR_HEIGHT,
+  TEACHER_SIDEBAR_WIDTH,
+} from '../organisms';
 import type { DashboardSection } from '../organisms';
 
 export interface DraftsLayoutProps {
@@ -38,9 +43,7 @@ const TeacherManDraftsLayout: React.FC<DraftsLayoutProps> = ({
       onCreateExam={onCreateNew}
     />
     <main className="ml-[256px] pt-[64px] min-h-screen overflow-y-auto">
-      <div className="p-6 max-w-6xl mx-auto">
-        {children}
-      </div>
+      <div className="p-6 max-w-6xl mx-auto">{children}</div>
     </main>
   </div>
 );

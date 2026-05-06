@@ -61,7 +61,9 @@ const QuestionNavPill: React.FC<QuestionNavPillProps> = ({
         cursor: onClick ? 'pointer' : 'default',
       }}
     >
-      <span style={{ fontSize: '13px', fontWeight: state === 'current' ? 700 : 500, lineHeight: 1 }}>
+      <span
+        style={{ fontSize: '13px', fontWeight: state === 'current' ? 700 : 500, lineHeight: 1 }}
+      >
         {questionNumber}
       </span>
     </Button>

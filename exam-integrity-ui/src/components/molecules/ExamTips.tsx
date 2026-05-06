@@ -16,13 +16,22 @@ const ExamTips: React.FC = () => (
   >
     <Info size={20} style={{ color: colors.primary.main, flexShrink: 0, marginTop: '1px' }} />
     <div>
-      <div style={{ fontWeight: 600, fontSize: '13px', color: colors.primary.main, marginBottom: '2px' }}>
+      <div
+        style={{
+          fontWeight: 600,
+          fontSize: '13px',
+          color: colors.primary.main,
+          marginBottom: '2px',
+        }}
+      >
         Exam Instructions
       </div>
       <ul className="m-0 pl-5" style={{ fontSize: '13px', color: colors.on.surfaceVariant }}>
         <li>The system will automatically submit your exam when time runs out.</li>
         <li>Read each question carefully before answering to avoid mistakes.</li>
-        <li>Use the <strong>Flag</strong> feature if you are unsure about an answer.</li>
+        <li>
+          Use the <strong>Flag</strong> feature if you are unsure about an answer.
+        </li>
       </ul>
     </div>
   </div>

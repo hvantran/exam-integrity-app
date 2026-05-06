@@ -5,7 +5,8 @@ import type { FinalPublicationFormValues } from './TeacherManFinalPublicationLay
 import type { DraftQuestionDTO } from '../../types/exam.types';
 
 // Mock image data (1x1 transparent PNG)
-const MOCK_IMAGE_DATA = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+const MOCK_IMAGE_DATA =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
 // Mock questions for verification section
 const MOCK_QUESTIONS: DraftQuestionDTO[] = [
@@ -54,7 +55,7 @@ const MOCK_QUESTIONS: DraftQuestionDTO[] = [
     options: ['Option A', 'Option B', 'Option C', 'Option D'],
     correctAnswer: 'B',
     truncated: false,
-    parserConfidence: 0.90,
+    parserConfidence: 0.9,
     reviewStatus: 'PENDING',
   },
   {
@@ -64,7 +65,7 @@ const MOCK_QUESTIONS: DraftQuestionDTO[] = [
     type: 'MCQ',
     points: 0,
     truncated: false,
-    parserConfidence: 0.50,
+    parserConfidence: 0.5,
     reviewStatus: 'EXCLUDED',
   },
 ];

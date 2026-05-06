@@ -3,7 +3,7 @@
  * Detects and classifies mathematical formulas for optimized student input rendering
  */
 
-export type MathFormulaType = 
+export type MathFormulaType =
   | 'SIMPLE_ADDITION'
   | 'SIMPLE_SUBTRACTION'
   | 'SIMPLE_MULTIPLICATION'
@@ -38,7 +38,7 @@ export const analyzeFormula = (formula: string): ParsedFormula => {
   }
 
   const normalizedFormula = normalizeFormula(formula);
-  
+
   // Count operators
   const operators = extractOperators(normalizedFormula);
   const operatorCount = operators.length;
@@ -48,7 +48,7 @@ export const analyzeFormula = (formula: string): ParsedFormula => {
     const operator = operators[0];
     const operands = extractOperands(normalizedFormula);
     const hasDecimal = /\./g.test(normalizedFormula) || /,/g.test(normalizedFormula);
-    
+
     const baseResult = {
       formula: normalizedFormula,
       operands,
@@ -144,8 +144,8 @@ const extractOperands = (formula: string): number[] => {
   // Capture grouped-thousands numbers like "21 607" as a single token.
   const numberRegex = /-?\d{1,3}(?: \d{3})+(?:[.,]\d+)?|-?\d+(?:[.,]\d+)?/g;
   const matches = formula.match(numberRegex) || [];
-  
-  return matches.map(num => {
+
+  return matches.map((num) => {
     const normalized = num.replace(/[ ,]/g, '');
     return parseFloat(normalized);
   });
@@ -156,14 +156,14 @@ const extractOperands = (formula: string): number[] => {
  */
 export const validateAnswerFormat = (
   answer: string,
-  formulaType: MathFormulaType
+  formulaType: MathFormulaType,
 ): { isValid: boolean; error?: string } => {
   if (!answer || !answer.trim()) {
     return { isValid: false, error: 'Answer cannot be empty' };
   }
 
   const trimmed = answer.trim();
-  
+
   // Check if it's a valid number
   const numberRegex = /^-?\d+(?:[.,]\d+)?$/;
   if (!numberRegex.test(trimmed)) {
@@ -178,7 +178,7 @@ export const validateAnswerFormat = (
  */
 export const formatNumberDisplay = (num: number | string): string => {
   const numStr = num.toString();
-  
+
   // Add spaces for thousands in display
   return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 };
@@ -188,13 +188,13 @@ export const formatNumberDisplay = (num: number | string): string => {
  */
 export const getAnswerPlaceholder = (formulaType: MathFormulaType): string => {
   const placeholders: Record<MathFormulaType, string> = {
-    'SIMPLE_ADDITION': 'Enter the sum (e.g., 10290)',
-    'SIMPLE_SUBTRACTION': 'Enter the difference (e.g., 4589)',
-    'SIMPLE_MULTIPLICATION': 'Enter the product (e.g., 20148)',
-    'SIMPLE_DIVISION': 'Enter the quotient (e.g., 10.4)',
-    'COMPLEX_FORMULA': 'Enter the final result (follow order of operations)',
-    'UNKNOWN': 'Enter your answer',
+    SIMPLE_ADDITION: 'Enter the sum (e.g., 10290)',
+    SIMPLE_SUBTRACTION: 'Enter the difference (e.g., 4589)',
+    SIMPLE_MULTIPLICATION: 'Enter the product (e.g., 20148)',
+    SIMPLE_DIVISION: 'Enter the quotient (e.g., 10.4)',
+    COMPLEX_FORMULA: 'Enter the final result (follow order of operations)',
+    UNKNOWN: 'Enter your answer',
   };
-  
+
   return placeholders[formulaType];
 };

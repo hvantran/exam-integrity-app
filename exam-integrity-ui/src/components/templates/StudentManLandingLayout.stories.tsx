@@ -66,7 +66,7 @@ export const Default: Story = {
     <StudentManLandingLayout
       studentName="Nguyễn Văn An"
       studentRole="Lớp 4A"
-      activeSection='dashboard'
+      activeSection="dashboard"
       filters={FILTERS}
       activeFilter="all"
     >
@@ -98,9 +98,7 @@ export const EmptyState: Story = {
       pageTitle="Kết quả"
       pageSubtitle="Lịch sử bài kiểm tra đã hoàn thành."
     >
-      <Box sx={{ textAlign: 'center', py: 8, color: '#757684' }}>
-        Chưa có kết quả nào.
-      </Box>
+      <Box sx={{ textAlign: 'center', py: 8, color: '#757684' }}>Chưa có kết quả nào.</Box>
     </StudentManLandingLayout>
   ),
 };

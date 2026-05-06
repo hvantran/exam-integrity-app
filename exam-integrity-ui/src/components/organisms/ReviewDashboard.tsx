@@ -38,9 +38,14 @@ const ReviewDashboard: React.FC<Props> = ({ dashboard, isLoading = false }) => {
   }
 
   const pct = Math.round((dashboard.totalEarned / Math.max(dashboard.totalMax, 1)) * 100);
-  const correctCount = dashboard.scores.filter(s => s.status === 'CORRECT').length;
-  const pendingCount = dashboard.scores.filter(s => s.status === 'SELF_GRADE_REQUIRED' || s.status === 'PENDING_ESSAY').length;
-  const incorrectCount = dashboard.scores.filter(s => s.status !== 'CORRECT' && s.status !== 'SELF_GRADE_REQUIRED' && s.status !== 'PENDING_ESSAY').length;
+  const correctCount = dashboard.scores.filter((s) => s.status === 'CORRECT').length;
+  const pendingCount = dashboard.scores.filter(
+    (s) => s.status === 'SELF_GRADE_REQUIRED' || s.status === 'PENDING_ESSAY',
+  ).length;
+  const incorrectCount = dashboard.scores.filter(
+    (s) =>
+      s.status !== 'CORRECT' && s.status !== 'SELF_GRADE_REQUIRED' && s.status !== 'PENDING_ESSAY',
+  ).length;
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-2 md:px-8">
@@ -102,12 +107,14 @@ const ReviewDashboard: React.FC<Props> = ({ dashboard, isLoading = false }) => {
         <MistakeSummary missedNumbers={dashboard.missedQuestionNumbers ?? []} />
 
         {/* Corrections */}
-        {dashboard.scores.filter(s => s.status !== 'CORRECT').length > 0 && (
+        {dashboard.scores.filter((s) => s.status !== 'CORRECT').length > 0 && (
           <>
             <div className="font-bold text-lg text-gray-900 mb-2">Questions to Review</div>
             {dashboard.scores
-              .filter(s => s.status !== 'CORRECT')
-              .map(s => <CorrectionCard key={s.questionId} score={s} />)}
+              .filter((s) => s.status !== 'CORRECT')
+              .map((s) => (
+                <CorrectionCard key={s.questionId} score={s} />
+              ))}
           </>
         )}
       </div>

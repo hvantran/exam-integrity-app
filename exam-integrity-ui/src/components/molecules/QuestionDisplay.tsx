@@ -5,7 +5,7 @@
  *  - MCQ:         A/B/C/D option cards with correct-answer highlight + inline answer selector
  *  - Calculation: sub-expressions in a grid; dotted lines → styled answer blank
  *  - Essay:       clean prose; rubric keywords as chips
- * 
+ *
  * Features:
  *  - Inline score editing (right-aligned)
  *  - Inline image upload (right-aligned)
@@ -58,7 +58,7 @@ function looksLikeCalc(s: string) {
 function splitExpressions(content: string): string[] {
   return content
     .split(/[;\n]/)
-    .map(s => s.trim())
+    .map((s) => s.trim())
     .filter(Boolean);
 }
 
@@ -66,11 +66,11 @@ function splitExpressions(content: string): string[] {
 
 const OPTION_LABELS = ['A', 'B', 'C', 'D', 'E', 'F'];
 
-function McqQuestion({ 
+function McqQuestion({
   q,
   selectedAnswer,
-  onCorrectAnswerChange 
-}: { 
+  onCorrectAnswerChange,
+}: {
   q: DraftQuestionDTO;
   selectedAnswer?: string;
   onCorrectAnswerChange?: (value: string) => void;
@@ -239,7 +239,7 @@ function EssayQuestion({ q }: { q: DraftQuestionDTO }) {
           <span style={{ fontSize: '0.75rem', color: colors.on.surfaceVariant }}>
             Rubric keywords:
           </span>
-          {keywords.map(k => (
+          {keywords.map((k) => (
             <Chip key={k} label={k} size="small" variant="outlined" />
           ))}
         </div>
@@ -265,9 +265,9 @@ export interface QuestionDisplayProps {
   onCorrectAnswerBlur?: () => void;
 }
 
-const QuestionDisplay: React.FC<QuestionDisplayProps> = ({ 
-  question: q, 
-  index, 
+const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
+  question: q,
+  index,
   isLoading = false,
   questionScore = '',
   onQuestionScoreChange,
@@ -310,10 +310,10 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
     q.type === 'MCQ'
       ? 'Multiple Choice'
       : q.type === 'ESSAY_SHORT'
-      ? 'Short Answer'
-      : q.type === 'ESSAY_LONG'
-      ? 'Long Answer'
-      : 'Essay / Calculation';
+        ? 'Short Answer'
+        : q.type === 'ESSAY_LONG'
+          ? 'Long Answer'
+          : 'Essay / Calculation';
 
   // Calculation heuristic: essay-type with `;` separators or digits + blanks
   const isCalc =
@@ -329,7 +329,14 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
   return (
     <div style={{ marginBottom: 24 }}>
       {/* Header with left content and right controls */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 12,
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
           <div
             style={{
@@ -346,7 +353,13 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
               Question {q.questionNumber > 0 ? q.questionNumber : index + 1}
             </span>
           </div>
-          <Chip label={typeLabel} size="small" variant="outlined" className="text-[0.7rem]" style={{ height: 22 }} />
+          <Chip
+            label={typeLabel}
+            size="small"
+            variant="outlined"
+            className="text-[0.7rem]"
+            style={{ height: 22 }}
+          />
           {lowConfidence && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <AlertTriangle size={15} className="text-amber-500" />
@@ -362,7 +375,9 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
           {/* Score input */}
           {onQuestionScoreChange && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: colors.on.surfaceVariant }}>
+              <label
+                style={{ fontSize: '0.75rem', fontWeight: 600, color: colors.on.surfaceVariant }}
+              >
                 Score:
               </label>
               <input
@@ -397,7 +412,8 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
           {/* Image upload/remove button */}
           {onQuestionImageUpload && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              {hasImage && onQuestionImageRemove && (
+              {hasImage &&
+                onQuestionImageRemove &&
                 React.createElement(
                   'button',
                   {
@@ -423,8 +439,7 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                     type: 'button',
                   },
                   <Trash2 size={18} />,
-                )
-              )}
+                )}
               <label
                 style={{
                   display: 'flex',
@@ -434,12 +449,20 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                   padding: '4px 8px',
                   borderRadius: '4px',
                   border: `1px solid ${colors.outlineVariant}`,
-                  backgroundColor: hasImage ? `${colors.primary.main}18` : colors.surface.container.highest,
+                  backgroundColor: hasImage
+                    ? `${colors.primary.main}18`
+                    : colors.surface.container.highest,
                   transition: 'all 0.2s ease',
                   color: hasImage ? colors.primary.main : colors.on.surfaceVariant,
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = `${colors.primary.main}24`)}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = hasImage ? `${colors.primary.main}18` : colors.surface.container.highest)}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = `${colors.primary.main}24`)
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = hasImage
+                    ? `${colors.primary.main}18`
+                    : colors.surface.container.highest)
+                }
               >
                 <Image size={16} style={{ marginRight: 4 }} />
                 <input
@@ -492,7 +515,11 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
         {/* Question content based on type */}
         {q.type === 'MCQ' ? (
           <div onBlur={onCorrectAnswerBlur}>
-            <McqQuestion q={q} selectedAnswer={selectedCorrectAnswer} onCorrectAnswerChange={onCorrectAnswerChange} />
+            <McqQuestion
+              q={q}
+              selectedAnswer={selectedCorrectAnswer}
+              onCorrectAnswerChange={onCorrectAnswerChange}
+            />
           </div>
         ) : isCalc ? (
           <CalculationQuestion q={q} />

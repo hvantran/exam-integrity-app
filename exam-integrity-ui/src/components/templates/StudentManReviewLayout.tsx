@@ -1,6 +1,11 @@
 import React from 'react';
 // Removed MUI Box and tokens, using Tailwind CSS
-import { AppTopBar, StudentManPortalSidebar, APP_BAR_HEIGHT, STUDENT_SIDEBAR_WIDTH } from '../organisms';
+import {
+  AppTopBar,
+  StudentManPortalSidebar,
+  APP_BAR_HEIGHT,
+  STUDENT_SIDEBAR_WIDTH,
+} from '../organisms';
 import type { PortalSection } from '../organisms';
 
 export interface ReviewLayoutProps {
@@ -37,9 +42,7 @@ const StudentManReviewLayout: React.FC<ReviewLayoutProps> = ({
       onHelp={onHelp}
     />
     <main className="ml-[256px] pt-[64px] min-h-screen overflow-y-auto">
-      <div className="p-6 max-w-6xl mx-auto">
-        {children}
-      </div>
+      <div className="p-6 max-w-6xl mx-auto">{children}</div>
     </main>
   </div>
 );

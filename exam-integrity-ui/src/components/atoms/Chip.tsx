@@ -21,10 +21,10 @@ export interface ChipProps {
 
 /**
  * Atom — Chip
- * 
+ *
  * Flexible chip component for tags, status indicators, filters, and removable items.
  * Supports design-system color tokens and semantic variants.
- * 
+ *
  * Usage:
  * - Tag chip: <Chip label="Science" />
  * - Status: <Chip label="Active" color="success" />

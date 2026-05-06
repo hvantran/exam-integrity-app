@@ -15,9 +15,7 @@ export const Default: Story = {
     studentName: 'Nguyen Van A',
     activeSection: 'results',
     children: (
-      <div style={{ padding: 24, textAlign: 'center', color: '#666' }}>
-        Noi dung ket qua thi
-      </div>
+      <div style={{ padding: 24, textAlign: 'center', color: '#666' }}>Noi dung ket qua thi</div>
     ),
   },
 };

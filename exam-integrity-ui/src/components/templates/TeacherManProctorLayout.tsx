@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button } from '../atoms';
 
-
 const PROCTOR_APP_BAR_HEIGHT = 64;
 const PROCTOR_SIDEBAR_WIDTH = 256;
 
@@ -22,9 +21,9 @@ export interface ProctorLayoutProps {
 
 const navLabels: { section: ProctorNavSection; label: string }[] = [
   { section: 'dashboard', label: 'Bang dieu khien' },
-  { section: 'exam',      label: 'Ky thi' },
-  { section: 'results',   label: 'Ket qua' },
-  { section: 'reports',   label: 'Bao cao' },
+  { section: 'exam', label: 'Ky thi' },
+  { section: 'results', label: 'Ket qua' },
+  { section: 'reports', label: 'Bao cao' },
 ];
 
 const TeacherManProctorLayout: React.FC<ProctorLayoutProps> = ({
@@ -49,9 +48,7 @@ const TeacherManProctorLayout: React.FC<ProctorLayoutProps> = ({
     </div>
 
     {/* Specialized proctor AppBar */}
-    <header
-      className="fixed top-0 left-0 right-0 h-16 z-[100] bg-white border-b border-gray-200 flex items-center justify-between px-6"
-    >
+    <header className="fixed top-0 left-0 right-0 h-16 z-[100] bg-white border-b border-gray-200 flex items-center justify-between px-6">
       {/* Left: brand + horizontal nav */}
       <div className="flex items-center gap-8">
         <span className="font-bold text-xl text-blue-700 select-none">{brandName}</span>
@@ -82,7 +79,9 @@ const TeacherManProctorLayout: React.FC<ProctorLayoutProps> = ({
         )}
         <span className="flex items-center gap-2 bg-gray-100 border border-gray-200 rounded px-3 py-1">
           <span className="text-gray-500 text-base">⏰</span>
-          <span className="font-mono text-sm font-medium text-gray-900 tracking-wider">{timerDisplay}</span>
+          <span className="font-mono text-sm font-medium text-gray-900 tracking-wider">
+            {timerDisplay}
+          </span>
         </span>
         {onSubmit && (
           <Button
@@ -101,10 +100,16 @@ const TeacherManProctorLayout: React.FC<ProctorLayoutProps> = ({
     {/* Question progress sidebar */}
     <aside
       className="hidden md:flex fixed left-0 z-[80] bg-gray-50 border-r border-gray-200 flex-col p-8 overflow-y-auto"
-      style={{ top: PROCTOR_APP_BAR_HEIGHT, width: PROCTOR_SIDEBAR_WIDTH, height: `calc(100vh - ${PROCTOR_APP_BAR_HEIGHT}px)` }}
+      style={{
+        top: PROCTOR_APP_BAR_HEIGHT,
+        width: PROCTOR_SIDEBAR_WIDTH,
+        height: `calc(100vh - ${PROCTOR_APP_BAR_HEIGHT}px)`,
+      }}
     >
       <span className="font-bold text-gray-900 mb-1 text-sm">Tien do lam bai</span>
-      <span className="text-xs text-gray-500 mb-4">Da hoan thanh {completedCount}/{totalCount}</span>
+      <span className="text-xs text-gray-500 mb-4">
+        Da hoan thanh {completedCount}/{totalCount}
+      </span>
       <div className="grid grid-cols-5 gap-2">
         {Array.from({ length: totalCount || 0 }, (_, i) => {
           const num = i + 1;

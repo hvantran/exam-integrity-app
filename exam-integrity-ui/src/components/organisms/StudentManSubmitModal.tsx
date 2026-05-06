@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button } from '../atoms';
 
-
 interface Props {
   open: boolean;
   answeredCount: number;
@@ -14,7 +13,13 @@ interface Props {
  * Submission confirmation dialog using Zen Integrity System design tokens.
  * NEVER uses browser confirm() or alert().
  */
-const StudentManSubmitModal: React.FC<Props> = ({ open, answeredCount, totalCount, onBack, onFinalSubmit }) => {
+const StudentManSubmitModal: React.FC<Props> = ({
+  open,
+  answeredCount,
+  totalCount,
+  onBack,
+  onFinalSubmit,
+}) => {
   const unanswered = totalCount - answeredCount;
   const pct = Math.round((answeredCount / Math.max(totalCount, 1)) * 100);
 
@@ -26,7 +31,9 @@ const StudentManSubmitModal: React.FC<Props> = ({ open, answeredCount, totalCoun
         {/* Icon header */}
         <div className="flex items-center gap-4 mb-6">
           <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
-            <span className="text-yellow-500 text-2xl" role="img" aria-label="warning">⚠️</span>
+            <span className="text-yellow-500 text-2xl" role="img" aria-label="warning">
+              ⚠️
+            </span>
           </div>
           <div>
             <div className="font-bold text-lg text-gray-900">Confirm Submission</div>
@@ -38,7 +45,9 @@ const StudentManSubmitModal: React.FC<Props> = ({ open, answeredCount, totalCoun
         <div className="mb-6">
           <div className="flex justify-between mb-1 text-sm">
             <span className="text-gray-500">Answer Progress</span>
-            <span className="font-semibold text-gray-900">{answeredCount} / {totalCount}</span>
+            <span className="font-semibold text-gray-900">
+              {answeredCount} / {totalCount}
+            </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2.5">
             <div
@@ -49,9 +58,7 @@ const StudentManSubmitModal: React.FC<Props> = ({ open, answeredCount, totalCoun
         </div>
 
         {unanswered > 0 && (
-          <div
-            className="flex items-center gap-2 mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-700 text-sm"
-          >
+          <div className="flex items-center gap-2 mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-700 text-sm">
             <span className="text-lg">⚠️</span>
             {unanswered} unanswered question{unanswered > 1 ? 's' : ''} remain
           </div>
@@ -75,7 +82,7 @@ const StudentManSubmitModal: React.FC<Props> = ({ open, answeredCount, totalCoun
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default StudentManSubmitModal;

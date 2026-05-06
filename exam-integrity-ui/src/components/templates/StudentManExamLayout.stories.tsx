@@ -2,7 +2,11 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Typography } from '@mui/material';
 import StudentManExamLayout from './StudentManExamLayout';
-import { StudentManExamHeader, StudentManQuestionPanel, StudentManExamNavigationBar } from '../organisms';
+import {
+  StudentManExamHeader,
+  StudentManQuestionPanel,
+  StudentManExamNavigationBar,
+} from '../organisms';
 
 const meta: Meta<typeof StudentManExamLayout> = {
   title: 'Templates/StudentManExamLayout',
@@ -44,7 +48,7 @@ export const ActiveExam: Story = {
       proTips={[
         'Read the question carefully before attempting to answer.',
         'Use the workspace provided for intermediate calculations to avoid careless mistakes.',
-        'You can flag questions to review them later before submitting the exam.'
+        'You can flag questions to review them later before submitting the exam.',
       ]}
     >
       <StudentManQuestionPanel

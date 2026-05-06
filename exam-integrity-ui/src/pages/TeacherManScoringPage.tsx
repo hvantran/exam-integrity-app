@@ -5,7 +5,11 @@ import { Button } from '../components/atoms';
 import type { DashboardSection } from '../components/organisms';
 import { TeacherManDashboardLayout } from '../components/templates';
 import { useAuth } from '../context/AuthContext';
-import { useReviewDashboard, useTeacherScore, useTeacherScoringQueue } from '../hooks/useReviewDashboard';
+import {
+  useReviewDashboard,
+  useTeacherScore,
+  useTeacherScoringQueue,
+} from '../hooks/useReviewDashboard';
 
 const SECTION_ROUTES: Record<DashboardSection, string> = {
   dashboard: '/teacher/dashboard',
@@ -23,13 +27,15 @@ const TeacherManScoringPage: React.FC = () => {
   const [selectedSessionId, setSelectedSessionId] = React.useState('');
   const { data: dashboard, isLoading: reviewLoading } = useReviewDashboard(selectedSessionId);
   const teacherScore = useTeacherScore(selectedSessionId);
-  const [drafts, setDrafts] = React.useState<Record<string, { earnedPoints: string; explanation: string }>>({});
+  const [drafts, setDrafts] = React.useState<
+    Record<string, { earnedPoints: string; explanation: string }>
+  >({});
 
   React.useEffect(() => {
     if (queue.length === 0) {
       return;
     }
-    if (!selectedSessionId || !queue.some(item => item.sessionId === selectedSessionId)) {
+    if (!selectedSessionId || !queue.some((item) => item.sessionId === selectedSessionId)) {
       setSelectedSessionId(queue[0].sessionId);
     }
   }, [queue, selectedSessionId]);
@@ -39,7 +45,7 @@ const TeacherManScoringPage: React.FC = () => {
       return;
     }
     const nextDrafts = dashboard.scores
-      .filter(score => score.questionType !== 'MCQ')
+      .filter((score) => score.questionType !== 'MCQ')
       .reduce<Record<string, { earnedPoints: string; explanation: string }>>((acc, score) => {
         acc[score.questionId] = {
           earnedPoints: String(score.earnedPoints),
@@ -56,8 +62,8 @@ const TeacherManScoringPage: React.FC = () => {
   };
 
   const handleNavigate = (section: DashboardSection) => navigate(SECTION_ROUTES[section]);
-  const selectedSummary = queue.find(item => item.sessionId === selectedSessionId);
-  const essayScores = dashboard?.scores.filter(score => score.questionType !== 'MCQ') ?? [];
+  const selectedSummary = queue.find((item) => item.sessionId === selectedSessionId);
+  const essayScores = dashboard?.scores.filter((score) => score.questionType !== 'MCQ') ?? [];
 
   return (
     <TeacherManDashboardLayout
@@ -70,7 +76,9 @@ const TeacherManScoringPage: React.FC = () => {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Essay Scoring</h1>
-          <p className="mt-2 text-gray-600">Auto-grade MCQ on submission, then review and score essay questions manually.</p>
+          <p className="mt-2 text-gray-600">
+            Auto-grade MCQ on submission, then review and score essay questions manually.
+          </p>
         </div>
 
         {isLoading ? (
@@ -127,27 +135,48 @@ const TeacherManScoringPage: React.FC = () => {
                   <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <div className="text-2xl font-bold text-gray-900">{selectedSummary.examTitle}</div>
-                        <div className="mt-1 text-sm text-gray-500">Student: {selectedSummary.studentId}</div>
+                        <div className="text-2xl font-bold text-gray-900">
+                          {selectedSummary.examTitle}
+                        </div>
+                        <div className="mt-1 text-sm text-gray-500">
+                          Student: {selectedSummary.studentId}
+                        </div>
                       </div>
                       <div className="text-right">
                         <div className="text-sm text-gray-500">Current total</div>
-                        <div className="text-3xl font-bold text-gray-900">{dashboard.finalScore10.toFixed(1)}<span className="text-base font-medium text-gray-500">/10</span></div>
+                        <div className="text-3xl font-bold text-gray-900">
+                          {dashboard.finalScore10.toFixed(1)}
+                          <span className="text-base font-medium text-gray-500">/10</span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   {essayScores.map((score) => {
-                    const draft = drafts[score.questionId] ?? { earnedPoints: String(score.earnedPoints), explanation: score.explanation ?? '' };
+                    const draft = drafts[score.questionId] ?? {
+                      earnedPoints: String(score.earnedPoints),
+                      explanation: score.explanation ?? '',
+                    };
                     const parsedPoints = Number(draft.earnedPoints);
-                    const isInvalid = draft.earnedPoints.trim() === '' || Number.isNaN(parsedPoints) || parsedPoints < 0 || parsedPoints > score.maxPoints;
+                    const isInvalid =
+                      draft.earnedPoints.trim() === '' ||
+                      Number.isNaN(parsedPoints) ||
+                      parsedPoints < 0 ||
+                      parsedPoints > score.maxPoints;
 
                     return (
-                      <div key={score.questionId} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                      <div
+                        key={score.questionId}
+                        className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+                      >
                         <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
                           <div>
-                            <div className="text-lg font-semibold text-gray-900">Question {score.questionNumber}</div>
-                            <div className="mt-2 whitespace-pre-wrap text-sm text-gray-700">{score.questionText || 'Essay question'}</div>
+                            <div className="text-lg font-semibold text-gray-900">
+                              Question {score.questionNumber}
+                            </div>
+                            <div className="mt-2 whitespace-pre-wrap text-sm text-gray-700">
+                              {score.questionText || 'Essay question'}
+                            </div>
                           </div>
                           <div className="rounded-full bg-gray-100 px-3 py-1 text-sm font-semibold text-gray-700">
                             Max {score.maxPoints.toFixed(1)} pts
@@ -156,41 +185,60 @@ const TeacherManScoringPage: React.FC = () => {
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
                           <div className="rounded-xl border border-red-100 bg-red-50 p-4">
-                            <div className="text-xs font-semibold uppercase tracking-wide text-red-700">Student Answer</div>
-                            <div className="mt-2 whitespace-pre-wrap text-sm text-red-900">{score.studentAnswer || '(No answer)'}</div>
+                            <div className="text-xs font-semibold uppercase tracking-wide text-red-700">
+                              Student Answer
+                            </div>
+                            <div className="mt-2 whitespace-pre-wrap text-sm text-red-900">
+                              {score.studentAnswer || '(No answer)'}
+                            </div>
                           </div>
                           <div className="rounded-xl border border-green-100 bg-green-50 p-4">
-                            <div className="text-xs font-semibold uppercase tracking-wide text-green-700">Reference Answer</div>
-                            <div className="mt-2 whitespace-pre-wrap text-sm text-green-900">{score.correctAnswer || 'No reference answer configured.'}</div>
+                            <div className="text-xs font-semibold uppercase tracking-wide text-green-700">
+                              Reference Answer
+                            </div>
+                            <div className="mt-2 whitespace-pre-wrap text-sm text-green-900">
+                              {score.correctAnswer || 'No reference answer configured.'}
+                            </div>
                           </div>
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-[160px_minmax(0,1fr)] gap-4">
                           <label className="block">
-                            <span className="mb-2 block text-sm font-medium text-gray-700">Awarded points</span>
+                            <span className="mb-2 block text-sm font-medium text-gray-700">
+                              Awarded points
+                            </span>
                             <input
                               type="number"
                               min={0}
                               max={score.maxPoints}
                               step={0.1}
                               value={draft.earnedPoints}
-                              onChange={(event) => setDrafts((current) => ({
-                                ...current,
-                                [score.questionId]: { ...draft, earnedPoints: event.target.value },
-                              }))}
+                              onChange={(event) =>
+                                setDrafts((current) => ({
+                                  ...current,
+                                  [score.questionId]: {
+                                    ...draft,
+                                    earnedPoints: event.target.value,
+                                  },
+                                }))
+                              }
                               className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                             />
                           </label>
 
                           <label className="block">
-                            <span className="mb-2 block text-sm font-medium text-gray-700">Teacher feedback</span>
+                            <span className="mb-2 block text-sm font-medium text-gray-700">
+                              Teacher feedback
+                            </span>
                             <textarea
                               rows={4}
                               value={draft.explanation}
-                              onChange={(event) => setDrafts((current) => ({
-                                ...current,
-                                [score.questionId]: { ...draft, explanation: event.target.value },
-                              }))}
+                              onChange={(event) =>
+                                setDrafts((current) => ({
+                                  ...current,
+                                  [score.questionId]: { ...draft, explanation: event.target.value },
+                                }))
+                              }
                               className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                               placeholder="Optional guidance shown to the student"
                             />
@@ -199,18 +247,23 @@ const TeacherManScoringPage: React.FC = () => {
 
                         <div className="mt-4 flex items-center justify-between gap-4">
                           <div className="text-sm text-gray-500">
-                            Status: <span className="font-semibold text-gray-700">{score.status.replaceAll('_', ' ')}</span>
+                            Status:{' '}
+                            <span className="font-semibold text-gray-700">
+                              {score.status.replaceAll('_', ' ')}
+                            </span>
                           </div>
                           <Button
                             type="button"
                             disabled={isInvalid || teacherScore.isPending}
-                            onClick={() => teacherScore.mutate({
-                              questionId: score.questionId,
-                              payload: {
-                                earnedPoints: parsedPoints,
-                                explanation: draft.explanation.trim() || undefined,
-                              },
-                            })}
+                            onClick={() =>
+                              teacherScore.mutate({
+                                questionId: score.questionId,
+                                payload: {
+                                  earnedPoints: parsedPoints,
+                                  explanation: draft.explanation.trim() || undefined,
+                                },
+                              })
+                            }
                             variant="primary"
                             size="sm"
                             className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
@@ -223,7 +276,9 @@ const TeacherManScoringPage: React.FC = () => {
                   })}
 
                   {essayScores.length === 0 && (
-                    <Alert severity="success">All essay questions in this submission are already graded.</Alert>
+                    <Alert severity="success">
+                      All essay questions in this submission are already graded.
+                    </Alert>
                   )}
                 </>
               )}

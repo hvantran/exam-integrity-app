@@ -32,13 +32,11 @@ const Select: React.FC<SelectProps> = ({
     id={id}
     value={value}
     disabled={disabled}
-    onChange={e => onChange(e.target.value)}
+    onChange={(e) => onChange(e.target.value)}
     className={`${baseCls} ${className}`.trim()}
   >
-    {placeholder !== undefined && (
-      <option value="">{placeholder}</option>
-    )}
-    {options.map(o => (
+    {placeholder !== undefined && <option value="">{placeholder}</option>}
+    {options.map((o) => (
       <option key={o.value} value={o.value}>
         {o.label}
       </option>

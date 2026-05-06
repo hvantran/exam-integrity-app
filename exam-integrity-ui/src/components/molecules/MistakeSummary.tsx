@@ -17,16 +17,24 @@ const MistakeSummary: React.FC<Props> = ({ missedNumbers }) => {
         border: `1px solid ${colors.tertiary.main}50`,
       }}
     >
-      <AlertTriangle size={20} style={{ color: colors.tertiary.main, flexShrink: 0, marginTop: '2px' }} />
+      <AlertTriangle
+        size={20}
+        style={{ color: colors.tertiary.main, flexShrink: 0, marginTop: '2px' }}
+      />
       <div>
-        <div style={{ fontWeight: 600, fontSize: '13px', color: colors.tertiary.main, marginBottom: '2px' }}>
+        <div
+          style={{
+            fontWeight: 600,
+            fontSize: '13px',
+            color: colors.tertiary.main,
+            marginBottom: '2px',
+          }}
+        >
           Questions to Review
         </div>
         <div style={{ fontSize: '13px', color: colors.on.surfaceVariant }}>
           Review the following questions:{' '}
-          <strong style={{ color: colors.on.surface }}>
-            {missedNumbers.join(', ')}
-          </strong>
+          <strong style={{ color: colors.on.surface }}>{missedNumbers.join(', ')}</strong>
         </div>
       </div>
     </div>

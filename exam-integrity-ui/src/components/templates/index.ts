@@ -29,4 +29,8 @@ export { default as TeacherManQuestionReviewLayout } from './TeacherManQuestionR
 export type { QuestionReviewLayoutProps } from './TeacherManQuestionReviewLayout';
 
 export { default as TeacherManFinalPublicationLayout } from './TeacherManFinalPublicationLayout';
-export type { FinalPublicationLayoutProps, FinalPublicationStats, FinalPublicationFormValues } from './TeacherManFinalPublicationLayout';
+export type {
+  FinalPublicationLayoutProps,
+  FinalPublicationStats,
+  FinalPublicationFormValues,
+} from './TeacherManFinalPublicationLayout';

@@ -114,10 +114,7 @@ const LongDivisionInput: React.FC<LongDivisionInputProps> = ({
   const quotientLen = Math.floor(dividend / divisor).toString().length;
   const separatorLength = Math.max(divisorStr.length, quotientLen) + 4;
 
-  const remainderRows = useMemo(
-    () => buildRemainderRows(dividend, divisor),
-    [dividend, divisor],
-  );
+  const remainderRows = useMemo(() => buildRemainderRows(dividend, divisor), [dividend, divisor]);
 
   const parsedAnswer = useMemo(
     () => parseLongDivisionAnswer(value, remainderRows.length),

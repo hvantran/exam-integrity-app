@@ -45,7 +45,15 @@ const StatCard: React.FC<StatCardProps> = ({
     >
       <div className="flex items-center gap-2" style={{ color: accentColor }}>
         {icon}
-        <span style={{ fontWeight: 600, fontSize: '11px', letterSpacing: '0.06em', color: colors.on.surfaceVariant, textTransform: 'uppercase' }}>
+        <span
+          style={{
+            fontWeight: 600,
+            fontSize: '11px',
+            letterSpacing: '0.06em',
+            color: colors.on.surfaceVariant,
+            textTransform: 'uppercase',
+          }}
+        >
           {label}
         </span>
       </div>
@@ -61,9 +69,7 @@ const StatCard: React.FC<StatCardProps> = ({
         {value}
       </div>
       {sublabel && (
-        <div style={{ fontSize: '12px', color: colors.on.surfaceVariant }}>
-          {sublabel}
-        </div>
+        <div style={{ fontSize: '12px', color: colors.on.surfaceVariant }}>{sublabel}</div>
       )}
     </div>
   );

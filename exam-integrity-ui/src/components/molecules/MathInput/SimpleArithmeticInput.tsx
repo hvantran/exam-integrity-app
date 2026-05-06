@@ -11,8 +11,8 @@ interface SimpleArithmeticInputProps {
 const operatorSymbols: Record<string, string> = {
   '+': '+',
   '-': '−',
-  'x': '×',
-  'X': '×',
+  x: '×',
+  X: '×',
   '*': '×',
   ':': '÷',
   '/': '÷',
@@ -39,10 +39,7 @@ const SimpleArithmeticInput: React.FC<SimpleArithmeticInputProps> = ({
     const nextDigits = nextRawValue.replace(/\D+/g, '');
 
     // If exactly one digit was appended by normal typing, prepend it instead.
-    if (
-      nextDigits.length === currentDigits.length + 1 &&
-      nextDigits.startsWith(currentDigits)
-    ) {
+    if (nextDigits.length === currentDigits.length + 1 && nextDigits.startsWith(currentDigits)) {
       const appendedDigit = nextDigits[nextDigits.length - 1];
       onChange(`${appendedDigit}${currentDigits}`);
       return;
@@ -57,74 +54,76 @@ const SimpleArithmeticInput: React.FC<SimpleArithmeticInputProps> = ({
 
   const getOperatorColor = (type: string) => {
     const colorMap: Record<string, string> = {
-      'SIMPLE_ADDITION': 'text-green-600',
-      'SIMPLE_SUBTRACTION': 'text-blue-600',
-      'SIMPLE_MULTIPLICATION': 'text-orange-600',
-      'SIMPLE_DIVISION': 'text-purple-600',
+      SIMPLE_ADDITION: 'text-green-600',
+      SIMPLE_SUBTRACTION: 'text-blue-600',
+      SIMPLE_MULTIPLICATION: 'text-orange-600',
+      SIMPLE_DIVISION: 'text-purple-600',
     };
     return colorMap[type] || 'text-slate-600';
   };
 
   const getBackgroundColor = (type: string) => {
     const colorMap: Record<string, string> = {
-      'SIMPLE_ADDITION': 'bg-green-50',
-      'SIMPLE_SUBTRACTION': 'bg-blue-50',
-      'SIMPLE_MULTIPLICATION': 'bg-orange-50',
-      'SIMPLE_DIVISION': 'bg-purple-50',
+      SIMPLE_ADDITION: 'bg-green-50',
+      SIMPLE_SUBTRACTION: 'bg-blue-50',
+      SIMPLE_MULTIPLICATION: 'bg-orange-50',
+      SIMPLE_DIVISION: 'bg-purple-50',
     };
     return colorMap[type] || 'bg-slate-50';
   };
 
   const getBorderColor = (type: string) => {
     const colorMap: Record<string, string> = {
-      'SIMPLE_ADDITION': 'border-green-200',
-      'SIMPLE_SUBTRACTION': 'border-blue-200',
-      'SIMPLE_MULTIPLICATION': 'border-orange-200',
-      'SIMPLE_DIVISION': 'border-purple-200',
+      SIMPLE_ADDITION: 'border-green-200',
+      SIMPLE_SUBTRACTION: 'border-blue-200',
+      SIMPLE_MULTIPLICATION: 'border-orange-200',
+      SIMPLE_DIVISION: 'border-purple-200',
     };
     return colorMap[type] || 'border-slate-200';
   };
 
   return (
-    <div className={`rounded-2xl border ${getBorderColor(formula.type)} ${getBackgroundColor(formula.type)} p-4 md:p-6`}>
+    <div
+      className={`rounded-2xl border ${getBorderColor(formula.type)} ${getBackgroundColor(formula.type)} p-4 md:p-6`}
+    >
       <div className="space-y-4">
         {/* Calculation Display */}
         <div className="font-mono space-y-2.5">
           <div className="max-w-[200px]">
-          {/* First operand */}
-          <div className="text-right pr-4">
-            <div className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
-              {formula.operands?.[0]?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') || ''}
+            {/* First operand */}
+            <div className="text-right pr-4">
+              <div className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+                {formula.operands?.[0]?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') || ''}
+              </div>
             </div>
+
+            {/* Operator and second operand */}
+            <div className="flex items-center justify-between pr-4">
+              <div className={`text-2xl md:text-3xl font-bold ${getOperatorColor(formula.type)}`}>
+                {operatorSymbol}
+              </div>
+              <div className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+                {formula.operands?.[1]?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') || ''}
+              </div>
+            </div>
+
+            {/* Divider line */}
+            <div className="border-b-2 border-slate-400 my-1" />
+
+            {/* Answer input area */}
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              placeholder="_________"
+              value={value}
+              disabled={disabled}
+              onChange={(e) => handleAnswerChange(e.target.value)}
+              className={`w-full text-right text-2xl md:text-3xl font-bold bg-transparent outline-none placeholder-slate-400 text-slate-900 ${
+                disabled ? 'cursor-not-allowed opacity-60' : 'focus:text-sky-600'
+              }`}
+            />
           </div>
-
-          {/* Operator and second operand */}
-          <div className="flex items-center justify-between pr-4">
-            <div className={`text-2xl md:text-3xl font-bold ${getOperatorColor(formula.type)}`}>
-              {operatorSymbol}
-            </div>
-            <div className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
-              {formula.operands?.[1]?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') || ''}
-            </div>
-          </div>
-
-          {/* Divider line */}
-          <div className="border-b-2 border-slate-400 my-1" />
-
-          {/* Answer input area */}
-          <input
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            placeholder="_________"
-            value={value}
-            disabled={disabled}
-            onChange={(e) => handleAnswerChange(e.target.value)}
-            className={`w-full text-right text-2xl md:text-3xl font-bold bg-transparent outline-none placeholder-slate-400 text-slate-900 ${
-              disabled ? 'cursor-not-allowed opacity-60' : 'focus:text-sky-600'
-            }`}
-          />
-        </div>
         </div>
 
         {/* Helper text */}

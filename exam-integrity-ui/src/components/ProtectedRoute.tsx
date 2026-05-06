@@ -15,7 +15,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, children 
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <span className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" aria-label="Loading" />
+        <span
+          className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"
+          aria-label="Loading"
+        />
       </div>
     );
   }
@@ -25,7 +28,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, children 
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
-  if (allowedRoles && !allowedRoles.some(role => user.roles.includes(role))) {
+  if (allowedRoles && !allowedRoles.some((role) => user.roles.includes(role))) {
     // Authenticated but wrong role — send back to landing
     return <Navigate to="/" replace />;
   }

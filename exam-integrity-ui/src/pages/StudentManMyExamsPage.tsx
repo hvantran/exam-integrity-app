@@ -27,8 +27,11 @@ const StudentManMyExamsPage: React.FC = () => {
     }
   }, [selectedSessionId, sessions]);
 
-  const selectedSummary = sessions.find(session => session.sessionId === selectedSessionId) ?? sessions[0];
-  const { data: dashboard, isLoading: reviewLoading } = useReviewDashboard(selectedSummary?.sessionId ?? '');
+  const selectedSummary =
+    sessions.find((session) => session.sessionId === selectedSessionId) ?? sessions[0];
+  const { data: dashboard, isLoading: reviewLoading } = useReviewDashboard(
+    selectedSummary?.sessionId ?? '',
+  );
 
   const handleLogout = () => {
     logout();
@@ -70,7 +73,11 @@ const StudentManMyExamsPage: React.FC = () => {
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div>
                       <div className="text-lg font-semibold text-gray-900">{session.examTitle}</div>
-                      <div className="text-sm text-gray-500">{session.submittedAt ? new Date(session.submittedAt).toLocaleString() : 'Submitted exam'}</div>
+                      <div className="text-sm text-gray-500">
+                        {session.submittedAt
+                          ? new Date(session.submittedAt).toLocaleString()
+                          : 'Submitted exam'}
+                      </div>
                     </div>
                     {session.pendingEssayCount > 0 && (
                       <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
@@ -80,8 +87,13 @@ const StudentManMyExamsPage: React.FC = () => {
                   </div>
                   <div className="flex items-end justify-between">
                     <div>
-                      <div className="text-3xl font-bold text-gray-900">{session.finalScore10.toFixed(1)}<span className="text-base font-medium text-gray-500">/10</span></div>
-                      <div className="text-sm text-gray-600">{session.totalEarned.toFixed(1)} / {session.totalMax.toFixed(1)} pts</div>
+                      <div className="text-3xl font-bold text-gray-900">
+                        {session.finalScore10.toFixed(1)}
+                        <span className="text-base font-medium text-gray-500">/10</span>
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {session.totalEarned.toFixed(1)} / {session.totalMax.toFixed(1)} pts
+                      </div>
                     </div>
                     <span className="text-sm font-semibold text-blue-700">View details</span>
                   </div>
@@ -93,12 +105,20 @@ const StudentManMyExamsPage: React.FC = () => {
           {reviewLoading ? (
             <ReviewDashboard
               isLoading
-              dashboard={{ sessionId: '', totalEarned: 0, totalMax: 0, finalScore10: 0, scores: [] }}
+              dashboard={{
+                sessionId: '',
+                totalEarned: 0,
+                totalMax: 0,
+                finalScore10: 0,
+                scores: [],
+              }}
             />
           ) : dashboard ? (
             <ReviewDashboard dashboard={dashboard} />
           ) : (
-            <Alert severity="info">Detailed scoring is not available for the selected session yet.</Alert>
+            <Alert severity="info">
+              Detailed scoring is not available for the selected session yet.
+            </Alert>
           )}
         </div>
       )}

@@ -31,7 +31,7 @@ const TimerDisplay: React.FC<TimerDisplayProps> = ({ remainingSeconds, showIcon 
     if (intervalRef.current) clearInterval(intervalRef.current);
     if (localSeconds > 0) {
       intervalRef.current = setInterval(() => {
-        setLocalSeconds(prev => (prev > 0 ? prev - 1 : 0));
+        setLocalSeconds((prev) => (prev > 0 ? prev - 1 : 0));
       }, 1000);
     }
     return () => {
@@ -45,7 +45,10 @@ const TimerDisplay: React.FC<TimerDisplayProps> = ({ remainingSeconds, showIcon 
   const color = isUrgent ? colors.tertiary.main : colors.secondary.main;
 
   return (
-    <div className="inline-flex items-center gap-1.5 transition-colors duration-500" style={{ color }}>
+    <div
+      className="inline-flex items-center gap-1.5 transition-colors duration-500"
+      style={{ color }}
+    >
       {showIcon && <Clock size={18} style={{ color }} />}
       <span
         style={{

@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import { Meta, StoryFn } from '@storybook/react';
-import StudentManFlaggedSidebar, { StudentManFlaggedSidebarProps } from './StudentManFlaggedSidebar';
+import StudentManFlaggedSidebar, {
+  StudentManFlaggedSidebarProps,
+} from './StudentManFlaggedSidebar';
 
 export default {
   title: 'Organisms/StudentManFlaggedSidebar',
   component: StudentManFlaggedSidebar,
 } as Meta<typeof StudentManFlaggedSidebar>;
 
-const Template: StoryFn<typeof StudentManFlaggedSidebar> = (args: StudentManFlaggedSidebarProps) => {
+const Template: StoryFn<typeof StudentManFlaggedSidebar> = (
+  args: StudentManFlaggedSidebarProps,
+) => {
   const [currentQuestion, setCurrentQuestion] = useState(args.currentQuestion);
   return (
     <StudentManFlaggedSidebar

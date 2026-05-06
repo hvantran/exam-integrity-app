@@ -30,8 +30,13 @@ export function useTeacherScore(sessionId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ questionId, payload }: { questionId: string; payload: TeacherScoreUpdatePayload }) =>
-      sessionService.updateTeacherScore(sessionId, questionId, payload),
+    mutationFn: ({
+      questionId,
+      payload,
+    }: {
+      questionId: string;
+      payload: TeacherScoreUpdatePayload;
+    }) => sessionService.updateTeacherScore(sessionId, questionId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['review', sessionId] });
       queryClient.invalidateQueries({ queryKey: ['teacher-scoring'] });

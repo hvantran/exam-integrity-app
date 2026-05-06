@@ -13,12 +13,12 @@ import { useAuth } from '../context/AuthContext';
 import type { DashboardSection } from '../components/organisms';
 
 const SECTION_ROUTES: Record<DashboardSection, string> = {
-  dashboard:        '/teacher/dashboard',
-  ingestion:        '/teacher/ingestion',
-  review:           '/teacher/ingestion',
-  scoring:          '/teacher/scoring',
-  'question-bank':  '/teacher/question-bank',
-  reports:          '/teacher/ingestion',
+  dashboard: '/teacher/dashboard',
+  ingestion: '/teacher/ingestion',
+  review: '/teacher/ingestion',
+  scoring: '/teacher/scoring',
+  'question-bank': '/teacher/question-bank',
+  reports: '/teacher/ingestion',
 };
 
 const DIFFICULTY_OPTIONS = ['Easy', 'Medium', 'Hard'];
@@ -30,7 +30,8 @@ const TYPE_OPTIONS: { value: QuestionType; label: string }[] = [
 
 // ── Input style helpers ───────────────────────────────────────────────────────
 
-const inputCls = 'border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white';
+const inputCls =
+  'border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white';
 const labelCls = 'block text-xs font-medium text-gray-500 mb-1';
 
 /* ------------------------------------------------------------------ */
@@ -51,9 +52,10 @@ const toEditForm = (q: DraftQuestionDTO): EditFormState => ({
   content: q.content,
   type: q.type ?? 'MCQ',
   difficulty: 'Medium',
-  options: (q.options && q.options.length > 0
-    ? [...q.options.map(stripOptionPrefix), '', '', '', ''].slice(0, 4)
-    : ['', '', '', '']),
+  options:
+    q.options && q.options.length > 0
+      ? [...q.options.map(stripOptionPrefix), '', '', '', ''].slice(0, 4)
+      : ['', '', '', ''],
   correctAnswer: q.correctAnswer ?? 'A',
   points: q.points,
   tags: q.rubric?.keywords?.join(', ') ?? '',
@@ -62,8 +64,7 @@ const toEditForm = (q: DraftQuestionDTO): EditFormState => ({
 
 const OPTION_LABELS = ['A', 'B', 'C', 'D'];
 
-const stripOptionPrefix = (text: string): string =>
-  text.replace(/^[A-Da-d][./、]\s*/u, '').trim();
+const stripOptionPrefix = (text: string): string => text.replace(/^[A-Da-d][./、]\s*/u, '').trim();
 
 interface QuestionEditCardProps {
   question: DraftQuestionDTO;
@@ -71,17 +72,29 @@ interface QuestionEditCardProps {
   onCancel: () => void;
   isSaving: boolean;
 }
-const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, onCancel, isSaving }) => {
+const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
+  question,
+  onSave,
+  onCancel,
+  isSaving,
+}) => {
   const [form, setForm] = useState<EditFormState>(toEditForm(question));
 
   const setField = <K extends keyof EditFormState>(key: K, val: EditFormState[K]) =>
-    setForm(prev => ({ ...prev, [key]: val }));
+    setForm((prev) => ({ ...prev, [key]: val }));
 
   const setOption = (idx: number, val: string) =>
-    setForm(prev => { const opts = [...prev.options]; opts[idx] = val; return { ...prev, options: opts }; });
+    setForm((prev) => {
+      const opts = [...prev.options];
+      opts[idx] = val;
+      return { ...prev, options: opts };
+    });
 
   const handleSave = () => {
-    const tagList = form.tags.split(',').map(t => t.trim()).filter(Boolean);
+    const tagList = form.tags
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean);
     onSave(question.id, {
       content: form.content,
       type: form.type,
@@ -94,9 +107,7 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
   };
 
   return (
-    <div
-      className="rounded-lg p-3 shadow-lg bg-surface-lowest border-2 border-l-4 border-primary"
-    >
+    <div className="rounded-lg p-3 shadow-lg bg-surface-lowest border-2 border-l-4 border-primary">
       {/* Header */}
       <p className="text-xs font-semibold tracking-wide uppercase mb-2 text-primary">
         Edit Question
@@ -108,14 +119,14 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
         placeholder="Question Content"
         rows={3}
         value={form.content}
-        onChange={e => setField('content', e.target.value)}
+        onChange={(e) => setField('content', e.target.value)}
       />
 
       <div className="flex gap-2 mb-2">
         <Select
           value={form.difficulty}
-          onChange={val => setField('difficulty', val)}
-          options={DIFFICULTY_OPTIONS.map(d => ({ value: d, label: d }))}
+          onChange={(val) => setField('difficulty', val)}
+          options={DIFFICULTY_OPTIONS.map((d) => ({ value: d, label: d }))}
           className="flex-1"
         />
       </div>
@@ -133,7 +144,7 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
                 name={`correctAnswer-${question.id}`}
                 value={label}
                 checked={form.correctAnswer === label}
-                onChange={e => setField('correctAnswer', e.target.value)}
+                onChange={(e) => setField('correctAnswer', e.target.value)}
                 className="accent-primary-600 w-4 h-4 shrink-0"
               />
               <span className="text-sm font-semibold min-w-[20px] text-on-surface">{label}</span>
@@ -141,7 +152,7 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
                 className={`${inputCls} flex-1`}
                 placeholder={`Option ${label}`}
                 value={form.options[idx] ?? ''}
-                onChange={e => setOption(idx, e.target.value)}
+                onChange={(e) => setOption(idx, e.target.value)}
               />
             </label>
           ))}
@@ -156,20 +167,18 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
           placeholder="Points"
           min={0}
           value={form.points}
-          onChange={e => setField('points', Number(e.target.value))}
+          onChange={(e) => setField('points', Number(e.target.value))}
         />
         <input
           className={`${inputCls} flex-1`}
           placeholder="Tags / Keywords (comma separated)"
           value={form.tags}
-          onChange={e => setField('tags', e.target.value)}
+          onChange={(e) => setField('tags', e.target.value)}
         />
       </div>
 
       {/* Image Upload */}
-      <label
-        className="inline-flex items-center gap-1.5 mb-2 px-3 py-1.5 text-sm border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition text-on-surface"
-      >
+      <label className="inline-flex items-center gap-1.5 mb-2 px-3 py-1.5 text-sm border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition text-on-surface">
         Upload Image
         <input
           type="file"
@@ -188,7 +197,11 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({ question, onSave, o
       </label>
       {form.imageData && (
         <div className="mb-2">
-          <img src={form.imageData} alt="Preview" className="max-h-40 rounded-lg border border-gray-300" />
+          <img
+            src={form.imageData}
+            alt="Preview"
+            className="max-h-40 rounded-lg border border-gray-300"
+          />
         </div>
       )}
 
@@ -217,9 +230,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, index, onEdit }) 
   const tags = question.rubric?.keywords ?? [];
 
   return (
-    <div
-      className="group rounded-lg px-5 py-4 flex items-start gap-4 relative bg-surface-lowest border border-outlineVariant transition-shadow hover:shadow-md"
-    >
+    <div className="group rounded-lg px-5 py-4 flex items-start gap-4 relative bg-surface-lowest border border-outlineVariant transition-shadow hover:shadow-md">
       {/* Index */}
       <span className="text-[13px] font-semibold text-on-surfaceVariant min-w-[28px] pt-0.5 shrink-0">
         {index + 1}.
@@ -242,8 +253,11 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, index, onEdit }) 
             <History size={14} />
             <span className="text-xs">0 uses</span>
           </div>
-          {tags.slice(0, 3).map(tag => (
-            <span key={tag} className="inline-flex items-center text-[11px] bg-surface-low text-on-surfaceVariant rounded px-1.5 h-5">
+          {tags.slice(0, 3).map((tag) => (
+            <span
+              key={tag}
+              className="inline-flex items-center text-[11px] bg-surface-low text-on-surfaceVariant rounded px-1.5 h-5"
+            >
               {tag}
             </span>
           ))}
@@ -285,7 +299,13 @@ interface McqOptionsProps {
   onCorrectAnswerChange: (val: string) => void;
 }
 
-const McqOptionsForm: React.FC<McqOptionsProps> = ({ options, correctAnswer, idPrefix, onOptionChange, onCorrectAnswerChange }) => (
+const McqOptionsForm: React.FC<McqOptionsProps> = ({
+  options,
+  correctAnswer,
+  idPrefix,
+  onOptionChange,
+  onCorrectAnswerChange,
+}) => (
   <div className="mb-4">
     <p className="text-xs font-semibold uppercase tracking-wide mb-2 text-on-surfaceVariant">
       Answer Options
@@ -297,7 +317,7 @@ const McqOptionsForm: React.FC<McqOptionsProps> = ({ options, correctAnswer, idP
           name={`${idPrefix}-correctAnswer`}
           value={label}
           checked={correctAnswer === label}
-          onChange={e => onCorrectAnswerChange(e.target.value)}
+          onChange={(e) => onCorrectAnswerChange(e.target.value)}
           className="accent-primary-600 w-4 h-4 shrink-0"
         />
         <span className="text-sm font-semibold min-w-[20px] text-on-surface">{label}</span>
@@ -305,7 +325,7 @@ const McqOptionsForm: React.FC<McqOptionsProps> = ({ options, correctAnswer, idP
           className={`${inputCls} flex-1`}
           placeholder={`Option ${label}`}
           value={options[idx] ?? ''}
-          onChange={e => onOptionChange(idx, e.target.value)}
+          onChange={(e) => onOptionChange(idx, e.target.value)}
         />
       </label>
     ))}
@@ -326,8 +346,14 @@ const QuestionBankPage: React.FC = () => {
   const [deleteAllOpen, setDeleteAllOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [addForm, setAddForm] = useState<EditFormState>({
-    content: '', type: 'MCQ', difficulty: 'Medium',
-    options: ['', '', '', ''], correctAnswer: 'A', points: 1, tags: '', imageData: '',
+    content: '',
+    type: 'MCQ',
+    difficulty: 'Medium',
+    options: ['', '', '', ''],
+    correctAnswer: 'A',
+    points: 1,
+    tags: '',
+    imageData: '',
   });
   const [addError, setAddError] = useState<string | null>(null);
 
@@ -335,20 +361,26 @@ const QuestionBankPage: React.FC = () => {
   const { logout } = useAuth();
   const queryClient = useQueryClient();
 
-  const handleLogout = () => { logout(); navigate('/login', { replace: true }); };
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
   const handleNavigate = (section: DashboardSection) => navigate(SECTION_ROUTES[section]);
 
-  React.useEffect(() => { setPage(1); }, [q, type, tagFilters]);
+  React.useEffect(() => {
+    setPage(1);
+  }, [q, type, tagFilters]);
 
   const { data, isLoading, isFetching } = useQuery({
     queryKey: ['question-bank', q, type, tagFilters, page],
-    queryFn: () => questionBankService.search({
-      q: q || undefined,
-      type: type || undefined,
-      tags: tagFilters.length ? tagFilters : undefined,
-      page: 0,
-      size: page * PAGE_SIZE,
-    }),
+    queryFn: () =>
+      questionBankService.search({
+        q: q || undefined,
+        type: type || undefined,
+        tags: tagFilters.length ? tagFilters : undefined,
+        page: 0,
+        size: page * PAGE_SIZE,
+      }),
     placeholderData: (prev) => prev,
   });
 
@@ -377,7 +409,16 @@ const QuestionBankPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['question-bank'] });
       setAddOpen(false);
-      setAddForm({ content: '', type: 'MCQ', difficulty: 'Medium', options: ['', '', '', ''], correctAnswer: 'A', points: 1, tags: '', imageData: '' });
+      setAddForm({
+        content: '',
+        type: 'MCQ',
+        difficulty: 'Medium',
+        options: ['', '', '', ''],
+        correctAnswer: 'A',
+        points: 1,
+        tags: '',
+        imageData: '',
+      });
       setAddError(null);
     },
     onError: (err: unknown) => {
@@ -387,9 +428,15 @@ const QuestionBankPage: React.FC = () => {
   });
 
   const handleAddSubmit = () => {
-    if (!addForm.content.trim()) { setAddError('Question content is required.'); return; }
+    if (!addForm.content.trim()) {
+      setAddError('Question content is required.');
+      return;
+    }
     setAddError(null);
-    const tagList = addForm.tags.split(',').map(t => t.trim()).filter(Boolean);
+    const tagList = addForm.tags
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean);
     addQuestion({
       content: addForm.content,
       type: addForm.type,
@@ -414,11 +461,11 @@ const QuestionBankPage: React.FC = () => {
 
   const addTagFilter = () => {
     const tag = tagInput.trim();
-    if (tag && !tagFilters.includes(tag)) setTagFilters(prev => [...prev, tag]);
+    if (tag && !tagFilters.includes(tag)) setTagFilters((prev) => [...prev, tag]);
     setTagInput('');
   };
 
-  const removeTagFilter = (tag: string) => setTagFilters(prev => prev.filter(t => t !== tag));
+  const removeTagFilter = (tag: string) => setTagFilters((prev) => prev.filter((t) => t !== tag));
 
   return (
     <>
@@ -438,14 +485,14 @@ const QuestionBankPage: React.FC = () => {
                 className={`${inputCls} pl-8`}
                 placeholder="Search questions…"
                 value={q}
-                onChange={e => setQ(e.target.value)}
+                onChange={(e) => setQ(e.target.value)}
               />
             </div>
 
             {/* Type */}
             <Select
               value={type}
-              onChange={val => setType(val as QuestionType | '')}
+              onChange={(val) => setType(val as QuestionType | '')}
               options={TYPE_OPTIONS}
               placeholder="All Types"
               className="min-w-[160px]"
@@ -456,15 +503,29 @@ const QuestionBankPage: React.FC = () => {
               className={`${inputCls} w-36 shrink-0`}
               placeholder="Add tag filter…"
               value={tagInput}
-              onChange={e => setTagInput(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTagFilter(); } }}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addTagFilter();
+                }
+              }}
             />
 
             {/* Active tag chips */}
-            {tagFilters.map(tag => (
-              <span key={tag} className="inline-flex items-center gap-1 text-xs font-semibold bg-primary-100 text-primary-deep rounded-full px-2 h-6 shrink-0">
+            {tagFilters.map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex items-center gap-1 text-xs font-semibold bg-primary-100 text-primary-deep rounded-full px-2 h-6 shrink-0"
+              >
                 {tag}
-                <Button type="button" variant="ghost" size="sm" onClick={() => removeTagFilter(tag)} className="!min-w-0 !h-5 !px-1 !py-0 leading-none hover:opacity-70">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeTagFilter(tag)}
+                  className="!min-w-0 !h-5 !px-1 !py-0 leading-none hover:opacity-70"
+                >
                   <X size={14} />
                 </Button>
               </span>
@@ -481,8 +542,11 @@ const QuestionBankPage: React.FC = () => {
                 <Button
                   size="sm"
                   variant="primary"
-                    icon={<PlusCircle size={16} />}
-                  onClick={() => { setAddOpen(true); setAddError(null); }}
+                  icon={<PlusCircle size={16} />}
+                  onClick={() => {
+                    setAddOpen(true);
+                    setAddError(null);
+                  }}
                 >
                   Add Question
                 </Button>
@@ -492,7 +556,7 @@ const QuestionBankPage: React.FC = () => {
                   <Button
                     size="sm"
                     variant="danger"
-                      icon={<Trash2 size={16} />}
+                    icon={<Trash2 size={16} />}
                     onClick={() => setDeleteAllOpen(true)}
                   >
                     Delete All
@@ -526,20 +590,30 @@ const QuestionBankPage: React.FC = () => {
                 index={i}
                 onEdit={() => setEditingId(item.id)}
               />
-            )
+            ),
           )}
-
         </ScrollArea>
       </TeacherManQuestionBankLayout>
 
       {/* Add Question modal */}
       <Modal
         open={addOpen}
-        onClose={() => { setAddOpen(false); setAddError(null); }}
+        onClose={() => {
+          setAddOpen(false);
+          setAddError(null);
+        }}
         title="Add New Question"
         actions={
           <>
-            <Button variant="outlined" size="sm" onClick={() => { setAddOpen(false); setAddError(null); }} disabled={isAdding}>
+            <Button
+              variant="outlined"
+              size="sm"
+              onClick={() => {
+                setAddOpen(false);
+                setAddError(null);
+              }}
+              disabled={isAdding}
+            >
               Cancel
             </Button>
             <Button variant="primary" size="sm" onClick={handleAddSubmit} disabled={isAdding}>
@@ -553,14 +627,14 @@ const QuestionBankPage: React.FC = () => {
           placeholder="Question Content"
           rows={3}
           value={addForm.content}
-          onChange={e => setAddForm(f => ({ ...f, content: e.target.value }))}
+          onChange={(e) => setAddForm((f) => ({ ...f, content: e.target.value }))}
         />
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div>
             <label className={labelCls}>Question Type</label>
             <Select
               value={addForm.type}
-              onChange={val => setAddForm(f => ({ ...f, type: val as QuestionType }))}
+              onChange={(val) => setAddForm((f) => ({ ...f, type: val as QuestionType }))}
               options={TYPE_OPTIONS}
             />
           </div>
@@ -568,8 +642,8 @@ const QuestionBankPage: React.FC = () => {
             <label className={labelCls}>Difficulty Level</label>
             <Select
               value={addForm.difficulty}
-              onChange={val => setAddForm(f => ({ ...f, difficulty: val }))}
-              options={DIFFICULTY_OPTIONS.map(d => ({ value: d, label: d }))}
+              onChange={(val) => setAddForm((f) => ({ ...f, difficulty: val }))}
+              options={DIFFICULTY_OPTIONS.map((d) => ({ value: d, label: d }))}
             />
           </div>
         </div>
@@ -579,10 +653,14 @@ const QuestionBankPage: React.FC = () => {
             options={addForm.options}
             correctAnswer={addForm.correctAnswer}
             idPrefix="add"
-            onOptionChange={(idx, val) => setAddForm(f => {
-              const opts = [...f.options]; opts[idx] = val; return { ...f, options: opts };
-            })}
-            onCorrectAnswerChange={val => setAddForm(f => ({ ...f, correctAnswer: val }))}
+            onOptionChange={(idx, val) =>
+              setAddForm((f) => {
+                const opts = [...f.options];
+                opts[idx] = val;
+                return { ...f, options: opts };
+              })
+            }
+            onCorrectAnswerChange={(val) => setAddForm((f) => ({ ...f, correctAnswer: val }))}
           />
         )}
 
@@ -594,7 +672,7 @@ const QuestionBankPage: React.FC = () => {
               className={`${inputCls} w-24`}
               min={0}
               value={addForm.points}
-              onChange={e => setAddForm(f => ({ ...f, points: Number(e.target.value) }))}
+              onChange={(e) => setAddForm((f) => ({ ...f, points: Number(e.target.value) }))}
             />
           </div>
           <div className="flex-1">
@@ -602,7 +680,7 @@ const QuestionBankPage: React.FC = () => {
             <input
               className={inputCls}
               value={addForm.tags}
-              onChange={e => setAddForm(f => ({ ...f, tags: e.target.value }))}
+              onChange={(e) => setAddForm((f) => ({ ...f, tags: e.target.value }))}
             />
           </div>
         </div>
@@ -619,7 +697,7 @@ const QuestionBankPage: React.FC = () => {
               if (!file) return;
               const reader = new FileReader();
               reader.onload = (ev) => {
-                setAddForm(f => ({ ...f, imageData: ev.target?.result as string }));
+                setAddForm((f) => ({ ...f, imageData: ev.target?.result as string }));
               };
               reader.readAsDataURL(file);
             }}
@@ -627,12 +705,14 @@ const QuestionBankPage: React.FC = () => {
         </label>
         {addForm.imageData && (
           <div className="mb-3">
-            <img src={addForm.imageData} alt="Preview" className="max-h-40 rounded-lg border border-gray-300" />
+            <img
+              src={addForm.imageData}
+              alt="Preview"
+              className="max-h-40 rounded-lg border border-gray-300"
+            />
           </div>
         )}
-        {addError && (
-          <p className="text-xs mt-1 text-error-600">{addError}</p>
-        )}
+        {addError && <p className="text-xs mt-1 text-error-600">{addError}</p>}
       </Modal>
 
       {/* Delete All confirmation modal */}
@@ -644,19 +724,28 @@ const QuestionBankPage: React.FC = () => {
         maxWidth="max-w-sm"
         actions={
           <>
-            <Button variant="outlined" size="sm" onClick={() => setDeleteAllOpen(false)} disabled={isDeleting}>
+            <Button
+              variant="outlined"
+              size="sm"
+              onClick={() => setDeleteAllOpen(false)}
+              disabled={isDeleting}
+            >
               Cancel
             </Button>
-            <Button variant="danger" size="sm" onClick={() => deleteAllQuestions()} disabled={isDeleting}>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => deleteAllQuestions()}
+              disabled={isDeleting}
+            >
               {isDeleting ? 'Deleting…' : 'Delete All'}
             </Button>
           </>
         }
       >
         <p className="text-sm text-gray-600 leading-relaxed">
-          This will permanently delete{' '}
-          <strong>all {data?.totalElements ?? ''} questions</strong> from the question bank.
-          This action cannot be undone.
+          This will permanently delete <strong>all {data?.totalElements ?? ''} questions</strong>{' '}
+          from the question bank. This action cannot be undone.
         </p>
       </Modal>
     </>

@@ -2,7 +2,12 @@ import React from 'react';
 import { Download } from 'lucide-react';
 import { Button } from '../atoms';
 // Removed MUI tokens, using Tailwind CSS
-import { AppTopBar, TeacherManDashboardSidebar, APP_BAR_HEIGHT, TEACHER_SIDEBAR_WIDTH } from '../organisms';
+import {
+  AppTopBar,
+  TeacherManDashboardSidebar,
+  APP_BAR_HEIGHT,
+  TEACHER_SIDEBAR_WIDTH,
+} from '../organisms';
 import type { DashboardSection } from '../organisms';
 
 export interface ReportsLayoutProps {
@@ -73,9 +78,7 @@ const TeacherManReportsLayout: React.FC<ReportsLayoutProps> = ({
           </Button>
         )}
       </div>
-      <main className="flex-1 p-6 max-w-6xl mx-auto w-full">
-        {children}
-      </main>
+      <main className="flex-1 p-6 max-w-6xl mx-auto w-full">{children}</main>
     </div>
   </div>
 );

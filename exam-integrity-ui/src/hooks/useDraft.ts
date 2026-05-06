@@ -1,7 +1,11 @@
 /** FE-09 */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { draftService } from '../services/draftService';
-import type { DraftQuestionDTO, DraftQuestionEditCommand, ExamDraftPublishCommand } from '../types/exam.types';
+import type {
+  DraftQuestionDTO,
+  DraftQuestionEditCommand,
+  ExamDraftPublishCommand,
+} from '../types/exam.types';
 
 export function useDraftList(status?: string) {
   return useQuery({
@@ -38,8 +42,13 @@ export function useRemoveQuestion(draftId: string) {
 export function useAddQuestion(draftId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ question, position }: { question: Partial<DraftQuestionDTO>; position?: number }) =>
-      draftService.addQuestion(draftId, question, position),
+    mutationFn: ({
+      question,
+      position,
+    }: {
+      question: Partial<DraftQuestionDTO>;
+      position?: number;
+    }) => draftService.addQuestion(draftId, question, position),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['draft', draftId] }),
   });
 }

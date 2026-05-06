@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  Box, Button, CircularProgress, IconButton,
-  InputAdornment, TextField, Typography, Alert,
+  Box,
+  Button,
+  CircularProgress,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Typography,
+  Alert,
 } from '@mui/material';
 import { Eye, EyeOff, GraduationCap } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -33,7 +39,7 @@ const LoginPage: React.FC = () => {
       const authUser = await login(username.trim(), password);
       // Use freshly-returned user data — not the stale closure from useAuth()
       const isAdminUser = authUser.roles.includes('ADMIN');
-      const dest = isAdminUser ? '/teacher/ingestion' : (from === '/login' ? '/' : from);
+      const dest = isAdminUser ? '/teacher/ingestion' : from === '/login' ? '/' : from;
       navigate(dest, { replace: true });
     } catch {
       setError('Incorrect username or password.');
@@ -60,13 +66,17 @@ const LoginPage: React.FC = () => {
         </div>
 
         {/* Error alert */}
-        {error && <Alert severity="error" className="rounded-md">{error}</Alert>}
+        {error && (
+          <Alert severity="error" className="rounded-md">
+            {error}
+          </Alert>
+        )}
 
         {/* Username */}
         <TextField
           label="Username"
           value={username}
-          onChange={e => setUsername(e.target.value)}
+          onChange={(e) => setUsername(e.target.value)}
           autoComplete="username"
           autoFocus
           fullWidth
@@ -79,7 +89,7 @@ const LoginPage: React.FC = () => {
           label="Password"
           type={showPassword ? 'text' : 'password'}
           value={password}
-          onChange={e => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
           autoComplete="current-password"
           fullWidth
           disabled={isLoading}
@@ -89,7 +99,7 @@ const LoginPage: React.FC = () => {
               <InputAdornment position="end">
                 <IconButton
                   size="small"
-                  onClick={() => setShowPassword(v => !v)}
+                  onClick={() => setShowPassword((v) => !v)}
                   edge="end"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >

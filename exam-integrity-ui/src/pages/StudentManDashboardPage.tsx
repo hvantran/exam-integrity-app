@@ -15,23 +15,25 @@ const PORTAL_ROUTES: Record<PortalSection, string> = {
   results: '/my-exams',
 };
 
-
 const LandingPage: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState('');
   const tags = activeFilter ? [activeFilter] : undefined;
   const { data: exams, isLoading } = useExamList(tags);
   const { data: tagList = [], isLoading: isTagsLoading } = useTagList();
 
-  const filterOptions = React.useMemo(() => [
-    { label: 'All', value: '' },
-    ...tagList.map(tag => ({ label: tag, value: tag })),
-  ], [tagList]);
+  const filterOptions = React.useMemo(
+    () => [{ label: 'All', value: '' }, ...tagList.map((tag) => ({ label: tag, value: tag }))],
+    [tagList],
+  );
   const createSession = useCreateSession();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const studentId = user?.username ?? 'guest';
 
-  const handleLogout = () => { logout(); navigate('/login', { replace: true }); };
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
   const handleNavigate = (section: PortalSection) => navigate(PORTAL_ROUTES[section]);
 
   return (
@@ -47,7 +49,10 @@ const LandingPage: React.FC = () => {
       {isLoading || isTagsLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="border rounded-xl bg-white shadow p-4 flex flex-col justify-between">
+            <div
+              key={index}
+              className="border rounded-xl bg-white shadow p-4 flex flex-col justify-between"
+            >
               <div>
                 <Skeleton height={24} width="72%" className="mb-3" />
                 <Skeleton height={16} width="88%" className="mb-2" />
@@ -63,15 +68,26 @@ const LandingPage: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {(exams ?? []).map(exam => (
-            <div key={exam.id} className="border rounded-xl bg-white shadow p-4 flex flex-col justify-between">
+          {(exams ?? []).map((exam) => (
+            <div
+              key={exam.id}
+              className="border rounded-xl bg-white shadow p-4 flex flex-col justify-between"
+            >
               <div>
                 <div className="text-lg font-semibold mb-1">{exam.title}</div>
                 <div className="text-sm text-gray-500 mb-2">
-                  {exam.questionCount} questions · {Math.round(exam.durationSeconds / 60)} min · {exam.totalPoints} pts
+                  {exam.questionCount} questions · {Math.round(exam.durationSeconds / 60)} min ·{' '}
+                  {exam.totalPoints} pts
                 </div>
                 <div className="flex flex-wrap gap-1 mb-2">
-                  {exam.tags?.map(t => <span key={t} className="text-primary text-xs px-2 py-0.5 rounded-full font-medium">{t}</span>)}
+                  {exam.tags?.map((t) => (
+                    <span
+                      key={t}
+                      className="text-primary text-xs px-2 py-0.5 rounded-full font-medium"
+                    >
+                      {t}
+                    </span>
+                  ))}
                 </div>
               </div>
               <Button

@@ -9,12 +9,12 @@ import { useAuth } from '../context/AuthContext';
 import type { DashboardSection } from '../components/organisms';
 
 const SECTION_ROUTES: Record<DashboardSection, string> = {
-  dashboard:        '/teacher/dashboard',
-  ingestion:        '/teacher/ingestion',
-  review:           '/teacher/ingestion',
-  scoring:          '/teacher/scoring',
-  'question-bank':  '/teacher/question-bank',
-  reports:          '/teacher/ingestion',
+  dashboard: '/teacher/dashboard',
+  ingestion: '/teacher/ingestion',
+  review: '/teacher/ingestion',
+  scoring: '/teacher/scoring',
+  'question-bank': '/teacher/question-bank',
+  reports: '/teacher/ingestion',
 };
 
 const IngestionPage: React.FC = () => {
@@ -24,7 +24,10 @@ const IngestionPage: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
-  const handleLogout = () => { logout(); navigate('/login', { replace: true }); };
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
   const handleNavigate = (section: DashboardSection) => navigate(SECTION_ROUTES[section]);
 
   const upload = useMutation({
@@ -67,7 +70,11 @@ const IngestionPage: React.FC = () => {
             Upload successful! Redirecting to review page…
           </Alert>
         )}
-        {error && <Alert severity="error" className="mt-2">{error}</Alert>}
+        {error && (
+          <Alert severity="error" className="mt-2">
+            {error}
+          </Alert>
+        )}
       </div>
     </TeacherManIngestionLayout>
   );

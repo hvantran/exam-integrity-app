@@ -31,7 +31,8 @@ const calculationQuestion: DraftQuestionDTO = {
 const essayQuestion: DraftQuestionDTO = {
   id: 'q-essay-1',
   questionNumber: 3,
-  content: 'Explain why regular reading is helpful for primary school students. Include at least two benefits.',
+  content:
+    'Explain why regular reading is helpful for primary school students. Include at least two benefits.',
   type: 'ESSAY_LONG',
   points: 4,
   truncated: false,

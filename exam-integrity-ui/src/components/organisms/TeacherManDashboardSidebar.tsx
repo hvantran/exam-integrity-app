@@ -1,12 +1,27 @@
 import React from 'react';
-import { Home, Upload, ClipboardEdit, CheckSquare, BookOpen, BarChart2, Settings, LogOut } from 'lucide-react';
+import {
+  Home,
+  Upload,
+  ClipboardEdit,
+  CheckSquare,
+  BookOpen,
+  BarChart2,
+  Settings,
+  LogOut,
+} from 'lucide-react';
 import { Button } from '../atoms';
 
 import { APP_BAR_HEIGHT } from './AppTopBar';
 
 export const TEACHER_SIDEBAR_WIDTH = 256;
 
-export type DashboardSection = 'dashboard' | 'ingestion' | 'review' | 'scoring' | 'question-bank' | 'reports';
+export type DashboardSection =
+  | 'dashboard'
+  | 'ingestion'
+  | 'review'
+  | 'scoring'
+  | 'question-bank'
+  | 'reports';
 
 export interface DashboardSidebarProps {
   activeSection?: DashboardSection;
@@ -19,16 +34,13 @@ export interface DashboardSidebarProps {
 }
 
 const navItems: { section: DashboardSection; icon: React.ReactNode; label: string }[] = [
-  { section: 'dashboard',      icon: <Home size={18} />, label: 'Dashboard' },
-  { section: 'ingestion',      icon: <Upload size={18} />, label: 'Upload Exam' },
-  { section: 'review',         icon: <ClipboardEdit size={18} />, label: 'Review' },
-  { section: 'scoring',        icon: <CheckSquare size={18} />, label: 'Scoring' },
-  { section: 'question-bank',  icon: <BookOpen size={18} />, label: 'Question Bank' },
-  { section: 'reports',        icon: <BarChart2 size={18} />, label: 'Reports' },
+  { section: 'dashboard', icon: <Home size={18} />, label: 'Dashboard' },
+  { section: 'ingestion', icon: <Upload size={18} />, label: 'Upload Exam' },
+  { section: 'review', icon: <ClipboardEdit size={18} />, label: 'Review' },
+  { section: 'scoring', icon: <CheckSquare size={18} />, label: 'Scoring' },
+  { section: 'question-bank', icon: <BookOpen size={18} />, label: 'Question Bank' },
+  { section: 'reports', icon: <BarChart2 size={18} />, label: 'Reports' },
 ];
-
-
-
 
 const TeacherManDashboardSidebar: React.FC<DashboardSidebarProps> = ({
   activeSection = 'dashboard',
@@ -39,7 +51,11 @@ const TeacherManDashboardSidebar: React.FC<DashboardSidebarProps> = ({
 }) => (
   <nav
     className="fixed left-0 z-80 bg-gray-50 border-r border-gray-200 flex flex-col py-8 overflow-y-auto"
-    style={{ top: APP_BAR_HEIGHT, width: TEACHER_SIDEBAR_WIDTH, height: `calc(100vh - ${APP_BAR_HEIGHT}px)` }}
+    style={{
+      top: APP_BAR_HEIGHT,
+      width: TEACHER_SIDEBAR_WIDTH,
+      height: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
+    }}
   >
     {/* Institution identity */}
     <div className="px-6 mb-8 flex flex-col gap-2">
@@ -55,7 +71,7 @@ const TeacherManDashboardSidebar: React.FC<DashboardSidebarProps> = ({
         <Button
           key={section}
           icon={icon}
-          textJustify='left'
+          textJustify="left"
           onClick={() => onNavigate?.(section)}
           variant="ghost"
           size="md"
@@ -73,7 +89,7 @@ const TeacherManDashboardSidebar: React.FC<DashboardSidebarProps> = ({
         onClick={onSettings}
         variant="ghost"
         icon={<Settings size={18} />}
-        textJustify='left'
+        textJustify="left"
         size="md"
         className="flex items-center gap-3 px-4 py-3 mr-4 rounded-r-xl border-l-4 border-l-transparent text-gray-500 font-medium hover:bg-gray-100 text-left w-full outline-none transition-colors"
       >
@@ -83,7 +99,7 @@ const TeacherManDashboardSidebar: React.FC<DashboardSidebarProps> = ({
         onClick={onLogout}
         variant="ghost"
         icon={<LogOut size={18} />}
-        textJustify='left'
+        textJustify="left"
         size="md"
         className="flex items-center gap-3 px-4 py-3 mr-4 rounded-r-xl border-l-4 border-l-transparent text-gray-500 font-medium hover:bg-gray-100 text-left w-full outline-none transition-colors"
       >

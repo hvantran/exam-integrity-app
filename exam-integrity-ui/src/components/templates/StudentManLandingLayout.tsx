@@ -1,7 +1,12 @@
 import React from 'react';
 import { spacing } from '../../design-system/tokens';
 import { Button } from '../atoms';
-import { AppTopBar, StudentManPortalSidebar, APP_BAR_HEIGHT, STUDENT_SIDEBAR_WIDTH } from '../organisms';
+import {
+  AppTopBar,
+  StudentManPortalSidebar,
+  APP_BAR_HEIGHT,
+  STUDENT_SIDEBAR_WIDTH,
+} from '../organisms';
 import type { PortalSection } from '../organisms';
 
 export interface FilterOption {
@@ -63,17 +68,16 @@ const StudentManLandingLayout: React.FC<LandingLayoutProps> = ({
       className="min-h-screen overflow-y-auto"
       style={{ marginLeft: `${STUDENT_SIDEBAR_WIDTH}px`, paddingTop: `${APP_BAR_HEIGHT}px` }}
     >
-      <div className="mx-auto" style={{ padding: `${spacing.margin}px`, maxWidth: spacing.containerMax }}>
+      <div
+        className="mx-auto"
+        style={{ padding: `${spacing.margin}px`, maxWidth: spacing.containerMax }}
+      >
         {/* Page header */}
         <div className="mb-8">
           <h1 className="text-[32px] font-semibold text-on-surface leading-10 tracking-tight mb-2">
             {pageTitle}
           </h1>
-          {pageSubtitle && (
-            <p className="text-base text-on-surfaceVariant">
-              {pageSubtitle}
-            </p>
-          )}
+          {pageSubtitle && <p className="text-base text-on-surfaceVariant">{pageSubtitle}</p>}
         </div>
 
         {/* Filter bar */}

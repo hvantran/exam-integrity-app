@@ -27,13 +27,21 @@ const OriginalScanPlaceholder = () => (
     }}
   >
     <Typography sx={{ fontSize: '13px', fontFamily: 'monospace', color: '#333', lineHeight: 1.8 }}>
-      <strong>Question 14.</strong> Given the function table:<br />
+      <strong>Question 14.</strong> Given the function table:
+      <br />
       x: 1, 2, 3, 4<br />
-      y: 2, 4, 8, 16<br /><br />
-      Which formula best represents this pattern?<br /><br />
-      A) y = 2x<br />
-      B) y = x²<br />
-      C) y = 2^x<br />
+      y: 2, 4, 8, 16
+      <br />
+      <br />
+      Which formula best represents this pattern?
+      <br />
+      <br />
+      A) y = 2x
+      <br />
+      B) y = x²
+      <br />
+      C) y = 2^x
+      <br />
       D) y = x + 1
     </Typography>
     <Box
@@ -48,8 +56,19 @@ const OriginalScanPlaceholder = () => (
         gap: 0.5,
       }}
     >
-      <Box component="span" sx={{ width: 8, height: 8, borderRadius: '9999px', backgroundColor: colors.secondary.main, animation: 'pulse 2s infinite' }} />
-      <Typography sx={{ fontSize: '12px', fontWeight: 600, color: colors.primary.main }}>OCR Confidence: 98%</Typography>
+      <Box
+        component="span"
+        sx={{
+          width: 8,
+          height: 8,
+          borderRadius: '9999px',
+          backgroundColor: colors.secondary.main,
+          animation: 'pulse 2s infinite',
+        }}
+      />
+      <Typography sx={{ fontSize: '12px', fontWeight: 600, color: colors.primary.main }}>
+        OCR Confidence: 98%
+      </Typography>
     </Box>
   </Box>
 );
@@ -62,9 +81,20 @@ const ParsedContentEditor = () => (
         { label: 'Points', value: '5' },
         { label: 'Parser Confidence', value: '94%' },
       ].map(({ label, value }) => (
-        <Box key={label} sx={{ backgroundColor: colors.surface.container.low, borderRadius: borderRadius.default, p: 1.5 }}>
-          <Typography sx={{ fontSize: '12px', color: colors.on.surfaceVariant, mb: 0.5 }}>{label}</Typography>
-          <Typography sx={{ fontSize: '14px', fontWeight: 600, color: colors.on.surface }}>{value}</Typography>
+        <Box
+          key={label}
+          sx={{
+            backgroundColor: colors.surface.container.low,
+            borderRadius: borderRadius.default,
+            p: 1.5,
+          }}
+        >
+          <Typography sx={{ fontSize: '12px', color: colors.on.surfaceVariant, mb: 0.5 }}>
+            {label}
+          </Typography>
+          <Typography sx={{ fontSize: '14px', fontWeight: 600, color: colors.on.surface }}>
+            {value}
+          </Typography>
         </Box>
       ))}
     </Box>
@@ -79,7 +109,12 @@ const ParsedContentEditor = () => (
     />
     {['A', 'B', 'C', 'D'].map((opt, i) => (
       <Box key={opt} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Chip label={opt} size="small" style={{ fontWeight: 700, minWidth: 32 }} color={i === 2 ? 'primary' : 'default'} />
+        <Chip
+          label={opt}
+          size="small"
+          style={{ fontWeight: 700, minWidth: 32 }}
+          color={i === 2 ? 'primary' : 'default'}
+        />
         <TextField
           fullWidth
           size="small"
@@ -88,7 +123,13 @@ const ParsedContentEditor = () => (
         />
       </Box>
     ))}
-    <Box sx={{ backgroundColor: colors.secondary.container, borderRadius: borderRadius.default, p: 1.5 }}>
+    <Box
+      sx={{
+        backgroundColor: colors.secondary.container,
+        borderRadius: borderRadius.default,
+        p: 1.5,
+      }}
+    >
       <Typography sx={{ fontSize: '12px', fontWeight: 600, color: colors.secondary.onContainer }}>
         Correct Answer: C
       </Typography>
@@ -96,7 +137,9 @@ const ParsedContentEditor = () => (
   </Box>
 );
 
-const InteractiveReviewLayout = (args: React.ComponentProps<typeof TeacherManQuestionReviewLayout>) => {
+const InteractiveReviewLayout = (
+  args: React.ComponentProps<typeof TeacherManQuestionReviewLayout>,
+) => {
   return (
     <TeacherManQuestionReviewLayout
       {...args}

@@ -25,11 +25,11 @@ const Modal: React.FC<ModalProps> = ({
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className={`bg-white rounded-xl shadow-2xl w-full ${maxWidth} flex flex-col max-h-[90vh]`}>
+      <div
+        className={`bg-white rounded-xl shadow-2xl w-full ${maxWidth} flex flex-col max-h-[90vh]`}
+      >
         <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b border-gray-100">
-          <h2 className={`text-lg font-bold ${titleClassName ?? 'text-primary'}`}>
-            {title}
-          </h2>
+          <h2 className={`text-lg font-bold ${titleClassName ?? 'text-primary'}`}>{title}</h2>
           {React.createElement(
             'button',
             {

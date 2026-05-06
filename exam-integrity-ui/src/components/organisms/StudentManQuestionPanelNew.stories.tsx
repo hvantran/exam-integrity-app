@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { StoryFn, Meta } from '@storybook/react';
-import StudentManQuestionPanelNew, { StudentManQuestionPanelNewProps } from './StudentManQuestionPanelNew';
-
+import StudentManQuestionPanelNew, {
+  StudentManQuestionPanelNewProps,
+} from './StudentManQuestionPanelNew';
 
 export default {
   title: 'Organisms/StudentManQuestionPanelNew',
@@ -12,8 +13,9 @@ export default {
   },
 } as Meta<typeof StudentManQuestionPanelNew>;
 
-
-const Template: StoryFn<StudentManQuestionPanelNewProps> = (args: StudentManQuestionPanelNewProps) => {
+const Template: StoryFn<StudentManQuestionPanelNewProps> = (
+  args: StudentManQuestionPanelNewProps,
+) => {
   const [selectedAnswer, setSelectedAnswer] = useState<string>(args.selectedAnswer);
   const [flagged, setFlagged] = useState<boolean>(args.flagged);
 

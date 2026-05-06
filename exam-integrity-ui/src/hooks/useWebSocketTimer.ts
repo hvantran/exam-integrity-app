@@ -12,7 +12,10 @@ interface UseWebSocketTimerResult {
   forceSubmit: boolean;
 }
 
-export function useWebSocketTimer(sessionId: string, onForceSubmit?: () => void): UseWebSocketTimerResult {
+export function useWebSocketTimer(
+  sessionId: string,
+  onForceSubmit?: () => void,
+): UseWebSocketTimerResult {
   const [remaining, setRemaining] = useState<number | null>(null);
   const [forceSubmit, setForceSubmit] = useState(false);
   const stompRef = useRef<Client | null>(null);

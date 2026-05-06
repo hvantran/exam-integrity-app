@@ -2,10 +2,20 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Alert, Button,
-  Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, Table, TableHead, TableRow, TableCell, TableBody,
-  IconButton, InputAdornment,
+  Alert,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  IconButton,
+  InputAdornment,
 } from '@mui/material';
 import { Search, X } from 'lucide-react';
 import { TeacherManQuestionReviewLayout } from '../components/templates';
@@ -21,12 +31,12 @@ import { Chip } from '../components/atoms';
 import { colors } from '../design-system/tokens';
 
 const SECTION_ROUTES: Record<DashboardSection, string> = {
-  dashboard:        '/teacher/dashboard',
-  ingestion:        '/teacher/ingestion',
-  review:           '/teacher/ingestion',
-  scoring:          '/teacher/scoring',
-  'question-bank':  '/teacher/question-bank',
-  reports:          '/teacher/ingestion',
+  dashboard: '/teacher/dashboard',
+  ingestion: '/teacher/ingestion',
+  review: '/teacher/ingestion',
+  scoring: '/teacher/scoring',
+  'question-bank': '/teacher/question-bank',
+  reports: '/teacher/ingestion',
 };
 
 const MCQ_OPTION_LABELS = ['A', 'B', 'C', 'D', 'E', 'F'];
@@ -49,7 +59,7 @@ function normalizeMcqAnswer(answer: string | undefined, options: string[] | unde
     return directLabel;
   }
 
-  const matchedIndex = (options ?? []).findIndex(opt => opt === raw);
+  const matchedIndex = (options ?? []).findIndex((opt) => opt === raw);
   if (matchedIndex >= 0) {
     return MCQ_OPTION_LABELS[matchedIndex] ?? '';
   }
@@ -61,12 +71,17 @@ function normalizeMcqAnswer(answer: string | undefined, options: string[] | unde
 
 interface ReplaceBankModalProps {
   open: boolean;
-  insertPosition: number;   // 1-based position in the draft
+  insertPosition: number; // 1-based position in the draft
   draftId: string;
   onClose: () => void;
 }
 
-const ReplaceBankModal: React.FC<ReplaceBankModalProps> = ({ open, insertPosition, draftId, onClose }) => {
+const ReplaceBankModal: React.FC<ReplaceBankModalProps> = ({
+  open,
+  insertPosition,
+  draftId,
+  onClose,
+}) => {
   const [search, setSearch] = useState('');
   const addQuestion = useAddQuestion(draftId);
 
@@ -74,7 +89,7 @@ const ReplaceBankModal: React.FC<ReplaceBankModalProps> = ({ open, insertPositio
     queryKey: ['question-bank-pick', search],
     queryFn: () => questionBankService.search({ q: search || undefined, size: 20 }),
     enabled: open,
-    placeholderData: prev => prev,
+    placeholderData: (prev) => prev,
   });
 
   const handlePick = (q: DraftQuestionDTO) => {
@@ -99,7 +114,9 @@ const ReplaceBankModal: React.FC<ReplaceBankModalProps> = ({ open, insertPositio
       <DialogTitle>
         <div className="flex items-center justify-between w-full">
           <span>Select questions from the bank</span>
-          <IconButton size="small" onClick={onClose}><X size={18} /></IconButton>
+          <IconButton size="small" onClick={onClose}>
+            <X size={18} />
+          </IconButton>
         </div>
       </DialogTitle>
       <DialogContent dividers>
@@ -108,11 +125,13 @@ const ReplaceBankModal: React.FC<ReplaceBankModalProps> = ({ open, insertPositio
           size="small"
           placeholder="Search question content…"
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
           className="mb-4"
           InputProps={{
             startAdornment: (
-              <InputAdornment position="start"><Search size={18} /></InputAdornment>
+              <InputAdornment position="start">
+                <Search size={18} />
+              </InputAdornment>
             ),
           }}
         />
@@ -134,7 +153,7 @@ const ReplaceBankModal: React.FC<ReplaceBankModalProps> = ({ open, insertPositio
               </TableRow>
             </TableHead>
             <TableBody>
-              {(data?.content ?? []).map(q => (
+              {(data?.content ?? []).map((q) => (
                 <TableRow key={q.id} hover>
                   <TableCell className="max-w-[420px] truncate">
                     <span className="text-sm font-normal truncate block">{q.content}</span>
@@ -159,7 +178,9 @@ const ReplaceBankModal: React.FC<ReplaceBankModalProps> = ({ open, insertPositio
               {data?.content.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={4}>
-                    <div className="text-center text-gray-400 text-sm py-2">No questions found.</div>
+                    <div className="text-center text-gray-400 text-sm py-2">
+                      No questions found.
+                    </div>
                   </TableCell>
                 </TableRow>
               )}
@@ -187,7 +208,10 @@ const QuestionReviewPage: React.FC = () => {
   const [saveError, setSaveError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { logout } = useAuth();
-  const handleLogout = () => { logout(); navigate('/login', { replace: true }); };
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
   const handleNavigate = (section: DashboardSection) => navigate(SECTION_ROUTES[section]);
 
   const { data: draft, isLoading } = useDraft(draftId);
@@ -195,7 +219,7 @@ const QuestionReviewPage: React.FC = () => {
   const removeQuestion = useRemoveQuestion(draftId);
 
   // Only show non-excluded questions in the reviewer
-  const questions = (draft?.questions ?? []).filter(q => q.reviewStatus !== 'EXCLUDED');
+  const questions = (draft?.questions ?? []).filter((q) => q.reviewStatus !== 'EXCLUDED');
   const currentQ = questions[currentIdx];
   const total = questions.length;
 
@@ -235,12 +259,18 @@ const QuestionReviewPage: React.FC = () => {
     const persistedAnswer = normalizeMcqAnswer(currentQ.correctAnswer, currentQ.options);
     if (pendingAnswer !== persistedAnswer) return;
 
-    setPendingCorrectAnswers(prev => {
+    setPendingCorrectAnswers((prev) => {
       const next = { ...prev };
       delete next[currentQ.id];
       return next;
     });
-  }, [currentQ?.id, currentQ?.type, currentQ?.correctAnswer, currentQ?.options, pendingCorrectAnswers]);
+  }, [
+    currentQ?.id,
+    currentQ?.type,
+    currentQ?.correctAnswer,
+    currentQ?.options,
+    pendingCorrectAnswers,
+  ]);
 
   // Clean up local pending image once server state catches up.
   useEffect(() => {
@@ -252,7 +282,7 @@ const QuestionReviewPage: React.FC = () => {
     const persistedImage = currentQ.imageData ?? '';
     if (pendingImage !== persistedImage) return;
 
-    setPendingQuestionImages(prev => {
+    setPendingQuestionImages((prev) => {
       const next = { ...prev };
       delete next[currentQ.id];
       return next;
@@ -264,7 +294,7 @@ const QuestionReviewPage: React.FC = () => {
     removeQuestion.mutate(currentQ.id, {
       onSuccess: () => {
         // move index back if we deleted the last item
-        setCurrentIdx(i => Math.min(i, total - 2));
+        setCurrentIdx((i) => Math.min(i, total - 2));
       },
     });
   };
@@ -288,7 +318,7 @@ const QuestionReviewPage: React.FC = () => {
     if (!currentQ || currentQ.type !== 'MCQ') return;
     setCorrectAnswerInput(value);
     setSaveError(null);
-    setPendingCorrectAnswers(prev => ({
+    setPendingCorrectAnswers((prev) => ({
       ...prev,
       [currentQ.id]: value,
     }));
@@ -332,7 +362,7 @@ const QuestionReviewPage: React.FC = () => {
       const imageData = await toDataUrl(file);
       if (!imageData) return;
 
-      setPendingQuestionImages(prev => ({
+      setPendingQuestionImages((prev) => ({
         ...prev,
         [currentQ.id]: imageData,
       }));
@@ -353,7 +383,7 @@ const QuestionReviewPage: React.FC = () => {
     if (!currentQ) return;
 
     setSaveError(null);
-    setPendingQuestionImages(prev => ({
+    setPendingQuestionImages((prev) => ({
       ...prev,
       [currentQ.id]: '',
     }));
@@ -379,10 +409,13 @@ const QuestionReviewPage: React.FC = () => {
     const pendingEntries = Object.entries(pendingCorrectAnswers);
 
     for (const [questionId, selectedAnswer] of pendingEntries) {
-      const targetQuestion = questions.find(q => q.id === questionId);
+      const targetQuestion = questions.find((q) => q.id === questionId);
       if (!targetQuestion || targetQuestion.type !== 'MCQ') continue;
 
-      const persistedAnswer = normalizeMcqAnswer(targetQuestion.correctAnswer, targetQuestion.options);
+      const persistedAnswer = normalizeMcqAnswer(
+        targetQuestion.correctAnswer,
+        targetQuestion.options,
+      );
       if (selectedAnswer === persistedAnswer) continue;
 
       try {
@@ -401,7 +434,7 @@ const QuestionReviewPage: React.FC = () => {
     const pendingImageEntries = Object.entries(pendingQuestionImages);
 
     for (const [questionId, pendingImageData] of pendingImageEntries) {
-      const targetQuestion = questions.find(q => q.id === questionId);
+      const targetQuestion = questions.find((q) => q.id === questionId);
       if (!targetQuestion) continue;
 
       const persistedImage = targetQuestion.imageData ?? '';
@@ -449,7 +482,9 @@ const QuestionReviewPage: React.FC = () => {
   }
   if (!draft) return <Alert severity="error">Draft not found.</Alert>;
 
-  const displayImageData = currentQ ? (pendingQuestionImages[currentQ.id] ?? currentQ.imageData) : undefined;
+  const displayImageData = currentQ
+    ? (pendingQuestionImages[currentQ.id] ?? currentQ.imageData)
+    : undefined;
 
   return (
     <>
@@ -459,7 +494,8 @@ const QuestionReviewPage: React.FC = () => {
         examName={draft.summary.title ?? draft.summary.originalFilename}
         onReplace={() => setBankModalOpen(true)}
         onApprove={() => {
-          if (currentQ) editQuestion.mutate({ questionId: currentQ.id, cmd: { reviewStatus: 'APPROVED' } });
+          if (currentQ)
+            editQuestion.mutate({ questionId: currentQ.id, cmd: { reviewStatus: 'APPROVED' } });
         }}
         onDelete={handleDelete}
         isLoading={removeQuestion.isPending || editQuestion.isPending}
@@ -485,9 +521,11 @@ const QuestionReviewPage: React.FC = () => {
                     onClick={() => setCurrentIdx(i)}
                     variant="outlined"
                     size="small"
-                    className={`px-3 py-1 rounded border text-xs font-medium transition-colors duration-150 ${currentIdx === i
-                      ? 'bg-primary text-primary-on border-primary font-bold'
-                      : 'bg-surface text-on-surface border-outline'} hover:opacity-85`}
+                    className={`px-3 py-1 rounded border text-xs font-medium transition-colors duration-150 ${
+                      currentIdx === i
+                        ? 'bg-primary text-primary-on border-primary font-bold'
+                        : 'bg-surface text-on-surface border-outline'
+                    } hover:opacity-85`}
                   >
                     {`Question ${q.questionNumber > 0 ? q.questionNumber : i + 1}`}
                   </Button>
@@ -496,8 +534,8 @@ const QuestionReviewPage: React.FC = () => {
             )}
 
             {currentQ ? (
-              <QuestionDisplay 
-                question={currentQ} 
+              <QuestionDisplay
+                question={currentQ}
                 index={currentIdx}
                 questionScore={scoreInput}
                 onQuestionScoreChange={setScoreInput}
@@ -510,17 +548,31 @@ const QuestionReviewPage: React.FC = () => {
                 onCorrectAnswerBlur={handleCorrectAnswerBlur}
               />
             ) : (
-              <Alert severity="info">
-                No questions were extracted from this PDF.
-              </Alert>
+              <Alert severity="info">No questions were extracted from this PDF.</Alert>
             )}
 
             <div className="flex gap-2 mt-4 items-center">
-              <Button variant="outlined" size="small" disabled={currentIdx === 0}
-                onClick={() => setCurrentIdx(i => i - 1)} className="!rounded !px-3 !py-1">← Prev</Button>
-              <span className="flex-1 text-center text-xs text-gray-500">{total > 0 ? `${currentIdx + 1} / ${total}` : 'No questions'}</span>
-              <Button variant="outlined" size="small" disabled={currentIdx >= total - 1}
-                onClick={() => setCurrentIdx(i => i + 1)} className="!rounded !px-3 !py-1">Next →</Button>
+              <Button
+                variant="outlined"
+                size="small"
+                disabled={currentIdx === 0}
+                onClick={() => setCurrentIdx((i) => i - 1)}
+                className="!rounded !px-3 !py-1"
+              >
+                ← Prev
+              </Button>
+              <span className="flex-1 text-center text-xs text-gray-500">
+                {total > 0 ? `${currentIdx + 1} / ${total}` : 'No questions'}
+              </span>
+              <Button
+                variant="outlined"
+                size="small"
+                disabled={currentIdx >= total - 1}
+                onClick={() => setCurrentIdx((i) => i + 1)}
+                className="!rounded !px-3 !py-1"
+              >
+                Next →
+              </Button>
             </div>
           </div>
         }
@@ -528,9 +580,13 @@ const QuestionReviewPage: React.FC = () => {
           <div className="p-4">
             <div className="text-xs font-semibold text-gray-700 mb-1">Draft Info</div>
             <div className="text-xs text-gray-500">{draft.summary.originalFilename}</div>
-            <div className="text-xs text-gray-500 mt-2">{total} questions · {draft.summary.totalPoints} pts</div>
+            <div className="text-xs text-gray-500 mt-2">
+              {total} questions · {draft.summary.totalPoints} pts
+            </div>
             {draft.summary.flaggedQuestionCount > 0 && (
-              <div className="text-xs text-yellow-700 mt-2">⚠ {draft.summary.flaggedQuestionCount} questions need review</div>
+              <div className="text-xs text-yellow-700 mt-2">
+                ⚠ {draft.summary.flaggedQuestionCount} questions need review
+              </div>
             )}
           </div>
         }

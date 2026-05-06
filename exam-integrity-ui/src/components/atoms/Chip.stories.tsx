@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Meta, StoryObj } from '@storybook/react';
 import Chip from './Chip';
-import {CircleCheckIcon} from 'lucide-react';
+import { CircleCheckIcon } from 'lucide-react';
 
 const meta: Meta<typeof Chip> = {
   title: 'Atoms/Chip',

@@ -59,7 +59,10 @@ const StudentManPortalSidebar: React.FC<PortalSidebarProps> = ({
           <a
             key={id}
             href="#"
-            onClick={(e) => { e.preventDefault(); onNavigate?.(id); }}
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate?.(id);
+            }}
             className={`flex items-center gap-3 px-4 py-3 rounded-r-lg transition-all text-sm font-medium ${
               isActive
                 ? 'border-l-4 border-blue-500 bg-blue-50 text-blue-700 mx-0'

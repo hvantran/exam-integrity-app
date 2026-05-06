@@ -22,7 +22,9 @@ export function useCreateExamFromBank() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (cmd: CreateExamFromBankCommand) => examService.createFromBank(cmd),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['exams'] }); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['exams'] });
+    },
   });
 }
 
@@ -30,7 +32,9 @@ export function useDeleteExam() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (examId: string) => examService.deleteExam(examId),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['exams'] }); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['exams'] });
+    },
   });
 }
 

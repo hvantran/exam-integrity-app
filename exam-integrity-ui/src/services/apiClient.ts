@@ -5,11 +5,12 @@
  */
 import axios from 'axios';
 
-export const API_BASE = process.env.REACT_APP_API_BASE_URL ?? 'http://localhost:8090/exam-integrity-backend';
+export const API_BASE =
+  process.env.REACT_APP_API_BASE_URL ?? 'http://localhost:8090/exam-integrity-backend';
 
 const apiClient = axios.create({ baseURL: API_BASE });
 
-apiClient.interceptors.request.use(config => {
+apiClient.interceptors.request.use((config) => {
   const creds = sessionStorage.getItem('exam_creds');
   if (creds) {
     const { username, password } = JSON.parse(creds) as { username: string; password: string };
@@ -19,8 +20,8 @@ apiClient.interceptors.request.use(config => {
 });
 
 apiClient.interceptors.response.use(
-  res => res,
-  err => {
+  (res) => res,
+  (err) => {
     if (err.response?.status === 401) {
       sessionStorage.removeItem('exam_creds');
       sessionStorage.removeItem('exam_user');

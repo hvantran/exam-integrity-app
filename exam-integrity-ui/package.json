@@ -31,7 +31,9 @@
     "eject": "react-scripts eject",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "gen:api": "npx openapi-generator-cli generate -i ../openapi.yaml -g typescript-axios -o src/generated/api --additional-properties=useSingleRequestParameter=true,supportsES6=true"
+    "gen:api": "npx openapi-generator-cli generate -i ../openapi.yaml -g typescript-axios -o src/generated/api --additional-properties=useSingleRequestParameter=true,supportsES6=true",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check"
   },
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "^2.13.4",
@@ -47,6 +49,7 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@types/sockjs-client": "^1.5.4",
+    "prettier": "^3.8.3",
     "storybook": "^8.6.0"
   },
   "browserslist": {

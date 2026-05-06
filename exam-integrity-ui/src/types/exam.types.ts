@@ -35,7 +35,7 @@ export interface QuestionSummaryDTO {
   options?: string[];
   questionParts?: QuestionPart[];
   truncated: boolean;
-  imageData?: string
+  imageData?: string;
 }
 
 export interface DraftQuestionDTO {

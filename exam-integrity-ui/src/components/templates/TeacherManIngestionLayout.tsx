@@ -3,10 +3,7 @@ import { Plus } from 'lucide-react';
 import { Button } from '../atoms';
 import { Skeleton } from '../molecules';
 import type { DashboardSection } from '../organisms';
-import {
-  AppTopBar,
-  TeacherManDashboardSidebar
-} from '../organisms';
+import { AppTopBar, TeacherManDashboardSidebar } from '../organisms';
 
 export interface IngestionLayoutProps {
   userName?: string;
@@ -74,9 +71,7 @@ const TeacherManIngestionLayout: React.FC<IngestionLayoutProps> = ({
         {/* Exam cards grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {isLoading
-            ? [0, 1, 2].map((i) => (
-              <Skeleton key={i} height={200} className="rounded-xl" />
-            ))
+            ? [0, 1, 2].map((i) => <Skeleton key={i} height={200} className="rounded-xl" />)
             : children}
         </div>
       </div>

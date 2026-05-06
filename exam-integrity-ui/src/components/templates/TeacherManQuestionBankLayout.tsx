@@ -56,7 +56,9 @@ const TeacherManQuestionBankLayout: React.FC<QuestionBankLayoutProps> = ({
           {/* Page header */}
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-2 leading-tight">Question Bank</h2>
-            <div className="text-sm text-gray-500">Browse and filter approved questions to build your examination draft.</div>
+            <div className="text-sm text-gray-500">
+              Browse and filter approved questions to build your examination draft.
+            </div>
           </div>
           {isLoading ? (
             <>
@@ -81,14 +83,10 @@ const TeacherManQuestionBankLayout: React.FC<QuestionBankLayoutProps> = ({
               )}
               {/* Results bar */}
               {resultsBar && (
-                <div className="flex items-center justify-between mb-3">
-                  {resultsBar}
-                </div>
+                <div className="flex items-center justify-between mb-3">{resultsBar}</div>
               )}
               {/* Question cards */}
-              <div className="flex flex-col gap-3">
-                {children}
-              </div>
+              <div className="flex flex-col gap-3">{children}</div>
             </>
           )}
         </div>
@@ -98,4 +96,3 @@ const TeacherManQuestionBankLayout: React.FC<QuestionBankLayoutProps> = ({
 );
 
 export default TeacherManQuestionBankLayout;
-

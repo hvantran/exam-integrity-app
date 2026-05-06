@@ -2,10 +2,7 @@ import React from 'react';
 import { Button } from '../atoms';
 import { Skeleton } from '../molecules';
 import { Replace, Trash2, CircleCheck } from 'lucide-react';
-import {
-  AppTopBar,
-  TeacherManDashboardSidebar,
-} from '../organisms';
+import { AppTopBar, TeacherManDashboardSidebar } from '../organisms';
 import type { DashboardSection } from '../organisms';
 
 export interface QuestionReviewLayoutProps {
@@ -81,8 +78,12 @@ const TeacherManQuestionReviewLayout: React.FC<QuestionReviewLayoutProps> = ({
             <span className="text-sm text-gray-500">{examName}</span>
           </div>
           <div className="flex gap-2">
-            <Button variant="outlined" onClick={onSaveDraft} size="sm" disabled={isLoading}>Save Draft</Button>
-            <Button variant="primary" onClick={onPublish} size="sm" disabled={isLoading}>Publish</Button>
+            <Button variant="outlined" onClick={onSaveDraft} size="sm" disabled={isLoading}>
+              Save Draft
+            </Button>
+            <Button variant="primary" onClick={onPublish} size="sm" disabled={isLoading}>
+              Publish
+            </Button>
           </div>
         </div>
       )}
@@ -95,15 +96,12 @@ const TeacherManQuestionReviewLayout: React.FC<QuestionReviewLayoutProps> = ({
             <div className="text-sm font-medium text-gray-500 mb-1">
               Question {questionNumber} <span className="text-gray-400">/ {totalQuestions}</span>
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 leading-tight">Review &amp; Edit Question</h2>
+            <h2 className="text-3xl font-bold text-gray-900 leading-tight">
+              Review &amp; Edit Question
+            </h2>
           </div>
           <div className="flex gap-2">
-            <Button
-              variant="outlined"
-              size="sm"
-              icon={<Replace size={18} />}
-              onClick={onReplace}
-            >
+            <Button variant="outlined" size="sm" icon={<Replace size={18} />} onClick={onReplace}>
               Replace from Bank
             </Button>
             <Button
@@ -114,12 +112,7 @@ const TeacherManQuestionReviewLayout: React.FC<QuestionReviewLayoutProps> = ({
             >
               Approve
             </Button>
-            <Button
-              variant="danger"
-              size="sm"
-              icon={<Trash2 size={18} />}
-              onClick={onDelete}
-            >
+            <Button variant="danger" size="sm" icon={<Trash2 size={18} />} onClick={onDelete}>
               Delete Question
             </Button>
           </div>
@@ -136,9 +129,7 @@ const TeacherManQuestionReviewLayout: React.FC<QuestionReviewLayoutProps> = ({
               {isLoading ? (
                 <Skeleton height={300} className="w-full h-full min-h-[300px] rounded-lg" />
               ) : (
-                leftPanel ?? (
-                  <span className="text-sm text-gray-400">No scan provided.</span>
-                )
+                (leftPanel ?? <span className="text-sm text-gray-400">No scan provided.</span>)
               )}
             </div>
           </div>
@@ -158,9 +149,9 @@ const TeacherManQuestionReviewLayout: React.FC<QuestionReviewLayoutProps> = ({
                   ))}
                 </>
               ) : (
-                rightPanel ?? (
+                (rightPanel ?? (
                   <span className="text-sm text-gray-400">No parsed content provided.</span>
-                )
+                ))
               )}
             </div>
           </div>

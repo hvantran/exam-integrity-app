@@ -46,7 +46,6 @@ const StudentManExamNavigationBar: React.FC<ExamNavigationBarProps> = ({
       className="w-full rounded-2xl border border-slate-200 bg-gradient-to-r from-white to-slate-50/70 p-3 md:p-4 shadow-[0_8px_24px_-20px_rgba(15,23,42,0.5)]"
       aria-label="Exam question actions"
     >
-
       <div className="mt-3 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <Button
           variant={toneToVariant.accent}
@@ -79,17 +78,13 @@ const StudentManExamNavigationBar: React.FC<ExamNavigationBarProps> = ({
             Next
           </Button>
 
-          {isLastQuestion &&
-            <Button
-              variant={toneToVariant.danger}
-              onClick={onSubmit}
-            >
+          {isLastQuestion && (
+            <Button variant={toneToVariant.danger} onClick={onSubmit}>
               Submit Exam
             </Button>
-          }
+          )}
         </div>
       </div>
-
     </section>
   );
 };

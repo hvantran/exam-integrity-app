@@ -27,7 +27,7 @@ interface MathQuestionInputProps {
  *
  * Main entry point for rendering math question inputs.
  * Automatically detects formula type and renders appropriate specialized component.
- * 
+ *
  * Renders:
  * - SimpleArithmeticInput for single-operator formulas (addition, subtraction, multiplication, division)
  * - ComplexFormulaInput for multi-operator formulas

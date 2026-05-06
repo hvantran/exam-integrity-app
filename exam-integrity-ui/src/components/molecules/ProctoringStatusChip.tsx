@@ -12,10 +12,7 @@ export interface ProctoringStatusChipProps {
  * "Integrity Green" pill with a pulsing dot indicating live proctoring.
  * When active=false it shows a neutral "Proctoring Off" state.
  */
-const ProctoringStatusChip: React.FC<ProctoringStatusChipProps> = ({
-  active = true,
-  label,
-}) => {
+const ProctoringStatusChip: React.FC<ProctoringStatusChipProps> = ({ active = true, label }) => {
   const displayLabel = label ?? (active ? 'Proctoring Active' : 'Proctoring Off');
   const dotColor = active ? colors.secondary.main : colors.outline;
   const bgColor = active ? '#DCFCE7' : colors.surface.container.highest;

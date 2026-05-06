@@ -31,8 +31,7 @@ export const MCQ: Story = {
     questionNumber: 18,
     subject: 'Sinh học',
     gradeLevel: 'Lớp 12',
-    questionText:
-      'Trong quá trình phiên mã, enzim ARN pôlimeraza có vai trò gì?',
+    questionText: 'Trong quá trình phiên mã, enzim ARN pôlimeraza có vai trò gì?',
     questionType: 'MCQ',
     options: biologyOptions,
     selectedAnswer: 'A',
@@ -127,8 +126,7 @@ export const EssayWithParts: Story = {
     questionNumber: 7,
     subject: 'Toán',
     gradeLevel: 'Lớp 4',
-    questionText:
-      'Tính giá trị của biểu thức:\na) 12 523 + 20 492 : 4\nb) (15 320 – 3 105) x 8',
+    questionText: 'Tính giá trị của biểu thức:\na) 12 523 + 20 492 : 4\nb) (15 320 – 3 105) x 8',
     questionStem: 'Tính giá trị của biểu thức:',
     questionType: 'ESSAY_SHORT',
     questionParts: [

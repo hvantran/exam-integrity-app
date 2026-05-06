@@ -37,7 +37,7 @@ const ScrollArea: React.FC<ScrollAreaProps> = ({
         root: null,
         rootMargin,
         threshold: 0,
-      }
+      },
     );
 
     observer.observe(sentinelRef.current);
@@ -48,12 +48,14 @@ const ScrollArea: React.FC<ScrollAreaProps> = ({
     <div className={className}>
       {children}
 
-      {hasMore && (
-        <div ref={sentinelRef} className="h-1 w-full" aria-hidden="true" />
-      )}
+      {hasMore && <div ref={sentinelRef} className="h-1 w-full" aria-hidden="true" />}
 
       <div className="flex justify-center mt-6 min-h-6 text-sm text-on-surfaceVariant">
-        {isLoading ? loader ?? <span>Loading more…</span> : !hasMore ? endMessage ?? null : null}
+        {isLoading
+          ? (loader ?? <span>Loading more…</span>)
+          : !hasMore
+            ? (endMessage ?? null)
+            : null}
       </div>
     </div>
   );

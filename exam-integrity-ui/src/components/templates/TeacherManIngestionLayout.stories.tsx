@@ -39,7 +39,13 @@ const accentColors: Record<ExamCardProps['status'], string> = {
   APPROVED: colors.secondary.main,
 };
 
-const ExamCard: React.FC<ExamCardProps> = ({ filename, status, ocrConfidence, flaggedQuestions, warning }) => (
+const ExamCard: React.FC<ExamCardProps> = ({
+  filename,
+  status,
+  ocrConfidence,
+  flaggedQuestions,
+  warning,
+}) => (
   <Box
     sx={{
       backgroundColor: colors.surface.container.lowest,
@@ -50,10 +56,28 @@ const ExamCard: React.FC<ExamCardProps> = ({ filename, status, ocrConfidence, fl
       overflow: 'hidden',
     }}
   >
-    <Box sx={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 4, backgroundColor: accentColors[status] }} />
-    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: `${spacing.stackMd}px` }}>
+    <Box
+      sx={{
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        bottom: 0,
+        width: 4,
+        backgroundColor: accentColors[status],
+      }}
+    />
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        mb: `${spacing.stackMd}px`,
+      }}
+    >
       <Box>
-        <Typography sx={{ fontSize: '14px', fontWeight: 500, color: colors.on.surfaceVariant, mb: 0.5 }}>
+        <Typography
+          sx={{ fontSize: '14px', fontWeight: 500, color: colors.on.surfaceVariant, mb: 0.5 }}
+        >
           {filename}
         </Typography>
         <Chip
@@ -73,31 +97,91 @@ const ExamCard: React.FC<ExamCardProps> = ({ filename, status, ocrConfidence, fl
     </Box>
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: `${spacing.stackMd}px` }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography sx={{ fontSize: '14px', color: colors.on.surfaceVariant }}>OCR Confidence</Typography>
+        <Typography sx={{ fontSize: '14px', color: colors.on.surfaceVariant }}>
+          OCR Confidence
+        </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ width: 64, height: 6, backgroundColor: colors.surface.container.default, borderRadius: '9999px', overflow: 'hidden' }}>
-            <Box sx={{ height: '100%', width: `${ocrConfidence}%`, backgroundColor: ocrConfidence >= 90 ? colors.secondary.main : '#EAB308', borderRadius: '9999px' }} />
+          <Box
+            sx={{
+              width: 64,
+              height: 6,
+              backgroundColor: colors.surface.container.default,
+              borderRadius: '9999px',
+              overflow: 'hidden',
+            }}
+          >
+            <Box
+              sx={{
+                height: '100%',
+                width: `${ocrConfidence}%`,
+                backgroundColor: ocrConfidence >= 90 ? colors.secondary.main : '#EAB308',
+                borderRadius: '9999px',
+              }}
+            />
           </Box>
-          <Typography sx={{ fontSize: '14px', color: ocrConfidence >= 90 ? colors.secondary.main : '#CA8A04', fontWeight: 500 }}>
+          <Typography
+            sx={{
+              fontSize: '14px',
+              color: ocrConfidence >= 90 ? colors.secondary.main : '#CA8A04',
+              fontWeight: 500,
+            }}
+          >
             {ocrConfidence}%
           </Typography>
         </Box>
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography sx={{ fontSize: '14px', color: colors.on.surfaceVariant }}>Flagged Questions</Typography>
-        <Typography sx={{ fontSize: '14px', color: flaggedQuestions > 0 ? '#BA1A1A' : colors.on.surface, fontWeight: 500 }}>
+        <Typography sx={{ fontSize: '14px', color: colors.on.surfaceVariant }}>
+          Flagged Questions
+        </Typography>
+        <Typography
+          sx={{
+            fontSize: '14px',
+            color: flaggedQuestions > 0 ? '#BA1A1A' : colors.on.surface,
+            fontWeight: 500,
+          }}
+        >
           {flaggedQuestions}
         </Typography>
       </Box>
       {warning && (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, backgroundColor: '#FFDAD6', color: '#BA1A1A', p: 1, borderRadius: borderRadius.default }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            mt: 1,
+            backgroundColor: '#FFDAD6',
+            color: '#BA1A1A',
+            p: 1,
+            borderRadius: borderRadius.default,
+          }}
+        >
           <AlertTriangle size={16} />
-          <Typography sx={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.05em' }}>{warning}</Typography>
+          <Typography sx={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.05em' }}>
+            {warning}
+          </Typography>
         </Box>
       )}
     </Box>
-    <Box sx={{ mt: `${spacing.stackLg}px`, pt: `${spacing.stackSm}px`, borderTop: `1px solid ${colors.surface.container.high}`, display: 'flex', justifyContent: 'flex-end' }}>
-      <Button variant="text" sx={{ fontSize: '14px', fontWeight: 500, textTransform: 'none', color: colors.primary.main }}>
+    <Box
+      sx={{
+        mt: `${spacing.stackLg}px`,
+        pt: `${spacing.stackSm}px`,
+        borderTop: `1px solid ${colors.surface.container.high}`,
+        display: 'flex',
+        justifyContent: 'flex-end',
+      }}
+    >
+      <Button
+        variant="text"
+        sx={{
+          fontSize: '14px',
+          fontWeight: 500,
+          textTransform: 'none',
+          color: colors.primary.main,
+        }}
+      >
         Review Upload
       </Button>
     </Box>
@@ -105,8 +189,19 @@ const ExamCard: React.FC<ExamCardProps> = ({ filename, status, ocrConfidence, fl
 );
 
 const sampleExams: ExamCardProps[] = [
-  { filename: 'MATH_MIDTERM_2023.pdf', status: 'PENDING_REVIEW', ocrConfidence: 92, flaggedQuestions: 0 },
-  { filename: 'PHYSICS_FINAL_V2.pdf', status: 'UNDER_REVIEW', ocrConfidence: 78, flaggedQuestions: 3, warning: 'Point Mismatch Detected' },
+  {
+    filename: 'MATH_MIDTERM_2023.pdf',
+    status: 'PENDING_REVIEW',
+    ocrConfidence: 92,
+    flaggedQuestions: 0,
+  },
+  {
+    filename: 'PHYSICS_FINAL_V2.pdf',
+    status: 'UNDER_REVIEW',
+    ocrConfidence: 78,
+    flaggedQuestions: 3,
+    warning: 'Point Mismatch Detected',
+  },
   { filename: 'CHEMISTRY_Q1.pdf', status: 'APPROVED', ocrConfidence: 97, flaggedQuestions: 0 },
 ];
 

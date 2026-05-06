@@ -36,7 +36,8 @@ const CorrectionCard: React.FC<Props> = ({ score, isLoading = false }) => {
     );
   }
 
-  const isPendingTeacherReview = score.status === 'SELF_GRADE_REQUIRED' || score.status === 'PENDING_ESSAY';
+  const isPendingTeacherReview =
+    score.status === 'SELF_GRADE_REQUIRED' || score.status === 'PENDING_ESSAY';
   const statusLabel = isPendingTeacherReview
     ? 'Awaiting Review'
     : score.status === 'INCORRECT'
@@ -108,9 +109,14 @@ const CorrectionCard: React.FC<Props> = ({ score, isLoading = false }) => {
         {/* Correct answer */}
         {!isPendingTeacherReview && score.correctAnswer && (
           <div className={`flex items-start gap-1.5 ${score.explanation ? 'mb-2' : ''}`}>
-            <CheckCircle2 size={18} style={{ color: colors.secondary.main, marginTop: '2px', flexShrink: 0 }} />
+            <CheckCircle2
+              size={18}
+              style={{ color: colors.secondary.main, marginTop: '2px', flexShrink: 0 }}
+            />
             <div>
-              <div style={{ fontSize: '12px', color: colors.on.surfaceVariant, marginBottom: '2px' }}>
+              <div
+                style={{ fontSize: '12px', color: colors.on.surfaceVariant, marginBottom: '2px' }}
+              >
                 Correct Answer
               </div>
               <div style={{ fontSize: '14px', color: colors.secondary.main, fontWeight: 500 }}>

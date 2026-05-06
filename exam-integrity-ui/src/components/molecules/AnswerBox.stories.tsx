@@ -12,12 +12,7 @@ const meta: Meta<typeof AnswerBox> = {
 export default meta;
 type Story = StoryObj<typeof AnswerBox>;
 
-const mcqOptions = [
-  'A. 12 + 8 = 20',
-  'B. 12 + 8 = 18',
-  'C. 12 + 8 = 22',
-  'D. 12 + 8 = 24',
-];
+const mcqOptions = ['A. 12 + 8 = 20', 'B. 12 + 8 = 18', 'C. 12 + 8 = 22', 'D. 12 + 8 = 24'];
 
 export const MultipleChoice: Story = {
   render: (args) => {

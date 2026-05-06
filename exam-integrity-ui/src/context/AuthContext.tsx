@@ -62,7 +62,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout, isAdmin: Array.isArray(user?.roles) && user.roles.includes('ADMIN') }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        login,
+        logout,
+        isAdmin: Array.isArray(user?.roles) && user.roles.includes('ADMIN'),
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

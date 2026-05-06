@@ -19,7 +19,13 @@ export interface ExamLayoutProps {
  * column (per Zen Integrity System spec), optional narrow question-nav sidebar.
  * Generous outer margins push distractions away from the peripheral vision.
  */
-const StudentManExamLayout: React.FC<ExamLayoutProps> = ({ header, children, sidebar, footer, proTips }) => (
+const StudentManExamLayout: React.FC<ExamLayoutProps> = ({
+  header,
+  children,
+  sidebar,
+  footer,
+  proTips,
+}) => (
   <div className="min-h-screen flex flex-col items-stretch bg-gradient-to-b from-[#f7fafc] to-[#e9eef6]">
     {/* Sticky header rendered by caller (includes ProgressBar) */}
     <div className="sticky top-0 z-[1100] bg-white shadow-[0_2px_8px_0_rgba(0,0,0,0.04)]">
@@ -39,9 +45,7 @@ const StudentManExamLayout: React.FC<ExamLayoutProps> = ({ header, children, sid
             </div>
           )}
         </div>
-        {footer && (
-          <div className="mt-6">{footer}</div>
-        )}
+        {footer && <div className="mt-6">{footer}</div>}
       </div>
 
       {/* Optional navigator sidebar */}

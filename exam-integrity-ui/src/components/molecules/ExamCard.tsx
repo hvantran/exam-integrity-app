@@ -40,9 +40,7 @@ const ExamCard: React.FC<ExamCardProps> = ({
   onStart,
 }) => {
   return (
-    <div
-      className="relative flex h-full flex-col overflow-hidden rounded-lg bg-surface-lowest border border-outlineVariant p-8"
-    >
+    <div className="relative flex h-full flex-col overflow-hidden rounded-lg bg-surface-lowest border border-outlineVariant p-8">
       {/* Left accent bar — 4px Trust Blue strip per spec */}
       <div
         className={`absolute bottom-0 left-0 top-0 w-1 rounded-l-lg ${isHighlighted ? 'bg-primary-container' : 'bg-surface-highest'}`}
@@ -67,27 +65,19 @@ const ExamCard: React.FC<ExamCardProps> = ({
         </div>
 
         {/* Metadata row */}
-        <div
-          className="mt-4 flex flex-wrap gap-4 pt-4 border-t border-surface-highest"
-        >
+        <div className="mt-4 flex flex-wrap gap-4 pt-4 border-t border-surface-highest">
           <div className="flex items-center gap-1 text-on-surfaceVariant">
             <Clock size={18} />
-            <span className="text-sm font-medium leading-5">
-              {durationMinutes} min
-            </span>
+            <span className="text-sm font-medium leading-5">{durationMinutes} min</span>
           </div>
           <div className="flex items-center gap-1 text-on-surfaceVariant">
             <ListOrdered size={18} />
-            <span className="text-sm font-medium leading-5">
-              {questionCount} questions
-            </span>
+            <span className="text-sm font-medium leading-5">{questionCount} questions</span>
           </div>
           {points !== undefined && (
             <div className="flex items-center gap-1 text-on-surfaceVariant">
               <Star size={18} />
-              <span className="text-sm font-medium leading-5">
-                {points} pts
-              </span>
+              <span className="text-sm font-medium leading-5">{points} pts</span>
             </div>
           )}
         </div>

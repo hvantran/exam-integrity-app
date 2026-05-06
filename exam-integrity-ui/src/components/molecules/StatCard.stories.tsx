@@ -55,8 +55,19 @@ export const Dashboard: Story = {
   render: () => (
     <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
       <StatCard icon={<Users size={18} />} value="42 / 45" label="Students Active" />
-      <StatCard icon={<Clock size={18} />} value="00:45:12" label="Time Remaining" variant="success" />
-      <StatCard icon={<AlertTriangle size={18} />} value={2} label="Flags Raised" sublabel="Pending" variant="warning" />
+      <StatCard
+        icon={<Clock size={18} />}
+        value="00:45:12"
+        label="Time Remaining"
+        variant="success"
+      />
+      <StatCard
+        icon={<AlertTriangle size={18} />}
+        value={2}
+        label="Flags Raised"
+        sublabel="Pending"
+        variant="warning"
+      />
       <StatCard icon={<CheckSquare size={18} />} value={12} label="Needs Grading" />
     </Box>
   ),
