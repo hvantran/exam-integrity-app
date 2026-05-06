@@ -62,7 +62,7 @@ export const ComplexDetected: Story = {
   },
   args: {
     questionText: '12 740 + 5 037 x 4',
-    value: 'Step 1: 5 037 x 4 = 20 148\nStep 2: 12 740 + 20 148 = 32 888\n32 888',
+    value: '= 5 037 x 4 = 20 148\n= 12 740 + 20 148 = 32 888\n= 32888',
     disabled: false,
   },
 };
@@ -74,7 +74,7 @@ export const RoundBracketsDetected: Story = {
   },
   args: {
     questionText: '(12 740 - 5 037) x 4',
-    value: 'Step 1: 12 740 - 5 037 = 7 703\nStep 2: 7 703 x 4 = 30 812\n30 812',
+    value: '= 12 740 - 5 037 = 7 703\n= 7 703 x 4 = 30 812\n= 30812',
     disabled: false,
   },
 };

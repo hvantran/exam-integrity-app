@@ -30,3 +30,10 @@ export type { ScrollAreaProps } from './ScrollArea';
 
 export { default as AppToastContainer } from './AppToastContainer';
 export type { AppToastContainerProps } from './AppToastContainer';
+
+export { default as AppDialog } from './AppDialog';
+export type { AppDialogProps } from './AppDialog';
+export { DialogHeader, DialogContent, DialogFooter } from './AppDialog';
+
+export { default as Combobox } from './Combobox';
+export type { ComboboxProps, ComboboxOption } from './Combobox';

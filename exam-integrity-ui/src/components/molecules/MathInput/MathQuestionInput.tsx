@@ -10,8 +10,7 @@ const sanitizeLongDivisionValue = (raw: string): string =>
     .split('\n')
     .map((line) => line.replace(/\D+/g, ''))
     .join('\n');
-const sanitizeComplexMathValue = (raw: string): string =>
-  raw.replace(/[^0-9\s+\-xX*/:().,=\n]/g, '');
+const sanitizeComplexMathValue = (raw: string): string => raw;
 
 interface MathQuestionInputProps {
   questionText: string;

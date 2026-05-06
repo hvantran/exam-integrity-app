@@ -50,7 +50,7 @@ export const MixedOperators: Story = {
   },
   args: {
     formula: mixedOperatorsFormula,
-    value: 'Step 1: 93 645 : 9 = 10 405\nStep 2: 10 405 x 5 = 52 025\n52 025',
+    value: '= 93 645 : 9 = 10 405\n= 10 405 x 5 = 52 025\n= 52025',
     disabled: false,
   },
 };
@@ -62,7 +62,7 @@ export const WithPrecedenceHint: Story = {
   },
   args: {
     formula: precedenceFormula,
-    value: 'Step 1: 5 037 x 4 = 20 148\nStep 2: 12 740 + 20 148 = 32 888\n32 888',
+    value: '= 5 037 x 4 = 20 148\n= 12 740 + 20 148 = 32 888\n= 32888',
     disabled: false,
   },
 };
@@ -74,7 +74,7 @@ export const WithRoundBrackets: Story = {
   },
   args: {
     formula: roundBracketsFormula,
-    value: 'Step 1: 12 740 - 5 037 = 7 703\nStep 2: 7 703 x 4 = 30 812\n30 812',
+    value: '= 12 740 - 5 037 = 7 703\n= 7 703 x 4 = 30 812\n= 30812',
     disabled: false,
   },
 };

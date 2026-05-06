@@ -125,11 +125,6 @@ const SimpleArithmeticInput: React.FC<SimpleArithmeticInputProps> = ({
             />
           </div>
         </div>
-
-        {/* Helper text */}
-        <div className="text-xs text-slate-600 text-center pt-2">
-          <p>Enter your answer above</p>
-        </div>
       </div>
     </div>
   );

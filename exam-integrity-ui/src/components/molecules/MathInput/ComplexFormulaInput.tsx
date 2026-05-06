@@ -1,5 +1,4 @@
-import React from 'react';
-import { AlertCircle } from 'lucide-react';
+import React, { useMemo } from 'react';
 import { ParsedFormula } from '../../../utils/mathFormulaAnalyzer';
 
 interface ComplexFormulaInputProps {
@@ -8,6 +7,43 @@ interface ComplexFormulaInputProps {
   disabled?: boolean;
   onChange: (value: string) => void;
 }
+
+const normalizeComplexStepLines = (raw: string): string =>
+  raw
+    .split('\n')
+    .map((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) {
+        return '';
+      }
+
+      const content = trimmed.startsWith('=') ? trimmed.slice(1).trim() : trimmed;
+      return `= ${content}`;
+    })
+    .join('\n');
+
+const extractFinalComplexResult = (raw: string): string => {
+  const equalsLines = raw
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith('='));
+
+  const lastEqualsLine = equalsLines[equalsLines.length - 1];
+  if (!lastEqualsLine) {
+    return '';
+  }
+
+  const content = lastEqualsLine.slice(1).trim();
+  if (!content) {
+    return '';
+  }
+
+  const segments = content
+    .split('=')
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+  return segments[segments.length - 1] ?? '';
+};
 
 /**
  * Molecule — ComplexFormulaInput
@@ -25,6 +61,10 @@ const ComplexFormulaInput: React.FC<ComplexFormulaInputProps> = ({
   disabled = false,
   onChange,
 }) => {
+  // Derive the final answer live from the work textarea — no local state needed,
+  // so it is never lost when the student navigates away and returns.
+  const finalAnswer = useMemo(() => extractFinalComplexResult(value), [value]);
+
   return (
     <div className="rounded-2xl border border-primary-200 bg-gradient-to-br from-primary-50 via-surface-50 to-accent-50 p-4 md:p-6">
       <div className="space-y-4">
@@ -38,27 +78,18 @@ const ComplexFormulaInput: React.FC<ComplexFormulaInputProps> = ({
           </div>
         </div>
 
-        {/* Order of Operations Guidance */}
-        <div className="flex gap-3 bg-primary-50 border border-primary-200 rounded-xl p-3">
-          <AlertCircle size={18} className="text-warning-600 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-primary-700">
-            <p className="font-semibold">Mẹo nhanh:</p>
-            <p className="text-xs text-warning-700 mt-1">
-              Tính trong ngoặc trước, ngoài ngoặc sau. Sau đó Nhân/Chia trước Cộng/Trừ sau
-            </p>
-          </div>
-        </div>
-
         {/* Work Area Section */}
         <div>
           <label className="text-xs font-semibold text-slate-700 uppercase tracking-wide block mb-2">
             Your Work
           </label>
           <textarea
-            placeholder={`Show your steps here:\n\nStep 1: ...\nStep 2: ...\n\nFinal Answer: ...`}
+            placeholder={`= 5 037 x 4 = 20 148\n= 12 740 + 20 148 = 32 888\n= 32 888`}
             value={value}
             disabled={disabled}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => {
+              onChange(normalizeComplexStepLines(e.target.value));
+            }}
             rows={6}
             className={`w-full font-mono text-sm leading-6 border border-primary-300 rounded-xl p-3 bg-surface-50 resize-vertical text-slate-900 outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-200 ${
               disabled ? 'cursor-not-allowed opacity-60' : ''
@@ -66,7 +97,6 @@ const ComplexFormulaInput: React.FC<ComplexFormulaInputProps> = ({
           />
         </div>
 
-        {/* Answer Input */}
         <div>
           <label className="text-xs font-semibold text-slate-700 uppercase tracking-wide block mb-2">
             Final Answer
@@ -76,24 +106,12 @@ const ComplexFormulaInput: React.FC<ComplexFormulaInputProps> = ({
             <input
               type="text"
               inputMode="decimal"
-              placeholder="Enter final result"
-              value={value.split('\n').pop() || ''}
-              disabled={disabled}
-              onChange={(e) => {
-                const lines = value.split('\n');
-                lines[lines.length - 1] = e.target.value;
-                onChange(lines.join('\n'));
-              }}
-              className={`flex-1 text-lg md:text-xl font-bold border border-primary-300 rounded-lg px-4 py-2 bg-surface-50 outline-none placeholder-slate-400 text-slate-900 focus:border-primary-400 focus:ring-1 focus:ring-primary-200 ${
-                disabled ? 'cursor-not-allowed opacity-60' : ''
-              }`}
+              value={finalAnswer}
+              disabled
+              placeholder="—"
+              className="flex-1 text-lg md:text-xl font-bold border border-primary-300 rounded-lg px-4 py-2 bg-slate-100/80 outline-none placeholder-slate-400 text-slate-900 cursor-not-allowed"
             />
           </div>
-        </div>
-
-        {/* Helper text */}
-        <div className="text-xs text-slate-600 text-center pt-2 border-t border-slate-200">
-          <p>Show your work for partial credit</p>
         </div>
       </div>
     </div>
