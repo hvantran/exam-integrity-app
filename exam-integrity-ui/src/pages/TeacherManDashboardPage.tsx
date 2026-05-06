@@ -1,6 +1,7 @@
 /** Teacher dashboard: shows published exam list + create-from-bank dialog. */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { TeacherManDashboardLayout } from '../components/templates';
 import { Skeleton } from '../components/molecules';
 import { Button, Chip } from '../components/atoms';
@@ -307,8 +308,15 @@ const TeacherManDashboardPage: React.FC = () => {
   const handleCreate = (cmd: CreateExamFromBankCommand) => {
     setCreateError(null);
     createFromBank.mutate(cmd, {
-      onSuccess: () => setDialogOpen(false),
-      onError: (e: Error) => setCreateError(e.message),
+      onSuccess: () => {
+        setDialogOpen(false);
+        toast.success('Exam created successfully.');
+      },
+      onError: (e: Error) => {
+        const message = e.message || 'Failed to create exam.';
+        setCreateError(message);
+        toast.error(message);
+      },
     });
   };
 
@@ -316,8 +324,15 @@ const TeacherManDashboardPage: React.FC = () => {
     if (!deleteTarget) return;
     setDeleteError(null);
     deleteExam.mutate(deleteTarget.id, {
-      onSuccess: () => setDeleteTarget(null),
-      onError: (e: Error) => setDeleteError(e.message),
+      onSuccess: () => {
+        setDeleteTarget(null);
+        toast.success('Exam deleted successfully.');
+      },
+      onError: (e: Error) => {
+        const message = e.message || 'Failed to delete exam.';
+        setDeleteError(message);
+        toast.error(message);
+      },
     });
   };
 
@@ -433,6 +448,7 @@ const TeacherManDashboardPage: React.FC = () => {
           </div>
         </div>
       )}
+
     </TeacherManDashboardLayout>
   );
 };

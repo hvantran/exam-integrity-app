@@ -1,6 +1,7 @@
 import React from 'react';
 import { Alert, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { Button } from '../components/atoms';
 import type { DashboardSection } from '../components/organisms';
 import { TeacherManDashboardLayout } from '../components/templates';
@@ -256,13 +257,20 @@ const TeacherManScoringPage: React.FC = () => {
                             type="button"
                             disabled={isInvalid || teacherScore.isPending}
                             onClick={() =>
-                              teacherScore.mutate({
-                                questionId: score.questionId,
-                                payload: {
-                                  earnedPoints: parsedPoints,
-                                  explanation: draft.explanation.trim() || undefined,
+                              teacherScore.mutate(
+                                {
+                                  questionId: score.questionId,
+                                  payload: {
+                                    earnedPoints: parsedPoints,
+                                    explanation: draft.explanation.trim() || undefined,
+                                  },
                                 },
-                              })
+                                {
+                                  onSuccess: () => toast.success('Score saved successfully.'),
+                                  onError: (e: Error) =>
+                                    toast.error(e.message || 'Failed to save score.'),
+                                },
+                              )
                             }
                             variant="primary"
                             size="sm"

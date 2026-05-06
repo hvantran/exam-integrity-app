@@ -2,6 +2,7 @@
 import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, Typography, Alert, LinearProgress } from '@mui/material';
+import { toast } from 'react-toastify';
 import { TeacherManIngestionLayout } from '../components/templates';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { draftService } from '../services/draftService';
@@ -36,11 +37,16 @@ const IngestionPage: React.FC = () => {
     onSuccess: (draft) => {
       qc.invalidateQueries({ queryKey: ['drafts'] });
       setError(null);
+      toast.success('PDF uploaded successfully. Redirecting to review...');
       if (draft?.draftId) {
         navigate(`/teacher/drafts/${draft.draftId}/review`);
       }
     },
-    onError: (e: Error) => setError(e.message),
+    onError: (e: Error) => {
+      const message = e.message || 'Failed to upload PDF.';
+      setError(message);
+      toast.error(message);
+    },
   });
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {

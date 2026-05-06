@@ -1,6 +1,7 @@
 /** FE-16: Student landing page — browse and start exams */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { Button } from '../components/atoms';
 import { Skeleton } from '../components/molecules';
 import { StudentManLandingLayout } from '../components/templates';
@@ -92,7 +93,15 @@ const LandingPage: React.FC = () => {
               </div>
               <Button
                 className="mt-2 w-full bg-primary hover:bg-primary-deep text-primary-on font-semibold py-2 rounded"
-                onClick={() => createSession.mutate({ examId: exam.id, studentId })}
+                onClick={() =>
+                  createSession.mutate(
+                    { examId: exam.id, studentId },
+                    {
+                      onSuccess: () => toast.success('Starting exam session...'),
+                      onError: (e: Error) => toast.error(e.message || 'Failed to start exam.'),
+                    },
+                  )
+                }
                 disabled={createSession.isPending}
                 variant="primary"
               >

@@ -17,6 +17,7 @@ import QuestionBankPage from './pages/TeacherManQuestionBankPage';
 import FinalPublicationPage from './pages/TeacherManFinalPublicationPage';
 import TeacherManDashboardPage from './pages/TeacherManDashboardPage';
 import TeacherManScoringPage from './pages/TeacherManScoringPage';
+import { AppToastContainer } from './components/molecules';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -119,6 +120,7 @@ const App: React.FC = () => (
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          <AppToastContainer />
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>

@@ -1,6 +1,7 @@
 /** FE-19: Teacher question bank page — Stitch "Question Bank Explorer" design */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { Chip, Button, Modal, Select } from '../components/atoms';
 import { Search, Pencil, PlusCircle, X, Star, History, Trash2 } from 'lucide-react';
 import { TeacherManQuestionBankLayout } from '../components/templates';
@@ -267,20 +268,22 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, index, onEdit }) 
       {/* Actions (shown on hover) */}
       <div className="flex items-center gap-1 transition-opacity duration-150 opacity-0 group-hover:opacity-100">
         <Button
-          title="Edit question"
           onClick={onEdit}
-          variant="ghost"
+          variant="outlined"
           size="sm"
-          className="rounded-full p-1 transition hover:bg-primary-50 text-primary"
+          icon={<Pencil size={18} />}
+          iconPlacement="left"
+          className="flex items-center gap-1 text-xs px-2 py-1 rounded border transition text-primary-600 border-primary-600"
         >
-          <Pencil size={18} />
+          Edit
         </Button>
         <Button
           variant="danger"
           size="sm"
+          icon={<Trash2 size={16} />}
+          iconPlacement="left"
           className="flex items-center gap-1 text-xs px-2 py-1 rounded border transition hover:bg-red-50 text-error-600 border-error-600"
         >
-          <Trash2 size={16} />
           Delete
         </Button>
       </div>
@@ -401,7 +404,9 @@ const QuestionBankPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['question-bank'] });
       setEditingId(null);
+      toast.success('Question updated successfully.');
     },
+    onError: (e: Error) => toast.error(e.message || 'Failed to update question.'),
   });
 
   const { mutate: addQuestion, isPending: isAdding } = useMutation({
@@ -420,10 +425,13 @@ const QuestionBankPage: React.FC = () => {
         imageData: '',
       });
       setAddError(null);
+      toast.success('Question added successfully.');
     },
     onError: (err: unknown) => {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-      setAddError(msg ?? 'Failed to add question. It may already exist in the bank.');
+      const message = msg ?? 'Failed to add question. It may already exist in the bank.';
+      setAddError(message);
+      toast.error(message);
     },
   });
 
@@ -456,7 +464,9 @@ const QuestionBankPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['question-bank'] });
       setDeleteAllOpen(false);
       setEditingId(null);
+      toast.success('All questions deleted successfully.');
     },
+    onError: (e: Error) => toast.error(e.message || 'Failed to delete all questions.'),
   });
 
   const addTagFilter = () => {

@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Alert } from '@mui/material';
+import { toast } from 'react-toastify';
 import { TeacherManFinalPublicationLayout } from '../components/templates';
 import { useDraft, usePublishDraft } from '../hooks/useDraft';
 import { useAuth } from '../context/AuthContext';
@@ -45,7 +46,13 @@ const FinalPublicationPage: React.FC = () => {
         tags: (formValues.tags?.length ?? 0) > 0 ? formValues.tags : undefined,
         reviewNotes: formValues.reviewNotes,
       },
-      { onSuccess: () => navigate('/teacher/ingestion') },
+      {
+        onSuccess: () => {
+          toast.success('Exam published successfully.');
+          navigate('/teacher/ingestion');
+        },
+        onError: (e: Error) => toast.error(e.message || 'Failed to publish exam.'),
+      },
     );
   };
 

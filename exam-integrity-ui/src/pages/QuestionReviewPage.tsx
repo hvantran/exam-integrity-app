@@ -1,6 +1,7 @@
 /** FE-18: Teacher question review page */
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import {
   Alert,
   Button,
@@ -105,7 +106,13 @@ const ReplaceBankModal: React.FC<ReplaceBankModalProps> = ({
         },
         position: insertPosition,
       },
-      { onSuccess: onClose },
+      {
+        onSuccess: () => {
+          toast.success('Question inserted from bank.');
+          onClose();
+        },
+        onError: (e: Error) => toast.error(e.message || 'Failed to insert question.'),
+      },
     );
   };
 
@@ -295,7 +302,9 @@ const QuestionReviewPage: React.FC = () => {
       onSuccess: () => {
         // move index back if we deleted the last item
         setCurrentIdx((i) => Math.min(i, total - 2));
+        toast.success('Question removed from draft.');
       },
+      onError: (e: Error) => toast.error(e.message || 'Failed to remove question.'),
     });
   };
 
@@ -455,9 +464,11 @@ const QuestionReviewPage: React.FC = () => {
 
     if (hasPersistFailure) {
       setSaveError('Some updates were not saved yet. Please retry and publish again.');
+      toast.error('Some updates were not saved yet. Please retry and publish again.');
       return;
     }
 
+    toast.success('All draft updates saved. Opening publish page...');
     navigate(`/teacher/drafts/${draftId}/publish`, {
       state: {
         pendingQuestionImages,
@@ -495,7 +506,13 @@ const QuestionReviewPage: React.FC = () => {
         onReplace={() => setBankModalOpen(true)}
         onApprove={() => {
           if (currentQ)
-            editQuestion.mutate({ questionId: currentQ.id, cmd: { reviewStatus: 'APPROVED' } });
+            editQuestion.mutate(
+              { questionId: currentQ.id, cmd: { reviewStatus: 'APPROVED' } },
+              {
+                onSuccess: () => toast.success('Question approved.'),
+                onError: (e: Error) => toast.error(e.message || 'Failed to approve question.'),
+              },
+            );
         }}
         onDelete={handleDelete}
         isLoading={removeQuestion.isPending || editQuestion.isPending}

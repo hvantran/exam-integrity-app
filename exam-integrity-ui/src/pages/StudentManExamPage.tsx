@@ -3,6 +3,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Alert } from '@mui/material';
+import { toast } from 'react-toastify';
 import { StudentManExamLayout } from '../components/templates';
 import {
   StudentManExamHeader,
@@ -249,7 +250,10 @@ const ExamPage: React.FC = () => {
         totalCount={totalQuestions}
         onBack={() => setShowSubmitModal(false)}
         onFinalSubmit={() => {
-          submitExam.mutate();
+          submitExam.mutate(undefined, {
+            onSuccess: () => toast.success('Exam submitted successfully.'),
+            onError: (e: Error) => toast.error(e.message || 'Failed to submit exam.'),
+          });
           setShowSubmitModal(false);
         }}
       />
