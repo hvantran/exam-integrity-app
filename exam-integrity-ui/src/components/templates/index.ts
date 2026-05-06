@@ -1,5 +1,9 @@
 export { default as StudentManExamLayout } from './StudentManExamLayout';
 export type { ExamLayoutProps } from './StudentManExamLayout';
+export { default as StudentManExamContent } from './StudentManExamContent';
+export type { StudentManExamContentProps } from './StudentManExamContent';
+export { default as StudentManExamFooter } from './StudentManExamFooter';
+export type { StudentManExamFooterProps } from './StudentManExamFooter';
 
 export { default as TeacherManDashboardLayout } from './TeacherManDashboardLayout';
 export type { DashboardLayoutProps } from './TeacherManDashboardLayout';

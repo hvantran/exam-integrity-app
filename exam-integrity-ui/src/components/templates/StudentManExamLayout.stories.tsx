@@ -1,12 +1,14 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { Box, Typography } from '@mui/material';
 import StudentManExamLayout from './StudentManExamLayout';
 import {
   StudentManExamHeader,
   StudentManQuestionPanel,
   StudentManExamNavigationBar,
+  StudentManFlaggedSidebar,
 } from '../organisms';
+import StudentManExamContent from './StudentManExamContent';
+import StudentManExamFooter from './StudentManExamFooter';
 
 const meta: Meta<typeof StudentManExamLayout> = {
   title: 'Templates/StudentManExamLayout',
@@ -27,42 +29,45 @@ const options = [
 
 export const ActiveExam: Story = {
   render: () => (
-    <StudentManExamLayout
-      header={
+    <StudentManExamLayout>
+      <div className="sticky top-0 z-[1100] bg-white shadow-[0_2px_8px_0_rgba(0,0,0,0.04)]">
         <StudentManExamHeader
           currentQuestion={18}
           totalQuestions={40}
           remainingSeconds={2535}
           isProctoringActive
         />
-      }
-      footer={
-        <StudentManExamNavigationBar
-          canGoPrev
-          canGoNext
-          onPrevious={() => {}}
-          onNext={() => {}}
-          onSubmit={() => {}}
+      </div>
+
+      <StudentManExamContent
+        proTips={[
+          'Read the question carefully before attempting to answer.',
+          'Use the workspace provided for intermediate calculations to avoid careless mistakes.',
+          'You can flag questions to review them later before submitting the exam.',
+        ]}
+        footer={
+          <StudentManExamNavigationBar
+            canGoPrev
+            canGoNext
+            onPrevious={() => {}}
+            onNext={() => {}}
+            onSubmit={() => {}}
+          />
+        }
+      >
+        <StudentManQuestionPanel
+          questionNumber={18}
+          subject="Sinh học"
+          gradeLevel="Lớp 12"
+          questionText="Trong quá trình phiên mã, enzim ARN pôlimeraza có vai trò gì?"
+          questionType="MCQ"
+          options={options}
+          selectedAnswer="A"
+          isFlagged={false}
+          onFlag={() => {}}
+          onAnswerChange={() => {}}
         />
-      }
-      proTips={[
-        'Read the question carefully before attempting to answer.',
-        'Use the workspace provided for intermediate calculations to avoid careless mistakes.',
-        'You can flag questions to review them later before submitting the exam.',
-      ]}
-    >
-      <StudentManQuestionPanel
-        questionNumber={18}
-        subject="Sinh học"
-        gradeLevel="Lớp 12"
-        questionText="Trong quá trình phiên mã, enzim ARN pôlimeraza có vai trò gì?"
-        questionType="MCQ"
-        options={options}
-        selectedAnswer="A"
-        isFlagged={false}
-        onFlag={() => {}}
-        onAnswerChange={() => {}}
-      />
+      </StudentManExamContent>
     </StudentManExamLayout>
   ),
 };

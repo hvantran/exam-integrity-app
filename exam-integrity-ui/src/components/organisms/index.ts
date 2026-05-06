@@ -7,9 +7,15 @@ export type { ExamHeaderProps } from './StudentManExamHeader';
 
 export { default as StudentManQuestionPanel } from './StudentManQuestionPanel';
 export type { QuestionPanelProps, QuestionOption } from './StudentManQuestionPanel';
+export { default as StudentManQuestionPanelHeader } from './StudentManQuestionPanelHeader';
+export type { StudentManQuestionPanelHeaderProps } from './StudentManQuestionPanelHeader';
+export { default as StudentManQuestionPanelContent } from './StudentManQuestionPanelContent';
+export type { StudentManQuestionPanelContentProps } from './StudentManQuestionPanelContent';
 
 export { default as StudentManExamNavigationBar } from './StudentManExamNavigationBar';
 export type { ExamNavigationBarProps } from './StudentManExamNavigationBar';
+export { default as StudentManFlaggedSidebar } from './StudentManFlaggedSidebar';
+export type { StudentManFlaggedSidebarProps } from './StudentManFlaggedSidebar';
 
 export { default as TeacherManDashboardSidebar } from './TeacherManDashboardSidebar';
 export type { DashboardSidebarProps, DashboardSection } from './TeacherManDashboardSidebar';
