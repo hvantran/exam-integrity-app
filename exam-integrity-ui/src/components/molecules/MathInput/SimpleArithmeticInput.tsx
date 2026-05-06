@@ -34,6 +34,23 @@ const SimpleArithmeticInput: React.FC<SimpleArithmeticInputProps> = ({
   disabled = false,
   onChange,
 }) => {
+  const handleAnswerChange = (nextRawValue: string) => {
+    const currentDigits = value.replace(/\D+/g, '');
+    const nextDigits = nextRawValue.replace(/\D+/g, '');
+
+    // If exactly one digit was appended by normal typing, prepend it instead.
+    if (
+      nextDigits.length === currentDigits.length + 1 &&
+      nextDigits.startsWith(currentDigits)
+    ) {
+      const appendedDigit = nextDigits[nextDigits.length - 1];
+      onChange(`${appendedDigit}${currentDigits}`);
+      return;
+    }
+
+    onChange(nextDigits);
+  };
+
   const operatorSymbol = useMemo(() => {
     return operatorSymbols[formula.operator || ''] || formula.operator || '';
   }, [formula.operator]);
@@ -73,6 +90,7 @@ const SimpleArithmeticInput: React.FC<SimpleArithmeticInputProps> = ({
       <div className="space-y-4">
         {/* Calculation Display */}
         <div className="font-mono space-y-2.5">
+          <div className="max-w-[200px]">
           {/* First operand */}
           <div className="text-right pr-4">
             <div className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
@@ -96,15 +114,17 @@ const SimpleArithmeticInput: React.FC<SimpleArithmeticInputProps> = ({
           {/* Answer input area */}
           <input
             type="text"
-            inputMode="decimal"
-            placeholder="________"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            placeholder="_________"
             value={value}
             disabled={disabled}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => handleAnswerChange(e.target.value)}
             className={`w-full text-right text-2xl md:text-3xl font-bold bg-transparent outline-none placeholder-slate-400 text-slate-900 ${
               disabled ? 'cursor-not-allowed opacity-60' : 'focus:text-sky-600'
             }`}
           />
+        </div>
         </div>
 
         {/* Helper text */}

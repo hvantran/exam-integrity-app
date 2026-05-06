@@ -4,6 +4,15 @@ import SimpleArithmeticInput from './SimpleArithmeticInput';
 import ComplexFormulaInput from './ComplexFormulaInput';
 import LongDivisionInput from './LongDivisionInput';
 
+const sanitizeDigitsOnly = (raw: string): string => raw.replace(/\D+/g, '');
+const sanitizeLongDivisionValue = (raw: string): string =>
+  raw
+    .split('\n')
+    .map((line) => line.replace(/\D+/g, ''))
+    .join('\n');
+const sanitizeComplexMathValue = (raw: string): string =>
+  raw.replace(/[^0-9\s+\-xX*/:().,=\n]/g, '');
+
 interface MathQuestionInputProps {
   questionText: string;
   value: string;
@@ -52,7 +61,7 @@ const MathQuestionInput: React.FC<MathQuestionInputProps> = ({
         formula={parsedFormula}
         value={value}
         disabled={disabled}
-        onChange={onChange}
+        onChange={(nextValue) => onChange(sanitizeLongDivisionValue(nextValue))}
       />
     );
   }
@@ -64,7 +73,7 @@ const MathQuestionInput: React.FC<MathQuestionInputProps> = ({
         formula={parsedFormula}
         value={value}
         disabled={disabled}
-        onChange={onChange}
+        onChange={(nextValue) => onChange(sanitizeDigitsOnly(nextValue))}
       />
     );
   }
@@ -76,7 +85,7 @@ const MathQuestionInput: React.FC<MathQuestionInputProps> = ({
         formula={parsedFormula}
         value={value}
         disabled={disabled}
-        onChange={onChange}
+        onChange={(nextValue) => onChange(sanitizeComplexMathValue(nextValue))}
       />
     );
   }

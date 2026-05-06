@@ -73,6 +73,24 @@ class QuestionStructureParserTest {
     }
 
     @Test
+    void parsesCommaLabeledEssayPartsIntoStructuredContent() {
+        String content = """
+        Đặt tính rồi tính: 
+a, 10712 : 4
+b, 14273 x 3
+        """;
+
+        QuestionStructureParser.ParsedQuestionContent parsed = QuestionStructureParser.parse(content);
+
+        assertEquals("Đặt tính rồi tính:", parsed.stem());
+        assertEquals(2, parsed.parts().size());
+        assertEquals("a", parsed.parts().get(0).key());
+        assertEquals("10712 : 4", parsed.parts().get(0).prompt());
+        assertEquals("b", parsed.parts().get(1).key());
+        assertEquals("14273 x 3", parsed.parts().get(1).prompt());
+    }
+
+    @Test
     void ignoresSingleLabeledLineToAvoidFalsePositives() {
         QuestionStructureParser.ParsedQuestionContent parsed =
             QuestionStructureParser.parse("a) Chứng minh đẳng thức sau");

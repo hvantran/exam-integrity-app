@@ -26,11 +26,11 @@ const ComplexFormulaInput: React.FC<ComplexFormulaInputProps> = ({
   onChange,
 }) => {
   return (
-    <div className="rounded-2xl border border-purple-200 bg-gradient-to-br from-purple-50 via-white to-indigo-50 p-4 md:p-6">
+    <div className="rounded-2xl border border-primary-200 bg-gradient-to-br from-primary-50 via-surface-50 to-accent-50 p-4 md:p-6">
       <div className="space-y-4">
         {/* Formula Display */}
-        <div className="bg-white rounded-xl border border-purple-200 p-4">
-          <div className="text-xs font-semibold text-purple-700 uppercase tracking-wide mb-2">
+        <div className="bg-surface-50 rounded-xl border border-primary-200 p-4">
+          <div className="text-xs font-semibold text-primary-700 uppercase tracking-wide mb-2">
             Formula
           </div>
           <div className="text-lg md:text-2xl font-mono font-bold text-slate-900 text-center break-words">
@@ -39,12 +39,12 @@ const ComplexFormulaInput: React.FC<ComplexFormulaInputProps> = ({
         </div>
 
         {/* Order of Operations Guidance */}
-        <div className="flex gap-3 bg-purple-50 border border-purple-200 rounded-xl p-3">
-          <AlertCircle size={18} className="text-purple-600 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-purple-900">
-            <p className="font-semibold">Remember order of operations:</p>
-            <p className="text-xs text-purple-800 mt-1">
-              Multiply/Divide first (left to right), then Add/Subtract (left to right)
+        <div className="flex gap-3 bg-primary-50 border border-primary-200 rounded-xl p-3">
+          <AlertCircle size={18} className="text-warning-600 flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-primary-700">
+            <p className="font-semibold">Mẹo nhanh:</p>
+            <p className="text-xs text-warning-700 mt-1">
+              Tính trong ngoặc trước, ngoài ngoặc sau. Sau đó Nhân/Chia trước Cộng/Trừ sau
             </p>
           </div>
         </div>
@@ -60,7 +60,7 @@ const ComplexFormulaInput: React.FC<ComplexFormulaInputProps> = ({
             disabled={disabled}
             onChange={(e) => onChange(e.target.value)}
             rows={6}
-            className={`w-full font-mono text-sm leading-6 border border-purple-300 rounded-xl p-3 bg-white resize-vertical text-slate-900 outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-200 ${
+            className={`w-full font-mono text-sm leading-6 border border-primary-300 rounded-xl p-3 bg-surface-50 resize-vertical text-slate-900 outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-200 ${
               disabled ? 'cursor-not-allowed opacity-60' : ''
             }`}
           />
@@ -84,7 +84,7 @@ const ComplexFormulaInput: React.FC<ComplexFormulaInputProps> = ({
                 lines[lines.length - 1] = e.target.value;
                 onChange(lines.join('\n'));
               }}
-              className={`flex-1 text-lg md:text-xl font-bold border border-purple-300 rounded-lg px-4 py-2 bg-white outline-none placeholder-slate-400 text-slate-900 focus:border-purple-400 focus:ring-1 focus:ring-purple-200 ${
+              className={`flex-1 text-lg md:text-xl font-bold border border-primary-300 rounded-lg px-4 py-2 bg-surface-50 outline-none placeholder-slate-400 text-slate-900 focus:border-primary-400 focus:ring-1 focus:ring-primary-200 ${
                 disabled ? 'cursor-not-allowed opacity-60' : ''
               }`}
             />

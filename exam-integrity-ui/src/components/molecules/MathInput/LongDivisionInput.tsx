@@ -9,12 +9,34 @@ interface LongDivisionInputProps {
 }
 
 interface RemainderRow {
-  display: string;
+  indent: number;
+  inputWidth: number;
+}
+
+interface LongDivisionAnswer {
+  quotient: string;
+  stepResults: string[];
 }
 
 function formatSpaced(n: number): string {
   return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
+
+const parseLongDivisionAnswer = (value: string, stepCount: number): LongDivisionAnswer => {
+  const lines = (value || '').split('\n');
+  return {
+    quotient: lines[0] ?? '',
+    stepResults: Array.from({ length: stepCount }, (_, i) => lines[i + 1] ?? ''),
+  };
+};
+
+const serializeLongDivisionAnswer = (answer: LongDivisionAnswer): string => {
+  return [answer.quotient, ...answer.stepResults].join('\n');
+};
+
+const sanitizeDigitsOnly = (raw: string): string => {
+  return raw.replace(/\D+/g, '');
+};
 
 /**
  * Builds the remainder rows for the long-division left column.
@@ -43,7 +65,6 @@ function buildRemainderRows(dividend: number, divisor: number): RemainderRow[] {
 
   for (let i = 0; i < digits.length; i++) {
     const current = remainder * 10 + digits[i];
-    const q = Math.floor(current / divisor);
     const r = current % divisor;
 
     // Skip step 0 — its partial IS the dividend (already shown in the top row).
@@ -52,8 +73,7 @@ function buildRemainderRows(dividend: number, divisor: number): RemainderRow[] {
       const partialStr = remainder.toString() + digits[i].toString();
       const rightCol = digitCols[i];
       const leftCol = rightCol - partialStr.length + 1;
-      const padding = ' '.repeat(Math.max(0, leftCol));
-      rows.push({ display: padding + partialStr });
+      rows.push({ indent: Math.max(0, leftCol), inputWidth: Math.max(2, partialStr.length) });
     }
 
     remainder = r;
@@ -63,7 +83,7 @@ function buildRemainderRows(dividend: number, divisor: number): RemainderRow[] {
   const lastDigitCol = digitCols[digits.length - 1] ?? 0;
   const finalStr = remainder.toString();
   const finalLeftCol = lastDigitCol + 1 - finalStr.length + 1;
-  rows.push({ display: ' '.repeat(Math.max(0, finalLeftCol)) + finalStr });
+  rows.push({ indent: Math.max(0, finalLeftCol), inputWidth: Math.max(2, finalStr.length) });
 
   return rows;
 }
@@ -99,6 +119,31 @@ const LongDivisionInput: React.FC<LongDivisionInputProps> = ({
     [dividend, divisor],
   );
 
+  const parsedAnswer = useMemo(
+    () => parseLongDivisionAnswer(value, remainderRows.length),
+    [value, remainderRows.length],
+  );
+
+  const updateQuotient = (nextQuotient: string) => {
+    onChange(
+      serializeLongDivisionAnswer({
+        quotient: sanitizeDigitsOnly(nextQuotient),
+        stepResults: parsedAnswer.stepResults,
+      }),
+    );
+  };
+
+  const updateStepResult = (index: number, nextValue: string) => {
+    const nextStepResults = [...parsedAnswer.stepResults];
+    nextStepResults[index] = sanitizeDigitsOnly(nextValue);
+    onChange(
+      serializeLongDivisionAnswer({
+        quotient: parsedAnswer.quotient,
+        stepResults: nextStepResults,
+      }),
+    );
+  };
+
   return (
     <div className="rounded-2xl border border-purple-200 bg-purple-50 p-4 md:p-6">
       <div className="space-y-4">
@@ -119,7 +164,22 @@ const LongDivisionInput: React.FC<LongDivisionInputProps> = ({
               {/* Rows 2+: remainder partials */}
               {remainderRows.map((row, i) => (
                 <div key={i} className="leading-8" style={{ whiteSpace: 'pre' }}>
-                  {row.display}
+                  {' '.repeat(row.indent)}
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={parsedAnswer.stepResults[i]}
+                    disabled={disabled}
+                    onChange={(event) => updateStepResult(i, event.target.value)}
+                    aria-label={`Division step ${i + 1}`}
+                    className={`bg-transparent outline-none border-b border-slate-300 text-slate-900 ${
+                      disabled
+                        ? 'cursor-not-allowed opacity-60'
+                        : 'focus:border-sky-500 focus:text-sky-700'
+                    }`}
+                    style={{ width: `${row.inputWidth}ch` }}
+                  />
                 </div>
               ))}
             </div>
@@ -141,11 +201,12 @@ const LongDivisionInput: React.FC<LongDivisionInputProps> = ({
               <div className="leading-8">
                 <input
                   type="text"
-                  inputMode="decimal"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   placeholder={'_'.repeat(quotientLen)}
-                  value={value}
+                  value={parsedAnswer.quotient}
                   disabled={disabled}
-                  onChange={(e) => onChange(e.target.value)}
+                  onChange={(e) => updateQuotient(e.target.value)}
                   className={`bg-transparent outline-none placeholder-slate-400 w-36 ${
                     disabled
                       ? 'cursor-not-allowed opacity-60 text-slate-900'
@@ -158,7 +219,7 @@ const LongDivisionInput: React.FC<LongDivisionInputProps> = ({
         </div>
 
         <div className="text-xs text-slate-600 text-center pt-1">
-          <p>Enter the quotient on the right-hand side</p>
+          <p>Enter quotient and each step result directly in the long-division form</p>
         </div>
       </div>
     </div>

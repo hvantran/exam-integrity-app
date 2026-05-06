@@ -10,8 +10,8 @@ import java.util.regex.Pattern;
 /** Builds a structured representation for labeled essay sub-questions. */
 public final class QuestionStructureParser {
 
-    private static final Pattern PART_PATTERN = Pattern.compile("^\\s*((?:[A-Za-z]|\\d+))[.)]\\s*(.+)\\s*$");
-    private static final Pattern INLINE_LABEL_PATTERN = Pattern.compile("(?:^|\\s)([A-Za-z])[.)]\\s*");
+    private static final Pattern PART_PATTERN = Pattern.compile("^\\s*((?:[A-Za-z]|\\d+))[.),]\\s*(.+)\\s*$");
+    private static final Pattern INLINE_LABEL_PATTERN = Pattern.compile("(?:^|\\s)([A-Za-z])[.),]\\s*");
     private static final Pattern FILLER_PATTERN = Pattern.compile("^[.\\s_…]+$");
     private static final Pattern UNLABELED_DUAL_PART_PATTERN = Pattern.compile(
         "^\\s*(.+?[+\\-–xX×:÷].+?)\\s{3,}(.+?[+\\-–xX×:÷].+?)\\s*$"

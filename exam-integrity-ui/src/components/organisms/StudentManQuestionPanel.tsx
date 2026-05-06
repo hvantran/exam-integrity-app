@@ -228,7 +228,7 @@ const StudentManQuestionPanel: React.FC<QuestionPanelProps> = ({
           value={selectedAnswer ?? ''}
           disabled={disabled}
           onChange={(e) => onAnswerChange(e.target.value)}
-          className="w-full font-mono text-sm leading-6 border border-dashed border-slate-300 rounded-xl p-3 bg-white resize-vertical text-slate-900 outline-none focus:border-sky-400"
+          className="w-full font-mono text-center text-sm leading-6 border border-dashed border-slate-300 rounded-xl p-3 bg-white resize-vertical text-slate-900 outline-none focus:border-sky-400"
         />
       </div>
     )}
