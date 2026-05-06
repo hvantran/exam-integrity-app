@@ -43,9 +43,11 @@ export interface DraftQuestionDTO {
   questionNumber: number;
   content: string;
   rawText?: string;
+  stem?: string;
   type?: QuestionType;
   points: number;
   options?: string[];
+  questionParts?: QuestionPart[];
   correctAnswer?: string;
   rubric?: RubricDTO;
   truncated: boolean;

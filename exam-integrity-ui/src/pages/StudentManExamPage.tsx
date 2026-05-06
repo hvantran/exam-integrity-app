@@ -4,7 +4,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Alert } from '@mui/material';
 import { toast } from 'react-toastify';
-import { StudentManExamLayout } from '../components/templates';
+import {
+  StudentManExamLayout,
+  StudentManExamContent,
+  StudentManExamFooter,
+} from '../components/templates';
 import {
   StudentManExamHeader,
   StudentManQuestionPanel,
@@ -13,6 +17,7 @@ import {
 } from '../components/organisms';
 import { Skeleton } from '../components/molecules';
 import StudentManFlaggedSidebar from '../components/organisms/StudentManFlaggedSidebar';
+import StudentManProTips from '../components/organisms/StudentManProTips';
 import type { QuestionOption } from '../components/organisms';
 import { useSession, useQuestion, useSaveAnswer, useSubmitExam } from '../hooks/useSession';
 import { useExam } from '../hooks/useExams';
@@ -20,13 +25,49 @@ import { useWebSocketTimer } from '../hooks/useWebSocketTimer';
 import { useProctor } from '../hooks/useProctor';
 import type { AnswerPart } from '../types/exam.types';
 
-const hasAnswerPartsContent = (parts: AnswerPart[]): boolean =>
-  parts.some((part) => part.answer.trim().length > 0);
+const extractFinalComplexResult = (raw: string): string => {
+  const equalsLines = raw
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith('='));
 
-const serializeAnswerParts = (parts: AnswerPart[]): string =>
+  const lastEqualsLine = equalsLines[equalsLines.length - 1];
+  if (!lastEqualsLine) {
+    return '';
+  }
+
+  const content = lastEqualsLine.slice(1).trim();
+  if (!content) {
+    return '';
+  }
+
+  const segments = content
+    .split('=')
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+  return segments[segments.length - 1] ?? '';
+};
+
+const toPersistedPartAnswer = (answer: string, _prompt: string): string => {
+  // Always store the full answer / work text. For complex formulas this preserves
+  // the student's working steps so the teacher can review them during scoring.
+  return answer.trim();
+};
+
+const hasAnswerPartsContent = (
+  parts: AnswerPart[],
+  promptsByKey: Record<string, string>,
+): boolean =>
+  parts.some((part) => toPersistedPartAnswer(part.answer, promptsByKey[part.key] ?? '').length > 0);
+
+const serializeAnswerParts = (parts: AnswerPart[], promptsByKey: Record<string, string>): string =>
   parts
-    .filter((part) => part.answer.trim().length > 0)
-    .map((part) => `${part.key}) ${part.answer.trim()}`)
+    .map((part) => ({
+      key: part.key,
+      answer: toPersistedPartAnswer(part.answer, promptsByKey[part.key] ?? ''),
+    }))
+    .filter((part) => part.answer.length > 0)
+    .map((part) => `${part.key}) ${part.answer}`)
     .join('\n\n');
 
 const ExamPage: React.FC = () => {
@@ -108,141 +149,163 @@ const ExamPage: React.FC = () => {
     : currentQuestion;
 
   return (
-    <StudentManExamLayout
-      header={
+    <StudentManExamLayout>
+      <div className="sticky top-0 z-[1100] bg-white shadow-[0_2px_8px_0_rgba(0,0,0,0.04)]">
         <StudentManExamHeader
           remainingSeconds={displayRemaining ?? 0}
           currentQuestion={flaggedQuestionNumber}
           totalQuestions={totalQuestions}
         />
-      }
-      sidebar={
-        <StudentManFlaggedSidebar
-          flaggedMap={flaggedMap}
-          totalQuestions={totalQuestions}
-          currentQuestion={flaggedQuestionNumber}
-          onJumpTo={(q) => {
-            if (inReviewFlagged) {
-              const idx = flaggedNumbers.indexOf(q);
-              if (idx !== -1) setFlaggedReviewIndex(idx);
-            } else {
-              setCurrentQuestion(q);
-            }
-          }}
-        />
-      }
-      footer={
-        <StudentManExamNavigationBar
-          canGoPrev={inReviewFlagged ? flaggedReviewIndex > 0 : flaggedQuestionNumber > 1}
-          canGoNext={
-            inReviewFlagged
-              ? flaggedReviewIndex < flaggedNumbers.length - 1
-              : flaggedQuestionNumber < totalQuestions
-          }
-          isLastQuestion={
-            inReviewFlagged
-              ? flaggedReviewIndex === flaggedNumbers.length - 1
-              : flaggedQuestionNumber === totalQuestions
-          }
-          flaggedCount={flaggedNumbers.length}
-          onPrevious={() => {
-            if (inReviewFlagged) {
-              setFlaggedReviewIndex((i) => Math.max(0, i - 1));
-            } else {
-              setCurrentQuestion((q) => Math.max(1, q - 1));
-            }
-          }}
-          onNext={() => {
-            if (inReviewFlagged) {
-              setFlaggedReviewIndex((i) => Math.min(flaggedNumbers.length - 1, i + 1));
-            } else {
-              setCurrentQuestion((q) => Math.min(totalQuestions, q + 1));
-            }
-          }}
-          onSubmit={() => setShowSubmitModal(true)}
-          onReviewFlagged={
-            !inReviewFlagged && flaggedNumbers.length > 0
-              ? () => {
-                  setReviewFlaggedMode(true);
-                  setFlaggedReviewIndex(0);
-                }
-              : undefined
-          }
-        />
-      }
-      proTips={[
-        'Tập trung vào từng câu hỏi một và giữ nhịp làm bài ổn định.',
-        'Đánh dấu 🚩 câu chưa chắc chắn để quay lại sau, tránh mất thời gian dừng lâu.',
-        'Rà soát lại câu trả lời cuối mỗi nhóm câu để giảm lỗi bất cẩn.',
-      ]}
-    >
-      {questionLoading ? (
-        <StudentManQuestionPanel
-          questionNumber={flaggedQuestionNumber}
-          questionText=""
-          questionType="MCQ"
-          options={[]}
-          selectedAnswer=""
-          isLoading
-          onAnswerChange={() => {}}
-        />
-      ) : question ? (
-        <StudentManQuestionPanel
-          questionNumber={flaggedQuestionNumber}
-          gradeLevel={gradeLevelTag}
-          questionText={question.content}
-          questionStem={question.stem}
-          questionType={question.type}
-          options={mappedOptions}
-          questionParts={question.questionParts}
-          selectedAnswer={answerMap[flaggedQuestionNumber] || ''}
-          selectedAnswerParts={answerPartsMap[flaggedQuestionNumber] ?? []}
-          isFlagged={flaggedMap[flaggedQuestionNumber] ?? false}
-          onFlag={() => {
-            const next = !flaggedMap[flaggedQuestionNumber];
-            setFlaggedMap((m) => ({ ...m, [flaggedQuestionNumber]: next }));
-            saveAnswer.mutate({
-              questionId: question.id,
-              payload: {
-                answer: answerMap[flaggedQuestionNumber] || '',
-                answerParts: answerPartsMap[flaggedQuestionNumber] ?? [],
-                flaggedForReview: next,
-              },
-            });
-          }}
-          onAnswerChange={(answer: string) => {
-            setAnswerMap((m) => ({ ...m, [flaggedQuestionNumber]: answer }));
-            setAnswerPartsMap((m) => ({ ...m, [flaggedQuestionNumber]: [] }));
-            setAnsweredMap((m) => ({ ...m, [flaggedQuestionNumber]: answer.trim().length > 0 }));
-            saveAnswer.mutate({
-              questionId: question.id,
-              payload: {
-                answer,
-                answerParts: [],
-                flaggedForReview: flaggedMap[flaggedQuestionNumber] ?? false,
-              },
-            });
-          }}
-          onAnswerPartsChange={(parts: AnswerPart[]) => {
-            const serialized = serializeAnswerParts(parts);
-            setAnswerPartsMap((m) => ({ ...m, [flaggedQuestionNumber]: parts }));
-            setAnswerMap((m) => ({ ...m, [flaggedQuestionNumber]: serialized }));
-            setAnsweredMap((m) => ({
-              ...m,
-              [flaggedQuestionNumber]: hasAnswerPartsContent(parts),
-            }));
-            saveAnswer.mutate({
-              questionId: question.id,
-              payload: {
-                answer: serialized,
-                answerParts: parts,
-                flaggedForReview: flaggedMap[flaggedQuestionNumber] ?? false,
-              },
-            });
-          }}
-          imageData={question.imageData}
-        />
-      ) : null}
+      </div>
+      <div className="flex">
+        <StudentManExamContent>
+          <div className="flex flex-col xl:flex-row gap-6">
+            <div className="flex-1 min-w-0 flex flex-col">
+              {questionLoading ? (
+                <StudentManQuestionPanel
+                  questionNumber={flaggedQuestionNumber}
+                  questionText=""
+                  questionType="MCQ"
+                  options={[]}
+                  selectedAnswer=""
+                  isLoading
+                  onAnswerChange={() => {}}
+                />
+              ) : question ? (
+                <StudentManQuestionPanel
+                  questionNumber={flaggedQuestionNumber}
+                  gradeLevel={gradeLevelTag}
+                  questionText={question.content}
+                  questionStem={question.stem}
+                  questionType={question.type}
+                  options={mappedOptions}
+                  questionParts={question.questionParts}
+                  selectedAnswer={answerMap[flaggedQuestionNumber] || ''}
+                  selectedAnswerParts={answerPartsMap[flaggedQuestionNumber] ?? []}
+                  isFlagged={flaggedMap[flaggedQuestionNumber] ?? false}
+                  onFlag={() => {
+                    const next = !flaggedMap[flaggedQuestionNumber];
+                    setFlaggedMap((m) => ({ ...m, [flaggedQuestionNumber]: next }));
+                    saveAnswer.mutate({
+                      questionId: question.id,
+                      payload: {
+                        answer: answerMap[flaggedQuestionNumber] || '',
+                        answerParts: answerPartsMap[flaggedQuestionNumber] ?? [],
+                        flaggedForReview: next,
+                      },
+                    });
+                  }}
+                  onAnswerChange={(answer: string) => {
+                    setAnswerMap((m) => ({ ...m, [flaggedQuestionNumber]: answer }));
+                    setAnswerPartsMap((m) => ({ ...m, [flaggedQuestionNumber]: [] }));
+                    setAnsweredMap((m) => ({
+                      ...m,
+                      [flaggedQuestionNumber]: answer.trim().length > 0,
+                    }));
+                    saveAnswer.mutate({
+                      questionId: question.id,
+                      payload: {
+                        answer,
+                        answerParts: [],
+                        flaggedForReview: flaggedMap[flaggedQuestionNumber] ?? false,
+                      },
+                    });
+                  }}
+                  onAnswerPartsChange={(parts: AnswerPart[]) => {
+                    const promptsByKey = Object.fromEntries(
+                      (question.questionParts ?? []).map((part) => [part.key, part.prompt]),
+                    );
+                    const serialized = serializeAnswerParts(parts, promptsByKey);
+                    setAnswerPartsMap((m) => ({ ...m, [flaggedQuestionNumber]: parts }));
+                    setAnswerMap((m) => ({ ...m, [flaggedQuestionNumber]: serialized }));
+                    setAnsweredMap((m) => ({
+                      ...m,
+                      [flaggedQuestionNumber]: hasAnswerPartsContent(parts, promptsByKey),
+                    }));
+                    saveAnswer.mutate({
+                      questionId: question.id,
+                      payload: {
+                        answer: serialized,
+                        answerParts: parts,
+                        flaggedForReview: flaggedMap[flaggedQuestionNumber] ?? false,
+                      },
+                    });
+                  }}
+                  imageData={question.imageData}
+                />
+              ) : null}
+
+              <div className="border-t border-slate-200 mt-6 pt-6">
+                <StudentManExamNavigationBar
+                  canGoPrev={inReviewFlagged ? flaggedReviewIndex > 0 : flaggedQuestionNumber > 1}
+                  canGoNext={
+                    inReviewFlagged
+                      ? flaggedReviewIndex < flaggedNumbers.length - 1
+                      : flaggedQuestionNumber < totalQuestions
+                  }
+                  isLastQuestion={
+                    inReviewFlagged
+                      ? flaggedReviewIndex === flaggedNumbers.length - 1
+                      : flaggedQuestionNumber === totalQuestions
+                  }
+                  flaggedCount={flaggedNumbers.length}
+                  onPrevious={() => {
+                    if (inReviewFlagged) {
+                      setFlaggedReviewIndex((i) => Math.max(0, i - 1));
+                    } else {
+                      setCurrentQuestion((q) => Math.max(1, q - 1));
+                    }
+                  }}
+                  onNext={() => {
+                    if (inReviewFlagged) {
+                      setFlaggedReviewIndex((i) => Math.min(flaggedNumbers.length - 1, i + 1));
+                    } else {
+                      setCurrentQuestion((q) => Math.min(totalQuestions, q + 1));
+                    }
+                  }}
+                  onSubmit={() => setShowSubmitModal(true)}
+                  onReviewFlagged={
+                    !inReviewFlagged && flaggedNumbers.length > 0
+                      ? () => {
+                          setReviewFlaggedMode(true);
+                          setFlaggedReviewIndex(0);
+                        }
+                      : undefined
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="xl:w-[280px] xl:min-w-[220px] xl:max-w-[280px] self-start">
+              <StudentManProTips
+                tips={[
+                  'Tập trung vào từng câu hỏi một và giữ nhịp làm bài ổn định.',
+                  'Đánh dấu 🚩 câu chưa chắc chắn để quay lại sau, tránh mất thời gian dừng lâu.',
+                  'Rà soát lại câu trả lời cuối mỗi nhóm câu để giảm lỗi bất cẩn.',
+                ]}
+              />
+            </div>
+          </div>
+        </StudentManExamContent>
+        <div className="pt-12">
+          <StudentManFlaggedSidebar
+            flaggedMap={flaggedMap}
+            totalQuestions={totalQuestions}
+            currentQuestion={flaggedQuestionNumber}
+            className="xl:w-[280px] xl:min-w-[220px] xl:max-w-[280px]"
+            onJumpTo={(q) => {
+              if (inReviewFlagged) {
+                const idx = flaggedNumbers.indexOf(q);
+                if (idx !== -1) setFlaggedReviewIndex(idx);
+              } else {
+                setCurrentQuestion(q);
+              }
+            }}
+          />
+        </div>
+      </div>
+
+      <StudentManExamFooter />
 
       <StudentManSubmitModal
         open={showSubmitModal}

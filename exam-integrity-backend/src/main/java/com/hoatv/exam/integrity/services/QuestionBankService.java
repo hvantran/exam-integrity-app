@@ -9,12 +9,15 @@ import com.hoatv.exam.integrity.repositories.QuestionBankRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -29,7 +32,7 @@ public class QuestionBankService {
     }
 
     public Page<DraftQuestionDTO> search(String q, String type, List<String> tags, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "type"));
         Question.QuestionType qType = null;
         if (type != null && !type.isBlank()) {
             try { qType = Question.QuestionType.valueOf(type.toUpperCase()); }
@@ -64,6 +67,25 @@ public class QuestionBankService {
         bankRepository.deleteAll();
     }
 
+    public List<String> listTags() {
+        return bankRepository.findAll().stream()
+            .flatMap(item -> {
+                List<String> merged = new ArrayList<>();
+                if (item.getTags() != null) {
+                    merged.addAll(item.getTags());
+                }
+                if (item.getRubric() != null && item.getRubric().getKeywords() != null) {
+                    merged.addAll(item.getRubric().getKeywords());
+                }
+                return merged.stream();
+            })
+            .map(String::trim)
+            .filter(tag -> !tag.isBlank())
+            .distinct()
+            .sorted(Comparator.naturalOrder())
+            .toList();
+    }
+
     public DraftQuestionDTO addQuestion(DraftQuestionEditCommand cmd) {
         if (cmd.content() == null || cmd.content().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Question content is required");
@@ -93,7 +115,7 @@ public class QuestionBankService {
             rubric.setModelAnswer(cmd.rubric().modelAnswer());
             item.setRubric(rubric);
         }
-        item.setTags(List.of());
+        item.setTags(extractKeywords(cmd));
         item.setAddedAt(Instant.now());
         item.setImageData(cmd.imageData());
         return toDTO(bankRepository.save(item));
@@ -123,10 +145,35 @@ public class QuestionBankService {
         if (cmd.options() != null) item.setOptions(cmd.options());
         if (cmd.correctAnswer() != null) item.setCorrectAnswer(cmd.correctAnswer());
         if (cmd.imageData() != null) item.setImageData(cmd.imageData());
+        if (cmd.rubric() != null) {
+            com.hoatv.exam.integrity.domain.Rubric rubric = item.getRubric();
+            if (rubric == null) {
+                rubric = new com.hoatv.exam.integrity.domain.Rubric();
+            }
+            rubric.setKeywords(cmd.rubric().keywords());
+            rubric.setExpectedSteps(cmd.rubric().expectedSteps());
+            rubric.setFinalAnswer(cmd.rubric().finalAnswer());
+            rubric.setModelAnswer(cmd.rubric().modelAnswer());
+            rubric.setFormatChecks(cmd.rubric().formatChecks());
+            item.setRubric(rubric);
+            item.setTags(extractKeywords(cmd));
+        }
         return toDTO(bankRepository.save(item));
     }
 
+    private List<String> extractKeywords(DraftQuestionEditCommand cmd) {
+        if (cmd.rubric() == null || cmd.rubric().keywords() == null) {
+            return List.of();
+        }
+        return cmd.rubric().keywords().stream()
+            .map(String::trim)
+            .filter(keyword -> !keyword.isBlank())
+            .distinct()
+            .toList();
+    }
+
     private DraftQuestionDTO toDTO(QuestionBankItem item) {
+        QuestionStructureParser.ParsedQuestionContent parsed = QuestionStructureParser.parse(item.getContent());
         RubricDTO rubric = item.getRubric() == null ? null : new RubricDTO(
             item.getRubric().getKeywords(), item.getRubric().getExpectedSteps(),
             item.getRubric().getFinalAnswer(), item.getRubric().getModelAnswer(),
@@ -137,9 +184,11 @@ public class QuestionBankService {
             0,
             item.getContent(),
             null,
+            parsed.stem(),
             item.getType() != null ? item.getType().name() : null,
             item.getPoints(),
             item.getOptions(),
+            parsed.parts(),
             item.getCorrectAnswer(),
             rubric,
             false,

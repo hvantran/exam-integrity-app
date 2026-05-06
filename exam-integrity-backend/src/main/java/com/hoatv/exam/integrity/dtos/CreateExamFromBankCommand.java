@@ -12,6 +12,7 @@ public record CreateExamFromBankCommand(
     int durationSeconds,
     List<String> tags,
     String reviewNotes,
+    List<String> selectedQuestionIds,
     int mcqCount,
     int essayShortCount,
     int essayLongCount

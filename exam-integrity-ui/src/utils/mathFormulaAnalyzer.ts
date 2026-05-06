@@ -110,7 +110,7 @@ const normalizeFormula = (formula: string): string => {
  */
 const extractOperators = (formula: string): string[] => {
   const operators: string[] = [];
-  const operatorRegex = /[\+\-x*/:]/;
+  const operatorRegex = /[\+\-x*/:=]/;
 
   for (let i = 0; i < formula.length; i += 1) {
     const char = formula[i];

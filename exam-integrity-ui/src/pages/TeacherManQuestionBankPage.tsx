@@ -3,15 +3,16 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Chip, Button, Modal, Select } from '../components/atoms';
-import { Search, Pencil, PlusCircle, X, Star, History, Trash2 } from 'lucide-react';
+import { Search, Pencil, PlusCircle, X, Star, History, Trash2, Eye } from 'lucide-react';
 import { TeacherManQuestionBankLayout } from '../components/templates';
-import { ScrollArea, Skeleton } from '../components/molecules';
+import { ScrollArea, Skeleton, Combobox } from '../components/molecules';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { questionBankService } from '../services/questionBankService';
-import type { DraftQuestionDTO, QuestionType } from '../types/exam.types';
+import type { DraftQuestionDTO, QuestionPart, QuestionType } from '../types/exam.types';
 import type { DraftQuestionEditCommand } from '../types/exam.types';
 import { useAuth } from '../context/AuthContext';
-import type { DashboardSection } from '../components/organisms';
+import { StudentManQuestionPanel } from '../components/organisms';
+import type { DashboardSection, QuestionOption } from '../components/organisms';
 
 const SECTION_ROUTES: Record<DashboardSection, string> = {
   dashboard: '/teacher/dashboard',
@@ -66,6 +67,22 @@ const toEditForm = (q: DraftQuestionDTO): EditFormState => ({
 const OPTION_LABELS = ['A', 'B', 'C', 'D'];
 
 const stripOptionPrefix = (text: string): string => text.replace(/^[A-Da-d][./、]\s*/u, '').trim();
+
+interface PreviewQuestionPayload {
+  questionText: string;
+  questionStem?: string;
+  questionParts?: QuestionPart[];
+}
+
+const derivePreviewQuestionPayload = (question: DraftQuestionDTO): PreviewQuestionPayload => {
+  const sourceText = (question.rawText?.trim() || question.content).trim();
+
+  return {
+    questionText: sourceText,
+    questionStem: question.stem,
+    questionParts: question.questionParts,
+  };
+};
 
 interface QuestionEditCardProps {
   question: DraftQuestionDTO;
@@ -282,7 +299,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, index, onEdit }) 
           size="sm"
           icon={<Trash2 size={16} />}
           iconPlacement="left"
-          className="flex items-center gap-1 text-xs px-2 py-1 rounded border transition hover:bg-red-50 text-error-600 border-error-600"
+          className="flex items-center gap-1 text-xs px-2 py-1 rounded border transition text-error-600 border-error-600"
         >
           Delete
         </Button>
@@ -347,6 +364,9 @@ const QuestionBankPage: React.FC = () => {
   const PAGE_SIZE = 20;
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteAllOpen, setDeleteAllOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewPage, setPreviewPage] = useState(1);
+  const [previewAnswerMap, setPreviewAnswerMap] = useState<Record<string, string>>({});
   const [addOpen, setAddOpen] = useState(false);
   const [addForm, setAddForm] = useState<EditFormState>({
     content: '',
@@ -387,8 +407,15 @@ const QuestionBankPage: React.FC = () => {
     placeholderData: (prev) => prev,
   });
 
+  const { data: availableTags = [], isLoading: isTagsLoading } = useQuery({
+    queryKey: ['question-bank-tags'],
+    queryFn: () => questionBankService.listTags(),
+    staleTime: 60_000,
+  });
+
   const hasMore = (data?.content.length ?? 0) < (data?.totalElements ?? 0);
   const isLoadingMore = isFetching && !isLoading;
+  const sortedQuestions = data?.content ?? []
 
   const questionListLoader = (
     <div className="w-full flex flex-col gap-3" aria-label="Loading more questions">
@@ -397,6 +424,51 @@ const QuestionBankPage: React.FC = () => {
       ))}
     </div>
   );
+
+  const {
+    data: previewData,
+    isLoading: isPreviewLoading,
+    isFetching: isPreviewFetching,
+  } = useQuery({
+    queryKey: ['question-bank-preview', q, type, tagFilters, previewPage],
+    queryFn: () =>
+      questionBankService.search({
+        q: q || undefined,
+        type: type || undefined,
+        tags: tagFilters.length ? tagFilters : undefined,
+        page: 0,
+        size: previewPage * PAGE_SIZE,
+      }),
+    enabled: previewOpen,
+    placeholderData: (prev) => prev,
+  });
+
+  const hasPreviewMore = (previewData?.content.length ?? 0) < (previewData?.totalElements ?? 0);
+  const isPreviewLoadingMore = isPreviewFetching && !isPreviewLoading;
+  const sortedPreviewQuestions = previewData?.content ?? []
+  const previewLoader = (
+    <div className="w-full flex flex-col gap-4" aria-label="Loading preview questions">
+      {[0, 1].map((i) => (
+        <Skeleton key={i} height={340} />
+      ))}
+    </div>
+  );
+
+  const handlePreviewScroll: React.UIEventHandler<HTMLDivElement> = (event) => {
+    if (!hasPreviewMore || isPreviewFetching) return;
+
+    const target = event.currentTarget;
+    const remaining = target.scrollHeight - target.scrollTop - target.clientHeight;
+    if (remaining < 180) {
+      setPreviewPage((p) => p + 1);
+    }
+  };
+
+  const mapPreviewOptions = (options?: string[]): QuestionOption[] | undefined =>
+    options?.map((text, i) => ({
+      key: String.fromCharCode(65 + i),
+      text: stripOptionPrefix(text),
+    }));
 
   const { mutate: updateQuestion, isPending: isSaving } = useMutation({
     mutationFn: ({ id, cmd }: { id: string; cmd: DraftQuestionEditCommand }) =>
@@ -469,8 +541,8 @@ const QuestionBankPage: React.FC = () => {
     onError: (e: Error) => toast.error(e.message || 'Failed to delete all questions.'),
   });
 
-  const addTagFilter = () => {
-    const tag = tagInput.trim();
+  const addTagFilter = (rawTag?: string) => {
+    const tag = (rawTag ?? tagInput).trim();
     if (tag && !tagFilters.includes(tag)) setTagFilters((prev) => [...prev, tag]);
     setTagInput('');
   };
@@ -484,9 +556,9 @@ const QuestionBankPage: React.FC = () => {
         onNavigate={handleNavigate}
         onLogout={handleLogout}
         filterBar={
-          <div className="flex gap-2 items-center overflow-x-auto">
+          <div className="flex flex-wrap gap-2 items-center">
             {/* Search */}
-            <div className="relative flex-1 min-w-[500px]">
+            <div className="relative flex-1 min-w-[320px]">
               <Search
                 size={18}
                 className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-on-surfaceVariant"
@@ -505,21 +577,17 @@ const QuestionBankPage: React.FC = () => {
               onChange={(val) => setType(val as QuestionType | '')}
               options={TYPE_OPTIONS}
               placeholder="All Types"
-              className="min-w-[160px]"
+              className="min-w-[160px] w-[160px]"
             />
 
-            {/* Tag input */}
-            <input
-              className={`${inputCls} w-36 shrink-0`}
-              placeholder="Add tag filter…"
+            {/* Tag combobox */}
+            <Combobox
+              className="w-48 shrink-0"
+              placeholder={isTagsLoading ? 'Loading tags…' : 'Select or type a tag…'}
               value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  addTagFilter();
-                }
-              }}
+              onChange={setTagInput}
+              onSelect={addTagFilter}
+              options={availableTags.map((tag) => ({ value: tag, label: tag }))}
             />
 
             {/* Active tag chips */}
@@ -548,6 +616,22 @@ const QuestionBankPage: React.FC = () => {
               Showing <strong>{data?.totalElements ?? 0}</strong> results
             </span>
             <div className="flex gap-2 items-center">
+              {(data?.totalElements ?? 0) > 0 && (
+                <span title="Preview questions in student view">
+                  <Button
+                    size="sm"
+                    variant="outlined"
+                    icon={<Eye size={16} />}
+                    onClick={() => {
+                      setPreviewAnswerMap({});
+                      setPreviewPage(1);
+                      setPreviewOpen(true);
+                    }}
+                  >
+                    Preview
+                  </Button>
+                </span>
+              )}
               <span title="Add a new question to the bank">
                 <Button
                   size="sm"
@@ -584,7 +668,7 @@ const QuestionBankPage: React.FC = () => {
           loader={questionListLoader}
           endMessage={(data?.totalElements ?? 0) > 0 ? <span>All results loaded</span> : null}
         >
-          {data?.content.map((item, i) =>
+          {sortedQuestions.map((item, i) =>
             editingId === item.id ? (
               <QuestionEditCard
                 key={item.id}
@@ -723,6 +807,58 @@ const QuestionBankPage: React.FC = () => {
           </div>
         )}
         {addError && <p className="text-xs mt-1 text-error-600">{addError}</p>}
+      </Modal>
+
+      {/* Student-style preview modal */}
+      <Modal
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        title="Question Preview (Student View)"
+        maxWidth="max-w-6xl"
+        actions={
+          <Button variant="primary" size="sm" onClick={() => setPreviewOpen(false)}>
+            Close
+          </Button>
+        }
+      >
+        <div className="text-xs text-on-surfaceVariant mb-3">
+          Previewing {previewData?.content.length ?? 0} / {previewData?.totalElements ?? 0} questions
+        </div>
+
+        <div className="max-h-[65vh] overflow-y-auto pr-2" onScroll={handlePreviewScroll}>
+          <div className="space-y-5">
+            {isPreviewLoading && <Skeleton height={340} />}
+
+            {sortedPreviewQuestions.map((question, idx) => (
+              <div key={question.id} className="overflow-x-auto pb-1">
+                {(() => {
+                  const previewPayload = derivePreviewQuestionPayload(question);
+                  return (
+                <StudentManQuestionPanel
+                  questionNumber={question.questionNumber || idx + 1}
+                  questionText={previewPayload.questionText}
+                  questionStem={previewPayload.questionStem}
+                  questionType={question.type ?? 'MCQ'}
+                  options={mapPreviewOptions(question.options)}
+                  questionParts={previewPayload.questionParts}
+                  selectedAnswer={previewAnswerMap[question.id] ?? ''}
+                  onAnswerChange={(answer) =>
+                    setPreviewAnswerMap((prev) => ({ ...prev, [question.id]: answer }))
+                  }
+                  imageData={question.imageData}
+                />
+                  );
+                })()}
+              </div>
+            ))}
+
+            {isPreviewLoadingMore && previewLoader}
+
+            {!hasPreviewMore && (previewData?.totalElements ?? 0) > 0 && (
+              <p className="text-center text-sm text-on-surfaceVariant py-2">All questions loaded</p>
+            )}
+          </div>
+        </div>
       </Modal>
 
       {/* Delete All confirmation modal */}

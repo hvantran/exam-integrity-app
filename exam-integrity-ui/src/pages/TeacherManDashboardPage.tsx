@@ -3,14 +3,20 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { TeacherManDashboardLayout } from '../components/templates';
-import { Skeleton } from '../components/molecules';
+import {
+  AppDialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  Skeleton,
+} from '../components/molecules';
 import { Button, Chip } from '../components/atoms';
 import { useExamList, useCreateExamFromBank, useDeleteExam } from '../hooks/useExams';
 import { useAuth } from '../context/AuthContext';
 import type { DashboardSection } from '../components/organisms';
 import type { CreateExamFromBankCommand } from '../types/exam.types';
 import { colors } from '../design-system/tokens';
-import { Clock, Minus, Trash2 } from 'lucide-react';
+import { BookOpen, Clock, Plus, Star, Trash2 } from 'lucide-react';
 const SECTION_ROUTES: Record<DashboardSection, string> = {
   dashboard: '/teacher/dashboard',
   ingestion: '/teacher/ingestion',
@@ -25,7 +31,6 @@ interface CreateExamDialogProps {
   onClose: () => void;
   onSubmit: (cmd: CreateExamFromBankCommand) => void;
   isLoading: boolean;
-  error?: string | null;
 }
 
 const CreateExamDialog: React.FC<CreateExamDialogProps> = ({
@@ -33,7 +38,6 @@ const CreateExamDialog: React.FC<CreateExamDialogProps> = ({
   onClose,
   onSubmit,
   isLoading,
-  error,
 }) => {
   const [title, setTitle] = useState('');
   const [durationMin, setDurationMin] = useState(60);
@@ -81,21 +85,16 @@ const CreateExamDialog: React.FC<CreateExamDialogProps> = ({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-on-surface bg-opacity-30">
-      <div className="bg-surface rounded-xl shadow-lg w-full max-w-lg p-6 relative">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="!absolute !top-3 !right-3 !min-w-0 !p-1 !rounded-full"
-          onClick={handleClose}
-        >
-          &times;
-        </Button>
-        <h2 className="text-lg font-bold mb-4">Create Exam from Question Bank</h2>
-        {error && (
-          <div className="mb-2 text-error bg-errorContainer rounded px-2 py-1 text-sm">{error}</div>
-        )}
+    <AppDialog
+      open={open}
+      onClose={handleClose}
+      disableClose={isLoading}
+      closeOnBackdrop={false}
+    >
+      <DialogHeader>Create Exam from Question Bank</DialogHeader>
+      <DialogContent>
         <form
+          id="create-exam-form"
           className="space-y-4"
           onSubmit={(e) => {
             e.preventDefault();
@@ -205,23 +204,22 @@ const CreateExamDialog: React.FC<CreateExamDialogProps> = ({
               placeholder="Optional notes for this exam"
             />
           </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="neutral" onClick={handleClose} disabled={isLoading}>
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={
-                isLoading || !title.trim() || mcqCount + essayShortCount + essayLongCount === 0
-              }
-            >
-              {isLoading ? 'Creating…' : 'Create Exam'}
-            </Button>
-          </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+      <DialogFooter>
+        <Button type="button" variant="neutral" onClick={handleClose} disabled={isLoading}>
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          form="create-exam-form"
+          variant="primary"
+          disabled={isLoading || !title.trim() || mcqCount + essayShortCount + essayLongCount === 0}
+        >
+          {isLoading ? 'Creating…' : 'Create Exam'}
+        </Button>
+      </DialogFooter>
+    </AppDialog>
   );
 };
 
@@ -244,43 +242,57 @@ const ExamCard: React.FC<ExamCardProps> = ({
   tags,
   onDelete,
 }) => (
-  <div className="relative overflow-hidden border border-gray-300 rounded-xl p-4 bg-white shadow-sm">
-    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-primary-700 rounded-l-xl" />
-    <div className="font-semibold text-base text-gray-900 mb-2">{title}</div>
-    <div className="flex gap-4 mb-2 text-xs text-gray-500">
-      <span className="inline-flex items-center gap-1">
-        <Clock size={16} className="text-gray-400" />
-        {Math.round(durationSeconds / 60)} min
-      </span>
-      <span className="inline-flex items-center gap-1">
-        <Minus size={16} className="text-gray-400" />
-        {questionCount} questions
-      </span>
-      <span>{totalPoints} pts</span>
-    </div>
-    {tags && tags.length > 0 && (
-      <div className="flex flex-wrap gap-1 mb-2">
-        {tags.map((t) => (
-          <span
-            key={t}
-            className="bg-primary-100 text-primary text-xs px-2 py-0.5 rounded-full font-medium"
-          >
-            {t}
-          </span>
-        ))}
+  <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary-300">
+    {/* Left accent bar */}
+    <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary-600 rounded-l-2xl" />
+
+    <div className="flex flex-col flex-1 pl-5 pr-4 pt-4 pb-3">
+      {/* Title */}
+      <h3 className="font-semibold text-base text-gray-900 leading-snug line-clamp-2 mb-3">
+        {title}
+      </h3>
+
+      {/* Stats chips */}
+      <div className="flex flex-wrap gap-2 mb-3">
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1">
+          <Clock size={13} className="text-primary-500" />
+          {Math.round(durationSeconds / 60)} min
+        </span>
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1">
+          <BookOpen size={13} className="text-primary-500" />
+          {questionCount} questions
+        </span>
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1">
+          <Star size={13} className="text-amber-400" />
+          {totalPoints} pts
+        </span>
       </div>
-    )}
-    <div className="flex justify-end mt-3">
-      <Button
-        variant="outlined"
-        size="sm"
-        className="text-xs"
-        onClick={onDelete}
+
+      {/* Tags */}
+      {tags && tags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {tags.map((t) => (
+            <span
+              key={t}
+              className="text-[11px] font-semibold uppercase tracking-wide bg-primary-50 text-primary-700 px-2 py-0.5 rounded-full"
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+
+    {/* Footer */}
+    <div className="flex justify-end border-t border-gray-100 px-4 py-2.5">
+      <button
         type="button"
-        icon={<Trash2 size={16} className="text-error-700" />}
+        onClick={onDelete}
+        className="inline-flex items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors duration-150"
       >
+        <Trash2 size={13} />
         Delete
-      </Button>
+      </button>
     </div>
   </div>
 );
@@ -291,11 +303,9 @@ const TeacherManDashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [createError, setCreateError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  const { data: exams, isLoading } = useExamList();
+  const { data: exams, isLoading, refetch: refetchExams } = useExamList();
   const createFromBank = useCreateExamFromBank();
   const deleteExam = useDeleteExam();
 
@@ -306,32 +316,27 @@ const TeacherManDashboardPage: React.FC = () => {
   const handleNavigate = (section: DashboardSection) => navigate(SECTION_ROUTES[section]);
 
   const handleCreate = (cmd: CreateExamFromBankCommand) => {
-    setCreateError(null);
     createFromBank.mutate(cmd, {
       onSuccess: () => {
         setDialogOpen(false);
         toast.success('Exam created successfully.');
       },
       onError: (e: Error) => {
-        const message = e.message || 'Failed to create exam.';
-        setCreateError(message);
-        toast.error(message);
+        toast.error(e.message || 'Failed to create exam.');
       },
     });
   };
 
   const handleDeleteConfirm = () => {
     if (!deleteTarget) return;
-    setDeleteError(null);
     deleteExam.mutate(deleteTarget.id, {
       onSuccess: () => {
         setDeleteTarget(null);
+        refetchExams();
         toast.success('Exam deleted successfully.');
       },
       onError: (e: Error) => {
-        const message = e.message || 'Failed to delete exam.';
-        setDeleteError(message);
-        toast.error(message);
+        toast.error(e.message || 'Failed to delete exam.');
       },
     });
   };
@@ -349,8 +354,12 @@ const TeacherManDashboardPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
           <div className="text-sm text-gray-500 mt-1">Published exams available to students</div>
         </div>
-        <Button variant="primary" onClick={() => setDialogOpen(true)}>
-          <span className="text-lg font-bold">+</span>
+        <Button
+          variant="primary"
+          icon={<Plus size={16} />}
+          iconPlacement="left"
+          onClick={() => setDialogOpen(true)}
+        >
           Create Exam from Bank
         </Button>
       </div>
@@ -392,63 +401,44 @@ const TeacherManDashboardPage: React.FC = () => {
 
       <CreateExamDialog
         open={dialogOpen}
-        onClose={() => {
-          setDialogOpen(false);
-          setCreateError(null);
-        }}
+        onClose={() => setDialogOpen(false)}
         onSubmit={handleCreate}
         isLoading={createFromBank.isPending}
-        error={createError}
       />
 
       {/* Delete confirmation dialog (Tailwind-based) */}
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-          <div className="bg-white rounded-xl shadow-lg w-full max-w-xs p-6 relative">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="!absolute !top-3 !right-3 !min-w-0 !p-1 !rounded-full"
-              onClick={() => {
-                if (!deleteExam.isPending) setDeleteTarget(null);
-              }}
-            >
-              &times;
-            </Button>
-            <h2 className="text-lg font-bold mb-3">Delete Exam</h2>
-            {deleteError && (
-              <div className="mb-2 text-red-600 bg-red-50 rounded px-2 py-1 text-sm">
-                {deleteError}
-              </div>
-            )}
+        <AppDialog
+          open
+          disableClose={deleteExam.isPending}
+          onClose={() => {
+            if (!deleteExam.isPending) setDeleteTarget(null);
+          }}
+        >
+          <DialogHeader>Delete Exam</DialogHeader>
+          <DialogContent>
             <div className="mb-4 text-gray-700">
-              Are you sure you want to delete <strong>{deleteTarget.title}</strong>? This action
-              cannot be undone.
+              Are you sure you want to delete <strong>{deleteTarget.title}</strong>?
               <br />
               <span className="text-gray-500 text-xs">
                 Questions in the question bank will not be affected.
               </span>
             </div>
-            <div className="flex justify-end gap-2 mt-4">
-              <Button
-                variant="neutral"
-                onClick={() => setDeleteTarget(null)}
-                disabled={deleteExam.isPending}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="danger"
-                onClick={handleDeleteConfirm}
-                disabled={deleteExam.isPending}
-              >
-                {deleteExam.isPending ? 'Deleting…' : 'Delete'}
-              </Button>
-            </div>
-          </div>
-        </div>
+          </DialogContent>
+          <DialogFooter>
+            <Button
+              variant="neutral"
+              onClick={() => setDeleteTarget(null)}
+              disabled={deleteExam.isPending}
+            >
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={handleDeleteConfirm} disabled={deleteExam.isPending}>
+              {deleteExam.isPending ? 'Deleting…' : 'Delete'}
+            </Button>
+          </DialogFooter>
+        </AppDialog>
       )}
-
     </TeacherManDashboardLayout>
   );
 };

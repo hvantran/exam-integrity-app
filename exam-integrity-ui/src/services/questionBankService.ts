@@ -27,6 +27,9 @@ export const questionBankService = {
       .then((r) => r.data);
   },
 
+  listTags: (): Promise<string[]> =>
+    apiClient.get<string[]>(`${API}/api/questions/tags`).then((r) => r.data),
+
   update: (id: string, cmd: DraftQuestionEditCommand): Promise<DraftQuestionDTO> =>
     apiClient.put<DraftQuestionDTO>(`${API}/api/questions/${id}`, cmd).then((r) => r.data),
 

@@ -247,6 +247,7 @@ public class ExamDraftService {
         List<Question> questions = approved.stream()
                 .map(this::toQuestion)
                 .collect(Collectors.toList());
+
         // Renumber sequentially 1..N so student navigation by position always works,
         // regardless of which questions were excluded during review.
         for (int i = 0; i < questions.size(); i++) {
@@ -471,6 +472,7 @@ public class ExamDraftService {
     }
 
     private DraftQuestionDTO toDraftQuestionDTO(DraftQuestion q) {
+        QuestionStructureParser.ParsedQuestionContent parsed = QuestionStructureParser.parse(q.getContent());
         RubricDTO rubricDTO = q.getRubric() == null ? null
                 : new RubricDTO(
                         q.getRubric().getKeywords(), q.getRubric().getExpectedSteps(),
@@ -481,9 +483,11 @@ public class ExamDraftService {
                 q.getQuestionNumber(),
                 q.getContent(),
                 q.getRawText(),
+                parsed.stem(),
                 q.getType() != null ? q.getType().name() : null,
                 q.getPoints(),
                 q.getOptions(),
+                parsed.parts(),
                 q.getCorrectAnswer(),
                 rubricDTO,
                 q.isTruncated(),

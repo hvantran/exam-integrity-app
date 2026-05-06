@@ -2,7 +2,7 @@ import React from 'react';
 import { Alert, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Button } from '../components/atoms';
+import { Button, Card } from '../components/atoms';
 import type { DashboardSection } from '../components/organisms';
 import { TeacherManDashboardLayout } from '../components/templates';
 import { useAuth } from '../context/AuthContext';
@@ -95,30 +95,27 @@ const TeacherManScoringPage: React.FC = () => {
               {queue.map((item) => {
                 const isSelected = item.sessionId === selectedSummary?.sessionId;
                 return (
-                  <Button
-                    key={item.sessionId}
-                    type="button"
-                    onClick={() => setSelectedSessionId(item.sessionId)}
-                    variant="ghost"
-                    size="md"
-                    className={`w-full rounded-2xl border p-4 text-left shadow-sm transition ${isSelected ? 'border-blue-600 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-300'}`}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="font-semibold text-gray-900">{item.examTitle}</div>
-                        <div className="text-sm text-gray-500">Student: {item.studentId}</div>
+                  <Card
+                      key={item.sessionId}
+                      selected={isSelected}
+                      onClick={() => setSelectedSessionId(item.sessionId)}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="font-semibold text-gray-900 truncate">{item.examTitle}</div>
+                          <div className="text-sm text-gray-500 mt-0.5">Student: {item.studentId}</div>
+                        </div>
+                        <span className="shrink-0 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
+                          {item.pendingEssayCount} pending
+                        </span>
                       </div>
-                      <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
-                        {item.pendingEssayCount} pending
-                      </span>
-                    </div>
-                    <div className="mt-4 text-sm text-gray-600">
-                      {item.submittedAt ? new Date(item.submittedAt).toLocaleString() : 'Submitted'}
-                    </div>
-                    <div className="mt-2 text-sm text-gray-600">
-                      Current score: {item.totalEarned.toFixed(1)} / {item.totalMax.toFixed(1)} pts
-                    </div>
-                  </Button>
+                      <div className="mt-3 flex items-center justify-between text-sm text-gray-500">
+                        <span>{item.submittedAt ? new Date(item.submittedAt).toLocaleString() : 'Submitted'}</span>
+                        <span className="font-medium text-gray-700">
+                          {item.totalEarned.toFixed(1)} / {item.totalMax.toFixed(1)} pts
+                        </span>
+                      </div>
+                    </Card>
                 );
               })}
             </div>

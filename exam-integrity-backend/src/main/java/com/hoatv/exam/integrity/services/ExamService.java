@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -94,55 +95,85 @@ public class ExamService {
     }
 
     public ExamDTO createFromBank(CreateExamFromBankCommand cmd) {
+        List<String> examTags = cmd.tags() != null ? cmd.tags() : List.of();
+        List<String> selectedQuestionIds = cmd.selectedQuestionIds() != null
+            ? cmd.selectedQuestionIds().stream().filter(id -> id != null && !id.isBlank()).distinct().toList()
+            : List.of();
+
         int mcqCount = Math.max(0, cmd.mcqCount());
         int essayShortCount = Math.max(0, cmd.essayShortCount());
         int essayLongCount = Math.max(0, cmd.essayLongCount());
-        if (mcqCount + essayShortCount + essayLongCount == 0) {
+        if (selectedQuestionIds.isEmpty() && mcqCount + essayShortCount + essayLongCount == 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "At least one question must be requested");
         }
 
         List<Question> selected = new ArrayList<>();
 
-        if (mcqCount > 0) {
-            List<QuestionBankItem> mcqPool = questionBankRepository.findAll().stream()
-                .filter(q -> q.getType() == Question.QuestionType.MCQ)
-                .collect(Collectors.toList());
-            Collections.shuffle(mcqPool);
-            if (mcqPool.size() < mcqCount) {
-                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Not enough MCQ questions in bank: requested " + mcqCount + ", available " + mcqPool.size());
-            }
-            mcqPool.subList(0, mcqCount).stream()
-                .map(this::bankItemToQuestion)
-                .forEach(selected::add);
-        }
+        List<QuestionBankItem> allBankItems = questionBankRepository.findAll();
 
-        if (essayShortCount > 0) {
-            List<QuestionBankItem> essayShortPool = questionBankRepository.findAll().stream()
-                .filter(q -> q.getType() == Question.QuestionType.ESSAY_SHORT)
-                .collect(Collectors.toList());
-            Collections.shuffle(essayShortPool);
-            if (essayShortPool.size() < essayShortCount) {
-                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Not enough essay short questions in bank: requested " + essayShortCount + ", available " + essayShortPool.size());
-            }
-            essayShortPool.subList(0, essayShortCount).stream()
-                .map(this::bankItemToQuestion)
-                .forEach(selected::add);
-        }
+        if (!selectedQuestionIds.isEmpty()) {
+            List<QuestionBankItem> selectedItems = allBankItems.stream()
+                .filter(item -> selectedQuestionIds.contains(item.getId()))
+                .toList();
 
-        if (essayLongCount > 0) {
-            List<QuestionBankItem> essayLongPool = questionBankRepository.findAll().stream()
-                .filter(q -> q.getType() == Question.QuestionType.ESSAY_LONG)
-                .collect(Collectors.toList());
-            Collections.shuffle(essayLongPool);
-            if (essayLongPool.size() < essayLongCount) {
-                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Not enough essay long questions in bank: requested " + essayLongCount + ", available " + essayLongPool.size());
+            if (selectedItems.size() != selectedQuestionIds.size()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "One or more selected question IDs do not exist in the question bank");
             }
-            essayLongPool.subList(0, essayLongCount).stream()
-                .map(this::bankItemToQuestion)
-                .forEach(selected::add);
+
+            boolean hasTagMismatch = selectedItems.stream()
+                .anyMatch(item -> !matchesExamTags(item, examTags));
+            if (hasTagMismatch) {
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Selected question tags do not match exam tags");
+            }
+
+            selectedItems.stream().map(this::bankItemToQuestion).forEach(selected::add);
+        } else {
+            if (mcqCount > 0) {
+                List<QuestionBankItem> mcqPool = allBankItems.stream()
+                    .filter(q -> q.getType() == Question.QuestionType.MCQ)
+                    .filter(q -> matchesExamTags(q, examTags))
+                    .collect(Collectors.toList());
+                Collections.shuffle(mcqPool);
+                if (mcqPool.size() < mcqCount) {
+                    throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                        "Not enough MCQ questions in bank for selected tags: requested " + mcqCount + ", available " + mcqPool.size());
+                }
+                mcqPool.subList(0, mcqCount).stream()
+                    .map(this::bankItemToQuestion)
+                    .forEach(selected::add);
+            }
+
+            if (essayShortCount > 0) {
+                List<QuestionBankItem> essayShortPool = allBankItems.stream()
+                    .filter(q -> q.getType() == Question.QuestionType.ESSAY_SHORT)
+                    .filter(q -> matchesExamTags(q, examTags))
+                    .collect(Collectors.toList());
+                Collections.shuffle(essayShortPool);
+                if (essayShortPool.size() < essayShortCount) {
+                    throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                        "Not enough essay short questions in bank for selected tags: requested " + essayShortCount + ", available " + essayShortPool.size());
+                }
+                essayShortPool.subList(0, essayShortCount).stream()
+                    .map(this::bankItemToQuestion)
+                    .forEach(selected::add);
+            }
+
+            if (essayLongCount > 0) {
+                List<QuestionBankItem> essayLongPool = allBankItems.stream()
+                    .filter(q -> q.getType() == Question.QuestionType.ESSAY_LONG)
+                    .filter(q -> matchesExamTags(q, examTags))
+                    .collect(Collectors.toList());
+                Collections.shuffle(essayLongPool);
+                if (essayLongPool.size() < essayLongCount) {
+                    throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                        "Not enough essay long questions in bank for selected tags: requested " + essayLongCount + ", available " + essayLongPool.size());
+                }
+                essayLongPool.subList(0, essayLongCount).stream()
+                    .map(this::bankItemToQuestion)
+                    .forEach(selected::add);
+            }
         }
 
         // Renumber 1..N
@@ -154,7 +185,7 @@ public class ExamService {
         exam.setId(UUID.randomUUID().toString());
         exam.setTitle(cmd.title());
         exam.setDurationSeconds(cmd.durationSeconds() > 0 ? cmd.durationSeconds() : 3600);
-        exam.setTags(cmd.tags() != null ? cmd.tags() : List.of());
+        exam.setTags(examTags);
         exam.setStatus(Exam.ExamStatus.ACTIVE);
         exam.setCreatedAt(Instant.now());
         exam.setQuestions(selected);
@@ -175,6 +206,23 @@ public class ExamService {
         q.setCorrectAnswer(item.getCorrectAnswer());
         q.setImageData(item.getImageData());
         return q;
+    }
+
+    private boolean matchesExamTags(QuestionBankItem item, List<String> examTags) {
+        if (examTags == null || examTags.isEmpty()) {
+            return true;
+        }
+        if (item.getTags() == null || item.getTags().isEmpty()) {
+            return false;
+        }
+        Set<String> normalizedExamTags = examTags.stream()
+            .filter(tag -> tag != null && !tag.isBlank())
+            .map(tag -> tag.trim().toLowerCase())
+            .collect(Collectors.toSet());
+        return item.getTags().stream()
+            .filter(tag -> tag != null && !tag.isBlank())
+            .map(tag -> tag.trim().toLowerCase())
+            .anyMatch(normalizedExamTags::contains);
     }
     
     public List<String> listAllTags() {

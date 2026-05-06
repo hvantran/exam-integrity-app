@@ -31,6 +31,11 @@ public class QuestionBankController {
         return ResponseEntity.ok(questionBankService.search(q, type, tags, page, size));
     }
 
+    @GetMapping("/tags")
+    public ResponseEntity<List<String>> listQuestionTags() {
+        return ResponseEntity.ok(questionBankService.listTags());
+    }
+
     @PostMapping
     public ResponseEntity<DraftQuestionDTO> addQuestion(@RequestBody DraftQuestionEditCommand cmd) {
         return ResponseEntity.status(HttpStatus.CREATED).body(questionBankService.addQuestion(cmd));
