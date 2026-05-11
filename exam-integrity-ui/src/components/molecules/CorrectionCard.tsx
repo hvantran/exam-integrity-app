@@ -27,11 +27,17 @@ const CorrectionCard: React.FC<Props> = ({ score, isLoading = false }) => {
         }}
       >
         <Skeleton height={22} width={180} className="mb-4" />
-        <Skeleton height={16} width="35%" className="mb-2" />
-        <Skeleton height={18} width="72%" className="mb-4" />
+        {/* Question skeleton */}
+        <Skeleton height={12} width="40%" className="mb-2" />
+        <Skeleton height={16} width="95%" className="mb-2" />
+        <Skeleton height={16} width="88%" className="mb-4" />
+        {/* Student answer skeleton */}
+        <Skeleton height={12} width="35%" className="mb-2" />
+        <Skeleton height={16} width="72%" className="mb-4" />
         <Skeleton height={1} width="100%" className="mb-4" />
-        <Skeleton height={16} width="38%" className="mb-2" />
-        <Skeleton height={18} width="68%" className="mb-3" />
+        {/* Correct answer skeleton */}
+        <Skeleton height={12} width="38%" className="mb-2" />
+        <Skeleton height={16} width="68%" className="mb-3" />
       </div>
     );
   }
@@ -89,6 +95,18 @@ const CorrectionCard: React.FC<Props> = ({ score, isLoading = false }) => {
 
       {/* Answers */}
       <div className="px-3 py-2">
+        {/* Question content */}
+        {score.questionText && (
+          <div className="mb-3 pb-3" style={{ borderBottom: `1px solid ${colors.outlineVariant}` }}>
+            <div style={{ fontSize: '12px', color: colors.on.surfaceVariant, marginBottom: '6px' }}>
+              Question
+            </div>
+            <div style={{ fontSize: '14px', color: colors.on.surface, fontWeight: 500, lineHeight: '1.5' }}>
+              {score.questionText}
+            </div>
+          </div>
+        )}
+
         {/* Student answer */}
         <div className="mb-2 flex items-start gap-1.5">
           <XCircle size={18} style={{ color: colors.error, marginTop: '2px', flexShrink: 0 }} />

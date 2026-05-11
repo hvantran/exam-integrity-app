@@ -3,8 +3,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { TeacherManDashboardLayout } from '../components/templates';
+import { useQuery } from '@tanstack/react-query';
 import {
   AppDialog,
+  Combobox,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -12,6 +14,7 @@ import {
 } from '../components/molecules';
 import { Button, Chip } from '../components/atoms';
 import { useExamList, useCreateExamFromBank, useDeleteExam } from '../hooks/useExams';
+import { questionBankService } from '../services/questionBankService';
 import { useAuth } from '../context/AuthContext';
 import type { DashboardSection } from '../components/organisms';
 import type { CreateExamFromBankCommand } from '../types/exam.types';
@@ -48,8 +51,15 @@ const CreateExamDialog: React.FC<CreateExamDialogProps> = ({
   const [essayShortCount, setEssayShortCount] = useState(1);
   const [essayLongCount, setEssayLongCount] = useState(1);
 
-  const handleAddTag = () => {
-    const t = tagInput.trim();
+  const { data: questionBankTags = [], isLoading: isTagsLoading } = useQuery({
+    queryKey: ['question-bank-tags', 'create-exam-dialog'],
+    queryFn: () => questionBankService.listTags(),
+    enabled: open,
+    staleTime: 60_000,
+  });
+
+  const handleAddTag = (rawTag?: string) => {
+    const t = (rawTag ?? tagInput).trim();
     if (t && !tags.includes(t)) setTags((prev) => [...prev, t]);
     setTagInput('');
   };
@@ -123,23 +133,23 @@ const CreateExamDialog: React.FC<CreateExamDialogProps> = ({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-on-surface mb-1">Tags</label>
-            <div className="flex gap-2 mb-1">
-              <input
-                className="flex-1 border border-outline rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="Add tag and press Enter"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddTag();
-                  }
-                }}
-              />
-            </div>
+            <label className="block text-xs font-medium text-on-surface mb-1">
+              Question Bank Tags
+            </label>
+            <Combobox
+              value={tagInput}
+              onChange={setTagInput}
+              onSelect={handleAddTag}
+              options={questionBankTags.map((tag) => ({ value: tag, label: tag }))}
+              className="w-full"
+              placeholder={isTagsLoading ? 'Loading tags…' : 'Select or type tag and press Enter'}
+              noOptionsText="No matching tag"
+            />
+            <p className="mt-1 text-[11px] text-gray-500">
+              Selected tags control which question-bank questions are eligible for this exam.
+            </p>
             {tags.length > 0 && (
-              <div className="flex flex-wrap gap-1">
+              <div className="flex flex-wrap gap-1 mt-2">
                 {tags.map((t) => (
                   <Chip
                     key={t}
@@ -242,7 +252,7 @@ const ExamCard: React.FC<ExamCardProps> = ({
   tags,
   onDelete,
 }) => (
-  <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary-300">
+  <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary-300 min-h-[200px]">
     {/* Left accent bar */}
     <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary-600 rounded-l-2xl" />
 

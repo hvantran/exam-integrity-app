@@ -6,9 +6,30 @@ import { analyzeFormula } from '../../utils/mathFormulaAnalyzer';
 const DOTTED_LINE = '      ..................................................';
 
 /** Matches prompts like "76 635 … 76 653" or "47 526 … 47 520 + 6" */
-const COMPARISON_RE = /^(.+?)\s*[…\.]{1,3}\s*(.+)$/u;
+const COMPARISON_RE = /^(.+?)\s*(?:\.{3}|…)\s*(.+)$/u;
 
-function parseComparison(prompt: string): { left: string; right: string } | null {
+const MATH_OPERAND_RE = /^[\d\s()+\-*/xX×÷:.,]+$/u;
+
+function isMathOperand(value: string): boolean {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return false;
+  }
+
+  // Reject placeholders/fillers made only from dots/ellipsis.
+  if (/^[.…]+$/u.test(trimmed)) {
+    return false;
+  }
+
+  // Comparison operands should be numeric/formula-like, not prose text.
+  if (/[\p{L}]/u.test(trimmed)) {
+    return false;
+  }
+
+  return MATH_OPERAND_RE.test(trimmed);
+}
+
+export function parseComparison(prompt: string): { left: string; right: string } | null {
   const m = prompt.trim().match(COMPARISON_RE);
   if (!m) return null;
 
@@ -19,6 +40,10 @@ function parseComparison(prompt: string): { left: string; right: string } | null
   // Example valid: "76 635 ... 76 653".
   // Example invalid (fill-in result): "229 + 126 x 3 = ...".
   if (!left || !right) {
+    return null;
+  }
+
+  if (!isMathOperand(left) || !isMathOperand(right)) {
     return null;
   }
 
@@ -112,6 +137,7 @@ const StudentManQuestionPanelContent: React.FC<StudentManQuestionPanelContentPro
   gradeLevel,
 }) => {
   const isMcq = questionType === 'MCQ';
+  const isLongEssay = questionType === 'ESSAY_LONG';
   const hasStructuredEssay = !isMcq && (questionParts?.length ?? 0) > 0;
   const answerPartMap = new Map((selectedAnswerParts ?? []).map((part) => [part.key, part.answer]));
 
@@ -186,7 +212,7 @@ const StudentManQuestionPanelContent: React.FC<StudentManQuestionPanelContentPro
               </div>
               {(() => {
                 const comparison = parseComparison(part.prompt);
-                if (comparison) {
+                if (comparison && !isLongEssay) {
                   return (
                     <ComparisonInput
                       left={comparison.left}
@@ -205,7 +231,7 @@ const StudentManQuestionPanelContent: React.FC<StudentManQuestionPanelContentPro
                   'SIMPLE_DIVISION',
                   'COMPLEX_FORMULA',
                 ].includes(partFormula.type);
-                return isMathPart ? (
+                return isMathPart && !isLongEssay ? (
                   <MathQuestionInput
                     questionText={part.prompt}
                     value={answerPartMap.get(part.key) ?? ''}

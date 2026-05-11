@@ -128,6 +128,11 @@ public final class QuestionStructureParser {
             return List.of();
         }
 
+        // Validate that labels form a valid sequence (consecutive letters or numbers)
+        if (!isValidLabelSequence(labels)) {
+            return List.of();
+        }
+
         List<QuestionPartDTO> parts = new ArrayList<>();
         for (int i = 0; i < labels.size(); i++) {
             InlineLabel current = labels.get(i);
@@ -141,6 +146,48 @@ public final class QuestionStructureParser {
         }
 
         return parts.size() >= 2 ? parts : List.of();
+    }
+
+    private static boolean isValidLabelSequence(List<InlineLabel> labels) {
+        if (labels.isEmpty()) {
+            return false;
+        }
+
+        String firstKey = labels.get(0).key();
+        
+        // Check if it's a letter-based sequence
+        if (Character.isLetter(firstKey.charAt(0))) {
+            char firstChar = Character.toLowerCase(firstKey.charAt(0));
+            for (int i = 0; i < labels.size(); i++) {
+                String key = labels.get(i).key();
+                if (key.length() != 1 || !Character.isLetter(key.charAt(0))) {
+                    return false;
+                }
+                char expected = (char) (firstChar + i);
+                if (Character.toLowerCase(key.charAt(0)) != expected) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+        // Check if it's a number-based sequence
+        if (Character.isDigit(firstKey.charAt(0))) {
+            int firstNum = Character.getNumericValue(firstKey.charAt(0));
+            for (int i = 0; i < labels.size(); i++) {
+                String key = labels.get(i).key();
+                if (key.length() < 1 || !Character.isDigit(key.charAt(0))) {
+                    return false;
+                }
+                int expected = firstNum + i;
+                if (Character.getNumericValue(key.charAt(0)) != expected) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+        return false;
     }
 
     private record InlineLabel(String key, int labelStart, int contentStart) {

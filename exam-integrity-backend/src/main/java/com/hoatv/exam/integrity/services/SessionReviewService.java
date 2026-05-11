@@ -24,8 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 
 @Service
 public class SessionReviewService {
@@ -75,7 +77,13 @@ public class SessionReviewService {
             return Optional.empty();
         }
 
-        Map<String, Question> questionMap = loadQuestionMap(session.getExamId());
+        Set<String> questionIds = scores.stream()
+            .map(Score::getQuestionId)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+
+        Map<String, Question> questionMap = loadQuestionMap(session.getExamId(), questionIds);
+        Map<String, Map<String, String>> optionLookupByQuestionId = buildOptionLookupByQuestionId(questionMap);
         double totalEarned = scores.stream().mapToDouble(Score::getEarnedPoints).sum();
         double totalMax = scores.stream().mapToDouble(Score::getMaxPoints).sum();
         double finalScore10 = totalMax > 0 ? roundToOneDecimal((totalEarned / totalMax) * 10.0) : 0.0;
@@ -88,7 +96,11 @@ public class SessionReviewService {
             .toList();
 
         List<ScoreDTO> scoreDTOs = scores.stream()
-            .map(score -> toScoreDTO(score, questionMap.get(score.getQuestionId())))
+            .map(score -> toScoreDTO(
+                score,
+                questionMap.get(score.getQuestionId()),
+                optionLookupByQuestionId.get(score.getQuestionId())
+            ))
             .toList();
 
         return Optional.of(new ReviewDashboardDTO(
@@ -204,19 +216,66 @@ public class SessionReviewService {
         return score;
     }
 
-    private Map<String, Question> loadQuestionMap(String examId) {
+    private Map<String, Question> loadQuestionMap(String examId, Set<String> requestedQuestionIds) {
         Exam exam = examRepository.findById(examId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Exam not found: " + examId));
 
         Map<String, Question> questionMap = new HashMap<>();
         for (Question question : exam.getQuestions()) {
-            questionMap.put(question.getId(), question);
+            if (requestedQuestionIds.contains(question.getId())) {
+                questionMap.put(question.getId(), question);
+            }
         }
         return questionMap;
     }
 
-    private ScoreDTO toScoreDTO(Score score, Question question) {
+    private Map<String, Map<String, String>> buildOptionLookupByQuestionId(Map<String, Question> questionMap) {
+        Map<String, Map<String, String>> optionLookupByQuestionId = new HashMap<>();
+        for (Map.Entry<String, Question> entry : questionMap.entrySet()) {
+            Question question = entry.getValue();
+            if (question != null && question.getOptions() != null && !question.getOptions().isEmpty()) {
+                optionLookupByQuestionId.put(entry.getKey(), buildOptionLookup(question.getOptions()));
+            }
+        }
+        return optionLookupByQuestionId;
+    }
+
+    private Map<String, String> buildOptionLookup(List<String> options) {
+        Map<String, String> optionLookup = new HashMap<>();
+        for (int i = 0; i < options.size(); i++) {
+            String option = options.get(i);
+            if (option == null || option.isBlank()) {
+                continue;
+            }
+
+            String label = String.valueOf((char) ('A' + i));
+            optionLookup.put(label, toDisplayOption(label, option));
+        }
+        return optionLookup;
+    }
+
+    private static final Pattern OPTION_PREFIX_PATTERN = Pattern.compile("^[A-Ha-h][./、)\\-:]\\s*");
+
+    private String toDisplayOption(String label, String rawOption) {
+        String normalizedOptionText = OPTION_PREFIX_PATTERN.matcher(rawOption.trim()).replaceFirst("");
+        return label + ". " + normalizedOptionText;
+    }
+
+    private ScoreDTO toScoreDTO(Score score, Question question, Map<String, String> optionLookup) {
         String questionText = question != null ? question.getContent() : null;
+        
+        String studentAnswerDisplay = score.getStudentAnswer();
+        String correctAnswerDisplay = score.getCorrectAnswer();
+        
+        // For MCQ questions, resolve answers to full option text
+        if (question != null
+            && Question.QuestionType.MCQ.name().equals(score.getQuestionType())
+            && optionLookup != null
+            && !optionLookup.isEmpty()) {
+            studentAnswerDisplay = resolveSingleLabelToOption(score.getStudentAnswer(), optionLookup);
+            correctAnswerDisplay = resolveSingleLabelToOption(score.getCorrectAnswer(), optionLookup);
+        }
+        
         return new ScoreDTO(
             score.getQuestionId(),
             score.getQuestionNumber(),
@@ -225,11 +284,33 @@ public class SessionReviewService {
             score.getStatus() != null ? score.getStatus().name() : Score.ScoreStatus.INCORRECT.name(),
             score.getQuestionType(),
             questionText,
-            score.getStudentAnswer(),
-            score.getCorrectAnswer(),
+            studentAnswerDisplay,
+            correctAnswerDisplay,
             score.getExplanation(),
             score.getScoreBreakdownJson()
         );
+    }
+
+    /**
+     * Matches a single label (A, B, C, etc.) to its option text.
+     * Example: input="B", options=["A. Bangkok", "B. Paris", ...] → "B. Paris"
+     */
+    private String resolveSingleLabelToOption(String label, Map<String, String> optionLookup) {
+        if (label == null || label.isBlank() || optionLookup == null || optionLookup.isEmpty()) {
+            return label;
+        }
+
+        String upperLabel = label.trim().toUpperCase();
+
+        if (upperLabel.contains(",")) {
+            return java.util.Arrays.stream(upperLabel.split(","))
+                .map(String::trim)
+                .filter(part -> !part.isBlank())
+                .map(part -> optionLookup.getOrDefault(part, part))
+                .collect(Collectors.joining(", "));
+        }
+
+        return optionLookup.getOrDefault(upperLabel, label);
     }
 
     private SessionResultSummaryDTO toSummary(ExamSession session) {

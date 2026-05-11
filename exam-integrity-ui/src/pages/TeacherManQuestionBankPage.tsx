@@ -58,7 +58,7 @@ const toEditForm = (q: DraftQuestionDTO): EditFormState => ({
     q.options && q.options.length > 0
       ? [...q.options.map(stripOptionPrefix), '', '', '', ''].slice(0, 4)
       : ['', '', '', ''],
-  correctAnswer: q.correctAnswer ?? 'A',
+  correctAnswer: resolveMcqCorrectAnswerLabel(q.correctAnswer, q.options ?? []),
   points: q.points,
   tags: q.rubric?.keywords?.join(', ') ?? '',
   imageData: q.imageData ?? '',
@@ -67,6 +67,34 @@ const toEditForm = (q: DraftQuestionDTO): EditFormState => ({
 const OPTION_LABELS = ['A', 'B', 'C', 'D'];
 
 const stripOptionPrefix = (text: string): string => text.replace(/^[A-Da-d][./、]\s*/u, '').trim();
+
+const resolveMcqCorrectAnswerLabel = (
+  correctAnswer: string | undefined,
+  options: string[] = [],
+): string => {
+  if (!correctAnswer || !correctAnswer.trim()) {
+    return 'A';
+  }
+
+  const normalized = correctAnswer.trim();
+  const labelOnlyMatch = normalized.match(/^([A-D])$/i);
+  if (labelOnlyMatch) {
+    return labelOnlyMatch[1].toUpperCase();
+  }
+
+  const prefixedMatch = normalized.match(/^([A-D])[./、:\-)]\s*/iu);
+  if (prefixedMatch) {
+    return prefixedMatch[1].toUpperCase();
+  }
+
+  const strippedAnswer = stripOptionPrefix(normalized);
+  const foundIndex = options.findIndex((optionText) => stripOptionPrefix(optionText) === strippedAnswer);
+  if (foundIndex >= 0 && foundIndex < OPTION_LABELS.length) {
+    return OPTION_LABELS[foundIndex];
+  }
+
+  return 'A';
+};
 
 interface PreviewQuestionPayload {
   questionText: string;
@@ -113,12 +141,14 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
       .split(',')
       .map((t) => t.trim())
       .filter(Boolean);
+    const normalizedCorrectAnswer = resolveMcqCorrectAnswerLabel(form.correctAnswer, form.options);
+
     onSave(question.id, {
       content: form.content,
       type: form.type,
       points: form.points,
       options: form.type === 'MCQ' ? form.options : undefined,
-      correctAnswer: form.type === 'MCQ' ? form.correctAnswer : undefined,
+      correctAnswer: form.type === 'MCQ' ? normalizedCorrectAnswer : undefined,
       rubric: tagList.length ? { keywords: tagList } : undefined,
       imageData: form.imageData || undefined,
     });
@@ -517,12 +547,14 @@ const QuestionBankPage: React.FC = () => {
       .split(',')
       .map((t) => t.trim())
       .filter(Boolean);
+    const normalizedCorrectAnswer = resolveMcqCorrectAnswerLabel(addForm.correctAnswer, addForm.options);
+
     addQuestion({
       content: addForm.content,
       type: addForm.type,
       points: addForm.points,
       options: addForm.type === 'MCQ' ? addForm.options : undefined,
-      correctAnswer: addForm.type === 'MCQ' ? addForm.correctAnswer : undefined,
+      correctAnswer: addForm.type === 'MCQ' ? normalizedCorrectAnswer : undefined,
       rubric: tagList.length ? { keywords: tagList } : undefined,
       imageData: addForm.imageData || undefined,
       reviewStatus: undefined,

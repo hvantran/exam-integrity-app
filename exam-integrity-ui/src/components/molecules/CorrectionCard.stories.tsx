@@ -10,9 +10,10 @@ const incorrectScore: ScoreResult = {
   earnedPoints: 0,
   maxPoints: 1,
   status: 'INCORRECT',
+  questionText: 'What is the capital city of Vietnam?\nA. Bangkok\nB. Paris\nC. Hanoi\nD. Tokyo',
   studentAnswer: 'B. Paris',
   correctAnswer: 'C. Hanoi',
-  explanation: 'The capital city of Vietnam is Hanoi.',
+  explanation: 'The capital city of Vietnam is Hanoi, located in the northern part of the country.',
 };
 
 const incompleteScore: ScoreResult = {
@@ -21,6 +22,7 @@ const incompleteScore: ScoreResult = {
   earnedPoints: 0,
   maxPoints: 2,
   status: 'INCOMPLETE_QUESTION',
+  questionText: 'Describe the water cycle with at least three stages.',
   studentAnswer: '',
   correctAnswer: 'Water evaporates, forms clouds, then falls as rain.',
 };
