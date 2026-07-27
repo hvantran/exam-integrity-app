@@ -9,8 +9,7 @@ import type {
   TeacherScoreUpdatePayload,
 } from '../types/exam.types';
 
-const API = process.env.REACT_APP_API_BASE_URL ?? 'http://localhost:8090/exam-integrity-backend';
-const BASE = `${API}/api/sessions`;
+const BASE = '/api/sessions';
 
 export const sessionService = {
   createSession: (examId: string, studentId: string): Promise<SessionDTO> =>

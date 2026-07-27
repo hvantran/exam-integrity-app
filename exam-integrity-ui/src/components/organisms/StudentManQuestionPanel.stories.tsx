@@ -157,6 +157,30 @@ export const FlaggedQuestion: Story = {
   },
 };
 
+export const ElementaryTheme: Story = {
+  args: {
+    ...MCQ.args,
+    gradeLevel: 'Lop 4',
+    subject: 'Toan',
+    questionText: '4 328 + 2 764 = ?',
+    options: [
+      { key: 'A', text: '6 092' },
+      { key: 'B', text: '7 092' },
+      { key: 'C', text: '6 992' },
+      { key: 'D', text: '7 192' },
+    ],
+  },
+};
+
+export const MiddleTheme: Story = {
+  args: {
+    ...MCQ.args,
+    gradeLevel: 'Grade 8',
+    subject: 'Math',
+    questionText: 'Solve for x: 2x + 5 = 17',
+  },
+};
+
 export const Loading: Story = {
   args: {
     ...MCQ.args,

@@ -18,6 +18,27 @@ Default.args = {
     'Flag questions you want to review later.',
     'Stay calm and focused throughout the exam.',
   ],
+  variant: 'high',
+};
+
+export const Elementary = Template.bind({});
+Elementary.args = {
+  tips: [
+    'Read the question slowly and underline important numbers.',
+    'Answer easy questions first to build confidence.',
+    'Re-check your final choice before moving on.',
+  ],
+  variant: 'elementary',
+};
+
+export const Middle = Template.bind({});
+Middle.args = {
+  tips: [
+    'Split your time into first pass and review pass.',
+    'Mark uncertain questions and revisit with fresh focus.',
+    'Double-check operation signs and units.',
+  ],
+  variant: 'middle',
 };
 
 export const Empty = Template.bind({});

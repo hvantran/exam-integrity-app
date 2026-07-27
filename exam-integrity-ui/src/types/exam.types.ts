@@ -27,6 +27,7 @@ export interface RubricDTO {
 
 export interface QuestionSummaryDTO {
   id: string;
+  bankItemId?: string;
   questionNumber: number;
   content: string;
   stem?: string;
@@ -67,6 +68,7 @@ export interface ExamDTO {
   questionCount: number;
   tags?: string[];
   questions?: QuestionSummaryDTO[];
+  status?: string;
 }
 
 export interface ExamDraftSummaryDTO {
@@ -111,9 +113,15 @@ export interface CreateExamFromBankCommand {
   durationSeconds: number;
   tags?: string[];
   reviewNotes?: string;
+  /** When set, the backend uses these exact bank item IDs and ignores mcq/essay counts. */
+  selectedQuestionIds?: string[];
   mcqCount: number;
   essayShortCount: number;
   essayLongCount: number;
+}
+
+export interface UpdateExamQuestionsFromBankCommand {
+  selectedQuestionIds: string[];
 }
 
 export interface SessionDTO {

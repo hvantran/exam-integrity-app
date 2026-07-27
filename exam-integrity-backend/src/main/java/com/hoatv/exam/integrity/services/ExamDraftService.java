@@ -260,6 +260,7 @@ public class ExamDraftService {
 
         // Copy questions to bank (dedup by SHA-256)
         copyToQuestionBank(questions, exam.getId(), exam.getTags());
+        examRepository.save(exam);
 
         // Finalize draft
         draft.setStatus(ExamDraft.DraftStatus.APPROVED);
@@ -270,7 +271,8 @@ public class ExamDraftService {
 
         logger.info("Draft {} published as exam {}", draftId, exam.getId());
         return new ExamDTO(exam.getId(), exam.getTitle(), exam.getDurationSeconds(),
-                exam.getTotalPoints(), questions.size(), exam.getTags(), null);
+            exam.getTotalPoints(), questions.size(), exam.getTags(), null,
+            exam.getStatus() != null ? exam.getStatus().name() : null);
     }
 
     // ── BE-08: Reject draft ───────────────────────────────────────────────────
@@ -316,7 +318,13 @@ public class ExamDraftService {
     private void copyToQuestionBank(List<Question> questions, String examId, List<String> tags) {
         for (Question q : questions) {
             String hash = sha256(q.getContent());
-            if (bankRepository.findByContentHash(hash).isEmpty()) {
+            Optional<QuestionBankItem> existing = bankRepository.findByContentHash(hash);
+            if (existing.isPresent()) {
+                q.setBankItemId(existing.get().getId());
+                continue;
+            }
+
+            if (existing.isEmpty()) {
                 QuestionBankItem item = new QuestionBankItem();
                 item.setId(UUID.randomUUID().toString());
                 item.setContentHash(hash);
@@ -330,7 +338,8 @@ public class ExamDraftService {
                 item.setTags(tags != null ? tags : List.of());
                 item.setSourceExamId(examId);
                 item.setAddedAt(Instant.now());
-                bankRepository.save(item);
+                QuestionBankItem saved = bankRepository.save(item);
+                q.setBankItemId(saved.getId());
             }
         }
     }

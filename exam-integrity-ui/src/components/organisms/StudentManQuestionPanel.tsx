@@ -29,6 +29,31 @@ export interface QuestionPanelProps {
   isLoading?: boolean;
 }
 
+const extractGradeNumber = (gradeLevel?: string): number | null => {
+  if (!gradeLevel) {
+    return null;
+  }
+
+  const match = gradeLevel.match(/(?:grade|lop|lớp)\s*(\d+)/iu);
+  if (!match) {
+    return null;
+  }
+
+  const parsed = Number(match[1]);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const resolveTone = (gradeLevel?: string): 'elementary' | 'middle' | 'high' => {
+  const grade = extractGradeNumber(gradeLevel);
+  if (grade !== null && grade <= 5) {
+    return 'elementary';
+  }
+  if (grade !== null && grade <= 9) {
+    return 'middle';
+  }
+  return 'high';
+};
+
 /**
  * Organism — StudentManQuestionPanel
  *
@@ -55,9 +80,27 @@ const StudentManQuestionPanel: React.FC<QuestionPanelProps> = ({
   imageData,
   isLoading = false,
 }) => {
+  const tone = resolveTone(gradeLevel);
+  const panelToneClasses = {
+    elementary: {
+      card: 'border-cyan-200 border-l-cyan-500 shadow-[0_18px_40px_-28px_rgba(6,182,212,0.5)]',
+      divider: 'border-cyan-100',
+    },
+    middle: {
+      card: 'border-emerald-200 border-l-emerald-600 shadow-[0_18px_40px_-28px_rgba(16,185,129,0.5)]',
+      divider: 'border-emerald-100',
+    },
+    high: {
+      card: 'border-slate-200 border-l-sky-600 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.55)]',
+      divider: 'border-slate-200',
+    },
+  }[tone];
+
   if (isLoading) {
     return (
-      <div className="bg-white min-w-[750px] w-full border border-slate-200 border-l-4 border-l-sky-600 rounded-2xl shadow-[0_18px_40px_-28px_rgba(15,23,42,0.55)] p-4 md:p-8">
+      <div
+        className={`bg-white min-w-[750px] w-full border border-l-4 rounded-2xl p-4 md:p-8 ${panelToneClasses.card}`}
+      >
         <div className="flex items-start justify-between gap-3 mb-4">
           <div className="flex items-center gap-4 min-w-0 flex-1">
             <Skeleton width={40} height={40} variant="rounded" />
@@ -69,7 +112,7 @@ const StudentManQuestionPanel: React.FC<QuestionPanelProps> = ({
           <Skeleton width={96} height={36} variant="rounded" />
         </div>
 
-        <div className="border-b border-slate-200 mb-5" />
+        <div className={`border-b mb-5 ${panelToneClasses.divider}`} />
 
         <Skeleton width="96%" height={18} className="mb-2" />
         <Skeleton width="88%" height={18} className="mb-2" />
@@ -84,16 +127,19 @@ const StudentManQuestionPanel: React.FC<QuestionPanelProps> = ({
   }
 
   return (
-    <div className="bg-white min-w-[750px] w-full border border-slate-200 border-l-4 border-l-sky-600 rounded-2xl shadow-[0_18px_40px_-28px_rgba(15,23,42,0.55)] p-4 md:p-8">
+    <div
+      className={`bg-white min-w-[750px] w-full border border-l-4 rounded-2xl p-4 md:p-8 ${panelToneClasses.card}`}
+    >
       <StudentManQuestionPanelHeader
         questionNumber={questionNumber}
         subject={subject}
         gradeLevel={gradeLevel}
+        tone={tone}
         isFlagged={isFlagged}
         onFlag={onFlag}
       />
 
-      <div className="border-b border-slate-200 mb-5" />
+      <div className={`border-b mb-5 ${panelToneClasses.divider}`} />
 
       <StudentManQuestionPanelContent
         questionNumber={questionNumber}

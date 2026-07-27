@@ -5,7 +5,7 @@ import { Client, IMessage } from '@stomp/stompjs';
 import { sessionService } from '../services/sessionService';
 import type { TimerTickMessage } from '../types/exam.types';
 
-const WS_URL = process.env.REACT_APP_WS_URL ?? 'http://localhost:8090/exam-integrity-backend';
+const WS_URL = process.env.REACT_APP_WS_URL ?? '/exam-integrity-backend';
 
 interface UseWebSocketTimerResult {
   remaining: number | null;

@@ -169,6 +169,7 @@ public class SessionService {
 
         return new QuestionSummaryDTO(
             question.getId(),
+            question.getBankItemId(),
             question.getQuestionNumber(),
             question.getContent(),
             parsedContent.stem(),

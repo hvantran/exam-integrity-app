@@ -48,6 +48,12 @@ public class Question {
     /** Base64-encoded image data (Data URI) for question image, optional. */
     private String imageData;
 
+    /**
+     * Reference to the source QuestionBankItem id this question was created from.
+     * Null for questions ingested directly from PDFs (not from bank).
+     */
+    private String bankItemId;
+
     public enum QuestionType {
         /** Single-choice or multi-choice with fixed options. */
         MCQ,
@@ -88,4 +94,7 @@ public class Question {
 
     public String getImageData() { return imageData; }
     public void setImageData(String imageData) { this.imageData = imageData; }
+
+    public String getBankItemId() { return bankItemId; }
+    public void setBankItemId(String bankItemId) { this.bankItemId = bankItemId; }
 }

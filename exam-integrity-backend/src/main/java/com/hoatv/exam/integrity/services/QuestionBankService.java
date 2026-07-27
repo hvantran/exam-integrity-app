@@ -63,6 +63,11 @@ public class QuestionBankService {
         return results.map(this::toDTO);
     }
 
+    public List<DraftQuestionDTO> findByIds(List<String> ids) {
+        if (ids == null || ids.isEmpty()) return List.of();
+        return bankRepository.findAllById(ids).stream().map(this::toDTO).toList();
+    }
+
     public void deleteAll() {
         bankRepository.deleteAll();
     }

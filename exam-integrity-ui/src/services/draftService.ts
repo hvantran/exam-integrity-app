@@ -7,8 +7,7 @@ import type {
   ExamDraftPublishCommand,
 } from '../types/exam.types';
 
-const API = process.env.REACT_APP_API_BASE_URL ?? 'http://localhost:8090/exam-integrity-backend';
-const BASE = `${API}/api/drafts`;
+const BASE = '/api/drafts';
 
 export interface FullDraftDTO {
   draftId?: string;

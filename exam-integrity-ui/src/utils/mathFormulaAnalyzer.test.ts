@@ -113,6 +113,13 @@ describe('mathFormulaAnalyzer', () => {
       expect(parsed.operator).toBe(':');
       expect(parsed.operands).toEqual([9, 3]);
     });
+
+    it('does not classify prose question part labels as math formulas', () => {
+      const parsed = analyzeFormula('a. Góc đỉnh: ...');
+
+      expect(parsed.type).toBe('UNKNOWN');
+      expect(parsed.operatorCount).toBe(1);
+    });
   });
 
   describe('validateAnswerFormat', () => {

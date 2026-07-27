@@ -25,6 +25,81 @@ import { useWebSocketTimer } from '../hooks/useWebSocketTimer';
 import { useProctor } from '../hooks/useProctor';
 import type { AnswerPart } from '../types/exam.types';
 
+type ExamUiVariant = 'elementary' | 'middle' | 'high';
+
+const extractGradeNumber = (gradeTag?: string): number | null => {
+  if (!gradeTag) {
+    return null;
+  }
+
+  const match = gradeTag.match(/(?:grade|lop|lớp)\s*(\d+)/iu);
+  if (!match) {
+    return null;
+  }
+
+  const parsed = Number(match[1]);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const resolveExamUiVariant = (gradeTag?: string): ExamUiVariant => {
+  const grade = extractGradeNumber(gradeTag);
+  if (grade !== null && grade <= 5) {
+    return 'elementary';
+  }
+  if (grade !== null && grade <= 9) {
+    return 'middle';
+  }
+  return 'high';
+};
+
+const EXAM_UI_THEME: Record<
+  ExamUiVariant,
+  {
+    brandName: string;
+    headerClass: string;
+    pageAccentClass: string;
+    sidebarClass: string;
+    proTips: string[];
+  }
+> = {
+  elementary: {
+    brandName: 'ExamIntegrity Junior',
+    headerClass: 'bg-gradient-to-r from-sky-50 via-white to-cyan-50',
+    pageAccentClass:
+      'bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.16),_transparent_40%),radial-gradient(circle_at_top_right,_rgba(20,184,166,0.14),_transparent_44%)]',
+    sidebarClass: 'border-cyan-200 bg-cyan-50/40',
+    proTips: [
+      'Đọc kỹ đề và gạch dưới từ khóa trước khi trả lời.',
+      'Nếu chưa chắc, đánh dấu lại để quay lại sau.',
+      'Kiểm tra phép tính một lần nữa trước khi sang câu mới.',
+    ],
+  },
+  middle: {
+    brandName: 'ExamIntegrity Plus',
+    headerClass: 'bg-gradient-to-r from-emerald-50 via-white to-lime-50',
+    pageAccentClass:
+      'bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.16),_transparent_42%),radial-gradient(circle_at_top_right,_rgba(132,204,22,0.14),_transparent_45%)]',
+    sidebarClass: 'border-emerald-200 bg-emerald-50/35',
+    proTips: [
+      'Phân bổ thời gian theo nhóm câu dễ, trung bình, khó.',
+      'Giữ nhịp làm bài ổn định, tránh dừng quá lâu ở một câu.',
+      'Ưu tiên hoàn thành câu chắc chắn trước khi rà soát lại.',
+    ],
+  },
+  high: {
+    brandName: 'ExamIntegrity',
+    headerClass: 'bg-gradient-to-r from-indigo-50 via-white to-blue-50',
+    pageAccentClass:
+      'bg-[radial-gradient(circle_at_top_left,_rgba(79,70,229,0.14),_transparent_45%),radial-gradient(circle_at_top_right,_rgba(37,99,235,0.14),_transparent_45%)]',
+    sidebarClass: 'border-indigo-200 bg-indigo-50/30',
+    proTips: [
+      'Giữ tốc độ làm bài đều, ưu tiên điểm chắc trước.',
+      'Đánh dấu câu cần suy luận sâu để xử lý ở lượt rà soát.',
+      'Rà soát các câu gần tương đồng để tránh sai sót bất cẩn.',
+    ],
+  },
+};
+
 const extractFinalComplexResult = (raw: string): string => {
   const equalsLines = raw
     .split('\n')
@@ -102,7 +177,9 @@ const ExamPage: React.FC = () => {
   const displayRemaining = remaining ?? session?.remainingSeconds ?? null;
   const totalQuestions = exam?.questionCount ?? 0;
   const answeredCount = Object.values(answeredMap).filter(Boolean).length;
-  const gradeLevelTag = exam?.tags?.find((tag) => /grade\s*\d+/i.test(tag));
+  const gradeLevelTag = exam?.tags?.find((tag) => /(?:grade|lop|lớp)\s*\d+/iu.test(tag));
+  const examVariant = resolveExamUiVariant(gradeLevelTag);
+  const examTheme = EXAM_UI_THEME[examVariant];
 
   useEffect(() => {
     if (session?.status === 'FORCE_SUBMITTED') {
@@ -150,17 +227,21 @@ const ExamPage: React.FC = () => {
 
   return (
     <StudentManExamLayout>
-      <div className="sticky top-0 z-[1100] bg-white shadow-[0_2px_8px_0_rgba(0,0,0,0.04)]">
-        <StudentManExamHeader
-          remainingSeconds={displayRemaining ?? 0}
-          currentQuestion={flaggedQuestionNumber}
-          totalQuestions={totalQuestions}
-        />
-      </div>
-      <div className="flex">
-        <StudentManExamContent>
-          <div className="flex flex-col xl:flex-row gap-6">
-            <div className="flex-1 min-w-0 flex flex-col">
+      <div className={examTheme.pageAccentClass}>
+        <div
+          className={`sticky top-0 z-[1100] bg-white shadow-[0_2px_8px_0_rgba(0,0,0,0.04)] ${examTheme.headerClass}`}
+        >
+          <StudentManExamHeader
+            brandName={examTheme.brandName}
+            remainingSeconds={displayRemaining ?? 0}
+            currentQuestion={flaggedQuestionNumber}
+            totalQuestions={totalQuestions}
+          />
+        </div>
+        <div className="flex">
+          <StudentManExamContent>
+            <div className="flex flex-col xl:flex-row gap-6">
+              <div className="flex-1 min-w-0 flex flex-col">
               {questionLoading ? (
                 <StudentManQuestionPanel
                   questionNumber={flaggedQuestionNumber}
@@ -235,73 +316,68 @@ const ExamPage: React.FC = () => {
                 />
               ) : null}
 
-              <div className="border-t border-slate-200 mt-6 pt-6">
-                <StudentManExamNavigationBar
-                  canGoPrev={inReviewFlagged ? flaggedReviewIndex > 0 : flaggedQuestionNumber > 1}
-                  canGoNext={
-                    inReviewFlagged
-                      ? flaggedReviewIndex < flaggedNumbers.length - 1
-                      : flaggedQuestionNumber < totalQuestions
-                  }
-                  isLastQuestion={
-                    inReviewFlagged
-                      ? flaggedReviewIndex === flaggedNumbers.length - 1
-                      : flaggedQuestionNumber === totalQuestions
-                  }
-                  flaggedCount={flaggedNumbers.length}
-                  onPrevious={() => {
-                    if (inReviewFlagged) {
-                      setFlaggedReviewIndex((i) => Math.max(0, i - 1));
-                    } else {
-                      setCurrentQuestion((q) => Math.max(1, q - 1));
+                <div className="border-t border-slate-200 mt-6 pt-6">
+                  <StudentManExamNavigationBar
+                    canGoPrev={inReviewFlagged ? flaggedReviewIndex > 0 : flaggedQuestionNumber > 1}
+                    canGoNext={
+                      inReviewFlagged
+                        ? flaggedReviewIndex < flaggedNumbers.length - 1
+                        : flaggedQuestionNumber < totalQuestions
                     }
-                  }}
-                  onNext={() => {
-                    if (inReviewFlagged) {
-                      setFlaggedReviewIndex((i) => Math.min(flaggedNumbers.length - 1, i + 1));
-                    } else {
-                      setCurrentQuestion((q) => Math.min(totalQuestions, q + 1));
+                    isLastQuestion={
+                      inReviewFlagged
+                        ? flaggedReviewIndex === flaggedNumbers.length - 1
+                        : flaggedQuestionNumber === totalQuestions
                     }
-                  }}
-                  onSubmit={() => setShowSubmitModal(true)}
-                  onReviewFlagged={
-                    !inReviewFlagged && flaggedNumbers.length > 0
-                      ? () => {
-                          setReviewFlaggedMode(true);
-                          setFlaggedReviewIndex(0);
-                        }
-                      : undefined
-                  }
-                />
-              </div>
+                    flaggedCount={flaggedNumbers.length}
+                    onPrevious={() => {
+                      if (inReviewFlagged) {
+                        setFlaggedReviewIndex((i) => Math.max(0, i - 1));
+                      } else {
+                        setCurrentQuestion((q) => Math.max(1, q - 1));
+                      }
+                    }}
+                    onNext={() => {
+                      if (inReviewFlagged) {
+                        setFlaggedReviewIndex((i) => Math.min(flaggedNumbers.length - 1, i + 1));
+                      } else {
+                        setCurrentQuestion((q) => Math.min(totalQuestions, q + 1));
+                      }
+                    }}
+                    onSubmit={() => setShowSubmitModal(true)}
+                    onReviewFlagged={
+                      !inReviewFlagged && flaggedNumbers.length > 0
+                        ? () => {
+                            setReviewFlaggedMode(true);
+                            setFlaggedReviewIndex(0);
+                          }
+                        : undefined
+                    }
+                  />
+                </div>
             </div>
 
-            <div className="xl:w-[280px] xl:min-w-[220px] xl:max-w-[280px] self-start">
-              <StudentManProTips
-                tips={[
-                  'Tập trung vào từng câu hỏi một và giữ nhịp làm bài ổn định.',
-                  'Đánh dấu 🚩 câu chưa chắc chắn để quay lại sau, tránh mất thời gian dừng lâu.',
-                  'Rà soát lại câu trả lời cuối mỗi nhóm câu để giảm lỗi bất cẩn.',
-                ]}
-              />
+              <div className="xl:w-[280px] xl:min-w-[220px] xl:max-w-[280px] self-start">
+                <StudentManProTips tips={examTheme.proTips} variant={examVariant} />
+              </div>
             </div>
+          </StudentManExamContent>
+          <div className="pt-12">
+            <StudentManFlaggedSidebar
+              flaggedMap={flaggedMap}
+              totalQuestions={totalQuestions}
+              currentQuestion={flaggedQuestionNumber}
+              className={`xl:w-[280px] xl:min-w-[220px] xl:max-w-[280px] ${examTheme.sidebarClass}`}
+              onJumpTo={(q) => {
+                if (inReviewFlagged) {
+                  const idx = flaggedNumbers.indexOf(q);
+                  if (idx !== -1) setFlaggedReviewIndex(idx);
+                } else {
+                  setCurrentQuestion(q);
+                }
+              }}
+            />
           </div>
-        </StudentManExamContent>
-        <div className="pt-12">
-          <StudentManFlaggedSidebar
-            flaggedMap={flaggedMap}
-            totalQuestions={totalQuestions}
-            currentQuestion={flaggedQuestionNumber}
-            className="xl:w-[280px] xl:min-w-[220px] xl:max-w-[280px]"
-            onJumpTo={(q) => {
-              if (inReviewFlagged) {
-                const idx = flaggedNumbers.indexOf(q);
-                if (idx !== -1) setFlaggedReviewIndex(idx);
-              } else {
-                setCurrentQuestion(q);
-              }
-            }}
-          />
         </div>
       </div>
 

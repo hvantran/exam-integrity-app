@@ -10,6 +10,10 @@ const COMPARISON_RE = /^(.+?)\s*(?:\.{3}|…)\s*(.+)$/u;
 
 const MATH_OPERAND_RE = /^[\d\s()+\-*/xX×÷:.,]+$/u;
 
+/** Matches measurement values like "8kg 234g", "8320g", "5m 30cm", "2l 500ml". */
+const MEASUREMENT_RE =
+  /^(?:\d+(?:[.,]\d+)?\s*(?:kg|g|mg|t|km|m|cm|mm|dm|l|ml|dl|cl|h|min|s)\s*)+$/iu;
+
 function isMathOperand(value: string): boolean {
   const trimmed = value.trim();
   if (!trimmed) {
@@ -21,8 +25,13 @@ function isMathOperand(value: string): boolean {
     return false;
   }
 
-  // Comparison operands should be numeric/formula-like, not prose text.
-  if (/[\p{L}]/u.test(trimmed)) {
+  // Allow measurement values like "8kg 234g", "8320g", "5m 30cm".
+  if (MEASUREMENT_RE.test(trimmed)) {
+    return true;
+  }
+
+  // Reject operands containing prose text, but allow x/X as multiplication operators.
+  if (/[\p{L}]/u.test(trimmed.replace(/[xX]/g, ''))) {
     return false;
   }
 
@@ -169,30 +178,39 @@ const StudentManQuestionPanelContent: React.FC<StudentManQuestionPanelContentPro
       )}
 
       {isMcq && options ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {options.map((opt) => {
-            const isSelected = selectedAnswer === opt.key;
-            return (
-              <label
-                key={opt.key}
-                className={`flex items-start gap-3 p-3.5 rounded-xl border transition-all cursor-pointer ${isSelected ? 'border-sky-500 bg-sky-50 shadow-[0_8px_20px_-18px_rgba(14,165,233,0.8)]' : 'border-slate-300 bg-white'} ${disabled ? 'cursor-not-allowed opacity-60' : 'hover:border-sky-400 hover:bg-slate-50'}`}
-              >
-                <input
-                  type="radio"
-                  name={`question-${questionNumber}`}
-                  value={opt.key}
-                  checked={isSelected}
-                  disabled={disabled}
-                  onChange={() => onAnswerChange(opt.key)}
-                  className="mt-1 accent-sky-600 flex-shrink-0"
-                />
-                <span className="text-sm leading-6 text-slate-900">
-                  <strong>{opt.key}.</strong>&nbsp;{opt.text}
-                </span>
-              </label>
-            );
-          })}
-        </div>
+        (() => {
+          const visibleOptions = options.filter((opt) => opt.text.trim() !== '');
+          const gridCols =
+            visibleOptions.length === 3
+              ? 'grid-cols-3'
+              : 'grid-cols-1 sm:grid-cols-2';
+          return (
+            <div className={`grid ${gridCols} gap-3`}>
+              {visibleOptions.map((opt) => {
+                const isSelected = selectedAnswer === opt.key;
+                return (
+                  <label
+                    key={opt.key}
+                    className={`flex items-start gap-3 p-3.5 rounded-xl border transition-all cursor-pointer ${isSelected ? 'border-sky-500 bg-sky-50 shadow-[0_8px_20px_-18px_rgba(14,165,233,0.8)]' : 'border-slate-300 bg-white'} ${disabled ? 'cursor-not-allowed opacity-60' : 'hover:border-sky-400 hover:bg-slate-50'}`}
+                  >
+                    <input
+                      type="radio"
+                      name={`question-${questionNumber}`}
+                      value={opt.key}
+                      checked={isSelected}
+                      disabled={disabled}
+                      onChange={() => onAnswerChange(opt.key)}
+                      className="mt-1 accent-sky-600 flex-shrink-0"
+                    />
+                    <span className="text-sm leading-6 text-slate-900">
+                      <strong>{opt.key}.</strong>&nbsp;{opt.text}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          );
+        })()
       ) : hasStructuredEssay ? (
         <div className="flex flex-wrap gap-4">
           {questionParts?.map((part, index) => (

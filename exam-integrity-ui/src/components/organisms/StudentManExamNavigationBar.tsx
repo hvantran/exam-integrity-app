@@ -46,18 +46,18 @@ const StudentManExamNavigationBar: React.FC<ExamNavigationBarProps> = ({
       className="w-full rounded-2xl border border-slate-200 bg-gradient-to-r from-white to-slate-50/70 p-3 md:p-4 shadow-[0_8px_24px_-20px_rgba(15,23,42,0.5)]"
       aria-label="Exam question actions"
     >
-      <div className="mt-3 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+      <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <Button
           variant={toneToVariant.accent}
           icon={<ArrowLeft size={18} className="text-white/90" />}
           onClick={onPrevious}
           disabled={!canGoPrev}
-          className="min-w-[122px]"
+          className="min-w-[122px] self-start"
         >
           Previous
         </Button>
 
-        <div className="flex flex-wrap items-center gap-2 md:gap-3 xl:justify-end">
+        <div className="flex flex-wrap items-center gap-2 md:gap-3 md:justify-end">
           {hasFlaggedReviewAction && onReviewFlagged && (
             <Button
               variant={toneToVariant.warning}

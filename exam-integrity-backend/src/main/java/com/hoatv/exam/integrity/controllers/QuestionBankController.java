@@ -31,6 +31,12 @@ public class QuestionBankController {
         return ResponseEntity.ok(questionBankService.search(q, type, tags, page, size));
     }
 
+    @GetMapping("/by-ids")
+    public ResponseEntity<List<DraftQuestionDTO>> getByIds(
+            @RequestParam(name = "ids") List<String> ids) {
+        return ResponseEntity.ok(questionBankService.findByIds(ids));
+    }
+
     @GetMapping("/tags")
     public ResponseEntity<List<String>> listQuestionTags() {
         return ResponseEntity.ok(questionBankService.listTags());

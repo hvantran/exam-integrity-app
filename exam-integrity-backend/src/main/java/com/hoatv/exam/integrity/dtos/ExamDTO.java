@@ -10,5 +10,6 @@ public record ExamDTO(
     double totalPoints,
     int questionCount,
     List<String> tags,
-    List<QuestionSummaryDTO> questions
+    List<QuestionSummaryDTO> questions,
+    String status
 ) {}

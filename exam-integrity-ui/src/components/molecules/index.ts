@@ -28,6 +28,8 @@ export { default as MistakeSummary } from './MistakeSummary';
 export { default as ScrollArea } from './ScrollArea';
 export type { ScrollAreaProps } from './ScrollArea';
 
+export { default as SelectQuestionsFromBankDialog } from './SelectQuestionsFromBankDialog';
+export type { SelectQuestionsFromBankDialogProps } from './SelectQuestionsFromBankDialog';
 export { default as AppToastContainer } from './AppToastContainer';
 export type { AppToastContainerProps } from './AppToastContainer';
 

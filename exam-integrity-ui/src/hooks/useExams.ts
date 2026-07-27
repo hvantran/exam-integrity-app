@@ -24,6 +24,20 @@ export function useCreateExamFromBank() {
     mutationFn: (cmd: CreateExamFromBankCommand) => examService.createFromBank(cmd),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['exams'] });
+      qc.invalidateQueries({ queryKey: ['teacher-exams'] });
+    },
+  });
+}
+
+export function useUpdateExamQuestionsFromBank() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ examId, selectedQuestionIds }: { examId: string; selectedQuestionIds: string[] }) =>
+      examService.updateQuestionsFromBank(examId, { selectedQuestionIds }),
+    onSuccess: (_result, variables) => {
+      qc.invalidateQueries({ queryKey: ['exams'] });
+      qc.invalidateQueries({ queryKey: ['teacher-exams'] });
+      qc.invalidateQueries({ queryKey: ['exam', variables.examId] });
     },
   });
 }
@@ -34,6 +48,7 @@ export function useDeleteExam() {
     mutationFn: (examId: string) => examService.deleteExam(examId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['exams'] });
+      qc.invalidateQueries({ queryKey: ['teacher-exams'] });
     },
   });
 }

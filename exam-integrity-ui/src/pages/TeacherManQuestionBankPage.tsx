@@ -30,6 +30,12 @@ const TYPE_OPTIONS: { value: QuestionType; label: string }[] = [
   { value: 'ESSAY_LONG', label: 'Essay (Long)' },
 ];
 
+const DEFAULT_POINTS_BY_TYPE: Record<QuestionType, number> = {
+  MCQ: 0.5,
+  ESSAY_SHORT: 1,
+  ESSAY_LONG: 2,
+};
+
 // ── Input style helpers ───────────────────────────────────────────────────────
 
 const inputCls =
@@ -59,7 +65,7 @@ const toEditForm = (q: DraftQuestionDTO): EditFormState => ({
       ? [...q.options.map(stripOptionPrefix), '', '', '', ''].slice(0, 4)
       : ['', '', '', ''],
   correctAnswer: resolveMcqCorrectAnswerLabel(q.correctAnswer, q.options ?? []),
-  points: q.points,
+  points: q.points ?? DEFAULT_POINTS_BY_TYPE[q.type ?? 'MCQ'],
   tags: q.rubric?.keywords?.join(', ') ?? '',
   imageData: q.imageData ?? '',
 });
@@ -404,7 +410,7 @@ const QuestionBankPage: React.FC = () => {
     difficulty: 'Medium',
     options: ['', '', '', ''],
     correctAnswer: 'A',
-    points: 1,
+    points: DEFAULT_POINTS_BY_TYPE.MCQ,
     tags: '',
     imageData: '',
   });
@@ -522,7 +528,7 @@ const QuestionBankPage: React.FC = () => {
         difficulty: 'Medium',
         options: ['', '', '', ''],
         correctAnswer: 'A',
-        points: 1,
+        points: DEFAULT_POINTS_BY_TYPE.MCQ,
         tags: '',
         imageData: '',
       });
@@ -760,7 +766,14 @@ const QuestionBankPage: React.FC = () => {
             <label className={labelCls}>Question Type</label>
             <Select
               value={addForm.type}
-              onChange={(val) => setAddForm((f) => ({ ...f, type: val as QuestionType }))}
+              onChange={(val) => {
+                const nextType = val as QuestionType;
+                setAddForm((f) => ({
+                  ...f,
+                  type: nextType,
+                  points: DEFAULT_POINTS_BY_TYPE[nextType],
+                }));
+              }}
               options={TYPE_OPTIONS}
             />
           </div>

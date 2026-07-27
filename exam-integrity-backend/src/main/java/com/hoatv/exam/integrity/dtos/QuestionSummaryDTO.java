@@ -5,6 +5,7 @@ import java.util.List;
 /** Per-question data for the exam session UI (one question at a time). */
 public record QuestionSummaryDTO(
     String id,
+    String bankItemId,
     int questionNumber,
     String content,
     String stem,

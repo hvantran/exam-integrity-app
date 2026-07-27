@@ -49,6 +49,18 @@ export const analyzeFormula = (formula: string): ParsedFormula => {
     const operands = extractOperands(normalizedFormula);
     const hasDecimal = /\./g.test(normalizedFormula) || /,/g.test(normalizedFormula);
 
+    // Treat as arithmetic only when two numeric operands are present.
+    // This avoids classifying prose prompts like "a. Góc đỉnh: ..." as division.
+    if (operands.length < 2) {
+      return {
+        type: 'UNKNOWN',
+        formula: normalizedFormula,
+        operatorCount,
+        hasDecimal,
+        displayFormula: normalizedFormula,
+      };
+    }
+
     const baseResult = {
       formula: normalizedFormula,
       operands,
