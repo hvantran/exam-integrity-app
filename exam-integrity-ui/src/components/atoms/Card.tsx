@@ -1,6 +1,7 @@
 import React from 'react';
+import { Card as LibCard, CardVariant as LibCardVariant } from '@hvantran/ui-component-library';
 
-export type CardVariant = 'default' | 'outlined' | 'elevated';
+export type CardVariant = LibCardVariant;
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
@@ -22,18 +23,9 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
 }
 
-const variantBase: Record<CardVariant, string> = {
-  default: 'border border-gray-200 bg-white shadow-sm',
-  outlined: 'border border-gray-200 bg-white',
-  elevated: 'bg-white shadow-md',
-};
-
 /**
  * Atom — Card
- *
- * A generic surface container used throughout the Zen Integrity System.
- * Supports optional selection state and click interaction without
- * wrapping semantic content inside a `<button>`.
+ * Consumes published @hvantran/ui-component-library Card primitive.
  */
 const Card: React.FC<CardProps> = ({
   variant = 'default',
@@ -45,19 +37,14 @@ const Card: React.FC<CardProps> = ({
 }) => {
   const isInteractive = onClick !== undefined;
 
-  const interactiveClasses = isInteractive
-    ? 'cursor-pointer hover:border-sky-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-1 transition-all duration-150'
-    : '';
-
-  const selectedClasses = selected
-    ? 'border-sky-500 bg-sky-50 shadow-[0_0_0_2px_rgba(14,165,233,0.25)]'
-    : '';
-
   return (
-    <div
+    <LibCard
+      variant={variant}
+      selected={selected}
+      interactive={isInteractive}
+      onClick={onClick}
       role={isInteractive ? 'button' : undefined}
       tabIndex={isInteractive ? 0 : undefined}
-      onClick={onClick}
       onKeyDown={
         isInteractive
           ? (e) => {
@@ -68,19 +55,11 @@ const Card: React.FC<CardProps> = ({
             }
           : undefined
       }
-      className={[
-        'rounded-2xl p-4',
-        variantBase[variant],
-        interactiveClasses,
-        selectedClasses,
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+      className={className}
       {...rest}
     >
       {children}
-    </div>
+    </LibCard>
   );
 };
 

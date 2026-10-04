@@ -1,5 +1,5 @@
 import React from 'react';
-import { colors } from '../../design-system/tokens';
+import { Badge as LibBadge, BadgeVariant as LibBadgeVariant } from '@hvantran/ui-component-library';
 
 export type BadgeColor = 'primary' | 'secondary' | 'error' | 'neutral' | 'warning';
 
@@ -10,50 +10,40 @@ export interface BadgeProps {
   /** Max value — displays "{max}+" when count exceeds it */
   max?: number;
   size?: 'sm' | 'md';
+  className?: string;
 }
 
-const colorMap: Record<BadgeColor, { bg: string; text: string }> = {
-  primary: { bg: colors.primary.main, text: '#fff' },
-  secondary: { bg: colors.secondary.main, text: '#fff' },
-  error: { bg: colors.tertiary.main, text: '#fff' },
-  warning: { bg: '#F59E0B', text: '#fff' },
-  neutral: { bg: colors.surface.container.highest, text: colors.on.surface },
+const colorToVariantMap: Record<BadgeColor, LibBadgeVariant> = {
+  primary: 'primary',
+  secondary: 'secondary',
+  error: 'danger',
+  warning: 'warning',
+  neutral: 'neutral',
 };
 
-const sizeMap = {
-  sm: { minWidth: 18, height: 18, fontSize: '10px', px: '4px' },
-  md: { minWidth: 22, height: 22, fontSize: '12px', px: '6px' },
+const sizeClasses: Record<'sm' | 'md', string> = {
+  sm: 'text-[10px] min-w-[18px] h-[18px] px-1',
+  md: 'text-xs min-w-[22px] h-[22px] px-1.5',
 };
 
 /**
  * Atom — Badge
- *
- * Compact circular/pill counter used on notification icons, flag counts,
- * and pending review tallies throughout the exam platform.
+ * Consumes published @hvantran/ui-component-library Badge primitive.
  */
-const Badge: React.FC<BadgeProps> = ({ count, color = 'primary', max, size = 'md' }) => {
-  const { bg, text } = colorMap[color];
-  const { minWidth, height, fontSize, px } = sizeMap[size];
-
-  const displayValue =
-    max !== undefined && typeof count === 'number' && count > max ? `${max}+` : count;
-
+const Badge: React.FC<BadgeProps> = ({
+  count,
+  color = 'primary',
+  max,
+  size = 'md',
+  className = '',
+}) => {
   return (
-    <span
-      className="inline-flex items-center justify-center rounded-full"
-      style={{
-        minWidth,
-        height,
-        paddingLeft: px,
-        paddingRight: px,
-        backgroundColor: bg,
-        color: text,
-      }}
-    >
-      <span style={{ fontSize, fontWeight: 600, lineHeight: 1, fontFamily: 'inherit' }}>
-        {displayValue}
-      </span>
-    </span>
+    <LibBadge
+      variant={colorToVariantMap[color]}
+      count={count}
+      max={max}
+      className={[sizeClasses[size], className].filter(Boolean).join(' ')}
+    />
   );
 };
 

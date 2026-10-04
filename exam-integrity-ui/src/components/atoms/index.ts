@@ -21,3 +21,12 @@ export type { ModalProps } from './Modal';
 
 export { default as Select } from './Select';
 export type { SelectProps, SelectOption } from './Select';
+
+export {
+  Button as LibButton,
+  Card as LibCard,
+  Badge as LibBadge,
+  Chip as LibChip,
+  Modal as LibModal,
+  ProgressBar as LibProgressBar,
+} from '@hvantran/ui-component-library';

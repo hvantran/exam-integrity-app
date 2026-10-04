@@ -1,6 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./src/**/*.{js,jsx,ts,tsx}'],
+  presets: [require('@hvantran/ui-component-library/preset')],
+  content: [
+    './src/**/*.{js,jsx,ts,tsx}',
+    './node_modules/@hvantran/ui-component-library/dist/**/*.{js,mjs}',
+  ],
   theme: {
     extend: {
       colors: {
