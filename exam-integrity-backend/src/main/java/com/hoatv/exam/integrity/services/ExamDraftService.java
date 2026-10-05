@@ -107,7 +107,7 @@ public class ExamDraftService {
 
         ExamDraft draft = buildDraftFromParsedExam(parsedExam, filename, jobId, examSetIndex);
         ExamDraft saved = draftRepository.save(draft);
-        String safeFilename = filename != null ? filename.replaceAll("[\r\n]", "_") : "";
+        String safeFilename = filename.replaceAll("[\r\n]", "_");
         logger.info("Draft {} created from PDF {}", saved.getId(), safeFilename);
         return toSummaryDTO(saved, null);
     }
