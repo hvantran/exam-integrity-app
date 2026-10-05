@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -60,58 +61,30 @@ public class ExamService {
                 .comparing((Exam exam) -> exam.getTitle() == null ? "" : exam.getTitle().toLowerCase(Locale.ROOT))
                 .thenComparing(Exam::getId, Comparator.nullsLast(Comparator.naturalOrder())))
             .map(this::toDTO)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public List<ExamDTO> listAllExams() {
         return examRepository.findAll().stream()
             .sorted(Comparator.comparing(Exam::getCreatedAt, Comparator.nullsLast(Comparator.naturalOrder())).reversed())
             .map(this::toDTO)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public Optional<ExamDTO> getFullExam(String examId) {
         return examRepository.findById(examId).map(exam -> {
-            final boolean[] hasBackfilledBankLinks = {false};
-            List<QuestionSummaryDTO> questions = exam.getQuestions().stream()
-                .map(q -> {
-                    String bankItemId = q.getBankItemId();
-                    if (bankItemId == null || bankItemId.isBlank()) {
-                        String content = q.getContent();
-                        if (content != null && !content.isBlank()) {
-                            String hash = sha256(content);
-                            bankItemId = questionBankRepository.findByContentHash(hash)
-                                .map(QuestionBankItem::getId)
-                                .orElse(null);
-                            if (bankItemId != null) {
-                                q.setBankItemId(bankItemId);
-                                hasBackfilledBankLinks[0] = true;
-                            }
-                        }
-                    }
+            boolean hasBackfilledBankLinks = false;
+            List<QuestionSummaryDTO> questions = new ArrayList<>();
+            for (Question q : exam.getQuestions()) {
+                String bankItemId = resolveBankItemId(q);
+                if (bankItemId != null && (q.getBankItemId() == null || q.getBankItemId().isBlank())) {
+                    q.setBankItemId(bankItemId);
+                    hasBackfilledBankLinks = true;
+                }
+                questions.add(mapToQuestionSummary(q, bankItemId));
+            }
 
-                    QuestionStructureParser.ParsedQuestionContent parsedContent =
-                        q.getType() == Question.QuestionType.MCQ
-                            ? QuestionStructureParser.ParsedQuestionContent.empty()
-                            : QuestionStructureParser.parse(q.getContent());
-
-                    return new QuestionSummaryDTO(
-                        q.getId(),
-                        bankItemId,
-                        q.getQuestionNumber(),
-                        q.getContent(),
-                        parsedContent.stem(),
-                        q.getType() != null ? q.getType().name() : "MCQ",
-                        q.getPoints(),
-                        q.getOptions(),
-                        parsedContent.parts(),
-                        q.isTruncated(),
-                        q.getImageData()
-                    );
-                })
-                .collect(Collectors.toList());
-
-            if (hasBackfilledBankLinks[0]) {
+            if (hasBackfilledBankLinks) {
                 examRepository.save(exam);
             }
 
@@ -119,6 +92,41 @@ public class ExamService {
                 exam.getTotalPoints(), questions.size(), exam.getTags(), questions,
                 exam.getStatus() != null ? exam.getStatus().name() : null);
         });
+    }
+
+    private String resolveBankItemId(Question q) {
+        String bankItemId = q.getBankItemId();
+        if (bankItemId != null && !bankItemId.isBlank()) {
+            return bankItemId;
+        }
+        String content = q.getContent();
+        if (content == null || content.isBlank()) {
+            return null;
+        }
+        return questionBankRepository.findByContentHash(sha256(content))
+            .map(QuestionBankItem::getId)
+            .orElse(null);
+    }
+
+    private QuestionSummaryDTO mapToQuestionSummary(Question q, String bankItemId) {
+        QuestionStructureParser.ParsedQuestionContent parsedContent =
+            q.getType() == Question.QuestionType.MCQ
+                ? QuestionStructureParser.ParsedQuestionContent.empty()
+                : QuestionStructureParser.parse(q.getContent());
+
+        return new QuestionSummaryDTO(
+            q.getId(),
+            bankItemId,
+            q.getQuestionNumber(),
+            q.getContent(),
+            parsedContent.stem(),
+            q.getType() != null ? q.getType().name() : "MCQ",
+            q.getPoints(),
+            q.getOptions(),
+            parsedContent.parts(),
+            q.isTruncated(),
+            q.getImageData()
+        );
     }
 
     private ExamDTO toDTO(Exam exam) {
@@ -134,7 +142,8 @@ public class ExamService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Exam not found: " + examId);
         }
         examRepository.deleteById(examId);
-        logger.info("Deleted exam {} (question bank untouched)", examId);
+        String safeExamId = examId != null ? examId.replaceAll("[\r\n]", "_") : "";
+        logger.info("Deleted exam {} (question bank untouched)", safeExamId);
     }
 
     public ExamDTO createFromBank(CreateExamFromBankCommand cmd) {
@@ -150,9 +159,6 @@ public class ExamService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "At least one question must be requested");
         }
 
-        List<Question> selected = new ArrayList<>();
-
-        // Build blacklist: bank item IDs already used in any existing exam
         Set<String> usedBankItemIds = examRepository.findAll().stream()
             .flatMap(exam -> exam.getQuestions().stream())
             .map(Question::getBankItemId)
@@ -161,82 +167,15 @@ public class ExamService {
         logger.debug("Unique bank items already used across existing exams: {}", usedBankItemIds.size());
 
         List<QuestionBankItem> allBankItems = questionBankRepository.findAll();
+        List<Question> selected;
 
         if (!selectedQuestionIds.isEmpty()) {
-            List<QuestionBankItem> selectedItems = allBankItems.stream()
-                .filter(item -> selectedQuestionIds.contains(item.getId()))
-                .toList();
-
-            if (selectedItems.size() != selectedQuestionIds.size()) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "One or more selected question IDs do not exist in the question bank");
-            }
-
-            boolean hasTagMismatch = selectedItems.stream()
-                .anyMatch(item -> !matchesExamTags(item, examTags));
-            if (hasTagMismatch) {
-                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Selected question tags do not match exam tags");
-            }
-
-            List<String> alreadyUsed = selectedItems.stream()
-                .filter(item -> usedBankItemIds.contains(item.getId()))
-                .map(QuestionBankItem::getId)
-                .toList();
-            if (!alreadyUsed.isEmpty()) {
-                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "The following question bank items are already used in other exams: " + alreadyUsed);
-            }
-
-            selectedItems.stream().map(this::bankItemToQuestion).forEach(selected::add);
+            selected = resolveExplicitlySelectedQuestions(selectedQuestionIds, allBankItems, examTags, usedBankItemIds);
         } else {
-            if (mcqCount > 0) {
-                List<QuestionBankItem> mcqPool = allBankItems.stream()
-                    .filter(q -> q.getType() == Question.QuestionType.MCQ)
-                    .filter(q -> matchesExamTags(q, examTags))
-                    .filter(q -> !usedBankItemIds.contains(q.getId()))
-                    .collect(Collectors.toList());
-                Collections.shuffle(mcqPool);
-                if (mcqPool.size() < mcqCount) {
-                    throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                        "Not enough available MCQ questions (not already used in other exams) for selected tags: requested " + mcqCount + ", available " + mcqPool.size());
-                }
-                mcqPool.subList(0, mcqCount).stream()
-                    .map(this::bankItemToQuestion)
-                    .forEach(selected::add);
-            }
-
-            if (essayShortCount > 0) {
-                List<QuestionBankItem> essayShortPool = allBankItems.stream()
-                    .filter(q -> q.getType() == Question.QuestionType.ESSAY_SHORT)
-                    .filter(q -> matchesExamTags(q, examTags))
-                    .filter(q -> !usedBankItemIds.contains(q.getId()))
-                    .collect(Collectors.toList());
-                Collections.shuffle(essayShortPool);
-                if (essayShortPool.size() < essayShortCount) {
-                    throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                        "Not enough available essay short questions (not already used in other exams) for selected tags: requested " + essayShortCount + ", available " + essayShortPool.size());
-                }
-                essayShortPool.subList(0, essayShortCount).stream()
-                    .map(this::bankItemToQuestion)
-                    .forEach(selected::add);
-            }
-
-            if (essayLongCount > 0) {
-                List<QuestionBankItem> essayLongPool = allBankItems.stream()
-                    .filter(q -> q.getType() == Question.QuestionType.ESSAY_LONG)
-                    .filter(q -> matchesExamTags(q, examTags))
-                    .filter(q -> !usedBankItemIds.contains(q.getId()))
-                    .collect(Collectors.toList());
-                Collections.shuffle(essayLongPool);
-                if (essayLongPool.size() < essayLongCount) {
-                    throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                        "Not enough available essay long questions (not already used in other exams) for selected tags: requested " + essayLongCount + ", available " + essayLongPool.size());
-                }
-                essayLongPool.subList(0, essayLongCount).stream()
-                    .map(this::bankItemToQuestion)
-                    .forEach(selected::add);
-            }
+            selected = new ArrayList<>();
+            selected.addAll(sampleQuestionsByType(allBankItems, Question.QuestionType.MCQ, examTags, usedBankItemIds, mcqCount, "MCQ"));
+            selected.addAll(sampleQuestionsByType(allBankItems, Question.QuestionType.ESSAY_SHORT, examTags, usedBankItemIds, essayShortCount, "essay short"));
+            selected.addAll(sampleQuestionsByType(allBankItems, Question.QuestionType.ESSAY_LONG, examTags, usedBankItemIds, essayLongCount, "essay long"));
         }
 
         // Renumber 1..N
@@ -257,6 +196,63 @@ public class ExamService {
         examRepository.save(exam);
         logger.info("Created exam {} from question bank ({} MCQ, {} essay short, {} essay long)", exam.getId(), mcqCount, essayShortCount, essayLongCount);
         return toDTO(exam);
+    }
+
+    private List<Question> resolveExplicitlySelectedQuestions(List<String> selectedQuestionIds,
+                                                              List<QuestionBankItem> allBankItems,
+                                                              List<String> examTags,
+                                                              Set<String> usedBankItemIds) {
+        List<QuestionBankItem> selectedItems = allBankItems.stream()
+            .filter(item -> selectedQuestionIds.contains(item.getId()))
+            .toList();
+
+        if (selectedItems.size() != selectedQuestionIds.size()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "One or more selected question IDs do not exist in the question bank");
+        }
+
+        boolean hasTagMismatch = selectedItems.stream()
+            .anyMatch(item -> !matchesExamTags(item, examTags));
+        if (hasTagMismatch) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                "Selected question tags do not match exam tags");
+        }
+
+        List<String> alreadyUsed = selectedItems.stream()
+            .filter(item -> usedBankItemIds.contains(item.getId()))
+            .map(QuestionBankItem::getId)
+            .toList();
+        if (!alreadyUsed.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                "The following question bank items are already used in other exams: " + alreadyUsed);
+        }
+
+        return selectedItems.stream().map(this::bankItemToQuestion).toList();
+    }
+
+    private List<Question> sampleQuestionsByType(List<QuestionBankItem> allBankItems,
+                                                 Question.QuestionType type,
+                                                 List<String> examTags,
+                                                 Set<String> usedBankItemIds,
+                                                 int requestedCount,
+                                                 String typeLabel) {
+        if (requestedCount <= 0) {
+            return List.of();
+        }
+        List<QuestionBankItem> pool = allBankItems.stream()
+            .filter(q -> q.getType() == type)
+            .filter(q -> matchesExamTags(q, examTags))
+            .filter(q -> !usedBankItemIds.contains(q.getId()))
+            .collect(Collectors.toList());
+        Collections.shuffle(pool);
+        if (pool.size() < requestedCount) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                "Not enough available " + typeLabel + " questions (not already used in other exams) for selected tags: requested "
+                    + requestedCount + ", available " + pool.size());
+        }
+        return pool.subList(0, requestedCount).stream()
+            .map(this::bankItemToQuestion)
+            .toList();
     }
 
     public ExamDTO updateQuestionsFromBank(String examId, UpdateExamQuestionsFromBankCommand cmd) {
@@ -281,7 +277,7 @@ public class ExamService {
             .map(id -> allBankItems.stream().filter(item -> id.equals(item.getId())).findFirst().orElse(null))
             .toList();
 
-        boolean hasMissing = selectedItems.stream().anyMatch(item -> item == null);
+        boolean hasMissing = selectedItems.stream().anyMatch(Objects::isNull);
         if (hasMissing) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                 "One or more selected question IDs do not exist in the question bank");
@@ -322,7 +318,8 @@ public class ExamService {
         exam.setTotalPoints(questions.stream().mapToDouble(Question::getPoints).sum());
 
         examRepository.save(exam);
-        logger.info("Updated exam {} with {} selected bank question(s)", examId, questions.size());
+        String safeExamId = examId != null ? examId.replaceAll("[\r\n]", "_") : "";
+        logger.info("Updated exam {} with {} selected bank question(s)", safeExamId, questions.size());
         return toDTO(exam);
     }
 
@@ -371,30 +368,7 @@ public class ExamService {
 
         List<Question> questions = new ArrayList<>();
         for (int i = 0; i < payload.questions().size(); i++) {
-            ExamImportPayload.ImportedQuestion imported = payload.questions().get(i);
-            String content = imported.content() != null ? imported.content().trim() : "";
-            if (content.isBlank()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Question content is required at index " + i);
-            }
-
-            Question.QuestionType questionType = parseQuestionType(imported.type());
-            double points = imported.points() != null && imported.points() > 0
-                ? imported.points()
-                : defaultPoints(questionType);
-
-            Question question = new Question();
-            question.setId(UUID.randomUUID().toString());
-            question.setQuestionNumber(i + 1);
-            question.setContent(content);
-            question.setType(questionType);
-            question.setPoints(points);
-            question.setOptions(questionType == Question.QuestionType.MCQ
-                ? normalizeOptions(imported.options())
-                : List.of());
-            question.setCorrectAnswer(imported.correctAnswer() != null ? imported.correctAnswer().trim() : null);
-            question.setImageData(imported.imageData());
-            questions.add(question);
+            questions.add(convertImportedQuestion(payload.questions().get(i), i));
         }
 
         String title = payload.title() != null && !payload.title().trim().isBlank()
@@ -428,6 +402,32 @@ public class ExamService {
         examRepository.save(exam);
         logger.info("Imported exam {} from JSON payload with {} question(s)", exam.getId(), questions.size());
         return toDTO(exam);
+    }
+
+    private Question convertImportedQuestion(ExamImportPayload.ImportedQuestion imported, int index) {
+        String content = imported.content() != null ? imported.content().trim() : "";
+        if (content.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "Question content is required at index " + index);
+        }
+
+        Question.QuestionType questionType = parseQuestionType(imported.type());
+        double points = imported.points() != null && imported.points() > 0
+            ? imported.points()
+            : defaultPoints(questionType);
+
+        Question question = new Question();
+        question.setId(UUID.randomUUID().toString());
+        question.setQuestionNumber(index + 1);
+        question.setContent(content);
+        question.setType(questionType);
+        question.setPoints(points);
+        question.setOptions(questionType == Question.QuestionType.MCQ
+            ? normalizeOptions(imported.options())
+            : List.of());
+        question.setCorrectAnswer(imported.correctAnswer() != null ? imported.correctAnswer().trim() : null);
+        question.setImageData(imported.imageData());
+        return question;
     }
 
     public ExamExportPayload exportToJson(String examId) {

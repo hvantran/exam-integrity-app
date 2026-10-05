@@ -1,6 +1,5 @@
 package com.hoatv.exam.integrity.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hoatv.exam.integrity.domain.*;
 import com.hoatv.exam.integrity.dtos.*;
 import com.hoatv.exam.integrity.repositories.*;
@@ -8,12 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -38,21 +35,15 @@ public class ExamDraftService {
     private final ExamDraftRepository draftRepository;
     private final ExamRepository examRepository;
     private final QuestionBankRepository bankRepository;
-    private final RestClient ingestionRestClient;
-    private final ObjectMapper objectMapper;
     private final String ingestionBaseUrl;
 
     public ExamDraftService(ExamDraftRepository draftRepository,
             ExamRepository examRepository,
             QuestionBankRepository bankRepository,
-            RestClient ingestionRestClient,
-            ObjectMapper objectMapper,
             @Value("${ingestion.service.base-url:http://localhost:8091}") String ingestionBaseUrl) {
         this.draftRepository = draftRepository;
         this.examRepository = examRepository;
         this.bankRepository = bankRepository;
-        this.ingestionRestClient = ingestionRestClient;
-        this.objectMapper = objectMapper;
         this.ingestionBaseUrl = ingestionBaseUrl;
     }
 
@@ -116,7 +107,8 @@ public class ExamDraftService {
 
         ExamDraft draft = buildDraftFromParsedExam(parsedExam, filename, jobId, examSetIndex);
         ExamDraft saved = draftRepository.save(draft);
-        logger.info("Draft {} created from PDF {}", saved.getId(), filename);
+        String safeFilename = filename != null ? filename.replaceAll("[\r\n]", "_") : "";
+        logger.info("Draft {} created from PDF {}", saved.getId(), safeFilename);
         return toSummaryDTO(saved, null);
     }
 
@@ -324,23 +316,21 @@ public class ExamDraftService {
                 continue;
             }
 
-            if (existing.isEmpty()) {
-                QuestionBankItem item = new QuestionBankItem();
-                item.setId(UUID.randomUUID().toString());
-                item.setContentHash(hash);
-                item.setContent(q.getContent());
-                item.setType(q.getType());
-                item.setPoints(q.getPoints());
-                item.setOptions(q.getOptions());
-                item.setCorrectAnswer(q.getCorrectAnswer());
-                item.setRubric(q.getRubric());
-                item.setImageData(q.getImageData());
-                item.setTags(tags != null ? tags : List.of());
-                item.setSourceExamId(examId);
-                item.setAddedAt(Instant.now());
-                QuestionBankItem saved = bankRepository.save(item);
-                q.setBankItemId(saved.getId());
-            }
+            QuestionBankItem item = new QuestionBankItem();
+            item.setId(UUID.randomUUID().toString());
+            item.setContentHash(hash);
+            item.setContent(q.getContent());
+            item.setType(q.getType());
+            item.setPoints(q.getPoints());
+            item.setOptions(q.getOptions());
+            item.setCorrectAnswer(q.getCorrectAnswer());
+            item.setRubric(q.getRubric());
+            item.setImageData(q.getImageData());
+            item.setTags(tags != null ? tags : List.of());
+            item.setSourceExamId(examId);
+            item.setAddedAt(Instant.now());
+            QuestionBankItem saved = bankRepository.save(item);
+            q.setBankItemId(saved.getId());
         }
     }
 
@@ -374,17 +364,17 @@ public class ExamDraftService {
         draft.setPdfType(parsedExam.containsKey("pdf_type") ? (String) parsedExam.get("pdf_type") : "text");
         draft.setOcrUsed(Boolean.TRUE.equals(parsedExam.get("ocr_used")));
         Object docOcr = parsedExam.get("document_ocr_confidence");
-        if (docOcr instanceof Number)
-            draft.setDocumentOcrConfidence(((Number) docOcr).doubleValue());
+        if (docOcr instanceof Number number)
+            draft.setDocumentOcrConfidence(number.doubleValue());
         Object tp = parsedExam.get("total_points");
-        if (tp instanceof Number)
-            draft.setTotalPoints(((Number) tp).doubleValue());
+        if (tp instanceof Number number)
+            draft.setTotalPoints(number.doubleValue());
         Object dp = parsedExam.get("detected_points_sum");
-        if (dp instanceof Number)
-            draft.setDetectedPointsSum(((Number) dp).doubleValue());
+        if (dp instanceof Number number)
+            draft.setDetectedPointsSum(number.doubleValue());
         Object dur = parsedExam.get("duration_seconds");
-        if (dur instanceof Number)
-            draft.setDurationSeconds(((Number) dur).intValue());
+        if (dur instanceof Number number)
+            draft.setDurationSeconds(number.intValue());
         Object mismatch = parsedExam.get("has_point_mismatch");
         draft.setHasPointMismatch(Boolean.TRUE.equals(mismatch));
 
@@ -410,8 +400,8 @@ public class ExamDraftService {
         DraftQuestion q = new DraftQuestion();
         q.setId(UUID.randomUUID().toString());
         Object qn = map.get("question_number");
-        if (qn instanceof Number)
-            q.setQuestionNumber(((Number) qn).intValue());
+        if (qn instanceof Number number)
+            q.setQuestionNumber(number.intValue());
         q.setContent(map.containsKey("content") ? (String) map.get("content") : "");
         q.setRawText((String) map.get("raw_text"));
         String typeStr = map.containsKey("question_type") ? (String) map.get("question_type") : "MCQ";
@@ -421,8 +411,8 @@ public class ExamDraftService {
             q.setType(Question.QuestionType.MCQ);
         }
         Object pts = map.get("points");
-        if (pts instanceof Number)
-            q.setPoints(((Number) pts).doubleValue());
+        if (pts instanceof Number number)
+            q.setPoints(number.doubleValue());
         @SuppressWarnings("unchecked")
         List<String> opts = (List<String>) map.get("options");
         if (opts != null)
@@ -430,18 +420,18 @@ public class ExamDraftService {
         Object imageData = map.get("image_data");
         if (imageData == null)
             imageData = map.get("imageData");
-        if (imageData instanceof String)
-            q.setImageData((String) imageData);
+        if (imageData instanceof String string)
+            q.setImageData(string);
         q.setCorrectAnswer((String) map.get("correct_answer"));
         Object ocr = map.get("ocr_confidence");
-        if (ocr instanceof Number)
-            q.setOcrConfidence(((Number) ocr).doubleValue());
+        if (ocr instanceof Number number)
+            q.setOcrConfidence(number.doubleValue());
         Object pc = map.get("parser_confidence");
-        if (pc instanceof Number)
-            q.setParserConfidence(((Number) pc).doubleValue());
+        if (pc instanceof Number number)
+            q.setParserConfidence(number.doubleValue());
         Object pn = map.get("page_number");
-        if (pn instanceof Number)
-            q.setPageNumber(((Number) pn).intValue());
+        if (pn instanceof Number number)
+            q.setPageNumber(number.intValue());
         q.setTruncated(Boolean.TRUE.equals(map.get("is_truncated")));
         q.setReviewStatus(DraftQuestion.ReviewStatus.PENDING);
         @SuppressWarnings("unchecked")

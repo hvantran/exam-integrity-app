@@ -121,7 +121,10 @@ public class DraftQuestion {
      */
     public static class BoundingBox {
         private int pageNumber;
-        private float x1, y1, x2, y2;
+        private float x1;
+        private float y1;
+        private float x2;
+        private float y2;
 
         public int getPageNumber() { return pageNumber; }
         public void setPageNumber(int pageNumber) { this.pageNumber = pageNumber; }

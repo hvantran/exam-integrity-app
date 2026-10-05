@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-import java.time.Instant;
 
 /**
  * Persists all proctoring events to MongoDB for immutable audit trail.
@@ -17,7 +16,6 @@ import java.time.Instant;
 public class AuditService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuditService.class);
-    private static final int RISK_FLAG_THRESHOLD = 70;
 
     private final AuditEventRepository auditEventRepository;
 

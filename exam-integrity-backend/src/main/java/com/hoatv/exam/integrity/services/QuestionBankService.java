@@ -33,34 +33,51 @@ public class QuestionBankService {
 
     public Page<DraftQuestionDTO> search(String q, String type, List<String> tags, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "type"));
-        Question.QuestionType qType = null;
-        if (type != null && !type.isBlank()) {
-            try { qType = Question.QuestionType.valueOf(type.toUpperCase()); }
-            catch (IllegalArgumentException ignored) {}
-        }
+        Question.QuestionType qType = parseQuestionType(type);
         boolean hasText = q != null && !q.isBlank();
         boolean hasTags = tags != null && !tags.isEmpty();
         String escapedText = hasText ? Pattern.quote(q.trim()) : q;
 
-        Page<QuestionBankItem> results;
-        if (hasText && qType != null && hasTags) {
-            results = bankRepository.searchByTextTypeAndTags(escapedText, qType, tags, pageable);
-        } else if (hasText && qType != null) {
-            results = bankRepository.searchByTextAndType(escapedText, qType, pageable);
-        } else if (hasText && hasTags) {
-            results = bankRepository.searchByTextAndTags(escapedText, tags, pageable);
-        } else if (hasText) {
-            results = bankRepository.searchByText(escapedText, pageable);
-        } else if (qType != null && hasTags) {
-            results = bankRepository.findByTypeAndTagsIn(qType, tags, pageable);
-        } else if (qType != null) {
-            results = bankRepository.findByType(qType, pageable);
-        } else if (hasTags) {
-            results = bankRepository.findByTagsIn(tags, pageable);
-        } else {
-            results = bankRepository.findAll(pageable);
-        }
+        Page<QuestionBankItem> results = executeSearch(escapedText, qType, tags, hasText, hasTags, pageable);
         return results.map(this::toDTO);
+    }
+
+    private Page<QuestionBankItem> executeSearch(String escapedText, Question.QuestionType qType, List<String> tags,
+                                                 boolean hasText, boolean hasTags, Pageable pageable) {
+        if (hasText && qType != null && hasTags) {
+            return bankRepository.searchByTextTypeAndTags(escapedText, qType, tags, pageable);
+        }
+        if (hasText && qType != null) {
+            return bankRepository.searchByTextAndType(escapedText, qType, pageable);
+        }
+        if (hasText && hasTags) {
+            return bankRepository.searchByTextAndTags(escapedText, tags, pageable);
+        }
+        if (hasText) {
+            return bankRepository.searchByText(escapedText, pageable);
+        }
+        if (qType != null && hasTags) {
+            return bankRepository.findByTypeAndTagsIn(qType, tags, pageable);
+        }
+        if (qType != null) {
+            return bankRepository.findByType(qType, pageable);
+        }
+        if (hasTags) {
+            return bankRepository.findByTagsIn(tags, pageable);
+        }
+        return bankRepository.findAll(pageable);
+    }
+
+    private Question.QuestionType parseQuestionType(String type) {
+        if (type == null || type.isBlank()) {
+            return null;
+        }
+        try {
+            return Question.QuestionType.valueOf(type.toUpperCase());
+        } catch (IllegalArgumentException ignored) {
+            // Ignore invalid question type and treat as unfiltered
+            return null;
+        }
     }
 
     public List<DraftQuestionDTO> findByIds(List<String> ids) {
@@ -143,8 +160,10 @@ public class QuestionBankService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Question not found: " + id));
         if (cmd.content() != null) item.setContent(cmd.content());
         if (cmd.type() != null) {
-            try { item.setType(Question.QuestionType.valueOf(cmd.type().toUpperCase())); }
-            catch (IllegalArgumentException ignored) {}
+            Question.QuestionType updatedType = parseQuestionType(cmd.type());
+            if (updatedType != null) {
+                item.setType(updatedType);
+            }
         }
         if (cmd.points() > 0) item.setPoints(cmd.points());
         if (cmd.options() != null) item.setOptions(cmd.options());

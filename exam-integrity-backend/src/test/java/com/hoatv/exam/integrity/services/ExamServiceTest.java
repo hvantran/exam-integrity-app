@@ -23,6 +23,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -113,7 +114,7 @@ class ExamServiceTest {
         when(examRepository.findAll()).thenReturn(List.of(existingExam));
         when(questionBankRepository.findAll()).thenReturn(List.of(reusedItem));
 
-        assertThatThrownBy(() -> examService.createFromBank(new CreateExamFromBankCommand(
+        CreateExamFromBankCommand commandWithReusedItem = new CreateExamFromBankCommand(
             "New exam",
             2700,
             null,
@@ -122,7 +123,8 @@ class ExamServiceTest {
             0,
             0,
             0
-        )))
+        );
+        assertThatThrownBy(() -> examService.createFromBank(commandWithReusedItem))
             .isInstanceOf(ResponseStatusException.class)
             .hasMessageContaining("already used in other exams");
     }
@@ -139,7 +141,7 @@ class ExamServiceTest {
         when(examRepository.findAll()).thenReturn(List.of(existingExam));
         when(questionBankRepository.findAll()).thenReturn(List.of(usedMcq));
 
-        assertThatThrownBy(() -> examService.createFromBank(new CreateExamFromBankCommand(
+        CreateExamFromBankCommand commandWithNoUnusedQuestions = new CreateExamFromBankCommand(
             "New exam",
             2700,
             null,
@@ -148,7 +150,8 @@ class ExamServiceTest {
             1,
             0,
             0
-        )))
+        );
+        assertThatThrownBy(() -> examService.createFromBank(commandWithNoUnusedQuestions))
             .isInstanceOf(ResponseStatusException.class)
             .hasMessageContaining("Not enough available MCQ questions");
     }
@@ -265,7 +268,7 @@ class ExamServiceTest {
 
         examService.importFromJson(payload);
 
-        verify(questionBankRepository, org.mockito.Mockito.never())
+        verify(questionBankRepository, never())
             .save(org.mockito.ArgumentMatchers.any(QuestionBankItem.class));
 
         ArgumentCaptor<Exam> examCaptor = ArgumentCaptor.forClass(Exam.class);
@@ -327,10 +330,10 @@ class ExamServiceTest {
         when(examRepository.findAll()).thenReturn(List.of(targetExam, otherExam));
         when(questionBankRepository.findAll()).thenReturn(List.of(reused));
 
-        assertThatThrownBy(() -> examService.updateQuestionsFromBank(
-            "exam-target",
-            new UpdateExamQuestionsFromBankCommand(List.of("bank-reused"))
-        ))
+        UpdateExamQuestionsFromBankCommand commandWithReusedQuestion = new UpdateExamQuestionsFromBankCommand(
+            List.of("bank-reused")
+        );
+        assertThatThrownBy(() -> examService.updateQuestionsFromBank("exam-target", commandWithReusedQuestion))
             .isInstanceOf(ResponseStatusException.class)
             .hasMessageContaining("already used in other exams");
     }
