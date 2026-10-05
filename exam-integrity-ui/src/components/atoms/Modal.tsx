@@ -50,7 +50,7 @@ const Modal: React.FC<ModalProps> = ({
       title={resolvedTitle}
       maxWidth={mapMaxWidth(maxWidth)}
       footer={resolvedFooter}
-      className={className}
+      className={[maxWidth, className].filter(Boolean).join(' ')}
     >
       {children}
     </LibModal>
