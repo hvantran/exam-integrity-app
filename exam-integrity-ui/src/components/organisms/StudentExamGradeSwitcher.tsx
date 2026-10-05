@@ -143,9 +143,11 @@ export const StudentExamGradeSwitcher: React.FC<StudentExamGradeSwitcherProps> =
       if (sortBy === 'grade_desc') return b.finalScore10 - a.finalScore10;
       if (sortBy === 'grade_asc') return a.finalScore10 - b.finalScore10;
       if (sortBy === 'pending_first') {
-        const aPending = a.pendingEssayCount ?? 0;
-        const bPending = b.pendingEssayCount ?? 0;
-        if (bPending !== aPending) return bPending - aPending;
+        const aPending = (a.pendingEssayCount ?? 0) > 0 || a.status === 'pending';
+        const bPending = (b.pendingEssayCount ?? 0) > 0 || b.status === 'pending';
+        if (aPending !== bPending) return Number(bPending) - Number(aPending);
+        const essayCountDifference = (b.pendingEssayCount ?? 0) - (a.pendingEssayCount ?? 0);
+        if (essayCountDifference !== 0) return essayCountDifference;
         return b.finalScore10 - a.finalScore10;
       }
       return 0;
