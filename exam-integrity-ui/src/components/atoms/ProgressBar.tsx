@@ -1,4 +1,8 @@
 import React from 'react';
+import {
+  ProgressBar as LibProgressBar,
+  ProgressBarVariant as LibProgressBarVariant,
+} from '@hvantran/ui-component-library';
 
 export interface ProgressBarProps {
   /** 0–100 */
@@ -7,29 +11,42 @@ export interface ProgressBarProps {
   urgent?: boolean;
   /** Render at the very top of the viewport (fixed position) */
   fixed?: boolean;
+  variant?: LibProgressBarVariant;
+  className?: string;
 }
 
 /**
  * Atom — ProgressBar
- *
- * 4px-tall strip used as the exam progress indicator fixed at the top of the
- * viewport. Color transitions from Trust Blue to Warning Red when `urgent`.
+ * Consumes published @hvantran/ui-component-library ProgressBar primitive.
  */
-const ProgressBar: React.FC<ProgressBarProps> = ({ value, urgent = false, fixed = false }) => (
-  <div
-    className={fixed ? 'fixed left-0 right-0 top-0 z-[200]' : 'w-full'}
-    role="progressbar"
-    aria-valuemin={0}
-    aria-valuemax={100}
-    aria-valuenow={Math.min(100, Math.max(0, value))}
-  >
-    <div className="h-1 w-full overflow-hidden bg-outlineVariant">
-      <div
-        className={`h-full transition-all duration-300 ${urgent ? 'bg-error-600' : 'bg-primary'}`}
-        style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
-      />
-    </div>
-  </div>
-);
+const ProgressBar: React.FC<ProgressBarProps> = ({
+  value,
+  urgent = false,
+  fixed = false,
+  variant,
+  className = '',
+}) => {
+  const resolvedVariant: LibProgressBarVariant =
+    variant ?? (urgent ? 'danger' : 'primary');
+
+  const content = (
+    <LibProgressBar
+      value={value}
+      variant={resolvedVariant}
+      size="sm"
+      className={fixed ? 'rounded-none' : className}
+    />
+  );
+
+  if (fixed) {
+    return (
+      <div className={`fixed left-0 right-0 top-0 z-[200] ${className}`.trim()}>
+        {content}
+      </div>
+    );
+  }
+
+  return content;
+};
 
 export default ProgressBar;

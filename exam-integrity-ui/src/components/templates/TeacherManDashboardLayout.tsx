@@ -1,18 +1,14 @@
 import React from 'react';
-// Removed MUI Box and tokens, using Tailwind CSS
 import {
-  AppTopBar,
-  TeacherManDashboardSidebar,
-  APP_BAR_HEIGHT,
-  TEACHER_SIDEBAR_WIDTH,
-} from '../organisms';
-import type { DashboardSection } from '../organisms';
+  ExamIntegrityTeacherDashboardTemplate,
+  ExamIntegrityDashboardSection,
+} from '@hvantran/ui-component-library';
 
 export interface DashboardLayoutProps {
-  activeSection?: DashboardSection;
+  activeSection?: ExamIntegrityDashboardSection;
   userName?: string;
   userRole?: string;
-  onNavigate?: (section: DashboardSection) => void;
+  onNavigate?: (section: ExamIntegrityDashboardSection) => void;
   onCreateExam?: () => void;
   onSettings?: () => void;
   onLogout?: () => void;
@@ -35,27 +31,20 @@ const TeacherManDashboardLayout: React.FC<DashboardLayoutProps> = ({
   onHelp,
   children,
 }) => (
-  <div className="min-h-screen bg-gray-50">
-    <AppTopBar
-      userName={userName}
-      onSearch={onSearch}
-      onNotifications={onNotifications}
-      onHelp={onHelp}
-      onLogout={onLogout}
-    />
-    <TeacherManDashboardSidebar
-      activeSection={activeSection}
-      userName={userName}
-      userRole={userRole}
-      onNavigate={onNavigate}
-      onCreateExam={onCreateExam}
-      onSettings={onSettings}
-      onLogout={onLogout}
-    />
-    <main className="ml-[256px] pt-[64px] min-h-screen overflow-y-auto">
-      <div className="p-6 max-w-6xl mx-auto">{children}</div>
-    </main>
-  </div>
+  <ExamIntegrityTeacherDashboardTemplate
+    activeSection={activeSection}
+    userName={userName}
+    userRole={userRole}
+    onNavigate={onNavigate}
+    onCreateExam={onCreateExam}
+    onSettings={onSettings}
+    onLogout={onLogout}
+    onSearch={onSearch}
+    onNotifications={onNotifications}
+    onHelp={onHelp}
+  >
+    {children}
+  </ExamIntegrityTeacherDashboardTemplate>
 );
 
 export default TeacherManDashboardLayout;

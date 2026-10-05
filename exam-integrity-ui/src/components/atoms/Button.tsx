@@ -1,4 +1,9 @@
 import React from 'react';
+import {
+  Button as LibButton,
+  ButtonVariant as LibButtonVariant,
+  ButtonSize as LibButtonSize,
+} from '@hvantran/ui-component-library';
 
 export type ButtonVariant =
   | 'primary'
@@ -9,7 +14,7 @@ export type ButtonVariant =
   | 'neutral'
   | 'accent'
   | 'warning';
-export type ButtonSize = 'sm' | 'md' | 'lg';
+export type ButtonSize = LibButtonSize;
 export type ButtonIconPlacement = 'left' | 'right';
 export type ButtonTextJustify = 'left' | 'center' | 'right';
 
@@ -24,26 +29,18 @@ export interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonE
   iconPlacement?: ButtonIconPlacement;
   /** Controls inline-flex content justification; defaults to 'center' */
   textJustify?: ButtonTextJustify;
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
-const sizeClassMap: Record<ButtonSize, string> = {
-  sm: 'px-3 py-1.5 text-xs',
-  md: 'px-4 py-2.5 text-sm',
-  lg: 'px-5 py-3 text-base',
+const textJustifyClassMap: Record<ButtonTextJustify, string> = {
+  left: 'justify-start',
+  center: 'justify-center',
+  right: 'justify-end',
 };
 
-const variantClassMap: Record<ButtonVariant, string> = {
-  primary:
-    'border border-primary-600 bg-primary-600 text-white hover:bg-primary-700 hover:border-primary-700',
-  secondary:
-    'border border-primary-500 bg-white text-primary-700 hover:bg-primary-50 hover:border-primary-600',
-  ghost: 'border border-transparent bg-transparent text-primary-700 hover:bg-primary-50',
-  danger:
-    'border border-danger-500 bg-danger-500 text-white hover:bg-danger-600 hover:border-danger-600',
-  outlined: 'border border-outlineVariant bg-white text-on-surface hover:bg-surface-100',
+const customVariantClasses: Partial<Record<ButtonVariant, string>> = {
   neutral:
-    'border border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50',
+    'border border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200',
   accent:
     'border border-accent-500 bg-accent-500 text-white hover:bg-accent-600 hover:border-accent-600',
   warning:
@@ -52,67 +49,31 @@ const variantClassMap: Record<ButtonVariant, string> = {
 
 /**
  * Atom — Button
- *
- * Visual variants derived from the Zen Integrity System:
- * - primary  → filled Trust Blue
- * - secondary → outlined Trust Blue
- * - ghost    → text-only Trust Blue
- * - neutral  → low-emphasis outlined slate action
- * - accent   → high-emphasis filled action blue
- * - warning  → soft caution action for review flows
- * - danger   → filled Warning Red (submit / destructive actions)
+ * Consumes published @hvantran/ui-component-library Button primitive
+ * with Zen Integrity System backward-compatible variant mappings.
  */
-const textJustifyClassMap: Record<ButtonTextJustify, string> = {
-  left: 'justify-start',
-  center: 'justify-center',
-  right: 'justify-end',
-};
-
 const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   size = 'md',
-  disabled = false,
-  loading = false,
-  fullWidth = false,
-  icon,
-  iconPlacement = 'left',
   textJustify = 'center',
-  onClick,
-  type = 'button',
-  children,
   className = '',
+  children,
   ...rest
 }) => {
-  const baseClass = `inline-flex items-center ${textJustifyClassMap[textJustify]} gap-2 rounded-md font-semibold transition duration-150 text-center disabled:opacity-45 disabled:cursor-not-allowed`;
-  const widthClass = fullWidth ? 'w-full' : '';
-  const resolvedIcon = loading ? (
-    <span
-      className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
-      aria-hidden="true"
-    />
-  ) : (
-    icon
-  );
+  const isCustomVariant = variant === 'neutral' || variant === 'accent' || variant === 'warning';
+  const resolvedVariant: LibButtonVariant = isCustomVariant ? 'outlined' : variant;
+  const customClass = isCustomVariant ? customVariantClasses[variant] : '';
+  const justifyClass = textJustifyClassMap[textJustify];
 
-  const content = (
-    <>
-      {iconPlacement === 'left' && resolvedIcon}
-      <span>{children}</span>
-      {iconPlacement === 'right' && resolvedIcon}
-    </>
-  );
-
-  return React.createElement(
-    'button',
-    {
-      type,
-      onClick,
-      disabled: disabled || loading,
-      className:
-        `${baseClass} ${sizeClassMap[size]} ${variantClassMap[variant]} ${widthClass} ${className}`.trim(),
-      ...rest,
-    },
-    content,
+  return (
+    <LibButton
+      variant={resolvedVariant}
+      size={size}
+      className={[justifyClass, customClass, className].filter(Boolean).join(' ')}
+      {...rest}
+    >
+      {children}
+    </LibButton>
   );
 };
 
