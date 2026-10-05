@@ -212,7 +212,9 @@ export const StudentExamGradeSwitcher: React.FC<StudentExamGradeSwitcherProps> =
             variant="secondary"
             size="sm"
             onClick={handleNext}
-            disabled={currentIndex === -1 || currentIndex >= filteredStudents.length - 1}
+            disabled={
+              filteredStudents.length === 0 || currentIndex >= filteredStudents.length - 1
+            }
             aria-label="Next student"
             className="p-1.5 min-w-[32px] h-[32px] flex items-center justify-center rounded-lg border border-gray-200"
           >
