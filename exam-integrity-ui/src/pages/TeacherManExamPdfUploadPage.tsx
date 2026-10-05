@@ -27,7 +27,6 @@ const IngestionPage: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login', { replace: true });
   };
   const handleNavigate = (section: DashboardSection) => navigate(SECTION_ROUTES[section]);
 

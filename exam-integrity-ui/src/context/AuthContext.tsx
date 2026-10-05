@@ -9,7 +9,6 @@ export interface AuthUser {
 interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
-  login: (username: string, password: string) => Promise<AuthUser>;
   logout: () => void;
   isAdmin: boolean;
 }
@@ -20,45 +19,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Restore session on mount
+  // Load current user from gateway session (Keycloak)
   useEffect(() => {
-    const stored = sessionStorage.getItem('exam_user');
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as AuthUser;
-        // Guard against stale data that may lack the roles array
-        if (parsed && Array.isArray(parsed.roles)) {
-          setUser(parsed);
-        } else {
-          sessionStorage.removeItem('exam_user');
-          sessionStorage.removeItem('exam_creds');
-        }
-      } catch {
-        sessionStorage.removeItem('exam_user');
-      }
-    }
-    setIsLoading(false);
-  }, []);
-
-  const login = useCallback(async (username: string, password: string) => {
-    // Store credentials so apiClient interceptor can send them
-    sessionStorage.setItem('exam_creds', JSON.stringify({ username, password }));
-    try {
-      const res = await apiClient.get<AuthUser>('/api/auth/me');
-      const authUser = res.data;
-      setUser(authUser);
-      sessionStorage.setItem('exam_user', JSON.stringify(authUser));
-      return authUser;
-    } catch (err) {
-      sessionStorage.removeItem('exam_creds');
-      throw err;
-    }
+    apiClient
+      .get<AuthUser>('/api/auth/me')
+      .then((res) => {
+        if (res.data && Array.isArray(res.data.roles)) setUser(res.data);
+      })
+      .catch(() => setUser(null))
+      .finally(() => setIsLoading(false));
   }, []);
 
   const logout = useCallback(() => {
-    sessionStorage.removeItem('exam_creds');
-    sessionStorage.removeItem('exam_user');
     setUser(null);
+    window.location.href = '/logout';
   }, []);
 
   return (
@@ -66,7 +40,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         user,
         isLoading,
-        login,
         logout,
         isAdmin: Array.isArray(user?.roles) && user.roles.includes('ADMIN'),
       }}

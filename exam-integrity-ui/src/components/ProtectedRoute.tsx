@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 interface ProtectedRouteProps {
@@ -10,7 +10,6 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, children }) => {
   const { user, isLoading } = useAuth();
-  const location = useLocation();
 
   if (isLoading) {
     return (
@@ -24,8 +23,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, children 
   }
 
   if (!user) {
-    // Redirect to /login; remember where the user was trying to go
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+    // Gateway owns login (Keycloak); no session means gateway will redirect on next 401
+    return (
+      <div className="flex min-h-screen items-center justify-center text-sm">
+        Authentication required. Please refresh to sign in.
+      </div>
+    );
   }
 
   if (allowedRoles && !allowedRoles.some((role) => user.roles.includes(role))) {

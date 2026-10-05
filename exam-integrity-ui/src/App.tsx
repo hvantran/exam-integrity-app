@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { theme } from './design-system';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import LoginPage from './pages/LoginPage';
 import LandingPage from './pages/StudentManDashboardPage';
 import StudentManMyExamsPage from './pages/StudentManMyExamsPage';
 import ExamPage from './pages/StudentManExamPage';
@@ -30,9 +29,6 @@ const App: React.FC = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            {/* Public: login */}
-            <Route path="/login" element={<LoginPage />} />
-
             {/* Student routes — any authenticated user */}
             <Route
               path="/"

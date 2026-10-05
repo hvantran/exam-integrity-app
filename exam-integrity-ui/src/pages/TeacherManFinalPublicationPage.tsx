@@ -25,7 +25,6 @@ const FinalPublicationPage: React.FC = () => {
   const { logout } = useAuth();
   const handleLogout = () => {
     logout();
-    navigate('/login', { replace: true });
   };
   const handleNavigate = (section: DashboardSection) => navigate(SECTION_ROUTES[section]);
   const { data: draft, isLoading } = useDraft(draftId);

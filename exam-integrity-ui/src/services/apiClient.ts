@@ -1,31 +1,20 @@
 /**
  * Shared axios instance.
- * Reads credentials from sessionStorage and sends Basic Auth header on every request.
- * On 401 it clears stored credentials and reloads to the login page.
+ * Auth handled by Keycloak OAuth via spring-cloud-gateway (session cookie).
+ * On 401 it reloads the app root so the gateway redirects to Keycloak.
  */
 import axios from 'axios';
 
 export const API_BASE =
-  process.env.REACT_APP_API_BASE_URL ?? '/exam-integrity-backend';
+  process.env.REACT_APP_API_BASE_URL ?? '/api/exam-integrity';
 
-const apiClient = axios.create({ baseURL: API_BASE });
-
-apiClient.interceptors.request.use((config) => {
-  const creds = sessionStorage.getItem('exam_creds');
-  if (creds) {
-    const { username, password } = JSON.parse(creds) as { username: string; password: string };
-    config.auth = { username, password };
-  }
-  return config;
-});
+const apiClient = axios.create({ baseURL: API_BASE, withCredentials: true });
 
 apiClient.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
-      sessionStorage.removeItem('exam_creds');
-      sessionStorage.removeItem('exam_user');
-      window.location.href = '/login';
+      window.location.href = '/';
     }
     return Promise.reject(err);
   },

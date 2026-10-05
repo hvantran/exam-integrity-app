@@ -2,9 +2,9 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 
 module.exports = function setupProxy(app) {
   app.use(
-    '/exam-integrity-backend',
+    ['/api', '/oauth2', '/login', '/logout'],
     createProxyMiddleware({
-      target: 'http://localhost:8090',
+      target: 'http://localhost:8081',
       changeOrigin: true,
       ws: true,
       secure: false,

@@ -98,9 +98,6 @@ services:
     build:
       context: ./exam-integrity-ui
       dockerfile: Dockerfile
-      args:
-        REACT_APP_API_BASE_URL: http://localhost:8090/exam-integrity-backend
-        REACT_APP_WS_URL: http://localhost:8090/exam-integrity-backend
     container_name: exam-integrity-ui
     ports:
       - "3000:80"

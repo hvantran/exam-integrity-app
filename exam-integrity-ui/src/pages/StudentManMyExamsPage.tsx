@@ -35,7 +35,6 @@ const StudentManMyExamsPage: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login', { replace: true });
   };
 
   const handleNavigate = (section: PortalSection) => navigate(PORTAL_ROUTES[section]);
