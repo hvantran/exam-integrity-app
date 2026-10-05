@@ -118,7 +118,7 @@ public class SecurityConfig {
 
         return roles.stream()
                 .map(role -> "ROLE_" + role.toUpperCase().replace("-", "_"))
-                .map(SimpleGrantedAuthority::new)
+                .<GrantedAuthority>map(SimpleGrantedAuthority::new)
                 .toList();
     }
 }
