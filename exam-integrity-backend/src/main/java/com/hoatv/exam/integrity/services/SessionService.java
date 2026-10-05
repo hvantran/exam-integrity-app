@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 public class SessionService {
 
     private static final Logger logger = LoggerFactory.getLogger(SessionService.class);
+    private static final String ACTIVE_SESSIONS_KEY = "active_sessions";
 
     private final SessionRepository sessionRepository;
     private final ExamRepository examRepository;
@@ -68,7 +69,7 @@ public class SessionService {
             String.valueOf(duration),
             duration, TimeUnit.SECONDS
         );
-        redisTemplate.opsForSet().add("active_sessions", session.getId());
+        redisTemplate.opsForSet().add(ACTIVE_SESSIONS_KEY, session.getId());
 
         logger.info("Session {} created for student {} on exam {}", session.getId(), studentId, examId);
         return toDTO(session, duration);
@@ -130,7 +131,7 @@ public class SessionService {
         if (session.getStatus() == ExamSession.SessionStatus.SUBMITTED
          || session.getStatus() == ExamSession.SessionStatus.FORCE_SUBMITTED) {
             // Clean up Redis even when already submitted to evict stale active_sessions entries
-            redisTemplate.opsForSet().remove("active_sessions", sessionId);
+            redisTemplate.opsForSet().remove(ACTIVE_SESSIONS_KEY, sessionId);
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Already submitted");
         }
         session.setStatus(forceSubmit ? ExamSession.SessionStatus.FORCE_SUBMITTED
@@ -139,14 +140,14 @@ public class SessionService {
         sessionRepository.save(session);
 
         redisTemplate.delete("timer:" + sessionId);
-        redisTemplate.opsForSet().remove("active_sessions", sessionId);
+        redisTemplate.opsForSet().remove(ACTIVE_SESSIONS_KEY, sessionId);
 
         sessionReviewService.initializeScores(session);
         logger.info("Session {} submitted (force={})", sessionId, forceSubmit);
     }
 
     public Set<String> getActiveSessionIds() {
-        Set<String> members = redisTemplate.opsForSet().members("active_sessions");
+        Set<String> members = redisTemplate.opsForSet().members(ACTIVE_SESSIONS_KEY);
         return members != null ? members : Set.of();
     }
 
@@ -202,11 +203,11 @@ public class SessionService {
         return answerParts.stream()
             .filter(Objects::nonNull)
             .map(part -> {
-                ExamSession.AnswerPartRecord record = new ExamSession.AnswerPartRecord();
-                record.setKey(part.key());
-                record.setAnswer(part.answer());
-                return record;
+                ExamSession.AnswerPartRecord partRecord = new ExamSession.AnswerPartRecord();
+                partRecord.setKey(part.key());
+                partRecord.setAnswer(part.answer());
+                return partRecord;
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 }

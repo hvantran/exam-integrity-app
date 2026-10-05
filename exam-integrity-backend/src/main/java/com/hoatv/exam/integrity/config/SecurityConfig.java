@@ -2,102 +2,123 @@ package com.hoatv.exam.integrity.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import java.util.Arrays;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 /**
- * Simple in-memory security for dev/demo.
- * Two users:
- *   admin / admin123  → roles: ADMIN, USER
- *   user  / user123   → role:  USER
- *
- * API endpoints are open to both roles.
- * Keycloak JWT integration is DEFERRED (see FE-22 / INF-07).
+ * Security configuration for Exam Integrity Backend with Keycloak JWT validation.
+ * Implements OAuth2 Resource Server pattern:
+ * - JWT token validation via Keycloak
+ * - Role-based access control from Keycloak realm roles
+ * - Method-level security
+ * - Stateless session management
  */
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+    private static final String ROLE_ADMIN = "ADMIN";
+    private static final String ROLE_TEACHER = "TEACHER";
+    private static final String ROLE_STUDENT = "STUDENT";
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-        return new InMemoryUserDetailsManager(
-            User.withUsername("admin")
-                .password(encoder.encode("admin123"))
-                .roles("ADMIN", "USER")
-                .build(),
-            User.withUsername("user")
-                .password(encoder.encode("user123"))
-                .roles("USER")
-                .build()
-        );
-    }
-
-    @Bean
+    @SuppressWarnings("java:S4502") // Stateless REST API using Keycloak JWT bearer tokens
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Suppress the WWW-Authenticate header so the browser never shows its
-        // native Basic-Auth dialog. The React frontend handles 401s itself.
-        BasicAuthenticationEntryPoint entryPoint = new BasicAuthenticationEntryPoint();
-        entryPoint.setRealmName("exam-integrity");
-
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
                 // Public endpoints
                 .requestMatchers(
                     "/actuator/health",
-                    "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
-                    // SockJS handshake and info endpoints — auth happens inside STOMP
-                    "/ws/**", "/ws/exam/**"
+                    "/actuator/info",
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    // SockJS handshake and STOMP endpoints
+                    "/ws/**",
+                    "/ws/exam/**"
                 ).permitAll()
-                // Teacher-only endpoints (exam draft ingestion & management)
-                .requestMatchers("/api/drafts/**", "/api/questions/**").hasRole("ADMIN")
-                // Both student and admin can access exams and sessions
-                .requestMatchers("/api/exams/**", "/api/sessions/**").hasAnyRole("USER", "ADMIN")
-                // Auth info endpoint — any authenticated user
+                // Teacher / Admin endpoints (exam draft ingestion & question bank)
+                .requestMatchers("/api/drafts/**", "/api/questions/**").hasAnyRole(ROLE_ADMIN, ROLE_TEACHER)
+                // Student, Teacher, Admin can access exams and sessions
+                .requestMatchers("/api/exams/**", "/api/sessions/**").hasAnyRole(ROLE_STUDENT, ROLE_TEACHER, ROLE_ADMIN)
+                // Auth info endpoint
                 .requestMatchers("/api/auth/**").authenticated()
+                // All other requests require authentication
                 .anyRequest().authenticated()
             )
-            // httpBasic with a custom entry point that does NOT echo back
-            // WWW-Authenticate, preventing the browser login popup
-            .httpBasic(basic -> basic.authenticationEntryPoint((req, res, ex) -> {
-                res.setStatus(401);
-                res.setContentType("application/json");
-                res.getWriter().write("{\"error\":\"Unauthorized\"}");
-            }))
-            // formLogin disabled — this is a REST API, not a browser app
-            .formLogin(form -> form.disable())
-            .csrf(csrf -> csrf.disable());
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt
+                    .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                )
+            )
+            .sessionManagement(session -> 
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .csrf(AbstractHttpConfigurer::disable);
+
         return http.build();
+    }
+
+    /**
+     * Converts JWT tokens to Spring Security authentication with roles from Keycloak.
+     */
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter());
+        return converter;
+    }
+
+    /**
+     * Extracts granted authorities from JWT token, combining standard scopes with Keycloak realm roles.
+     */
+    private Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter() {
+        JwtGrantedAuthoritiesConverter standardConverter = new JwtGrantedAuthoritiesConverter();
+
+        return jwt -> {
+            Collection<GrantedAuthority> standardAuthorities = standardConverter.convert(jwt);
+            Collection<GrantedAuthority> realmRoles = extractRealmRoles(jwt);
+
+            return Stream.concat(
+                standardAuthorities != null ? standardAuthorities.stream() : Stream.empty(),
+                realmRoles.stream()
+            ).toList();
+        };
+    }
+
+    /**
+     * Extracts realm roles from Keycloak JWT token's realm_access.roles claim.
+     */
+    private Collection<GrantedAuthority> extractRealmRoles(Jwt jwt) {
+        Map<String, Object> realmAccess = jwt.getClaim("realm_access");
+
+        if (realmAccess == null || !realmAccess.containsKey("roles")) {
+            return Collections.emptyList();
+        }
+
+        @SuppressWarnings("unchecked")
+        List<String> roles = (List<String>) realmAccess.get("roles");
+
+        return roles.stream()
+                .map(role -> "ROLE_" + role.toUpperCase().replace("-", "_"))
+                .map(SimpleGrantedAuthority::new)
+                .toList();
     }
 }

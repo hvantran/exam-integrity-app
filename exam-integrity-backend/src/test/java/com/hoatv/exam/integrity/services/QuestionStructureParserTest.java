@@ -9,10 +9,11 @@ class QuestionStructureParserTest {
 
     @Test
     void parsesLabeledEssayPartsIntoStructuredContent() {
-        String content = "Tính giá trị của biểu thức:\n"
-            + "a) 12 523 + 20 492 : 4\n"
-            + "b) (15 320 – 3 105) x 8\n"
-            + "....................................................";
+        String content = """
+            Tính giá trị của biểu thức:
+            a) 12 523 + 20 492 : 4
+            b) (15 320 – 3 105) x 8
+            ....................................................""";
 
         QuestionStructureParser.ParsedQuestionContent parsed = QuestionStructureParser.parse(content);
 
