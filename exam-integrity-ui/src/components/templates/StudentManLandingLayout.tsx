@@ -25,7 +25,7 @@ export interface LandingLayoutProps {
 }
 
 const StudentManLandingLayout: React.FC<LandingLayoutProps> = ({
-  studentName = 'Hoc vien',
+  studentName = '',
   studentRole = 'Trung tam hoc tap',
   activeSection = 'dashboard',
   pageTitle = 'Ky thi dang dien ra',

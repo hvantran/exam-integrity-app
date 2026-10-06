@@ -20,7 +20,7 @@ export interface QuestionBankLayoutProps {
 }
 
 const TeacherManQuestionBankLayout: React.FC<QuestionBankLayoutProps> = ({
-  userName = 'Admin',
+  userName = '',
   userRole,
   onNavigate,
   onCreateExam,

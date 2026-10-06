@@ -417,7 +417,7 @@ const QuestionBankPage: React.FC = () => {
   const [addError, setAddError] = useState<string | null>(null);
 
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, displayName } = useAuth();
   const queryClient = useQueryClient();
 
   const handleLogout = () => {
@@ -589,6 +589,7 @@ const QuestionBankPage: React.FC = () => {
   return (
     <>
       <TeacherManQuestionBankLayout
+        userName={displayName}
         isLoading={isLoading}
         onNavigate={handleNavigate}
         onLogout={handleLogout}

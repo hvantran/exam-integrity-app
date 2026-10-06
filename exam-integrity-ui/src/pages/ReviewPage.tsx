@@ -17,13 +17,13 @@ const PORTAL_ROUTES: Record<PortalSection, string> = {
 const ReviewPage: React.FC = () => {
   const { sessionId = '' } = useParams<{ sessionId: string }>();
   const { data: dashboard, isLoading } = useReviewDashboard(sessionId);
-  const { user } = useAuth();
+  const { displayName } = useAuth();
   const navigate = useNavigate();
   const handleNavigate = (section: PortalSection) => navigate(PORTAL_ROUTES[section]);
 
   return (
     <StudentManReviewLayout
-      studentName={user?.username ?? 'Student'}
+      studentName={displayName || 'Student'}
       activeSection="my-exams"
       onNavigate={handleNavigate}
     >

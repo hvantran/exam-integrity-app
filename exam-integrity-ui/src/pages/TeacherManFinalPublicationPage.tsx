@@ -22,7 +22,7 @@ const FinalPublicationPage: React.FC = () => {
   const { draftId = '' } = useParams<{ draftId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout } = useAuth();
+  const { logout, displayName } = useAuth();
   const handleLogout = () => {
     logout();
   };
@@ -58,6 +58,7 @@ const FinalPublicationPage: React.FC = () => {
   if (isLoading) {
     return (
       <TeacherManFinalPublicationLayout
+        userName={displayName}
         isLoading
         onNavigate={handleNavigate}
         onLogout={handleLogout}
@@ -94,6 +95,7 @@ const FinalPublicationPage: React.FC = () => {
 
   return (
     <TeacherManFinalPublicationLayout
+      userName={displayName}
       stats={{
         approvedQuestions: readyCount,
         totalPoints: activePoints,

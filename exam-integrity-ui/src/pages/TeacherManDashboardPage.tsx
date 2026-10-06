@@ -389,7 +389,7 @@ const ExamCard: React.FC<ExamCardProps> = ({
 
 const TeacherManDashboardPage: React.FC = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, displayName } = useAuth();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectDialogOpen, setSelectDialogOpen] = useState(false);
   const [manageDialogOpen, setManageDialogOpen] = useState(false);
@@ -581,6 +581,7 @@ const TeacherManDashboardPage: React.FC = () => {
   return (
     <TeacherManDashboardLayout
       activeSection="dashboard"
+      userName={displayName}
       onNavigate={handleNavigate}
       onCreateExam={() => setDialogOpen(true)}
       onLogout={handleLogout}

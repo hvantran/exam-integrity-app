@@ -16,7 +16,7 @@ const PORTAL_ROUTES: Record<PortalSection, string> = {
 
 const StudentManMyExamsPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, displayName } = useAuth();
   const studentId = user?.username ?? '';
   const { data: sessions = [], isLoading } = useStudentResults(studentId);
   const [selectedSessionId, setSelectedSessionId] = React.useState('');
@@ -41,7 +41,7 @@ const StudentManMyExamsPage: React.FC = () => {
 
   return (
     <StudentManLandingLayout
-      studentName={user?.username ?? 'Student'}
+      studentName={displayName || 'Student'}
       activeSection="my-exams"
       pageTitle="My Exams"
       pageSubtitle="Review submitted exams, total score, and per-question grading status."

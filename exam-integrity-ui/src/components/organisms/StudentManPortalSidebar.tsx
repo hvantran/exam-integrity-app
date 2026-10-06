@@ -30,7 +30,7 @@ export interface PortalSidebarProps {
  */
 const StudentManPortalSidebar: React.FC<PortalSidebarProps> = ({
   activeSection = 'dashboard',
-  studentName = 'Student',
+  studentName = '',
   studentRole = 'Learning Center',
   onNavigate,
   onHelp,

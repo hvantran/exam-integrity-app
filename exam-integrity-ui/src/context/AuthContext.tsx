@@ -4,6 +4,8 @@ import apiClient from '../services/apiClient';
 export interface AuthUser {
   username: string;
   roles: string[];
+  firstName?: string;
+  lastName?: string;
 }
 
 interface AuthContextValue {
@@ -11,6 +13,7 @@ interface AuthContextValue {
   isLoading: boolean;
   logout: () => void;
   isAdmin: boolean;
+  displayName: string;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -35,6 +38,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     window.location.href = '/logout';
   }, []);
 
+  const displayName = (() => {
+    if (!user) return '';
+    const full = [user.firstName, user.lastName].filter(Boolean).join(' ').trim();
+    return full || user.username || '';
+  })();
+
   return (
     <AuthContext.Provider
       value={{
@@ -42,6 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         logout,
         isAdmin: Array.isArray(user?.roles) && user.roles.includes('ADMIN'),
+        displayName,
       }}
     >
       {children}

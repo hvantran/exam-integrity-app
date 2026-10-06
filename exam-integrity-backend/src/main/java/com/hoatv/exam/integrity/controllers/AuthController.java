@@ -5,10 +5,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,13 +22,31 @@ public class AuthController {
     @Operation(summary = "Get current authenticated user info")
     @GetMapping("/me")
     public ResponseEntity<Map<String, Object>> me(Authentication auth) {
+        if (auth == null) {
+            return ResponseEntity.ok(Map.of());
+        }
+
         List<String> roles = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .map(r -> r.replace("ROLE_", ""))
                 .toList();
-        return ResponseEntity.ok(Map.of(
-                "username", auth.getName(),
-                "roles", roles
-        ));
+
+        Map<String, Object> result = new HashMap<>();
+        String username = auth.getName();
+        String firstName = null;
+        String lastName = null;
+        if (auth.getPrincipal() instanceof Jwt jwt) {
+            if (jwt.getSubject() != null && !jwt.getSubject().isBlank()) {
+                username = jwt.getSubject();
+            }
+            firstName = jwt.getClaimAsString("given_name");
+            lastName = jwt.getClaimAsString("family_name");
+        }
+        result.put("username", username);
+        result.put("roles", roles);
+        result.put("firstName", firstName);
+        result.put("lastName", lastName);
+
+        return ResponseEntity.ok(result);
     }
 }
