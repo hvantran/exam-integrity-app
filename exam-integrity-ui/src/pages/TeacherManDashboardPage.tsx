@@ -18,6 +18,7 @@ import {
   useExam,
   useCreateExamFromBank,
   useDeleteExam,
+  useSyncExamQuestions,
   useUpdateExamQuestionsFromBank,
 } from '../hooks/useExams';
 import { examService } from '../services/examService';
@@ -26,7 +27,7 @@ import { useAuth } from '../context/AuthContext';
 import type { DashboardSection } from '../components/organisms';
 import type { CreateExamFromBankCommand, ExamDTO } from '../types/exam.types';
 import { colors } from '../design-system/tokens';
-import { BookOpen, Clock, Eye, ListChecks, Plus, Star, Trash2 } from 'lucide-react';
+import { BookOpen, Clock, Eye, ListChecks, Plus, RefreshCw, Star, Trash2 } from 'lucide-react';
 import {
   StudentManExamHeader,
   StudentManExamNavigationBar,
@@ -264,6 +265,8 @@ interface ExamCardProps {
   onExport: () => void;
   isExporting: boolean;
   onDelete: () => void;
+  onSyncQuestions: (examId: string, title: string) => void;
+  isSyncingQuestions: boolean;
 }
 
 const ExamCard: React.FC<ExamCardProps> = ({
@@ -280,6 +283,8 @@ const ExamCard: React.FC<ExamCardProps> = ({
   onExport,
   isExporting,
   onDelete,
+  onSyncQuestions,
+  isSyncingQuestions,
 }) => (
   <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary-300 min-h-[200px]">
     {/* Left accent bar */}
@@ -353,6 +358,15 @@ const ExamCard: React.FC<ExamCardProps> = ({
       </button>
       <button
         type="button"
+        onClick={() => onSyncQuestions(examId, title)}
+        disabled={isSyncingQuestions || isUpdatingQuestions}
+        className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 px-3 py-1.5 rounded-lg transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <RefreshCw size={13} className={isSyncingQuestions ? 'animate-spin' : ''} />
+        {isSyncingQuestions ? 'Syncing…' : 'Sync Bank'}
+      </button>
+      <button
+        type="button"
         onClick={onExport}
         disabled={isExporting}
         className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700 hover:text-gray-800 hover:bg-gray-50 px-3 py-1.5 rounded-lg transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -386,6 +400,7 @@ const TeacherManDashboardPage: React.FC = () => {
   const [previewExamId, setPreviewExamId] = useState('');
   const [previewQuestionIndex, setPreviewQuestionIndex] = useState(0);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
+  const [syncTarget, setSyncTarget] = useState<{ id: string; title: string; linkedCount?: number } | null>(null);
   const importFileInputRef = useRef<HTMLInputElement | null>(null);
 
   const { data: exams, isLoading, refetch: refetchExams } = useQuery({
@@ -396,6 +411,7 @@ const TeacherManDashboardPage: React.FC = () => {
   const createFromBank = useCreateExamFromBank();
   const deleteExam = useDeleteExam();
   const updateExamQuestions = useUpdateExamQuestionsFromBank();
+  const syncExamQuestions = useSyncExamQuestions();
   const importExamMutation = useMutation({
     mutationFn: (file: File) => examService.importFromJsonFile(file),
     onSuccess: () => {
@@ -506,6 +522,36 @@ const TeacherManDashboardPage: React.FC = () => {
     );
   };
 
+  const handleOpenSyncDialog = async (examId: string, title: string) => {
+    try {
+      const exam = await examService.getExam(examId);
+      const linkedCount = (exam.questions ?? []).filter((q) => Boolean(q.bankItemId)).length;
+      if (linkedCount === 0) {
+        toast.info(`"${title}" has no questions linked to the question bank.`);
+        return;
+      }
+      setSyncTarget({ id: examId, title, linkedCount });
+    } catch {
+      setSyncTarget({ id: examId, title });
+    }
+  };
+
+  const handleConfirmSync = () => {
+    if (!syncTarget) return;
+    syncExamQuestions.mutate(syncTarget.id, {
+      onSuccess: (data) => {
+        setSyncTarget(null);
+        refetchExams();
+        toast.success(
+          `Successfully synced ${data.syncedCount} question(s) from question bank for "${syncTarget.title}".`
+        );
+      },
+      onError: (err: Error) => {
+        toast.error(err.message || 'Failed to sync questions from question bank.');
+      },
+    });
+  };
+
   const handleImportFileChange: React.ChangeEventHandler<HTMLInputElement> = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -538,6 +584,18 @@ const TeacherManDashboardPage: React.FC = () => {
       onNavigate={handleNavigate}
       onCreateExam={() => setDialogOpen(true)}
       onLogout={handleLogout}
+      syncDialogState={
+        syncTarget
+          ? {
+              examId: syncTarget.id,
+              examTitle: syncTarget.title,
+              linkedQuestionCount: syncTarget.linkedCount,
+            }
+          : null
+      }
+      onConfirmSync={handleConfirmSync}
+      onCancelSync={() => setSyncTarget(null)}
+      isSyncingQuestions={syncExamQuestions.isPending}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
@@ -666,6 +724,8 @@ const TeacherManDashboardPage: React.FC = () => {
                 }}
                 onManageQuestions={openManageQuestions}
                 isUpdatingQuestions={updateExamQuestions.isPending || isManageExamLoading}
+                onSyncQuestions={handleOpenSyncDialog}
+                isSyncingQuestions={syncExamQuestions.isPending && syncTarget?.id === exam.id}
                 onExport={() => handleExportExam(exam.id, exam.title)}
                 isExporting={exportExamMutation.isPending}
                 onDelete={() => setDeleteTarget({ id: exam.id, title: exam.title })}

@@ -6,6 +6,7 @@ import com.hoatv.exam.integrity.domain.QuestionBankItem;
 import com.hoatv.exam.integrity.dtos.CreateExamFromBankCommand;
 import com.hoatv.exam.integrity.dtos.ExamDTO;
 import com.hoatv.exam.integrity.dtos.ExamImportPayload;
+import com.hoatv.exam.integrity.dtos.SyncExamQuestionsSummaryDTO;
 import com.hoatv.exam.integrity.dtos.UpdateExamQuestionsFromBankCommand;
 import com.hoatv.exam.integrity.repositories.ExamRepository;
 import com.hoatv.exam.integrity.repositories.QuestionBankRepository;
@@ -369,6 +370,97 @@ class ExamServiceTest {
         assertThat(full.questions().get(0).bankItemId()).isEqualTo("bank-1");
         verify(examRepository).save(exam);
     }
+
+    @Test
+    void syncQuestionsFromBankSuccessfullyUpdatesLinkedQuestions() {
+        Question linkedQ = new Question();
+        linkedQ.setId("q-1");
+        linkedQ.setQuestionNumber(1);
+        linkedQ.setBankItemId("bank-100");
+        linkedQ.setContent("Old Content");
+        linkedQ.setType(Question.QuestionType.MCQ);
+        linkedQ.setPoints(1.0);
+        linkedQ.setOptions(List.of("Old A", "Old B"));
+        linkedQ.setCorrectAnswer("Old A");
+
+        Question unlinkedQ = new Question();
+        unlinkedQ.setId("q-2");
+        unlinkedQ.setQuestionNumber(2);
+        unlinkedQ.setBankItemId(null);
+        unlinkedQ.setContent("Unlinked Content");
+        unlinkedQ.setType(Question.QuestionType.ESSAY_SHORT);
+        unlinkedQ.setPoints(2.0);
+
+        Exam exam = new Exam();
+        exam.setId("exam-1");
+        exam.setTitle("Test Exam");
+        exam.setQuestions(new java.util.ArrayList<>(List.of(linkedQ, unlinkedQ)));
+        exam.setTotalPoints(3.0);
+
+        QuestionBankItem updatedBankItem = questionBankItem("bank-100", Question.QuestionType.MCQ);
+        updatedBankItem.setContent("New Content from Bank");
+        updatedBankItem.setPoints(2.5);
+        updatedBankItem.setOptions(List.of("New A", "New B", "New C"));
+        updatedBankItem.setCorrectAnswer("New B");
+
+        when(examRepository.findById("exam-1")).thenReturn(java.util.Optional.of(exam));
+        when(questionBankRepository.findAllById(List.of("bank-100"))).thenReturn(List.of(updatedBankItem));
+
+        SyncExamQuestionsSummaryDTO summary = examService.syncQuestionsFromBank("exam-1");
+
+        assertThat(summary.examId()).isEqualTo("exam-1");
+        assertThat(summary.totalQuestions()).isEqualTo(2);
+        assertThat(summary.syncedCount()).isEqualTo(1);
+        assertThat(summary.unlinkedCount()).isEqualTo(1);
+        assertThat(summary.missingBankItemIds()).isEmpty();
+
+        assertThat(linkedQ.getContent()).isEqualTo("New Content from Bank");
+        assertThat(linkedQ.getPoints()).isEqualTo(2.5);
+        assertThat(linkedQ.getOptions()).containsExactly("New A", "New B", "New C");
+        assertThat(linkedQ.getCorrectAnswer()).isEqualTo("New B");
+        assertThat(unlinkedQ.getContent()).isEqualTo("Unlinked Content");
+        assertThat(exam.getTotalPoints()).isEqualTo(4.5);
+        verify(examRepository).save(exam);
+    }
+
+    @Test
+    void syncQuestionsFromBankHandlesMissingBankItem() {
+        Question linkedQ = new Question();
+        linkedQ.setId("q-1");
+        linkedQ.setQuestionNumber(1);
+        linkedQ.setBankItemId("bank-deleted");
+        linkedQ.setContent("Original Content");
+        linkedQ.setType(Question.QuestionType.MCQ);
+        linkedQ.setPoints(1.0);
+
+        Exam exam = new Exam();
+        exam.setId("exam-2");
+        exam.setTitle("Test Exam 2");
+        exam.setQuestions(new java.util.ArrayList<>(List.of(linkedQ)));
+        exam.setTotalPoints(1.0);
+
+        when(examRepository.findById("exam-2")).thenReturn(java.util.Optional.of(exam));
+        when(questionBankRepository.findAllById(List.of("bank-deleted"))).thenReturn(List.of());
+
+        SyncExamQuestionsSummaryDTO summary = examService.syncQuestionsFromBank("exam-2");
+
+        assertThat(summary.totalQuestions()).isEqualTo(1);
+        assertThat(summary.syncedCount()).isEqualTo(0);
+        assertThat(summary.unlinkedCount()).isEqualTo(0);
+        assertThat(summary.missingBankItemIds()).containsExactly("bank-deleted");
+        assertThat(linkedQ.getContent()).isEqualTo("Original Content");
+        verify(examRepository).save(exam);
+    }
+
+    @Test
+    void syncQuestionsFromBankThrowsNotFoundWhenExamMissing() {
+        when(examRepository.findById("non-existent")).thenReturn(java.util.Optional.empty());
+
+        assertThatThrownBy(() -> examService.syncQuestionsFromBank("non-existent"))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("Exam not found");
+    }
+
 
     private static String sha256(String input) {
         try {

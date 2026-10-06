@@ -2,6 +2,7 @@ import React from 'react';
 import {
   ExamIntegrityTeacherDashboardTemplate,
   ExamIntegrityDashboardSection,
+  SyncExamDialogState,
 } from '@hvantran/ui-component-library';
 
 export interface DashboardLayoutProps {
@@ -15,6 +16,14 @@ export interface DashboardLayoutProps {
   onSearch?: (query: string) => void;
   onNotifications?: () => void;
   onHelp?: () => void;
+  headerTitle?: string;
+  headerSubtitle?: string;
+  headerActionsSlot?: React.ReactNode;
+  filtersSlot?: React.ReactNode;
+  syncDialogState?: SyncExamDialogState | null;
+  onConfirmSync?: () => void;
+  onCancelSync?: () => void;
+  isSyncingQuestions?: boolean;
   children: React.ReactNode;
 }
 
@@ -29,6 +38,14 @@ const TeacherManDashboardLayout: React.FC<DashboardLayoutProps> = ({
   onSearch,
   onNotifications,
   onHelp,
+  headerTitle,
+  headerSubtitle,
+  headerActionsSlot,
+  filtersSlot,
+  syncDialogState,
+  onConfirmSync,
+  onCancelSync,
+  isSyncingQuestions,
   children,
 }) => (
   <ExamIntegrityTeacherDashboardTemplate
@@ -42,6 +59,14 @@ const TeacherManDashboardLayout: React.FC<DashboardLayoutProps> = ({
     onSearch={onSearch}
     onNotifications={onNotifications}
     onHelp={onHelp}
+    headerTitle={headerTitle}
+    headerSubtitle={headerSubtitle}
+    headerActionsSlot={headerActionsSlot}
+    filtersSlot={filtersSlot}
+    syncDialogState={syncDialogState}
+    onConfirmSync={onConfirmSync}
+    onCancelSync={onCancelSync}
+    isSyncingQuestions={isSyncingQuestions}
   >
     {children}
   </ExamIntegrityTeacherDashboardTemplate>

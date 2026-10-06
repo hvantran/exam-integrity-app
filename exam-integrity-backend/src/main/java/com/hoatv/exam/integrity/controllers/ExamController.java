@@ -4,6 +4,7 @@ import com.hoatv.exam.integrity.dtos.CreateExamFromBankCommand;
 import com.hoatv.exam.integrity.dtos.ExamDTO;
 import com.hoatv.exam.integrity.dtos.ExamExportPayload;
 import com.hoatv.exam.integrity.dtos.ExamImportPayload;
+import com.hoatv.exam.integrity.dtos.SyncExamQuestionsSummaryDTO;
 import com.hoatv.exam.integrity.dtos.UpdateExamQuestionsFromBankCommand;
 import com.hoatv.exam.integrity.services.ExamService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -106,6 +107,20 @@ public class ExamController {
             @PathVariable("examId") String examId,
             @RequestBody UpdateExamQuestionsFromBankCommand cmd) {
         return ResponseEntity.ok(examService.updateQuestionsFromBank(examId, cmd));
+    }
+
+    @Operation(
+        summary = "Synchronize exam questions with question bank",
+        description = "Updates linked questions (those with bankItemId) with the latest data from the question bank.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Questions synchronized successfully"),
+            @ApiResponse(responseCode = "404", description = "Exam not found")
+        }
+    )
+    @PostMapping("/{examId}/sync-questions")
+    public ResponseEntity<SyncExamQuestionsSummaryDTO> syncQuestions(
+            @PathVariable("examId") String examId) {
+        return ResponseEntity.ok(examService.syncQuestionsFromBank(examId));
     }
 
     @Operation(

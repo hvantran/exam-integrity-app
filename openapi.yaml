@@ -129,6 +129,26 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /api/exams/{examId}/sync-questions:
+    post:
+      tags: [Exam Management]
+      operationId: syncExamQuestions
+      summary: Synchronize exam questions with question bank
+      description: |
+        Synchronizes questions that originated from the question bank (`bankItemId` not null)
+        with the latest data in the question bank.
+      parameters:
+        - $ref: '#/components/parameters/examId'
+      responses:
+        '200':
+          description: Questions synchronized successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncExamQuestionsSummaryDTO'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   # -- Exam Draft -----------------------------------------------------------
   /api/drafts:
     post:
@@ -898,6 +918,37 @@ components:
           nullable: true
           items:
             $ref: '#/components/schemas/QuestionSummaryDTO'
+
+    SyncExamQuestionsSummaryDTO:
+      type: object
+      description: Summary of question bank synchronization for an exam.
+      required:
+        - examId
+        - totalQuestions
+        - syncedCount
+        - unlinkedCount
+        - missingBankItemIds
+        - updatedExam
+      properties:
+        examId:
+          type: string
+          example: exam-uuid
+        totalQuestions:
+          type: integer
+          example: 20
+        syncedCount:
+          type: integer
+          example: 18
+        unlinkedCount:
+          type: integer
+          example: 2
+        missingBankItemIds:
+          type: array
+          items:
+            type: string
+          example: []
+        updatedExam:
+          $ref: '#/components/schemas/ExamDTO'
 
     QuestionSummaryDTO:
       type: object

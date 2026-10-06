@@ -8,6 +8,7 @@ import com.hoatv.exam.integrity.dtos.ExamExportPayload;
 import com.hoatv.exam.integrity.dtos.ExamImportPayload;
 import com.hoatv.exam.integrity.dtos.ExamDTO;
 import com.hoatv.exam.integrity.dtos.QuestionSummaryDTO;
+import com.hoatv.exam.integrity.dtos.SyncExamQuestionsSummaryDTO;
 import com.hoatv.exam.integrity.dtos.UpdateExamQuestionsFromBankCommand;
 import com.hoatv.exam.integrity.repositories.ExamRepository;
 import com.hoatv.exam.integrity.repositories.QuestionBankRepository;
@@ -25,6 +26,7 @@ import java.util.Comparator;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -322,6 +324,81 @@ public class ExamService {
         logger.info("Updated exam {} with {} selected bank question(s)", safeExamId, questions.size());
         return toDTO(exam);
     }
+
+    public SyncExamQuestionsSummaryDTO syncQuestionsFromBank(String examId) {
+        if (examId == null || examId.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "examId is required");
+        }
+
+        Exam exam = examRepository.findById(examId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Exam not found: " + examId));
+
+        List<Question> questions = exam.getQuestions();
+        if (questions == null || questions.isEmpty()) {
+            return new SyncExamQuestionsSummaryDTO(examId, 0, 0, 0, List.of(), toDTO(exam));
+        }
+
+        int totalQuestions = questions.size();
+        List<String> bankItemIds = questions.stream()
+            .map(Question::getBankItemId)
+            .filter(id -> id != null && !id.isBlank())
+            .distinct()
+            .toList();
+
+        int unlinkedCount = (int) questions.stream()
+            .filter(q -> q.getBankItemId() == null || q.getBankItemId().isBlank())
+            .count();
+
+        if (bankItemIds.isEmpty()) {
+            return new SyncExamQuestionsSummaryDTO(examId, totalQuestions, 0, unlinkedCount, List.of(), toDTO(exam));
+        }
+
+        List<QuestionBankItem> bankItems = questionBankRepository.findAllById(bankItemIds);
+        Map<String, QuestionBankItem> bankMap = bankItems.stream()
+            .collect(Collectors.toMap(QuestionBankItem::getId, item -> item, (a, b) -> a));
+
+        int syncedCount = 0;
+        List<String> missingBankItemIds = new ArrayList<>();
+
+        for (Question q : questions) {
+            String bankId = q.getBankItemId();
+            if (bankId == null || bankId.isBlank()) {
+                continue;
+            }
+            QuestionBankItem item = bankMap.get(bankId);
+            if (item != null) {
+                q.setContent(item.getContent());
+                q.setType(item.getType());
+                q.setPoints(item.getPoints() > 0 ? item.getPoints() : 1.0);
+                q.setOptions(item.getOptions() != null ? item.getOptions() : List.of());
+                q.setCorrectAnswer(item.getCorrectAnswer());
+                q.setRubric(item.getRubric());
+                q.setImageData(item.getImageData());
+                syncedCount++;
+            } else {
+                if (!missingBankItemIds.contains(bankId)) {
+                    missingBankItemIds.add(bankId);
+                }
+            }
+        }
+
+        exam.setTotalPoints(questions.stream().mapToDouble(Question::getPoints).sum());
+        examRepository.save(exam);
+
+        String safeExamId = examId.replaceAll("[\r\n]", "_");
+        logger.info("Synchronized questions for exam {}: {} synced, {} unlinked, {} missing bank items",
+            safeExamId, syncedCount, unlinkedCount, missingBankItemIds.size());
+
+        return new SyncExamQuestionsSummaryDTO(
+            examId,
+            totalQuestions,
+            syncedCount,
+            unlinkedCount,
+            missingBankItemIds,
+            toDTO(exam)
+        );
+    }
+
 
     private Question bankItemToQuestion(QuestionBankItem item) {
         Question q = new Question();
