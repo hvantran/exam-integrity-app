@@ -32,15 +32,18 @@ public class AuthController {
                 .toList();
 
         Map<String, Object> result = new HashMap<>();
-        result.put("username", auth.getName());
-        result.put("roles", roles);
-
+        String username = auth.getName();
         String firstName = null;
         String lastName = null;
         if (auth.getPrincipal() instanceof Jwt jwt) {
+            if (jwt.getSubject() != null && !jwt.getSubject().isBlank()) {
+                username = jwt.getSubject();
+            }
             firstName = jwt.getClaimAsString("given_name");
             lastName = jwt.getClaimAsString("family_name");
         }
+        result.put("username", username);
+        result.put("roles", roles);
         result.put("firstName", firstName);
         result.put("lastName", lastName);
 

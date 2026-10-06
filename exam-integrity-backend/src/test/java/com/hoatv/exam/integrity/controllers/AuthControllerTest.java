@@ -7,6 +7,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -45,9 +46,8 @@ class AuthControllerTest {
                 )
         );
 
-        TestingAuthenticationToken auth = new TestingAuthenticationToken(
+        JwtAuthenticationToken auth = new JwtAuthenticationToken(
                 jwt,
-                "credentials",
                 List.of(new SimpleGrantedAuthority("ROLE_TEACHER"))
         );
 
