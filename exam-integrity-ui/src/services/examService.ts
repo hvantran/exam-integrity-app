@@ -3,10 +3,15 @@ import apiClient from './apiClient';
 import type {
   CreateExamFromBankCommand,
   ExamDTO,
+  SyncExamQuestionsSummaryDTO,
   UpdateExamQuestionsFromBankCommand,
 } from '../types/exam.types';
 
 export const examService = {
+  syncQuestionsFromBank: (examId: string): Promise<SyncExamQuestionsSummaryDTO> =>
+    apiClient
+      .post<SyncExamQuestionsSummaryDTO>(`/api/exams/${examId}/sync-questions`)
+      .then((r) => r.data),
   listAllExams: (): Promise<ExamDTO[]> =>
     apiClient
       .get<ExamDTO[]>('/api/exams/all')

@@ -42,6 +42,18 @@ export function useUpdateExamQuestionsFromBank() {
   });
 }
 
+export function useSyncExamQuestions() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (examId: string) => examService.syncQuestionsFromBank(examId),
+    onSuccess: (_result, examId) => {
+      qc.invalidateQueries({ queryKey: ['exams'] });
+      qc.invalidateQueries({ queryKey: ['teacher-exams'] });
+      qc.invalidateQueries({ queryKey: ['exam', examId] });
+    },
+  });
+}
+
 export function useDeleteExam() {
   const qc = useQueryClient();
   return useMutation({

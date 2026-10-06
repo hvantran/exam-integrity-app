@@ -71,6 +71,15 @@ export interface ExamDTO {
   status?: string;
 }
 
+export interface SyncExamQuestionsSummaryDTO {
+  examId: string;
+  totalQuestions: number;
+  syncedCount: number;
+  unlinkedCount: number;
+  missingBankItemIds: string[];
+  updatedExam: ExamDTO;
+}
+
 export interface ExamDraftSummaryDTO {
   draftId?: string;
   title?: string;
