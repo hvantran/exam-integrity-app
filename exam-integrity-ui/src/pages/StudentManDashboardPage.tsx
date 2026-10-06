@@ -28,7 +28,7 @@ const LandingPage: React.FC = () => {
   );
   const createSession = useCreateSession();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, displayName } = useAuth();
   const studentId = user?.username ?? 'guest';
 
   const handleLogout = () => {
@@ -38,7 +38,7 @@ const LandingPage: React.FC = () => {
 
   return (
     <StudentManLandingLayout
-      studentName={user?.username ?? 'Student'}
+      studentName={displayName || 'Student'}
       activeSection="dashboard"
       filters={filterOptions}
       activeFilter={activeFilter}

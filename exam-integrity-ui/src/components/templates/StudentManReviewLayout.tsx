@@ -19,7 +19,7 @@ export interface ReviewLayoutProps {
 }
 
 const StudentManReviewLayout: React.FC<ReviewLayoutProps> = ({
-  studentName = 'Hoc vien',
+  studentName = '',
   activeSection = 'results',
   onNavigate,
   onHelp,

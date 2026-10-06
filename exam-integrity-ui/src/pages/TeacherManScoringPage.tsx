@@ -23,7 +23,7 @@ const SECTION_ROUTES: Record<DashboardSection, string> = {
 
 const TeacherManScoringPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, displayName } = useAuth();
   const { data: queue = [], isLoading } = useTeacherScoringQueue();
   const [selectedSessionId, setSelectedSessionId] = React.useState('');
   const { data: dashboard, isLoading: reviewLoading } = useReviewDashboard(selectedSessionId);
@@ -68,7 +68,7 @@ const TeacherManScoringPage: React.FC = () => {
   return (
     <TeacherManDashboardLayout
       activeSection="scoring"
-      userName={user?.username ?? 'Teacher'}
+      userName={displayName || 'Teacher'}
       userRole="Teacher"
       onNavigate={handleNavigate}
       onLogout={handleLogout}

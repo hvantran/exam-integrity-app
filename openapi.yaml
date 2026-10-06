@@ -61,11 +61,45 @@ tags:
     description: Session lifecycle -- create, answer, submit, review (student)
   - name: Proctoring
     description: Anti-cheat event capture during an exam session
+  - name: Auth
+    description: Current authenticated user details
 
 # -----------------------------------------------------------------------------
 # PATHS
 # -----------------------------------------------------------------------------
 paths:
+
+  # -- Auth -----------------------------------------------------------------
+  /api/auth/me:
+    get:
+      tags: [Auth]
+      operationId: getCurrentUser
+      summary: Get current authenticated user info
+      description: Returns username, roles, and name details (firstName, lastName) from the authenticated Keycloak session.
+      responses:
+        '200':
+          description: Authenticated user details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                    example: teacher1
+                  roles:
+                    type: array
+                    items:
+                      type: string
+                    example: [TEACHER]
+                  firstName:
+                    type: string
+                    nullable: true
+                    example: John
+                  lastName:
+                    type: string
+                    nullable: true
+                    example: Doe
 
   # -- Exam Management ------------------------------------------------------
   /api/exams:

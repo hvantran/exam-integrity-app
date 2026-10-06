@@ -214,7 +214,7 @@ const QuestionReviewPage: React.FC = () => {
   const [pendingQuestionImages, setPendingQuestionImages] = useState<Record<string, string>>({});
   const [saveError, setSaveError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, displayName } = useAuth();
   const handleLogout = () => {
     logout();
   };
@@ -479,6 +479,7 @@ const QuestionReviewPage: React.FC = () => {
   if (isLoading) {
     return (
       <TeacherManQuestionReviewLayout
+        userName={displayName}
         questionNumber={currentIdx + 1}
         totalQuestions={1}
         examName="Loading draft..."
@@ -499,6 +500,7 @@ const QuestionReviewPage: React.FC = () => {
   return (
     <>
       <TeacherManQuestionReviewLayout
+        userName={displayName}
         questionNumber={currentIdx + 1}
         totalQuestions={total}
         examName={draft.summary.title ?? draft.summary.originalFilename}

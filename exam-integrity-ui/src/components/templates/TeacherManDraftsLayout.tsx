@@ -21,7 +21,7 @@ export interface DraftsLayoutProps {
 
 const TeacherManDraftsLayout: React.FC<DraftsLayoutProps> = ({
   activeSection = 'review',
-  userName = 'Admin',
+  userName = '',
   onNavigate,
   onCreateNew,
   onSearch,

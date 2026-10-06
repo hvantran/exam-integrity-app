@@ -63,7 +63,7 @@ const StatCard: React.FC<{
 );
 
 const TeacherManFinalPublicationLayout: React.FC<FinalPublicationLayoutProps> = ({
-  userName = 'Admin',
+  userName = '',
   userRole,
   onNavigate,
   onCreateExam,

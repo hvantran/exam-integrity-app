@@ -33,7 +33,7 @@ export interface QuestionReviewLayoutProps {
 }
 
 const TeacherManQuestionReviewLayout: React.FC<QuestionReviewLayoutProps> = ({
-  userName = 'Admin',
+  userName = '',
   userRole,
   onNavigate,
   onCreateExam,

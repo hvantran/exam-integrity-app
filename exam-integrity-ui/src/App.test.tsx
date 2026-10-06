@@ -7,10 +7,11 @@ let mockRoles = ['ADMIN'];
 jest.mock('./context/AuthContext', () => ({
   AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   useAuth: () => ({
-    user: { username: 'admin-user', roles: mockRoles },
+    user: { username: 'admin-user', roles: mockRoles, firstName: 'Admin', lastName: 'User' },
     isLoading: false,
     logout: jest.fn(),
     isAdmin: mockRoles.includes('ADMIN'),
+    displayName: 'Admin User',
   }),
 }));
 

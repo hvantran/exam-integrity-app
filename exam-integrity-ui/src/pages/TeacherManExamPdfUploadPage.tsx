@@ -23,7 +23,7 @@ const IngestionPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const qc = useQueryClient();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, displayName } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -57,6 +57,7 @@ const IngestionPage: React.FC = () => {
 
   return (
     <TeacherManIngestionLayout
+      userName={displayName}
       isLoading={upload.isPending}
       onImportExam={() => inputRef.current?.click()}
       onNavigate={handleNavigate}
