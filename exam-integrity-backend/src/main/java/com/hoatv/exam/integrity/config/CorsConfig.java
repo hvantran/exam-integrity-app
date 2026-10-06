@@ -30,7 +30,12 @@ public class CorsConfig {
                         "http://172.2*.*.*:3000",
                         "http://172.30.*.*:3000",
                         "http://172.31.*.*:3000",
-                        "http://localhost:6006"
+                        "http://localhost:6006",
+                        // exam-integrity-ui served via nginx (docker stack)
+                        "http://localhost:6090",
+                        "http://127.0.0.1:6090",
+                        "http://192.168.*.*:6090",
+                        "http://10.*.*.*:6090"
                     )
                     .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                     .allowedHeaders("*")

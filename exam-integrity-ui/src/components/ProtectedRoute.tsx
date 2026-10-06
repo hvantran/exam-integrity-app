@@ -23,12 +23,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, children 
   }
 
   if (!user) {
-    // Gateway owns login (Keycloak); no session means gateway will redirect on next 401
-    return (
-      <div className="flex min-h-screen items-center justify-center text-sm">
-        Authentication required. Please refresh to sign in.
-      </div>
-    );
+    const redirectUri = encodeURIComponent(window.location.href);
+    window.location.href = `/oauth2/authorization/keycloak?redirect_uri=${redirectUri}`;
+    return null;
   }
 
   if (allowedRoles && !allowedRoles.some((role) => user.roles.includes(role))) {

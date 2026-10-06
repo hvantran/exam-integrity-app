@@ -4,7 +4,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { theme } from './design-system';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import LandingPage from './pages/StudentManDashboardPage';
 import StudentManMyExamsPage from './pages/StudentManMyExamsPage';
@@ -22,6 +22,18 @@ const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
 });
 
+const teacherRoles = ['ADMIN', 'TEACHER'];
+
+const RootRoute: React.FC = () => {
+  const { user } = useAuth();
+
+  return user?.roles.some((role) => teacherRoles.includes(role)) ? (
+    <Navigate to="/teacher/dashboard" replace />
+  ) : (
+    <LandingPage />
+  );
+};
+
 const App: React.FC = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider theme={theme}>
@@ -34,7 +46,7 @@ const App: React.FC = () => (
               path="/"
               element={
                 <ProtectedRoute>
-                  <LandingPage />
+                  <RootRoute />
                 </ProtectedRoute>
               }
             />
@@ -63,11 +75,11 @@ const App: React.FC = () => (
               }
             />
 
-            {/* Teacher routes — ADMIN role required */}
+            {/* Teacher routes */}
             <Route
               path="/teacher/dashboard"
               element={
-                <ProtectedRoute allowedRoles={['ADMIN']}>
+                <ProtectedRoute allowedRoles={teacherRoles}>
                   <TeacherManDashboardPage />
                 </ProtectedRoute>
               }
@@ -75,7 +87,7 @@ const App: React.FC = () => (
             <Route
               path="/teacher/ingestion"
               element={
-                <ProtectedRoute allowedRoles={['ADMIN']}>
+                <ProtectedRoute allowedRoles={teacherRoles}>
                   <IngestionPage />
                 </ProtectedRoute>
               }
@@ -83,7 +95,7 @@ const App: React.FC = () => (
             <Route
               path="/teacher/drafts/:draftId/review"
               element={
-                <ProtectedRoute allowedRoles={['ADMIN']}>
+                <ProtectedRoute allowedRoles={teacherRoles}>
                   <QuestionReviewPage />
                 </ProtectedRoute>
               }
@@ -91,7 +103,7 @@ const App: React.FC = () => (
             <Route
               path="/teacher/drafts/:draftId/publish"
               element={
-                <ProtectedRoute allowedRoles={['ADMIN']}>
+                <ProtectedRoute allowedRoles={teacherRoles}>
                   <FinalPublicationPage />
                 </ProtectedRoute>
               }
@@ -99,7 +111,7 @@ const App: React.FC = () => (
             <Route
               path="/teacher/question-bank"
               element={
-                <ProtectedRoute allowedRoles={['ADMIN']}>
+                <ProtectedRoute allowedRoles={teacherRoles}>
                   <QuestionBankPage />
                 </ProtectedRoute>
               }
@@ -107,7 +119,7 @@ const App: React.FC = () => (
             <Route
               path="/teacher/scoring"
               element={
-                <ProtectedRoute allowedRoles={['ADMIN']}>
+                <ProtectedRoute allowedRoles={teacherRoles}>
                   <TeacherManScoringPage />
                 </ProtectedRoute>
               }
