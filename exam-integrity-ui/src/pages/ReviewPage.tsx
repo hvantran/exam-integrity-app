@@ -43,7 +43,12 @@ const ReviewPage: React.FC = () => {
         ) : !dashboard ? (
           <Alert severity="info">Result is not available for this session yet.</Alert>
         ) : (
-          <ReviewDashboard dashboard={dashboard} />
+          <ReviewDashboard
+            dashboard={{
+              ...dashboard,
+              scores: dashboard.scores as any,
+            }}
+          />
         )}
       </div>
     </StudentManReviewLayout>
