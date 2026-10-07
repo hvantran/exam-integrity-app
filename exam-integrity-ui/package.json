@@ -6,7 +6,7 @@
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
-    "@hvantran/ui-component-library": "^1.0.12",
+    "@hvantran/ui-component-library": "^1.0.13",
     "@mui/material": "^6.1.6",
     "@stomp/stompjs": "^7.3.0",
     "@tanstack/react-query": "^5.62.0",
@@ -31,28 +31,18 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
     "gen:api": "npx openapi-generator-cli generate -i ../openapi.yaml -g typescript-axios -o src/generated/api --additional-properties=useSingleRequestParameter=true,supportsES6=true",
     "format": "prettier . --write",
     "format:check": "prettier . --check"
   },
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "^2.13.4",
-    "@storybook/addon-essentials": "^8.6.0",
-    "@storybook/addon-interactions": "^8.6.0",
-    "@storybook/addon-links": "^8.6.0",
-    "@storybook/blocks": "^8.6.0",
-    "@storybook/preset-create-react-app": "8.6.18",
-    "@storybook/react": "^8.6.0",
-    "@storybook/react-webpack5": "^8.6.0",
-    "@storybook/test": "^8.6.0",
+    "@testing-library/dom": "^10.4.0",
     "@types/jest": "^29.5.14",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@types/sockjs-client": "^1.5.4",
-    "prettier": "^3.8.3",
-    "storybook": "^8.6.0"
+    "prettier": "^3.8.3"
   },
   "browserslist": {
     "production": [

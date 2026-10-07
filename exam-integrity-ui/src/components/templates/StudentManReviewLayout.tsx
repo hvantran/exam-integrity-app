@@ -1,50 +1,21 @@
 import React from 'react';
-// Removed MUI Box and tokens, using Tailwind CSS
 import {
-  AppTopBar,
-  StudentManPortalSidebar,
-  APP_BAR_HEIGHT,
-  STUDENT_SIDEBAR_WIDTH,
-} from '../organisms';
-import type { PortalSection } from '../organisms';
+  ExamIntegrityStudentReviewTemplate,
+  ExamIntegrityStudentReviewTemplateProps,
+  ExamIntegrityStudentPortalSection,
+} from '@hvantran/ui-component-library';
 
-export interface ReviewLayoutProps {
-  studentName?: string;
-  activeSection?: PortalSection;
-  onNavigate?: (section: PortalSection) => void;
-  onHelp?: () => void;
-  onSearch?: (query: string) => void;
-  onNotifications?: () => void;
-  children: React.ReactNode;
-}
+export type PortalSection = ExamIntegrityStudentPortalSection;
+export type ReviewLayoutProps = ExamIntegrityStudentReviewTemplateProps;
 
-const StudentManReviewLayout: React.FC<ReviewLayoutProps> = ({
-  studentName = '',
-  activeSection = 'results',
-  onNavigate,
-  onHelp,
-  onSearch,
-  onNotifications,
-  children,
-}) => (
-  <div className="min-h-screen bg-gray-50">
-    <AppTopBar
-      appTitle="Academic Management"
-      userName={studentName}
-      onSearch={onSearch}
-      onNotifications={onNotifications}
-      onHelp={onHelp}
-    />
-    <StudentManPortalSidebar
-      activeSection={activeSection}
-      studentName={studentName}
-      onNavigate={onNavigate}
-      onHelp={onHelp}
-    />
-    <main className="ml-[256px] pt-[64px] min-h-screen overflow-y-auto">
-      <div className="p-6 max-w-6xl mx-auto">{children}</div>
-    </main>
-  </div>
+/**
+ * Template - StudentManReviewLayout
+ *
+ * Page-level wrapper delegating to ExamIntegrityStudentReviewTemplate
+ * from @hvantran/ui-component-library.
+ */
+const StudentManReviewLayout: React.FC<ReviewLayoutProps> = (props) => (
+  <ExamIntegrityStudentReviewTemplate {...props} />
 );
 
 export default StudentManReviewLayout;

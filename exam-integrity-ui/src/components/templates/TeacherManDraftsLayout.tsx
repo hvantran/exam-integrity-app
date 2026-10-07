@@ -1,51 +1,21 @@
 import React from 'react';
-// Removed MUI Box and tokens, using Tailwind CSS
 import {
-  AppTopBar,
-  TeacherManDashboardSidebar,
-  APP_BAR_HEIGHT,
-  TEACHER_SIDEBAR_WIDTH,
-} from '../organisms';
-import type { DashboardSection } from '../organisms';
+  ExamIntegrityTeacherDraftsTemplate,
+  ExamIntegrityTeacherDraftsTemplateProps,
+  ExamIntegrityDashboardSection,
+} from '@hvantran/ui-component-library';
 
-export interface DraftsLayoutProps {
-  activeSection?: DashboardSection;
-  userName?: string;
-  onNavigate?: (section: DashboardSection) => void;
-  onCreateNew?: () => void;
-  onSearch?: (query: string) => void;
-  onNotifications?: () => void;
-  onHelp?: () => void;
-  children: React.ReactNode;
-}
+export type DashboardSection = ExamIntegrityDashboardSection;
+export type DraftsLayoutProps = ExamIntegrityTeacherDraftsTemplateProps;
 
-const TeacherManDraftsLayout: React.FC<DraftsLayoutProps> = ({
-  activeSection = 'review',
-  userName = '',
-  onNavigate,
-  onCreateNew,
-  onSearch,
-  onNotifications,
-  onHelp,
-  children,
-}) => (
-  <div className="min-h-screen bg-gray-50">
-    <AppTopBar
-      userName={userName}
-      onSearch={onSearch}
-      onNotifications={onNotifications}
-      onHelp={onHelp}
-    />
-    <TeacherManDashboardSidebar
-      activeSection={activeSection}
-      userName={userName}
-      onNavigate={onNavigate}
-      onCreateExam={onCreateNew}
-    />
-    <main className="ml-[256px] pt-[64px] min-h-screen overflow-y-auto">
-      <div className="p-6 max-w-6xl mx-auto">{children}</div>
-    </main>
-  </div>
+/**
+ * Template - TeacherManDraftsLayout
+ *
+ * Page-level wrapper delegating to ExamIntegrityTeacherDraftsTemplate
+ * from @hvantran/ui-component-library.
+ */
+const TeacherManDraftsLayout: React.FC<DraftsLayoutProps> = (props) => (
+  <ExamIntegrityTeacherDraftsTemplate {...props} />
 );
 
 export default TeacherManDraftsLayout;
