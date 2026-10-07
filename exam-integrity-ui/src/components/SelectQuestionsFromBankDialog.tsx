@@ -180,7 +180,7 @@ const SelectQuestionsFromBankDialog: React.FC<SelectQuestionsFromBankDialogProps
       isOpen={open}
       onClose={isLoading ? () => {} : handleClose}
       title={isEditMode ? 'Manage Exam Questions' : 'Select Questions from Bank'}
-      maxWidth="xl"
+      className="!max-w-3xl w-full"
       footer={footerActions}
     >
       <div>

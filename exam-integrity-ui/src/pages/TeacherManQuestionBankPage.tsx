@@ -867,7 +867,7 @@ const QuestionBankPage: React.FC = () => {
         isOpen={previewOpen}
         onClose={() => setPreviewOpen(false)}
         title="Question Preview (Student View)"
-        maxWidth="xl"
+        className="!max-w-6xl w-full"
         footer={
           <div className="flex justify-end">
             <Button variant="primary" size="sm" onClick={() => setPreviewOpen(false)}>

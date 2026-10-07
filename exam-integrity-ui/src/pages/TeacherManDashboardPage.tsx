@@ -802,7 +802,7 @@ const TeacherManDashboardPage: React.FC = () => {
           isOpen
           onClose={handlePreviewClose}
           title="Exam Preview"
-          maxWidth="xl"
+          className="!max-w-6xl w-full"
           footer={
             <div className="flex justify-end gap-2">
               <Button type="button" variant="neutral" onClick={handlePreviewClose}>
