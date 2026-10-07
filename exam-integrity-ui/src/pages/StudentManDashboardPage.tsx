@@ -2,13 +2,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Button } from '../components/atoms';
-import { Skeleton } from '../components/molecules';
-import { StudentManLandingLayout } from '../components/templates';
+import {
+  Button,
+  Skeleton,
+  ExamIntegrityStudentLandingTemplate as StudentManLandingLayout,
+  type ExamIntegrityStudentPortalSection as PortalSection,
+} from '@hvantran/ui-component-library';
 import { useExamList, useTagList } from '../hooks/useExams';
 import { useCreateSession } from '../hooks/useSession';
 import { useAuth } from '../context/AuthContext';
-import type { PortalSection } from '../components/organisms';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
   dashboard: '/',

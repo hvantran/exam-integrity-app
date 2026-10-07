@@ -1,10 +1,12 @@
 import React from 'react';
 import { Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '../components/atoms';
-import { ReviewDashboard } from '../components/organisms';
-import type { PortalSection } from '../components/organisms';
-import { StudentManLandingLayout } from '../components/templates';
+import {
+  Button,
+  ExamIntegrityReviewDashboard as ReviewDashboard,
+  ExamIntegrityStudentLandingTemplate as StudentManLandingLayout,
+  type ExamIntegrityStudentPortalSection as PortalSection,
+} from '@hvantran/ui-component-library';
 import { useAuth } from '../context/AuthContext';
 import { useReviewDashboard, useStudentResults } from '../hooks/useReviewDashboard';
 
@@ -51,7 +53,7 @@ const StudentManMyExamsPage: React.FC = () => {
       {isLoading ? (
         <ReviewDashboard
           isLoading
-          dashboard={{ sessionId: '', totalEarned: 0, totalMax: 0, finalScore10: 0, scores: [] }}
+          dashboard={{ totalEarned: 0, totalMax: 0, finalScore10: 0, scores: [] }}
         />
       ) : sessions.length === 0 ? (
         <Alert severity="info">You have not submitted any exams yet.</Alert>
@@ -105,7 +107,6 @@ const StudentManMyExamsPage: React.FC = () => {
             <ReviewDashboard
               isLoading
               dashboard={{
-                sessionId: '',
                 totalEarned: 0,
                 totalMax: 0,
                 finalScore10: 0,

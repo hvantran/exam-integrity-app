@@ -9,10 +9,9 @@
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { BookOpen, Search, X as XIcon } from "lucide-react";
-import AppDialog, { DialogContent, DialogFooter, DialogHeader } from './AppDialog';
-import { Button } from "../atoms";
-import { questionBankService } from "../../services/questionBankService";
-import type { CreateExamFromBankCommand, DraftQuestionDTO, QuestionType } from "../../types/exam.types";
+import { Modal, Button } from "@hvantran/ui-component-library";
+import { questionBankService } from "../services/questionBankService";
+import type { CreateExamFromBankCommand, DraftQuestionDTO, QuestionType } from "../types/exam.types";
 
 const TYPE_LABELS: Record<QuestionType, string> = {
   MCQ: "MCQ",
@@ -154,17 +153,37 @@ const SelectQuestionsFromBankDialog: React.FC<SelectQuestionsFromBankDialogProps
     onClose();
   };
 
-  return (
-    <AppDialog
-      open={open}
-      onClose={handleClose}
-      disableClose={isLoading}
-      closeOnBackdrop={false}
-      maxWidth="max-w-3xl"
-    >
-      <DialogHeader>{isEditMode ? 'Manage Exam Questions' : 'Select Questions from Bank'}</DialogHeader>
+  const footerActions = (
+    <div className="flex justify-end gap-2">
+      <Button type="button" variant="neutral" onClick={handleClose} disabled={isLoading}>
+        Cancel
+      </Button>
+      <Button
+        type="button"
+        variant="primary"
+        onClick={handleSubmit}
+        disabled={isLoading || (!isEditMode && !title.trim()) || selectedIds.size === 0}
+      >
+        {isLoading
+          ? isEditMode
+            ? "Updating…"
+            : "Creating…"
+          : isEditMode
+            ? `Update Questions (${selectedIds.size} selected)`
+            : `Create Exam (${selectedIds.size} question${selectedIds.size !== 1 ? "s" : ""})`}
+      </Button>
+    </div>
+  );
 
-      <DialogContent>
+  return (
+    <Modal
+      isOpen={open}
+      onClose={isLoading ? () => {} : handleClose}
+      title={isEditMode ? 'Manage Exam Questions' : 'Select Questions from Bank'}
+      className="!max-w-3xl w-full"
+      footer={footerActions}
+    >
+      <div>
         {/* Exam metadata */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
           <div className="sm:col-span-2">
@@ -354,28 +373,8 @@ const SelectQuestionsFromBankDialog: React.FC<SelectQuestionsFromBankDialogProps
             )}
           </div>
         </div>
-      </DialogContent>
-
-      <DialogFooter>
-        <Button type="button" variant="neutral" onClick={handleClose} disabled={isLoading}>
-          Cancel
-        </Button>
-        <Button
-          type="button"
-          variant="primary"
-          onClick={handleSubmit}
-          disabled={isLoading || (!isEditMode && !title.trim()) || selectedIds.size === 0}
-        >
-          {isLoading
-            ? isEditMode
-              ? "Updating…"
-              : "Creating…"
-            : isEditMode
-              ? `Update Questions (${selectedIds.size} selected)`
-              : `Create Exam (${selectedIds.size} question${selectedIds.size !== 1 ? "s" : ""})`}
-        </Button>
-      </DialogFooter>
-    </AppDialog>
+      </div>
+    </Modal>
   );
 };
 

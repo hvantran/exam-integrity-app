@@ -3,11 +3,13 @@ import React, { useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Alert } from '@mui/material';
 import { toast } from 'react-toastify';
-import { TeacherManFinalPublicationLayout } from '../components/templates';
+import {
+  ExamIntegrityTeacherFinalPublicationTemplate as TeacherManFinalPublicationLayout,
+  type ExamIntegrityDashboardSection as DashboardSection,
+  type ExamIntegrityFinalPublicationFormValues as FinalPublicationFormValues,
+} from '@hvantran/ui-component-library';
 import { useDraft, usePublishDraft } from '../hooks/useDraft';
 import { useAuth } from '../context/AuthContext';
-import type { DashboardSection } from '../components/organisms';
-import type { FinalPublicationFormValues } from '../components/templates';
 
 const SECTION_ROUTES: Record<DashboardSection, string> = {
   dashboard: '/teacher/dashboard',

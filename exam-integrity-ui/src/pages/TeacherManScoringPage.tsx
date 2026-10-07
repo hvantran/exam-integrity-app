@@ -2,9 +2,12 @@ import React from 'react';
 import { Alert, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Button, Card } from '../components/atoms';
-import type { DashboardSection } from '../components/organisms';
-import { TeacherManDashboardLayout } from '../components/templates';
+import {
+  Button,
+  Card,
+  ExamIntegrityTeacherDashboardTemplate as TeacherManDashboardLayout,
+  type ExamIntegrityDashboardSection as DashboardSection,
+} from '@hvantran/ui-component-library';
 import { useAuth } from '../context/AuthContext';
 import {
   useReviewDashboard,

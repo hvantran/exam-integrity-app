@@ -16,7 +16,7 @@ import QuestionBankPage from './pages/TeacherManQuestionBankPage';
 import FinalPublicationPage from './pages/TeacherManFinalPublicationPage';
 import TeacherManDashboardPage from './pages/TeacherManDashboardPage';
 import TeacherManScoringPage from './pages/TeacherManScoringPage';
-import { AppToastContainer } from './components/molecules';
+import AppToastContainer from './components/AppToastContainer';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
