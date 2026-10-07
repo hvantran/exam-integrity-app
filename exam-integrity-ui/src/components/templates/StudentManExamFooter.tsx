@@ -1,13 +1,19 @@
 import React from 'react';
+import {
+  ExamIntegrityStudentExamFooterTemplate,
+  ExamIntegrityStudentExamFooterTemplateProps,
+} from '@hvantran/ui-component-library';
 
-export interface StudentManExamFooterProps {
-  children?: React.ReactNode;
-}
+export type StudentManExamFooterProps = ExamIntegrityStudentExamFooterTemplateProps;
 
-const StudentManExamFooter: React.FC<StudentManExamFooterProps> = ({ children }) => (
-  <div className="flex justify-center px-2 md:px-8 pb-8">
-    <div className="w-full max-w-[1040px]">{children}</div>
-  </div>
+/**
+ * Template - StudentManExamFooter
+ *
+ * Page-level wrapper delegating to ExamIntegrityStudentExamFooterTemplate
+ * from @hvantran/ui-component-library.
+ */
+const StudentManExamFooter: React.FC<StudentManExamFooterProps> = (props) => (
+  <ExamIntegrityStudentExamFooterTemplate {...props} />
 );
 
 export default StudentManExamFooter;
