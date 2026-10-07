@@ -114,12 +114,7 @@ const StudentManMyExamsPage: React.FC = () => {
               }}
             />
           ) : dashboard ? (
-            <ReviewDashboard
-              dashboard={{
-                ...dashboard,
-                scores: dashboard.scores as any,
-              }}
-            />
+            <ReviewDashboard dashboard={dashboard} />
           ) : (
             <Alert severity="info">
               Detailed scoring is not available for the selected session yet.
