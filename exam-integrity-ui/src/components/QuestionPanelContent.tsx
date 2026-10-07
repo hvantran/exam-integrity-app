@@ -1,7 +1,7 @@
 import React from 'react';
-import type { AnswerPart, QuestionPart, QuestionType } from '../../types/exam.types';
-import { MathQuestionInput } from '../molecules/MathInput';
-import { analyzeFormula } from '../../utils/mathFormulaAnalyzer';
+import type { AnswerPart, QuestionPart, QuestionType } from '../types/exam.types';
+import { MathQuestionInput } from './MathInput';
+import { analyzeFormula } from '../utils/mathFormulaAnalyzer';
 
 const DOTTED_LINE = '      ..................................................';
 

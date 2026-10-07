@@ -2,11 +2,13 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Alert } from '@mui/material';
-import { StudentManReviewLayout } from '../components/templates';
-import { ReviewDashboard } from '../components/organisms';
+import {
+  ExamIntegrityStudentReviewTemplate as StudentManReviewLayout,
+  ExamIntegrityReviewDashboard as ReviewDashboard,
+  type ExamIntegrityStudentPortalSection as PortalSection,
+} from '@hvantran/ui-component-library';
 import { useReviewDashboard } from '../hooks/useReviewDashboard';
 import { useAuth } from '../context/AuthContext';
-import type { PortalSection } from '../components/organisms';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
   dashboard: '/',
@@ -32,7 +34,6 @@ const ReviewPage: React.FC = () => {
           <ReviewDashboard
             isLoading
             dashboard={{
-              sessionId: '',
               totalEarned: 0,
               totalMax: 0,
               finalScore10: 0,

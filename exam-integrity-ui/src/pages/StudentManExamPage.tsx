@@ -5,20 +5,18 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Alert } from '@mui/material';
 import { toast } from 'react-toastify';
 import {
-  StudentManExamLayout,
-  StudentManExamContent,
-  StudentManExamFooter,
-} from '../components/templates';
-import {
-  StudentManExamHeader,
-  StudentManQuestionPanel,
-  StudentManExamNavigationBar,
-  StudentManSubmitModal,
-} from '../components/organisms';
-import { Skeleton } from '../components/molecules';
-import StudentManFlaggedSidebar from '../components/organisms/StudentManFlaggedSidebar';
-import StudentManProTips from '../components/organisms/StudentManProTips';
-import type { QuestionOption } from '../components/organisms';
+  ExamIntegrityStudentExamTemplate as StudentManExamLayout,
+  ExamIntegrityStudentExamContentTemplate as StudentManExamContent,
+  ExamIntegrityStudentExamFooterTemplate as StudentManExamFooter,
+  ExamIntegrityStudentExamHeader as StudentManExamHeader,
+  ExamIntegrityStudentExamNavigationBar as StudentManExamNavigationBar,
+  ExamIntegrityStudentSubmitModal as StudentManSubmitModal,
+  ExamIntegrityStudentFlaggedSidebar as StudentManFlaggedSidebar,
+  ExamIntegrityStudentProTips as StudentManProTips,
+  Skeleton,
+} from '@hvantran/ui-component-library';
+import StudentManQuestionPanel from '../components/QuestionPanel';
+import type { QuestionOption } from '../components/QuestionPanel';
 import { useSession, useQuestion, useSaveAnswer, useSubmitExam } from '../hooks/useSession';
 import { useExam } from '../hooks/useExams';
 import { useWebSocketTimer } from '../hooks/useWebSocketTimer';

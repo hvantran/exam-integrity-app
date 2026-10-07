@@ -25,7 +25,7 @@ jest.mock('./pages/TeacherManQuestionBankPage', () => () => <div>Question bank</
 jest.mock('./pages/TeacherManFinalPublicationPage', () => () => <div>Final publication</div>);
 jest.mock('./pages/TeacherManDashboardPage', () => () => <div>Teacher dashboard</div>);
 jest.mock('./pages/TeacherManScoringPage', () => () => <div>Teacher scoring</div>);
-jest.mock('./components/molecules', () => ({ AppToastContainer: () => null }));
+jest.mock('./components/AppToastContainer', () => () => null);
 
 describe('App', () => {
   beforeEach(() => {

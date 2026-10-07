@@ -2,36 +2,25 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { Alert } from '@mui/material';
+import { Search } from 'lucide-react';
 import {
-  Alert,
+  ExamIntegrityTeacherQuestionReviewTemplate,
+  ExamIntegrityDashboardSection,
+  Modal,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  IconButton,
-  InputAdornment,
-} from '@mui/material';
-import { Search, X } from 'lucide-react';
-import { TeacherManQuestionReviewLayout } from '../components/templates';
+  Input,
+  Skeleton,
+  Chip,
+} from '@hvantran/ui-component-library';
 import { useDraft, useEditQuestion, useRemoveQuestion, useAddQuestion } from '../hooks/useDraft';
 import { useAuth } from '../context/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { questionBankService } from '../services/questionBankService';
-import type { DashboardSection } from '../components/organisms';
 import type { DraftQuestionDTO } from '../types/exam.types';
-import QuestionDisplay from '../components/molecules/QuestionDisplay';
-import { Skeleton } from '../components/molecules';
-import { Chip } from '../components/atoms';
-import { colors } from '../design-system/tokens';
+import QuestionDisplay from '../components/QuestionDisplay';
 
-const SECTION_ROUTES: Record<DashboardSection, string> = {
+const SECTION_ROUTES: Record<ExamIntegrityDashboardSection, string> = {
   dashboard: '/teacher/dashboard',
   ingestion: '/teacher/ingestion',
   review: '/teacher/ingestion',
@@ -117,88 +106,78 @@ const ReplaceBankModal: React.FC<ReplaceBankModalProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>
-        <div className="flex items-center justify-between w-full">
-          <span>Select questions from the bank</span>
-          <IconButton size="small" onClick={onClose}>
-            <X size={18} />
-          </IconButton>
-        </div>
-      </DialogTitle>
-      <DialogContent dividers>
-        <TextField
-          fullWidth
-          size="small"
+    <Modal
+      isOpen={open}
+      onClose={onClose}
+      title="Select questions from the bank"
+      maxWidth="lg"
+      footer={
+        <Button variant="ghost" size="sm" onClick={onClose}>
+          Close
+        </Button>
+      }
+    >
+      <div className="space-y-4">
+        <Input
           placeholder="Search question content…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="mb-4"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search size={18} />
-              </InputAdornment>
-            ),
-          }}
+          icon={<Search size={18} className="text-gray-400" />}
+          fullWidth
         />
         {isLoading ? (
-          <div className="py-2">
-            <Skeleton height={40} width="100%" className="mb-2" />
-            <Skeleton height={40} width="100%" className="mb-2" />
-            <Skeleton height={40} width="100%" className="mb-2" />
+          <div className="py-2 space-y-2">
+            <Skeleton height={40} width="100%" />
+            <Skeleton height={40} width="100%" />
+            <Skeleton height={40} width="100%" />
             <Skeleton height={40} width="100%" />
           </div>
         ) : (
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Content</TableCell>
-                <TableCell width={80}>Type</TableCell>
-                <TableCell width={60}>Points</TableCell>
-                <TableCell width={80} />
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {(data?.content ?? []).map((q) => (
-                <TableRow key={q.id} hover>
-                  <TableCell className="max-w-[420px] truncate">
-                    <span className="text-sm font-normal truncate block">{q.content}</span>
-                  </TableCell>
-                  <TableCell>
-                    <Chip label={q.type} size="small" />
-                  </TableCell>
-                  <TableCell>{q.points}</TableCell>
-                  <TableCell>
-                    <Button
-                      size="small"
-                      variant="contained"
-                      disabled={addQuestion.isPending}
-                      onClick={() => handlePick(q)}
-                      className="!bg-primary !text-primary-on !rounded !px-3 !py-1 hover:!bg-primary-deep"
-                    >
-                      Select
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {data?.content.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={4}>
-                    <div className="text-center text-gray-400 text-sm py-2">
+          <div className="overflow-x-auto border border-gray-200 dark:border-gray-800 rounded-lg">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800 text-xs text-gray-500 uppercase">
+                <tr>
+                  <th className="px-4 py-2.5">Content</th>
+                  <th className="px-4 py-2.5 w-24">Type</th>
+                  <th className="px-4 py-2.5 w-20">Points</th>
+                  <th className="px-4 py-2.5 w-24 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                {(data?.content ?? []).map((q) => (
+                  <tr key={q.id} className="hover:bg-gray-50/80 dark:hover:bg-gray-800/40 transition-colors">
+                    <td className="px-4 py-2.5 max-w-[420px]">
+                      <span className="truncate block text-gray-900 dark:text-gray-100">{q.content}</span>
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <Chip label={q.type} size="sm" />
+                    </td>
+                    <td className="px-4 py-2.5 text-gray-700 dark:text-gray-300">{q.points}</td>
+                    <td className="px-4 py-2.5 text-right">
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        disabled={addQuestion.isPending}
+                        onClick={() => handlePick(q)}
+                      >
+                        Select
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+                {data?.content.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="text-center text-gray-400 py-6 text-sm">
                       No questions found.
-                    </div>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         )}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Close</Button>
-      </DialogActions>
-    </Dialog>
+      </div>
+    </Modal>
   );
 };
 
@@ -218,7 +197,8 @@ const QuestionReviewPage: React.FC = () => {
   const handleLogout = () => {
     logout();
   };
-  const handleNavigate = (section: DashboardSection) => navigate(SECTION_ROUTES[section]);
+  const handleNavigate = (section: ExamIntegrityDashboardSection) =>
+    navigate(SECTION_ROUTES[section]);
 
   const { data: draft, isLoading } = useDraft(draftId);
   const editQuestion = useEditQuestion(draftId);
@@ -478,7 +458,7 @@ const QuestionReviewPage: React.FC = () => {
   // Now early returns can happen
   if (isLoading) {
     return (
-      <TeacherManQuestionReviewLayout
+      <ExamIntegrityTeacherQuestionReviewTemplate
         userName={displayName}
         questionNumber={currentIdx + 1}
         totalQuestions={1}
@@ -499,7 +479,7 @@ const QuestionReviewPage: React.FC = () => {
 
   return (
     <>
-      <TeacherManQuestionReviewLayout
+      <ExamIntegrityTeacherQuestionReviewTemplate
         userName={displayName}
         questionNumber={currentIdx + 1}
         totalQuestions={total}
@@ -537,13 +517,9 @@ const QuestionReviewPage: React.FC = () => {
                     key={q.id}
                     type="button"
                     onClick={() => setCurrentIdx(i)}
-                    variant="outlined"
-                    size="small"
-                    className={`px-3 py-1 rounded border text-xs font-medium transition-colors duration-150 ${
-                      currentIdx === i
-                        ? 'bg-primary text-primary-on border-primary font-bold'
-                        : 'bg-surface text-on-surface border-outline'
-                    } hover:opacity-85`}
+                    variant={currentIdx === i ? 'primary' : 'neutral'}
+                    size="sm"
+                    className="!px-3 !py-1 text-xs"
                   >
                     {`Question ${q.questionNumber > 0 ? q.questionNumber : i + 1}`}
                   </Button>
@@ -571,11 +547,11 @@ const QuestionReviewPage: React.FC = () => {
 
             <div className="flex gap-2 mt-4 items-center">
               <Button
-                variant="outlined"
-                size="small"
+                variant="neutral"
+                size="sm"
                 disabled={currentIdx === 0}
                 onClick={() => setCurrentIdx((i) => i - 1)}
-                className="!rounded !px-3 !py-1"
+                className="!px-3 !py-1 text-xs"
               >
                 ← Prev
               </Button>
@@ -583,11 +559,11 @@ const QuestionReviewPage: React.FC = () => {
                 {total > 0 ? `${currentIdx + 1} / ${total}` : 'No questions'}
               </span>
               <Button
-                variant="outlined"
-                size="small"
+                variant="neutral"
+                size="sm"
                 disabled={currentIdx >= total - 1}
                 onClick={() => setCurrentIdx((i) => i + 1)}
-                className="!rounded !px-3 !py-1"
+                className="!px-3 !py-1 text-xs"
               >
                 Next →
               </Button>

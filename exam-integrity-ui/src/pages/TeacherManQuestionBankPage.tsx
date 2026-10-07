@@ -2,17 +2,24 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Chip, Button, Modal, Select } from '../components/atoms';
+import {
+  Button,
+  Chip,
+  Modal,
+  Select,
+  ScrollArea,
+  Skeleton,
+  Combobox,
+  ExamIntegrityTeacherQuestionBankTemplate as TeacherManQuestionBankLayout,
+  type ExamIntegrityDashboardSection as DashboardSection,
+} from '@hvantran/ui-component-library';
 import { Search, Pencil, PlusCircle, X, Star, History, Trash2, Eye } from 'lucide-react';
-import { TeacherManQuestionBankLayout } from '../components/templates';
-import { ScrollArea, Skeleton, Combobox } from '../components/molecules';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { questionBankService } from '../services/questionBankService';
 import type { DraftQuestionDTO, QuestionPart, QuestionType } from '../types/exam.types';
 import type { DraftQuestionEditCommand } from '../types/exam.types';
 import { useAuth } from '../context/AuthContext';
-import { StudentManQuestionPanel } from '../components/organisms';
-import type { DashboardSection, QuestionOption } from '../components/organisms';
+import StudentManQuestionPanel, { type QuestionOption } from '../components/QuestionPanel';
 
 const SECTION_ROUTES: Record<DashboardSection, string> = {
   dashboard: '/teacher/dashboard',
@@ -179,7 +186,7 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
       <div className="flex gap-2 mb-2">
         <Select
           value={form.difficulty}
-          onChange={(val) => setField('difficulty', val)}
+          onChange={(e) => setField('difficulty', e.target.value)}
           options={DIFFICULTY_OPTIONS.map((d) => ({ value: d, label: d }))}
           className="flex-1"
         />
@@ -612,7 +619,7 @@ const QuestionBankPage: React.FC = () => {
             {/* Type */}
             <Select
               value={type}
-              onChange={(val) => setType(val as QuestionType | '')}
+              onChange={(e) => setType(e.target.value as QuestionType | '')}
               options={TYPE_OPTIONS}
               placeholder="All Types"
               className="min-w-[160px] w-[160px]"
@@ -621,10 +628,11 @@ const QuestionBankPage: React.FC = () => {
             {/* Tag combobox */}
             <Combobox
               className="w-48 shrink-0"
-              placeholder={isTagsLoading ? 'Loading tags…' : 'Select or type a tag…'}
+              placeholder={isTagsLoading ? 'Loading tags…' : 'Select tag…'}
               value={tagInput}
-              onChange={setTagInput}
-              onSelect={addTagFilter}
+              onChange={(val) => {
+                if (val) addTagFilter(val);
+              }}
               options={availableTags.map((tag) => ({ value: tag, label: tag }))}
             />
 
@@ -729,16 +737,16 @@ const QuestionBankPage: React.FC = () => {
 
       {/* Add Question modal */}
       <Modal
-        open={addOpen}
+        isOpen={addOpen}
         onClose={() => {
           setAddOpen(false);
           setAddError(null);
         }}
         title="Add New Question"
-        actions={
-          <>
+        footer={
+          <div className="flex justify-end gap-2">
             <Button
-              variant="outlined"
+              variant="neutral"
               size="sm"
               onClick={() => {
                 setAddOpen(false);
@@ -751,7 +759,7 @@ const QuestionBankPage: React.FC = () => {
             <Button variant="primary" size="sm" onClick={handleAddSubmit} disabled={isAdding}>
               {isAdding ? 'Saving…' : 'Add Question'}
             </Button>
-          </>
+          </div>
         }
       >
         <textarea
@@ -766,8 +774,8 @@ const QuestionBankPage: React.FC = () => {
             <label className={labelCls}>Question Type</label>
             <Select
               value={addForm.type}
-              onChange={(val) => {
-                const nextType = val as QuestionType;
+              onChange={(e) => {
+                const nextType = e.target.value as QuestionType;
                 setAddForm((f) => ({
                   ...f,
                   type: nextType,
@@ -781,7 +789,7 @@ const QuestionBankPage: React.FC = () => {
             <label className={labelCls}>Difficulty Level</label>
             <Select
               value={addForm.difficulty}
-              onChange={(val) => setAddForm((f) => ({ ...f, difficulty: val }))}
+              onChange={(e) => setAddForm((f) => ({ ...f, difficulty: e.target.value }))}
               options={DIFFICULTY_OPTIONS.map((d) => ({ value: d, label: d }))}
             />
           </div>
@@ -856,14 +864,16 @@ const QuestionBankPage: React.FC = () => {
 
       {/* Student-style preview modal */}
       <Modal
-        open={previewOpen}
+        isOpen={previewOpen}
         onClose={() => setPreviewOpen(false)}
         title="Question Preview (Student View)"
-        maxWidth="max-w-6xl"
-        actions={
-          <Button variant="primary" size="sm" onClick={() => setPreviewOpen(false)}>
-            Close
-          </Button>
+        maxWidth="xl"
+        footer={
+          <div className="flex justify-end">
+            <Button variant="primary" size="sm" onClick={() => setPreviewOpen(false)}>
+              Close
+            </Button>
+          </div>
         }
       >
         <div className="text-xs text-on-surfaceVariant mb-3">
@@ -908,15 +918,14 @@ const QuestionBankPage: React.FC = () => {
 
       {/* Delete All confirmation modal */}
       <Modal
-        open={deleteAllOpen}
+        isOpen={deleteAllOpen}
         onClose={() => setDeleteAllOpen(false)}
         title="Delete All Questions"
-        titleClassName="text-error-600"
-        maxWidth="max-w-sm"
-        actions={
-          <>
+        maxWidth="sm"
+        footer={
+          <div className="flex justify-end gap-2">
             <Button
-              variant="outlined"
+              variant="neutral"
               size="sm"
               onClick={() => setDeleteAllOpen(false)}
               disabled={isDeleting}
@@ -931,7 +940,7 @@ const QuestionBankPage: React.FC = () => {
             >
               {isDeleting ? 'Deleting…' : 'Delete All'}
             </Button>
-          </>
+          </div>
         }
       >
         <p className="text-sm text-gray-600 leading-relaxed">

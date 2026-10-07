@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ParsedFormula } from '../../../utils/mathFormulaAnalyzer';
+import { ParsedFormula } from '../../utils/mathFormulaAnalyzer';
 
 interface LongDivisionInputProps {
   formula: ParsedFormula;

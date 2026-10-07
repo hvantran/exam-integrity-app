@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { analyzeFormula, MathFormulaType } from '../../../utils/mathFormulaAnalyzer';
+import { analyzeFormula, MathFormulaType } from '../../utils/mathFormulaAnalyzer';
 import SimpleArithmeticInput from './SimpleArithmeticInput';
 import ComplexFormulaInput from './ComplexFormulaInput';
 import LongDivisionInput from './LongDivisionInput';

@@ -2,18 +2,20 @@
 import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { TeacherManDashboardLayout } from '../components/templates';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
-  AppDialog,
+  Modal,
   Combobox,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
   Skeleton,
-  SelectQuestionsFromBankDialog,
-} from '../components/molecules';
-import { Button, Chip } from '../components/atoms';
+  Button,
+  Chip,
+  ExamIntegrityTeacherDashboardTemplate as TeacherManDashboardLayout,
+  ExamIntegrityStudentExamHeader as StudentManExamHeader,
+  ExamIntegrityStudentExamNavigationBar as StudentManExamNavigationBar,
+  type ExamIntegrityDashboardSection as DashboardSection,
+} from '@hvantran/ui-component-library';
+import SelectQuestionsFromBankDialog from '../components/SelectQuestionsFromBankDialog';
+import StudentManQuestionPanel, { type QuestionOption } from '../components/QuestionPanel';
 import {
   useExam,
   useCreateExamFromBank,
@@ -24,16 +26,9 @@ import {
 import { examService } from '../services/examService';
 import { questionBankService } from '../services/questionBankService';
 import { useAuth } from '../context/AuthContext';
-import type { DashboardSection } from '../components/organisms';
 import type { CreateExamFromBankCommand, ExamDTO } from '../types/exam.types';
 import { colors } from '../design-system/tokens';
 import { BookOpen, Clock, Eye, ListChecks, Plus, RefreshCw, Star, Trash2 } from 'lucide-react';
-import {
-  StudentManExamHeader,
-  StudentManExamNavigationBar,
-  StudentManQuestionPanel,
-} from '../components/organisms';
-import type { QuestionOption } from '../components/organisms';
 const SECTION_ROUTES: Record<DashboardSection, string> = {
   dashboard: '/teacher/dashboard',
   ingestion: '/teacher/ingestion',
@@ -110,142 +105,145 @@ const CreateExamDialog: React.FC<CreateExamDialogProps> = ({
 
   if (!open) return null;
 
+  const footerActions = (
+    <div className="flex justify-end gap-2">
+      <Button type="button" variant="neutral" onClick={handleClose} disabled={isLoading}>
+        Cancel
+      </Button>
+      <Button
+        type="submit"
+        form="create-exam-form"
+        variant="primary"
+        disabled={isLoading || !title.trim() || mcqCount + essayShortCount + essayLongCount === 0}
+      >
+        {isLoading ? 'Creating…' : 'Create Exam'}
+      </Button>
+    </div>
+  );
+
   return (
-    <AppDialog
-      open={open}
+    <Modal
+      isOpen={open}
       onClose={handleClose}
-      disableClose={isLoading}
-      closeOnBackdrop={false}
+      title="Create Exam from Question Bank"
+      maxWidth="lg"
+      footer={footerActions}
     >
-      <DialogHeader>Create Exam from Question Bank</DialogHeader>
-      <DialogContent>
-        <form
-          id="create-exam-form"
-          className="space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSubmit();
-          }}
-        >
-          <div>
-            <label className="block text-xs font-medium text-on-surface mb-1">Exam Name</label>
-            <input
-              className="w-full border border-outline rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-on-surface mb-1">
-              Duration (minutes)
-            </label>
-            <input
-              type="number"
-              min={1}
-              className="w-full border border-outline rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              value={durationMin}
-              onChange={(e) => setDurationMin(Math.max(1, Number(e.target.value)))}
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-on-surface mb-1">
-              Question Bank Tags
-            </label>
-            <Combobox
-              value={tagInput}
-              onChange={setTagInput}
-              onSelect={handleAddTag}
-              options={questionBankTags.map((tag) => ({ value: tag, label: tag }))}
-              className="w-full"
-              placeholder={isTagsLoading ? 'Loading tags…' : 'Select or type tag and press Enter'}
-              noOptionsText="No matching tag"
-            />
-            <p className="mt-1 text-[11px] text-gray-500">
-              Selected tags control which question-bank questions are eligible for this exam.
-            </p>
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-2">
-                {tags.map((t) => (
-                  <Chip
-                    key={t}
-                    label={t}
-                    size="small"
-                    onDelete={() => handleRemoveTag(t)}
-                    style={{
-                      backgroundColor: `${colors.primary.main}18`,
-                      color: colors.primary.main,
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-          <div>
-            <div className="text-xs font-semibold text-on-surface mb-2">
-              Question Bank Selection
+      <form
+        id="create-exam-form"
+        className="space-y-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
+      >
+        <div>
+          <label className="block text-xs font-medium text-on-surface mb-1">Exam Name</label>
+          <input
+            className="w-full border border-outline rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-on-surface mb-1">
+            Duration (minutes)
+          </label>
+          <input
+            type="number"
+            min={1}
+            className="w-full border border-outline rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            value={durationMin}
+            onChange={(e) => setDurationMin(Math.max(1, Number(e.target.value)))}
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-on-surface mb-1">
+            Question Bank Tags
+          </label>
+          <Combobox
+            value={tagInput}
+            onChange={(selected) => {
+              if (selected) {
+                handleAddTag(selected);
+              }
+            }}
+            options={questionBankTags.map((tag) => ({ value: tag, label: tag }))}
+            className="w-full"
+            placeholder={isTagsLoading ? 'Loading tags…' : 'Select tag…'}
+          />
+          <p className="mt-1 text-[11px] text-gray-500">
+            Selected tags control which question-bank questions are eligible for this exam.
+          </p>
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-2">
+              {tags.map((t) => (
+                <Chip
+                  key={t}
+                  label={t}
+                  size="sm"
+                  onDelete={() => handleRemoveTag(t)}
+                  style={{
+                    backgroundColor: `${colors.primary.main}18`,
+                    color: colors.primary.main,
+                  }}
+                />
+              ))}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-on-surface mb-1"># MCQ</label>
-                <input
-                  type="number"
-                  min={0}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  value={mcqCount}
-                  onChange={(e) => setMcqCount(Math.max(0, Number(e.target.value)))}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  # Essay Short
-                </label>
-                <input
-                  type="number"
-                  min={0}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  value={essayShortCount}
-                  onChange={(e) => setEssayShortCount(Math.max(0, Number(e.target.value)))}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1"># Essay Long</label>
-                <input
-                  type="number"
-                  min={0}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  value={essayLongCount}
-                  onChange={(e) => setEssayLongCount(Math.max(0, Number(e.target.value)))}
-                />
-              </div>
+          )}
+        </div>
+        <div>
+          <div className="text-xs font-semibold text-on-surface mb-2">
+            Question Bank Selection
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-on-surface mb-1"># MCQ</label>
+              <input
+                type="number"
+                min={0}
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                value={mcqCount}
+                onChange={(e) => setMcqCount(Math.max(0, Number(e.target.value)))}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                # Essay Short
+              </label>
+              <input
+                type="number"
+                min={0}
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                value={essayShortCount}
+                onChange={(e) => setEssayShortCount(Math.max(0, Number(e.target.value)))}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1"># Essay Long</label>
+              <input
+                type="number"
+                min={0}
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                value={essayLongCount}
+                onChange={(e) => setEssayLongCount(Math.max(0, Number(e.target.value)))}
+              />
             </div>
           </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Notes</label>
-            <textarea
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              value={reviewNotes}
-              onChange={(e) => setReviewNotes(e.target.value)}
-              rows={2}
-              placeholder="Optional notes for this exam"
-            />
-          </div>
-        </form>
-      </DialogContent>
-      <DialogFooter>
-        <Button type="button" variant="neutral" onClick={handleClose} disabled={isLoading}>
-          Cancel
-        </Button>
-        <Button
-          type="submit"
-          form="create-exam-form"
-          variant="primary"
-          disabled={isLoading || !title.trim() || mcqCount + essayShortCount + essayLongCount === 0}
-        >
-          {isLoading ? 'Creating…' : 'Create Exam'}
-        </Button>
-      </DialogFooter>
-    </AppDialog>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-700 mb-1">Notes</label>
+          <textarea
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            value={reviewNotes}
+            onChange={(e) => setReviewNotes(e.target.value)}
+            rows={2}
+            placeholder="Optional notes for this exam"
+          />
+        </div>
+      </form>
+    </Modal>
   );
 };
 
@@ -768,42 +766,52 @@ const TeacherManDashboardPage: React.FC = () => {
 
       {/* Delete confirmation dialog (Tailwind-based) */}
       {deleteTarget && (
-        <AppDialog
-          open
-          disableClose={deleteExam.isPending}
+        <Modal
+          isOpen
+          title="Delete Exam"
           onClose={() => {
             if (!deleteExam.isPending) setDeleteTarget(null);
           }}
-        >
-          <DialogHeader>Delete Exam</DialogHeader>
-          <DialogContent>
-            <div className="mb-4 text-gray-700">
-              Are you sure you want to delete <strong>{deleteTarget.title}</strong>?
-              <br />
-              <span className="text-gray-500 text-xs">
-                Questions in the question bank will not be affected.
-              </span>
+          footer={
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="neutral"
+                onClick={() => setDeleteTarget(null)}
+                disabled={deleteExam.isPending}
+              >
+                Cancel
+              </Button>
+              <Button variant="danger" onClick={handleDeleteConfirm} disabled={deleteExam.isPending}>
+                {deleteExam.isPending ? 'Deleting…' : 'Delete'}
+              </Button>
             </div>
-          </DialogContent>
-          <DialogFooter>
-            <Button
-              variant="neutral"
-              onClick={() => setDeleteTarget(null)}
-              disabled={deleteExam.isPending}
-            >
-              Cancel
-            </Button>
-            <Button variant="danger" onClick={handleDeleteConfirm} disabled={deleteExam.isPending}>
-              {deleteExam.isPending ? 'Deleting…' : 'Delete'}
-            </Button>
-          </DialogFooter>
-        </AppDialog>
+          }
+        >
+          <div className="mb-4 text-gray-700">
+            Are you sure you want to delete <strong>{deleteTarget.title}</strong>?
+            <br />
+            <span className="text-gray-500 text-xs">
+              Questions in the question bank will not be affected.
+            </span>
+          </div>
+        </Modal>
       )}
 
       {previewExamId && (
-        <AppDialog open onClose={handlePreviewClose} maxWidth="max-w-6xl">
-          <DialogHeader>Exam Preview</DialogHeader>
-          <DialogContent>
+        <Modal
+          isOpen
+          onClose={handlePreviewClose}
+          title="Exam Preview"
+          maxWidth="xl"
+          footer={
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="neutral" onClick={handlePreviewClose}>
+                Close Preview
+              </Button>
+            </div>
+          }
+        >
+          <div>
             <div className="mb-4 flex items-center justify-between gap-3 text-sm text-gray-500">
               <span>{previewExam?.title ?? 'Loading exam…'}</span>
               <span>
@@ -863,13 +871,8 @@ const TeacherManDashboardPage: React.FC = () => {
                 </div>
               </div>
             )}
-          </DialogContent>
-          <DialogFooter>
-            <Button type="button" variant="neutral" onClick={handlePreviewClose}>
-              Close Preview
-            </Button>
-          </DialogFooter>
-        </AppDialog>
+          </div>
+        </Modal>
       )}
     </TeacherManDashboardLayout>
   );

@@ -12,11 +12,10 @@
  *  - MCQ correct-answer selector (A/B/C/D)
  */
 import React from 'react';
-import { Chip } from '../atoms';
+import { Chip, Skeleton } from '@hvantran/ui-component-library';
 import { AlertTriangle, Image, Trash2 } from 'lucide-react';
-import type { DraftQuestionDTO } from '../../types/exam.types';
-import { colors, typography, borderRadius } from '../../design-system/tokens';
-import Skeleton from './Skeleton';
+import type { DraftQuestionDTO } from '../types/exam.types';
+import { colors, typography, borderRadius } from '../design-system/tokens';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -240,7 +239,7 @@ function EssayQuestion({ q }: { q: DraftQuestionDTO }) {
             Rubric keywords:
           </span>
           {keywords.map((k) => (
-            <Chip key={k} label={k} size="small" variant="outlined" />
+            <Chip key={k} label={k} size="sm" variant="outlined" />
           ))}
         </div>
       )}
@@ -355,7 +354,7 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
           </div>
           <Chip
             label={typeLabel}
-            size="small"
+            size="sm"
             variant="outlined"
             className="text-[0.7rem]"
             style={{ height: 22 }}
@@ -536,7 +535,7 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
               key={i}
               icon={<AlertTriangle size={13} />}
               label={w}
-              size="small"
+              size="sm"
               color="warning"
               variant="outlined"
               className="text-[0.7rem]"

@@ -1,8 +1,8 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import StudentManQuestionPanelContent, { parseComparison } from './StudentManQuestionPanelContent';
+import StudentManQuestionPanelContent, { parseComparison } from './QuestionPanelContent';
 
-jest.mock('../molecules/MathInput', () => {
+jest.mock('./MathInput', () => {
   const mockReact = require('react');
   return {
     MathQuestionInput: ({ questionText }: { questionText: string }) =>

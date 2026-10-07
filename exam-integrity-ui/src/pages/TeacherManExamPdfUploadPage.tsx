@@ -3,11 +3,13 @@ import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, Typography, Alert, LinearProgress } from '@mui/material';
 import { toast } from 'react-toastify';
-import { TeacherManIngestionLayout } from '../components/templates';
+import {
+  ExamIntegrityTeacherIngestionTemplate as TeacherManIngestionLayout,
+  type ExamIntegrityDashboardSection as DashboardSection,
+} from '@hvantran/ui-component-library';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { draftService } from '../services/draftService';
 import { useAuth } from '../context/AuthContext';
-import type { DashboardSection } from '../components/organisms';
 
 const SECTION_ROUTES: Record<DashboardSection, string> = {
   dashboard: '/teacher/dashboard',

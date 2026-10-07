@@ -1,8 +1,7 @@
 import React from 'react';
-import type { AnswerPart, QuestionPart, QuestionType } from '../../types/exam.types';
-import { Skeleton } from '../molecules';
-import StudentManQuestionPanelHeader from './StudentManQuestionPanelHeader';
-import StudentManQuestionPanelContent from './StudentManQuestionPanelContent';
+import type { AnswerPart, QuestionPart, QuestionType } from '../types/exam.types';
+import { Skeleton, ExamIntegrityStudentQuestionPanelHeader } from '@hvantran/ui-component-library';
+import QuestionPanelContent from './QuestionPanelContent';
 
 export interface QuestionOption {
   key: string;
@@ -130,7 +129,7 @@ const StudentManQuestionPanel: React.FC<QuestionPanelProps> = ({
     <div
       className={`bg-white min-w-[750px] w-full border border-l-4 rounded-2xl p-4 md:p-8 ${panelToneClasses.card}`}
     >
-      <StudentManQuestionPanelHeader
+      <ExamIntegrityStudentQuestionPanelHeader
         questionNumber={questionNumber}
         subject={subject}
         gradeLevel={gradeLevel}
@@ -141,7 +140,7 @@ const StudentManQuestionPanel: React.FC<QuestionPanelProps> = ({
 
       <div className={`border-b mb-5 ${panelToneClasses.divider}`} />
 
-      <StudentManQuestionPanelContent
+      <QuestionPanelContent
         questionNumber={questionNumber}
         questionText={questionText}
         questionStem={questionStem}
