@@ -6,7 +6,6 @@ import { Alert } from '@mui/material';
 import { toast } from 'react-toastify';
 import {
   ExamIntegrityStudentExamTemplate as StudentManExamLayout,
-  ExamIntegrityStudentExamContentTemplate as StudentManExamContent,
   ExamIntegrityStudentExamFooterTemplate as StudentManExamFooter,
   ExamIntegrityStudentExamHeader as StudentManExamHeader,
   ExamIntegrityStudentExamNavigationBar as StudentManExamNavigationBar,
@@ -17,10 +16,12 @@ import {
 } from '@hvantran/ui-component-library';
 import StudentManQuestionPanel from '../components/QuestionPanel';
 import type { QuestionOption } from '../components/QuestionPanel';
+import StudentGradeSwitcherPill from '../components/StudentGradeSwitcherPill';
 import { useSession, useQuestion, useSaveAnswer, useSubmitExam } from '../hooks/useSession';
 import { useExam } from '../hooks/useExams';
 import { useWebSocketTimer } from '../hooks/useWebSocketTimer';
 import { useProctor } from '../hooks/useProctor';
+import { useExamLayoutTheme } from '../hooks/useGradeTheme';
 import type { AnswerPart } from '../types/exam.types';
 
 type ExamUiVariant = 'elementary' | 'middle' | 'high';
@@ -176,8 +177,19 @@ const ExamPage: React.FC = () => {
   const totalQuestions = exam?.questionCount ?? 0;
   const answeredCount = Object.values(answeredMap).filter(Boolean).length;
   const gradeLevelTag = exam?.tags?.find((tag) => /(?:grade|lop|lớp)\s*\d+/iu.test(tag));
-  const examVariant = resolveExamUiVariant(gradeLevelTag);
-  const examTheme = EXAM_UI_THEME[examVariant];
+  const examLayoutTheme = useExamLayoutTheme(exam?.tags);
+  const examVariant = examLayoutTheme.tier;
+  const examTheme = {
+    brandName: examLayoutTheme.brandTitle,
+    headerClass: examLayoutTheme.headerClass,
+    pageAccentClass: examLayoutTheme.isElementary
+      ? 'bg-gradient-to-b from-amber-50/50 via-sky-50/30 to-white min-h-screen'
+      : EXAM_UI_THEME[examVariant].pageAccentClass,
+    sidebarClass: examLayoutTheme.isElementary
+      ? 'border-2 border-amber-200 bg-amber-50/40 rounded-2xl'
+      : EXAM_UI_THEME[examVariant].sidebarClass,
+    proTips: EXAM_UI_THEME[examVariant].proTips,
+  };
 
   useEffect(() => {
     if (session?.status === 'FORCE_SUBMITTED') {
@@ -236,83 +248,210 @@ const ExamPage: React.FC = () => {
             totalQuestions={totalQuestions}
           />
         </div>
-        <div className="flex">
-          <StudentManExamContent>
-            <div className="flex flex-col xl:flex-row gap-6">
-              <div className="flex-1 min-w-0 flex flex-col">
-              {questionLoading ? (
-                <StudentManQuestionPanel
-                  questionNumber={flaggedQuestionNumber}
-                  questionText=""
-                  questionType="MCQ"
-                  options={[]}
-                  selectedAnswer=""
-                  isLoading
-                  onAnswerChange={() => {}}
-                />
-              ) : question ? (
-                <StudentManQuestionPanel
-                  questionNumber={flaggedQuestionNumber}
-                  gradeLevel={gradeLevelTag}
-                  questionText={question.content}
-                  questionStem={question.stem}
-                  questionType={question.type}
-                  options={mappedOptions}
-                  questionParts={question.questionParts}
-                  selectedAnswer={answerMap[flaggedQuestionNumber] || ''}
-                  selectedAnswerParts={answerPartsMap[flaggedQuestionNumber] ?? []}
-                  isFlagged={flaggedMap[flaggedQuestionNumber] ?? false}
-                  onFlag={() => {
-                    const next = !flaggedMap[flaggedQuestionNumber];
-                    setFlaggedMap((m) => ({ ...m, [flaggedQuestionNumber]: next }));
-                    saveAnswer.mutate({
-                      questionId: question.id,
-                      payload: {
-                        answer: answerMap[flaggedQuestionNumber] || '',
-                        answerParts: answerPartsMap[flaggedQuestionNumber] ?? [],
-                        flaggedForReview: next,
-                      },
-                    });
-                  }}
-                  onAnswerChange={(answer: string) => {
-                    setAnswerMap((m) => ({ ...m, [flaggedQuestionNumber]: answer }));
-                    setAnswerPartsMap((m) => ({ ...m, [flaggedQuestionNumber]: [] }));
-                    setAnsweredMap((m) => ({
-                      ...m,
-                      [flaggedQuestionNumber]: answer.trim().length > 0,
-                    }));
-                    saveAnswer.mutate({
-                      questionId: question.id,
-                      payload: {
-                        answer,
-                        answerParts: [],
-                        flaggedForReview: flaggedMap[flaggedQuestionNumber] ?? false,
-                      },
-                    });
-                  }}
-                  onAnswerPartsChange={(parts: AnswerPart[]) => {
-                    const promptsByKey = Object.fromEntries(
-                      (question.questionParts ?? []).map((part) => [part.key, part.prompt]),
+
+        {/* Dynamic Grade & Subject Banner for Elementary */}
+        {examLayoutTheme.isElementary && (
+          <div className="bg-amber-100/70 border-b border-amber-200/80 px-4 py-2.5">
+            <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">{examLayoutTheme.mascotEmoji}</span>
+                <span className="font-bold text-amber-950 text-sm">
+                  {examLayoutTheme.subjectTitle}
+                </span>
+                <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 font-semibold text-xs">
+                  🛡️ Friendly Guardian Active
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <StudentGradeSwitcherPill />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Gamified Quest Trail Stepping Stones for Elementary */}
+        {examLayoutTheme.isElementary && totalQuestions > 0 && (
+          <section className="bg-white/95 border-b-2 border-amber-200/80 shadow-sm py-3.5 px-4 md:px-8">
+            <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+              {/* Stepping Stones Navigation Bar */}
+              <div className="flex-1 overflow-x-auto pb-1 md:pb-0">
+                <div className="flex items-center min-w-max space-x-1 sm:space-x-2">
+                  <span className="text-xs font-black tracking-wide text-amber-950 uppercase flex items-center gap-1.5 mr-2">
+                    <span className="text-base">🧭</span>
+                    Quest Trail:
+                  </span>
+
+                  {Array.from({ length: totalQuestions }, (_, idx) => {
+                    const qNum = idx + 1;
+                    const isCurrent = qNum === flaggedQuestionNumber;
+                    const isAnswered = Boolean(answeredMap[qNum]);
+                    const isFlagged = Boolean(flaggedMap[qNum]);
+                    const isLast = qNum === totalQuestions;
+
+                    return (
+                      <React.Fragment key={qNum}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (inReviewFlagged) {
+                              const fIdx = flaggedNumbers.indexOf(qNum);
+                              if (fIdx !== -1) setFlaggedReviewIndex(fIdx);
+                            } else {
+                              setCurrentQuestion(qNum);
+                            }
+                          }}
+                          className={`group flex items-center justify-center transition-all cursor-pointer select-none focus:outline-none ${
+                            isCurrent
+                              ? 'px-3.5 h-11 rounded-full bg-amber-400 text-amber-950 border-2 border-amber-600 font-extrabold flex items-center gap-1.5 shadow-[0_4px_0_#d97706] ring-4 ring-amber-200/80 scale-105'
+                              : isAnswered
+                                ? 'w-11 h-11 rounded-full bg-emerald-100 text-emerald-800 border-2 border-emerald-500 font-bold flex items-center justify-center shadow-[0_3px_0_#059669] hover:brightness-105 active:translate-y-1'
+                                : isFlagged
+                                  ? 'w-11 h-11 rounded-full bg-amber-50 text-amber-900 border-2 border-amber-400 font-bold flex items-center justify-center shadow-[0_3px_0_#d97706] hover:brightness-105 active:translate-y-1 relative'
+                                  : 'w-11 h-11 rounded-full bg-slate-50 text-slate-600 border-2 border-slate-300 font-semibold flex items-center justify-center shadow-[0_3px_0_#cbd5e1] hover:bg-amber-50 hover:border-amber-300 active:translate-y-1'
+                          }`}
+                          title={`Question ${qNum}${isAnswered ? ' (Completed)' : isFlagged ? ' (Flagged)' : ''}`}
+                        >
+                          {isCurrent ? (
+                            <>
+                              <span className="text-base">⭐</span>
+                              <span className="text-xs font-black">Quest {qNum}</span>
+                              <span className="w-2 h-2 rounded-full bg-amber-950 animate-pulse" />
+                            </>
+                          ) : isFlagged ? (
+                            <>
+                              <span className="text-sm font-black">{qNum}</span>
+                              <span className="absolute -top-1 -right-1 bg-rose-500 text-white rounded-full w-4 h-4 text-[9px] flex items-center justify-center font-bold">
+                                🚩
+                              </span>
+                            </>
+                          ) : isAnswered ? (
+                            <span className="text-base font-extrabold">✓</span>
+                          ) : isLast ? (
+                            <span className="text-base" title="Milestone">
+                              🏆
+                            </span>
+                          ) : (
+                            <span className="text-xs font-black">{qNum}</span>
+                          )}
+                        </button>
+
+                        {!isLast && (
+                          <div
+                            className={`w-3 sm:w-4 h-0.5 border-b-2 border-dashed ${
+                              isAnswered ? 'border-emerald-400' : 'border-amber-300'
+                            }`}
+                          />
+                        )}
+                      </React.Fragment>
                     );
-                    const serialized = serializeAnswerParts(parts, promptsByKey);
-                    setAnswerPartsMap((m) => ({ ...m, [flaggedQuestionNumber]: parts }));
-                    setAnswerMap((m) => ({ ...m, [flaggedQuestionNumber]: serialized }));
-                    setAnsweredMap((m) => ({
-                      ...m,
-                      [flaggedQuestionNumber]: hasAnswerPartsContent(parts, promptsByKey),
-                    }));
-                    saveAnswer.mutate({
-                      questionId: question.id,
-                      payload: {
-                        answer: serialized,
-                        answerParts: parts,
-                        flaggedForReview: flaggedMap[flaggedQuestionNumber] ?? false,
-                      },
-                    });
-                  }}
-                  imageData={question.imageData}
-                />
-              ) : null}
+                  })}
+                </div>
+              </div>
+
+              {/* Gamified Progress Spark Bar */}
+              <div className="flex items-center gap-3 bg-amber-50/80 px-4 py-2 rounded-2xl border border-amber-200 shrink-0">
+                <div className="w-32 sm:w-36 bg-amber-200/60 h-3 rounded-full overflow-hidden p-0.5">
+                  <div
+                    className="bg-gradient-to-r from-emerald-400 to-emerald-600 h-full rounded-full transition-all duration-500"
+                    style={{
+                      width: `${totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0}%`,
+                    }}
+                  />
+                </div>
+                <span className="text-xs font-bold text-amber-950 whitespace-nowrap">
+                  {answeredCount} of {totalQuestions} Done ({totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0}%) 🚀
+                </span>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Main Workspace Grid (Unified max-w-7xl matching Quest Trail) */}
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 md:px-8 py-6 pb-28">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Question Workspace Panel (8 cols) */}
+            <section className="lg:col-span-8 flex flex-col gap-5">
+              <div
+                className={`w-full p-6 md:p-8 flex flex-col ${
+                  examLayoutTheme.isElementary
+                    ? 'rounded-3xl border-2 border-amber-200/90 bg-white shadow-[0_4px_0_#cbd5e1]'
+                    : 'rounded-2xl border border-gray-200 bg-white shadow-sm'
+                }`}
+              >
+                {questionLoading ? (
+                  <StudentManQuestionPanel
+                    questionNumber={flaggedQuestionNumber}
+                    questionText=""
+                    questionType="MCQ"
+                    options={[]}
+                    selectedAnswer=""
+                    isLoading
+                    onAnswerChange={() => {}}
+                  />
+                ) : question ? (
+                  <StudentManQuestionPanel
+                    questionNumber={flaggedQuestionNumber}
+                    subject={examLayoutTheme.subject}
+                    gradeLevel={gradeLevelTag || (examLayoutTheme.gradeNumber ? `Grade ${examLayoutTheme.gradeNumber}` : undefined)}
+                    questionText={question.content}
+                    questionStem={question.stem}
+                    questionType={question.type}
+                    options={mappedOptions}
+                    questionParts={question.questionParts}
+                    selectedAnswer={answerMap[flaggedQuestionNumber] || ''}
+                    selectedAnswerParts={answerPartsMap[flaggedQuestionNumber] ?? []}
+                    isFlagged={flaggedMap[flaggedQuestionNumber] ?? false}
+                    onFlag={() => {
+                      const next = !flaggedMap[flaggedQuestionNumber];
+                      setFlaggedMap((m) => ({ ...m, [flaggedQuestionNumber]: next }));
+                      saveAnswer.mutate({
+                        questionId: question.id,
+                        payload: {
+                          answer: answerMap[flaggedQuestionNumber] || '',
+                          answerParts: answerPartsMap[flaggedQuestionNumber] ?? [],
+                          flaggedForReview: next,
+                        },
+                      });
+                    }}
+                    onAnswerChange={(answer: string) => {
+                      setAnswerMap((m) => ({ ...m, [flaggedQuestionNumber]: answer }));
+                      setAnswerPartsMap((m) => ({ ...m, [flaggedQuestionNumber]: [] }));
+                      setAnsweredMap((m) => ({
+                        ...m,
+                        [flaggedQuestionNumber]: answer.trim().length > 0,
+                      }));
+                      saveAnswer.mutate({
+                        questionId: question.id,
+                        payload: {
+                          answer,
+                          answerParts: [],
+                          flaggedForReview: flaggedMap[flaggedQuestionNumber] ?? false,
+                        },
+                      });
+                    }}
+                    onAnswerPartsChange={(parts: AnswerPart[]) => {
+                      const promptsByKey = Object.fromEntries(
+                        (question.questionParts ?? []).map((part) => [part.key, part.prompt]),
+                      );
+                      const serialized = serializeAnswerParts(parts, promptsByKey);
+                      setAnswerPartsMap((m) => ({ ...m, [flaggedQuestionNumber]: parts }));
+                      setAnswerMap((m) => ({ ...m, [flaggedQuestionNumber]: serialized }));
+                      setAnsweredMap((m) => ({
+                        ...m,
+                        [flaggedQuestionNumber]: hasAnswerPartsContent(parts, promptsByKey),
+                      }));
+                      saveAnswer.mutate({
+                        questionId: question.id,
+                        payload: {
+                          answer: serialized,
+                          answerParts: parts,
+                          flaggedForReview: flaggedMap[flaggedQuestionNumber] ?? false,
+                        },
+                      });
+                    }}
+                    imageData={question.imageData}
+                  />
+                ) : null}
 
                 <div className="border-t border-slate-200 mt-6 pt-6">
                   <StudentManExamNavigationBar
@@ -353,30 +492,147 @@ const ExamPage: React.FC = () => {
                     }
                   />
                 </div>
-            </div>
-
-              <div className="xl:w-[280px] xl:min-w-[220px] xl:max-w-[280px] self-start">
-                <StudentManProTips tips={examTheme.proTips} variant={examVariant} />
               </div>
-            </div>
-          </StudentManExamContent>
-          <div className="pt-12">
-            <StudentManFlaggedSidebar
-              flaggedMap={flaggedMap}
-              totalQuestions={totalQuestions}
-              currentQuestion={flaggedQuestionNumber}
-              className={`xl:w-[280px] xl:min-w-[220px] xl:max-w-[280px] ${examTheme.sidebarClass}`}
-              onJumpTo={(q) => {
-                if (inReviewFlagged) {
-                  const idx = flaggedNumbers.indexOf(q);
-                  if (idx !== -1) setFlaggedReviewIndex(idx);
-                } else {
-                  setCurrentQuestion(q);
-                }
-              }}
-            />
+
+              {/* Calming Bottom Reassurance Card (Stitch design) */}
+              {examLayoutTheme.isElementary && (
+                <div className="bg-[#f0fdfa] border-2 border-[#99f6e4] rounded-2xl p-4 flex items-center gap-3.5 shadow-sm text-[#134e4a]">
+                  <div className="w-10 h-10 rounded-full bg-[#ccfbf1] flex items-center justify-center text-[#0f766e] text-lg font-bold shrink-0">
+                    💚
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm text-[#115e59]">You are doing wonderfully!</h4>
+                    <p className="text-xs text-[#134e4a] font-medium">
+                      There are no trick questions here. Trust your thinking and take all the time you need! ✨
+                    </p>
+                  </div>
+                </div>
+              )}
+            </section>
+
+            {/* Right Sidebar: Mascot & Tools (4 cols) */}
+            <aside className="lg:col-span-4 flex flex-col gap-5">
+              {examLayoutTheme.isElementary ? (
+                <>
+                  {/* Mascot Card */}
+                  <div className="rounded-3xl border-2 border-amber-200 bg-white p-6 shadow-md relative">
+                    <div className="flex items-start gap-4">
+                      <div className="w-16 h-16 rounded-2xl bg-amber-100 border-2 border-amber-300 flex items-center justify-center text-3xl shadow-inner shrink-0">
+                        {examLayoutTheme.mascotEmoji}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <h3 className="font-bold text-slate-900 text-base">{examLayoutTheme.mascotName}</h3>
+                          <span className="text-sm">🦉</span>
+                        </div>
+                        <p className="text-xs font-bold text-emerald-700 mt-0.5">Your Exam Buddy & Cheerful Guide</p>
+                        <div className="inline-flex items-center gap-1 mt-1 bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-0.5 rounded-full text-[11px] font-bold">
+                          Safe & Secure Quest ✨
+                        </div>
+                      </div>
+                    </div>
+                    {/* Mascot Speech Bubble */}
+                    <div className="mt-4 relative bg-[#fffbeb] border-2 border-[#fde68a] rounded-2xl p-3.5 shadow-sm text-amber-950">
+                      <div className="absolute -top-2 left-8 w-3.5 h-3.5 bg-[#fffbeb] border-t-2 border-l-2 border-[#fde68a] transform rotate-45" />
+                      <div className="font-bold text-[11px] text-amber-800 uppercase tracking-wide mb-1 flex items-center gap-1">
+                        <span>💡 Friendly Tip:</span>
+                      </div>
+                      <p className="text-xs font-medium leading-relaxed">"{examLayoutTheme.mascotTip}"</p>
+                    </div>
+                  </div>
+
+                  {/* Flagged for Review Drawer */}
+                  <div className="rounded-3xl border-2 border-amber-200 bg-white p-5 shadow-md">
+                    <div className="flex items-center justify-between pb-3 border-b border-amber-100">
+                      <div className="flex items-center gap-2">
+                        <span className="text-amber-500 font-bold">🚩</span>
+                        <h3 className="font-bold text-slate-900 text-sm">Flagged for Review</h3>
+                      </div>
+                      <span className="bg-amber-100 text-amber-900 text-xs font-bold px-2 py-0.5 rounded-full border border-amber-200">
+                        {flaggedNumbers.length} Saved
+                      </span>
+                    </div>
+                    <div className="mt-3">
+                      {flaggedNumbers.length > 0 ? (
+                        <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                          {flaggedNumbers.map((qNum) => (
+                            <div
+                              key={qNum}
+                              className="bg-amber-50/70 rounded-xl p-2.5 border border-amber-200/80 flex items-center justify-between"
+                            >
+                              <div className="flex items-center gap-2.5">
+                                <span className="w-7 h-7 rounded-full bg-amber-200 text-amber-900 font-bold text-xs flex items-center justify-center">
+                                  {qNum}
+                                </span>
+                                <span className="font-bold text-slate-800 text-xs">Question {qNum}</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (inReviewFlagged) {
+                                    const idx = flaggedNumbers.indexOf(qNum);
+                                    if (idx !== -1) setFlaggedReviewIndex(idx);
+                                  } else {
+                                    setCurrentQuestion(qNum);
+                                  }
+                                }}
+                                className="px-2.5 py-1 rounded-full bg-white text-sky-700 hover:bg-sky-600 hover:text-white border border-sky-300 text-xs font-bold transition-all shadow-sm"
+                              >
+                                Jump →
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-slate-500 font-medium py-1">
+                          No questions flagged yet. Tap 🚩 on any question if you want to review it later!
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Proctoring Status Card */}
+                  <div className="rounded-3xl border-2 border-amber-200 bg-white p-5 shadow-md">
+                    <div className="flex items-center gap-2 pb-2">
+                      <span className="w-7 h-7 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-sm font-bold">
+                        🛡️
+                      </span>
+                      <h3 className="font-bold text-slate-900 text-sm">Proctoring Status</h3>
+                    </div>
+                    <p className="text-xs text-slate-600 leading-relaxed mt-1">
+                      Camera & microphone are listening kindly for background noise so nobody distracts your adventure! All secure & verified.
+                    </p>
+                    <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-semibold text-slate-500">
+                      <span className="flex items-center gap-1 text-teal-700">
+                        <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
+                        Connection: Excellent
+                      </span>
+                      <span>Room Integrity: Calm & Quiet</span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <StudentManProTips tips={examTheme.proTips} variant={examVariant} />
+                  <StudentManFlaggedSidebar
+                    flaggedMap={flaggedMap}
+                    totalQuestions={totalQuestions}
+                    currentQuestion={flaggedQuestionNumber}
+                    className={examTheme.sidebarClass}
+                    onJumpTo={(q) => {
+                      if (inReviewFlagged) {
+                        const idx = flaggedNumbers.indexOf(q);
+                        if (idx !== -1) setFlaggedReviewIndex(idx);
+                      } else {
+                        setCurrentQuestion(q);
+                      }
+                    }}
+                  />
+                </>
+              )}
+            </aside>
           </div>
-        </div>
+        </main>
       </div>
 
       <StudentManExamFooter />

@@ -9,6 +9,8 @@ import {
 } from '@hvantran/ui-component-library';
 import { useReviewDashboard } from '../hooks/useReviewDashboard';
 import { useAuth } from '../context/AuthContext';
+import { useStudentPageTheme } from '../hooks/useGradeTheme';
+import ElementaryResultsCelebration from '../components/ElementaryResultsCelebration';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
   dashboard: '/',
@@ -20,6 +22,7 @@ const ReviewPage: React.FC = () => {
   const { sessionId = '' } = useParams<{ sessionId: string }>();
   const { data: dashboard, isLoading } = useReviewDashboard(sessionId);
   const { displayName } = useAuth();
+  const theme = useStudentPageTheme();
   const navigate = useNavigate();
   const handleNavigate = (section: PortalSection) => navigate(PORTAL_ROUTES[section]);
 
@@ -42,6 +45,11 @@ const ReviewPage: React.FC = () => {
           />
         ) : !dashboard ? (
           <Alert severity="info">Result is not available for this session yet.</Alert>
+        ) : theme.isElementary ? (
+          <ElementaryResultsCelebration
+            dashboard={dashboard}
+            studentName={displayName || 'Super Adventurer'}
+          />
         ) : (
           <ReviewDashboard dashboard={dashboard} />
         )}

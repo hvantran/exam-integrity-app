@@ -9,6 +9,9 @@ import {
 } from '@hvantran/ui-component-library';
 import { useAuth } from '../context/AuthContext';
 import { useReviewDashboard, useStudentResults } from '../hooks/useReviewDashboard';
+import { useStudentPageTheme } from '../hooks/useGradeTheme';
+import StudentGradeSwitcherPill from '../components/StudentGradeSwitcherPill';
+import ElementaryResultsCelebration from '../components/ElementaryResultsCelebration';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
   dashboard: '/',
@@ -22,6 +25,7 @@ const StudentManMyExamsPage: React.FC = () => {
   const studentId = user?.username ?? '';
   const { data: sessions = [], isLoading } = useStudentResults(studentId);
   const [selectedSessionId, setSelectedSessionId] = React.useState('');
+  const theme = useStudentPageTheme();
 
   React.useEffect(() => {
     if (!selectedSessionId && sessions.length > 0) {
@@ -45,11 +49,24 @@ const StudentManMyExamsPage: React.FC = () => {
     <StudentManLandingLayout
       studentName={displayName || 'Student'}
       activeSection="my-exams"
-      pageTitle="My Exams"
-      pageSubtitle="Review submitted exams, total score, and per-question grading status."
+      pageTitle={theme.isElementary ? 'My Completed Quests 🌟' : 'My Exams'}
+      pageSubtitle={
+        theme.isElementary
+          ? 'Check your earned stars, quest results, and celebration badges!'
+          : 'Review submitted exams, total score, and per-question grading status.'
+      }
       onNavigate={handleNavigate}
       onLogout={handleLogout}
     >
+      {/* Grade Switcher Bar */}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 bg-white/90 border border-slate-200 rounded-2xl p-3 shadow-sm">
+        <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+          <span>Active View:</span>
+          <span className="font-bold text-slate-900">{theme.themeName}</span>
+        </div>
+        <StudentGradeSwitcherPill />
+      </div>
+
       {isLoading ? (
         <ReviewDashboard
           isLoading
@@ -62,6 +79,44 @@ const StudentManMyExamsPage: React.FC = () => {
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
             {sessions.map((session) => {
               const isSelected = session.sessionId === selectedSummary?.sessionId;
+              const earnedStars = Math.round(session.finalScore10 * 2);
+
+              if (theme.isElementary) {
+                return (
+                  <button
+                    key={session.sessionId}
+                    type="button"
+                    onClick={() => setSelectedSessionId(session.sessionId)}
+                    className={`rounded-3xl border-2 p-5 text-left transition-all duration-150 select-none ${
+                      isSelected
+                        ? 'border-amber-400 bg-amber-50/80 shadow-[0_4px_0_#d97706] ring-2 ring-amber-200'
+                        : 'border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50/40 shadow-sm'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div className="font-extrabold text-slate-900 text-base">
+                        {session.examTitle}
+                      </div>
+                      <span className="text-xs font-bold text-amber-900 bg-amber-100 border border-amber-300 rounded-full px-2.5 py-0.5">
+                        ⭐ {earnedStars} Stars
+                      </span>
+                    </div>
+                    <div className="text-xs text-slate-500 mb-4">
+                      {session.submittedAt ? new Date(session.submittedAt).toLocaleDateString() : 'Completed Quest'}
+                    </div>
+                    <div className="flex items-end justify-between">
+                      <div className="text-3xl font-black text-slate-900">
+                        {session.finalScore10.toFixed(1)}
+                        <span className="text-base font-bold text-slate-500"> / 10</span>
+                      </div>
+                      <span className="text-xs font-bold text-amber-800 bg-white px-2.5 py-1 rounded-full border border-amber-300 shadow-xs">
+                        View Celebration 🎉
+                      </span>
+                    </div>
+                  </button>
+                );
+              }
+
               return (
                 <Button
                   key={session.sessionId}
@@ -114,7 +169,14 @@ const StudentManMyExamsPage: React.FC = () => {
               }}
             />
           ) : dashboard ? (
-            <ReviewDashboard dashboard={dashboard} />
+            theme.isElementary ? (
+              <ElementaryResultsCelebration
+                dashboard={dashboard}
+                studentName={displayName || 'Adventurer'}
+              />
+            ) : (
+              <ReviewDashboard dashboard={dashboard} />
+            )
           ) : (
             <Alert severity="info">
               Detailed scoring is not available for the selected session yet.
