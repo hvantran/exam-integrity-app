@@ -35,7 +35,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = useCallback(() => {
     setUser(null);
-    window.location.href = '/logout';
+    const envGateway = (window as any)._env_?.REACT_APP_GATEWAY_URL;
+    const gatewayBaseUrl =
+      envGateway ||
+      process.env.REACT_APP_GATEWAY_URL ||
+      '';
+    const redirectUri = encodeURIComponent(window.location.origin);
+    window.location.href = `${gatewayBaseUrl}/logout?redirect_uri=${redirectUri}`;
   }, []);
 
   const displayName = (() => {
