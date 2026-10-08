@@ -154,6 +154,7 @@ const StudentManQuestionPanel: React.FC<QuestionPanelProps> = ({
         onAnswerPartsChange={onAnswerPartsChange}
         imageData={imageData}
         gradeLevel={gradeLevel}
+        subject={subject}
       />
     </div>
   );

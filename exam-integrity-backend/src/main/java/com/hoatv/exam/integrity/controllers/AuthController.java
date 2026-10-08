@@ -42,10 +42,26 @@ public class AuthController {
             firstName = jwt.getClaimAsString("given_name");
             lastName = jwt.getClaimAsString("family_name");
         }
+        Integer grade = null;
+        if (auth.getPrincipal() instanceof Jwt jwt) {
+            Object gradeClaim = jwt.getClaim("grade");
+            if (gradeClaim == null) {
+                gradeClaim = jwt.getClaim("grade_level");
+            }
+            if (gradeClaim instanceof Number number) {
+                grade = number.intValue();
+            } else if (gradeClaim instanceof String str && !str.isBlank()) {
+                try {
+                    grade = Integer.parseInt(str.replaceAll("[^0-9]", ""));
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
         result.put("username", username);
         result.put("roles", roles);
         result.put("firstName", firstName);
         result.put("lastName", lastName);
+        result.put("grade", grade);
 
         return ResponseEntity.ok(result);
     }

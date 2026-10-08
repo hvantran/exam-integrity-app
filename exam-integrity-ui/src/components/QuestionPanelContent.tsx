@@ -128,7 +128,15 @@ export interface StudentManQuestionPanelContentProps {
   onAnswerPartsChange?: (parts: AnswerPart[]) => void;
   imageData?: string;
   gradeLevel?: string;
+  subject?: string;
 }
+
+const BADGE_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  A: { bg: 'bg-amber-100', text: 'text-amber-900', border: 'border-amber-300' },
+  B: { bg: 'bg-sky-100', text: 'text-sky-900', border: 'border-sky-300' },
+  C: { bg: 'bg-emerald-100', text: 'text-emerald-900', border: 'border-emerald-300' },
+  D: { bg: 'bg-rose-100', text: 'text-rose-900', border: 'border-rose-300' },
+};
 
 const StudentManQuestionPanelContent: React.FC<StudentManQuestionPanelContentProps> = ({
   questionNumber,
@@ -144,11 +152,18 @@ const StudentManQuestionPanelContent: React.FC<StudentManQuestionPanelContentPro
   onAnswerPartsChange,
   imageData,
   gradeLevel,
+  subject,
 }) => {
   const isMcq = questionType === 'MCQ';
   const isLongEssay = questionType === 'ESSAY_LONG';
   const hasStructuredEssay = !isMcq && (questionParts?.length ?? 0) > 0;
   const answerPartMap = new Map((selectedAnswerParts ?? []).map((part) => [part.key, part.answer]));
+  const [isPlayingAudio, setIsPlayingAudio] = React.useState(false);
+
+  const gradeMatch = gradeLevel?.match(/(?:grade|lop|lớp)\s*(\d+)/iu);
+  const gradeNumber = gradeMatch ? Number(gradeMatch[1]) : null;
+  const isElementary = gradeNumber !== null && gradeNumber <= 5;
+  const isEnglish = Boolean(subject && /(?:english|tiếng anh|reading)/iu.test(subject));
 
   const updateAnswerPart = (partKey: string, nextAnswer: string) => {
     if (!questionParts || !onAnswerPartsChange) {
@@ -163,10 +178,56 @@ const StudentManQuestionPanelContent: React.FC<StudentManQuestionPanelContentPro
     );
   };
 
+  const handleToggleReadAloud = () => {
+    if ('speechSynthesis' in window) {
+      if (isPlayingAudio) {
+        window.speechSynthesis.cancel();
+        setIsPlayingAudio(false);
+      } else {
+        const textToRead = [questionStem, questionText].filter(Boolean).join('. ');
+        const utterance = new SpeechSynthesisUtterance(textToRead);
+        utterance.rate = 0.9;
+        utterance.onend = () => setIsPlayingAudio(false);
+        utterance.onerror = () => setIsPlayingAudio(false);
+        setIsPlayingAudio(true);
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+  };
+
   return (
     <>
+      {/* Subject-Aware English Reading Passage Tools for Elementary */}
+      {isElementary && isEnglish && (
+        <div className="mb-4 flex items-center justify-between gap-3 bg-emerald-50/70 border border-emerald-200 rounded-2xl p-3">
+          <div className="flex items-center gap-2 text-xs font-semibold text-emerald-900">
+            <span>📖 Reading Tools:</span>
+            <span className="px-2 py-0.5 rounded-full bg-emerald-200/80 text-emerald-950 font-bold">
+              Story Mode
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={handleToggleReadAloud}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition shadow-sm ${
+              isPlayingAudio
+                ? 'bg-amber-400 text-amber-950 ring-2 ring-amber-300 animate-pulse'
+                : 'bg-white text-emerald-800 border border-emerald-300 hover:bg-emerald-100'
+            }`}
+          >
+            <span>{isPlayingAudio ? '⏹️ Stop Reading' : '🔊 Read Aloud'}</span>
+          </button>
+        </div>
+      )}
+
       {(!hasStructuredEssay || questionStem) && (
-        <div className="text-base md:text-[17px] font-normal leading-7 text-slate-900 mb-6 break-words whitespace-pre-line">
+        <div
+          className={`${
+            isElementary
+              ? 'text-lg md:text-xl font-medium leading-relaxed text-slate-900 mb-6 p-4 rounded-2xl bg-amber-50/40 border border-amber-100/80'
+              : 'text-base md:text-[17px] font-normal leading-7 text-slate-900 mb-6'
+          } break-words whitespace-pre-line`}
+        >
           {hasStructuredEssay ? questionStem : questionText}
         </div>
       )}
@@ -185,13 +246,52 @@ const StudentManQuestionPanelContent: React.FC<StudentManQuestionPanelContentPro
               ? 'grid-cols-3'
               : 'grid-cols-1 sm:grid-cols-2';
           return (
-            <div className={`grid ${gridCols} gap-3`}>
+            <div className={`grid ${gridCols} gap-4`}>
               {visibleOptions.map((opt) => {
                 const isSelected = selectedAnswer === opt.key;
+                const badge = BADGE_COLORS[opt.key.toUpperCase()] ?? {
+                  bg: 'bg-slate-100',
+                  text: 'text-slate-800',
+                  border: 'border-slate-300',
+                };
+
+                if (isElementary) {
+                  return (
+                    <button
+                      type="button"
+                      key={opt.key}
+                      disabled={disabled}
+                      onClick={() => onAnswerChange(opt.key)}
+                      className={`flex items-center gap-4 p-4 rounded-2xl border-2 text-left transition-all duration-150 min-h-[64px] select-none ${
+                        isSelected
+                          ? 'border-emerald-500 bg-emerald-50 text-emerald-950 shadow-[0_4px_0_#059669] ring-2 ring-emerald-200 -translate-y-0.5'
+                          : 'border-amber-200/90 bg-white hover:border-amber-400 hover:bg-amber-50/50 shadow-[0_4px_0_#e2e8f0] active:translate-y-1 active:shadow-none'
+                      } ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
+                    >
+                      <div
+                        className={`w-10 h-10 rounded-full border-2 flex items-center justify-center font-bold text-base flex-shrink-0 shadow-sm ${
+                          isSelected
+                            ? 'bg-emerald-600 text-white border-emerald-700'
+                            : `${badge.bg} ${badge.text} ${badge.border}`
+                        }`}
+                      >
+                        {isSelected ? '✓' : opt.key}
+                      </div>
+                      <span className="text-base font-semibold leading-relaxed text-slate-900 flex-1">
+                        {opt.text}
+                      </span>
+                    </button>
+                  );
+                }
+
                 return (
                   <label
                     key={opt.key}
-                    className={`flex items-start gap-3 p-3.5 rounded-xl border transition-all cursor-pointer ${isSelected ? 'border-sky-500 bg-sky-50 shadow-[0_8px_20px_-18px_rgba(14,165,233,0.8)]' : 'border-slate-300 bg-white'} ${disabled ? 'cursor-not-allowed opacity-60' : 'hover:border-sky-400 hover:bg-slate-50'}`}
+                    className={`flex items-start gap-3 p-3.5 rounded-xl border transition-all cursor-pointer ${
+                      isSelected
+                        ? 'border-sky-500 bg-sky-50 shadow-[0_8px_20px_-18px_rgba(14,165,233,0.8)]'
+                        : 'border-slate-300 bg-white'
+                    } ${disabled ? 'cursor-not-allowed opacity-60' : 'hover:border-sky-400 hover:bg-slate-50'}`}
                   >
                     <input
                       type="radio"

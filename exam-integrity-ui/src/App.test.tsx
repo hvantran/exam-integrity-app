@@ -11,7 +11,13 @@ jest.mock('./context/AuthContext', () => ({
     isLoading: false,
     logout: jest.fn(),
     isAdmin: mockRoles.includes('ADMIN'),
+    isTeacher: mockRoles.includes('TEACHER'),
+    isStudent: !mockRoles.includes('ADMIN') && !mockRoles.includes('TEACHER'),
+    canSwitchGrade: mockRoles.includes('ADMIN') || mockRoles.includes('TEACHER'),
     displayName: 'Admin User',
+    overrideGrade: null,
+    setOverrideGrade: jest.fn(),
+    effectiveGrade: null,
   }),
 }));
 

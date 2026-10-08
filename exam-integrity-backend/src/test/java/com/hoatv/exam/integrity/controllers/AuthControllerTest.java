@@ -42,7 +42,8 @@ class AuthControllerTest {
                         "sub", "user-123",
                         "preferred_username", "teacher_jane",
                         "given_name", "Jane",
-                        "family_name", "Doe"
+                        "family_name", "Doe",
+                        "grade", 5
                 )
         );
 
@@ -56,7 +57,8 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.username").value("user-123"))
                 .andExpect(jsonPath("$.roles[0]").value("TEACHER"))
                 .andExpect(jsonPath("$.firstName").value("Jane"))
-                .andExpect(jsonPath("$.lastName").value("Doe"));
+                .andExpect(jsonPath("$.lastName").value("Doe"))
+                .andExpect(jsonPath("$.grade").value(5));
     }
 
     @Test
