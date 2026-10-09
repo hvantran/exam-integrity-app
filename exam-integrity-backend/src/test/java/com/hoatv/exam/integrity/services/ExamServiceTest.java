@@ -492,4 +492,65 @@ class ExamServiceTest {
         question.setBankItemId(bankItemId);
         return question;
     }
+
+    @Test
+    void listActiveFiltersByStudentGradeFromUserContext() {
+        try {
+            Exam examGrade1 = new Exam();
+            examGrade1.setId("exam-1");
+            examGrade1.setTitle("Grade 1 Math");
+            examGrade1.setStatus(Exam.ExamStatus.ACTIVE);
+            examGrade1.setTags(List.of("math", "grade 1"));
+
+            Exam examGrade4 = new Exam();
+            examGrade4.setId("exam-4");
+            examGrade4.setTitle("Grade 4 Math");
+            examGrade4.setStatus(Exam.ExamStatus.ACTIVE);
+            examGrade4.setTags(List.of("math", "grade 4"));
+
+            when(examRepository.findByStatus(Exam.ExamStatus.ACTIVE))
+                .thenReturn(List.of(examGrade1, examGrade4));
+
+            com.hoatv.exam.integrity.security.UserContext.setStudent(true);
+            com.hoatv.exam.integrity.security.UserContext.setStudentGrade(1);
+
+            List<ExamDTO> student1Exams = examService.listActive(null);
+            assertThat(student1Exams).hasSize(1);
+            assertThat(student1Exams.get(0).id()).isEqualTo("exam-1");
+            assertThat(student1Exams.get(0).grade()).isEqualTo(1);
+        } finally {
+            com.hoatv.exam.integrity.security.UserContext.clear();
+        }
+    }
+
+    @Test
+    void listActiveReturnsAllOrRequestedGradeForTeacher() {
+        try {
+            Exam examGrade1 = new Exam();
+            examGrade1.setId("exam-1");
+            examGrade1.setTitle("Grade 1 Math");
+            examGrade1.setStatus(Exam.ExamStatus.ACTIVE);
+            examGrade1.setTags(List.of("math", "grade 1"));
+
+            Exam examGrade4 = new Exam();
+            examGrade4.setId("exam-4");
+            examGrade4.setTitle("Grade 4 Math");
+            examGrade4.setStatus(Exam.ExamStatus.ACTIVE);
+            examGrade4.setTags(List.of("math", "grade 4"));
+
+            when(examRepository.findByStatus(Exam.ExamStatus.ACTIVE))
+                .thenReturn(List.of(examGrade1, examGrade4));
+
+            com.hoatv.exam.integrity.security.UserContext.setStudent(false);
+
+            List<ExamDTO> allExams = examService.listActive(null, null);
+            assertThat(allExams).hasSize(2);
+
+            List<ExamDTO> grade4Exams = examService.listActive(null, 4);
+            assertThat(grade4Exams).hasSize(1);
+            assertThat(grade4Exams.get(0).id()).isEqualTo("exam-4");
+        } finally {
+            com.hoatv.exam.integrity.security.UserContext.clear();
+        }
+    }
 }

@@ -69,6 +69,7 @@ export interface ExamDTO {
   tags?: string[];
   questions?: QuestionSummaryDTO[];
   status?: string;
+  grade?: number;
 }
 
 export interface SyncExamQuestionsSummaryDTO {

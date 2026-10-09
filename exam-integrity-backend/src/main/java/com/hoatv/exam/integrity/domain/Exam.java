@@ -46,6 +46,13 @@ public class Exam {
     private List<String> tags = new ArrayList<>();
 
     /**
+     * Target grade level (e.g. 1, 4, 5, 12).
+     * Populated explicitly or derived from tags.
+     */
+    @Indexed
+    private Integer grade;
+
+    /**
      * All questions embedded in the exam document.
      * No separate collection — enables O(1) exam load.
      */
@@ -88,4 +95,13 @@ public class Exam {
 
     public List<Question> getQuestions() { return questions; }
     public void setQuestions(List<Question> questions) { this.questions = questions; }
+
+    public Integer getGrade() {
+        if (grade == null && tags != null) {
+            return com.hoatv.exam.integrity.services.ExamGradeExtractor.extractGradeFromTags(tags);
+        }
+        return grade;
+    }
+
+    public void setGrade(Integer grade) { this.grade = grade; }
 }
