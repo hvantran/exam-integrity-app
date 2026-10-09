@@ -71,12 +71,10 @@ const LandingPage: React.FC = () => {
       onLogout={handleLogout}
       dockMode={dockMode}
       onDockModeChange={setDockMode}
-    >
-      {/* Cheerful Elementary Hero Greeting */}
-      {theme.isElementary && (
+      bannerSlot={
+        theme.isElementary ? (
         <div className="mb-8 rounded-3xl border-2 border-amber-300/80 bg-gradient-to-r from-amber-100/90 via-sky-100/70 to-emerald-100/80 p-6 md:p-8 shadow-md">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-5">
               <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-amber-400 border-4 border-white shadow-md flex items-center justify-center text-3xl md:text-4xl flex-shrink-0">
                 🦁
               </div>
@@ -85,29 +83,14 @@ const LandingPage: React.FC = () => {
                   Welcome back, {displayName || 'Adventurer'}! 🚀
                 </h1>
                 <p className="text-slate-700 text-sm md:text-base font-medium">
-                  Ready for today's learning adventures? Keep your streak going!
+                  Ready for today's learning adventures? Have fun exploring your quests!
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3 self-stretch md:self-auto justify-end">
-              <div className="rounded-2xl bg-white/90 border-2 border-amber-300 px-4 py-2.5 shadow-sm text-center">
-                <div className="text-xs font-bold text-amber-800 uppercase">Streak</div>
-                <div className="text-lg font-black text-slate-900 flex items-center justify-center gap-1">
-                  <span>🔥</span>
-                  <span>5 Days</span>
-                </div>
-              </div>
-              <div className="rounded-2xl bg-white/90 border-2 border-sky-300 px-4 py-2.5 shadow-sm text-center">
-                <div className="text-xs font-bold text-sky-800 uppercase">Stars</div>
-                <div className="text-lg font-black text-slate-900 flex items-center justify-center gap-1">
-                  <span>⭐</span>
-                  <span>{totalStars}</span>
-                </div>
-              </div>
-            </div>
           </div>
-        </div>
-      )}
+        ) : undefined
+      }
+    >
 
       {isLoading || isTagsLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
