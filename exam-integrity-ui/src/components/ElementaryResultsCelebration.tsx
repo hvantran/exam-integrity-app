@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ExamIntegrityReviewDashboardData } from '@hvantran/ui-component-library';
-import StudentGradeSwitcherPill from './StudentGradeSwitcherPill';
 
 export interface ElementaryResultsCelebrationProps {
   dashboard: ExamIntegrityReviewDashboardData;
@@ -35,14 +34,13 @@ export const ElementaryResultsCelebration: React.FC<ElementaryResultsCelebration
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 py-4">
-      {/* Top Switcher Bar */}
+      {/* Top Celebration Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 bg-white/90 border border-slate-200 rounded-2xl p-3 shadow-sm">
         <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
           <span>🌟 Celebration Mode Active</span>
           <span className="text-slate-400">·</span>
           <span className="font-bold text-amber-700">⭐ +{earnedStars} New Stars Added!</span>
         </div>
-        <StudentGradeSwitcherPill />
       </div>
 
       {/* Celebration Hero Card */}

@@ -10,7 +10,6 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useReviewDashboard, useStudentResults } from '../hooks/useReviewDashboard';
 import { useStudentPageTheme } from '../hooks/useGradeTheme';
-import StudentGradeSwitcherPill from '../components/StudentGradeSwitcherPill';
 import ElementaryResultsCelebration from '../components/ElementaryResultsCelebration';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
@@ -58,15 +57,6 @@ const StudentManMyExamsPage: React.FC = () => {
       onNavigate={handleNavigate}
       onLogout={handleLogout}
     >
-      {/* Grade Switcher Bar */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 bg-white/90 border border-slate-200 rounded-2xl p-3 shadow-sm">
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-          <span>Active View:</span>
-          <span className="font-bold text-slate-900">{theme.themeName}</span>
-        </div>
-        <StudentGradeSwitcherPill />
-      </div>
-
       {isLoading ? (
         <ReviewDashboard
           isLoading

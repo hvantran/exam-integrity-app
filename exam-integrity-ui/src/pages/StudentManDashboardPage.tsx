@@ -12,7 +12,6 @@ import { useExamList, useTagList } from '../hooks/useExams';
 import { useCreateSession } from '../hooks/useSession';
 import { useAuth } from '../context/AuthContext';
 import { useStudentPageTheme, extractSubjectFromTags } from '../hooks/useGradeTheme';
-import StudentGradeSwitcherPill from '../components/StudentGradeSwitcherPill';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
   dashboard: '/',
@@ -35,28 +34,13 @@ const LandingPage: React.FC = () => {
   const theme = useStudentPageTheme();
   const createSession = useCreateSession();
   const navigate = useNavigate();
-  const { user, logout, displayName, effectiveGrade } = useAuth();
+  const { user, logout, displayName } = useAuth();
   const studentId = user?.username ?? 'guest';
 
-  const filterOptions = React.useMemo(() => {
-    const nonGradeTags = tagList.filter((tag) => !/^grade\s*\d+$/i.test(tag.trim().replace(/\s+/g, '')));
-    return [{ label: 'All', value: '' }, ...nonGradeTags.map((tag) => ({ label: tag, value: tag }))];
-  }, [tagList]);
-
-  const filteredExams = React.useMemo(() => {
-    if (!exams) return [];
-    if (effectiveGrade === null) return exams;
-    return exams.filter((exam) => {
-      if (exam.grade != null) return exam.grade === effectiveGrade;
-      const gradeTag = exam.tags?.find((t) => /^grade\s*\d+$/i.test(t.trim().replace(/\s+/g, '')));
-      if (gradeTag) {
-        const clean = gradeTag.toLowerCase().trim().replace(/\s+/g, '');
-        const match = clean.match(/^grade(\d+)$/);
-        if (match) return Number(match[1]) === effectiveGrade;
-      }
-      return true;
-    });
-  }, [exams, effectiveGrade]);
+  const filterOptions = React.useMemo(
+    () => [{ label: 'All', value: '' }, ...tagList.map((tag) => ({ label: tag, value: tag }))],
+    [tagList],
+  );
 
   const handleLogout = () => {
     logout();
@@ -79,15 +63,6 @@ const LandingPage: React.FC = () => {
       onNavigate={handleNavigate}
       onLogout={handleLogout}
     >
-      {/* Grade Switcher Bar */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 bg-white/90 border border-slate-200 rounded-2xl p-3 shadow-sm">
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-          <span>Active View:</span>
-          <span className="font-bold text-slate-900">{theme.themeName}</span>
-        </div>
-        <StudentGradeSwitcherPill />
-      </div>
-
       {/* Cheerful Elementary Hero Greeting */}
       {theme.isElementary && (
         <div className="mb-8 rounded-3xl border-2 border-amber-300/80 bg-gradient-to-r from-amber-100/90 via-sky-100/70 to-emerald-100/80 p-6 md:p-8 shadow-md">
@@ -147,7 +122,7 @@ const LandingPage: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {(filteredExams ?? []).map((exam) => {
+          {(exams ?? []).map((exam) => {
             const subject = extractSubjectFromTags(exam.tags);
             const subjectInfo = SUBJECT_ICONS[subject] ?? SUBJECT_ICONS.general;
 
