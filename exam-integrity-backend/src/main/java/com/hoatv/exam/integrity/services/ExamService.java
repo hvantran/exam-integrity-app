@@ -55,9 +55,33 @@ public class ExamService {
     }
 
     public List<ExamDTO> listActive(List<String> tags) {
+        return listActive(tags, null);
+    }
+
+    public List<ExamDTO> listActive(List<String> tags, Integer filterGrade) {
         List<Exam> exams = (tags == null || tags.isEmpty())
             ? examRepository.findByStatus(Exam.ExamStatus.ACTIVE)
             : examRepository.findByStatusAndTagsIn(Exam.ExamStatus.ACTIVE, tags);
+
+        Integer effectiveGrade;
+        if (com.hoatv.exam.integrity.security.UserContext.isStudent()) {
+            effectiveGrade = com.hoatv.exam.integrity.security.UserContext.getStudentGrade();
+        } else {
+            effectiveGrade = filterGrade;
+        }
+
+        if (effectiveGrade != null) {
+            exams = exams.stream()
+                .filter(exam -> {
+                    Integer examGrade = exam.getGrade();
+                    if (examGrade == null) {
+                        examGrade = ExamGradeExtractor.extractGradeFromTags(exam.getTags());
+                    }
+                    return effectiveGrade.equals(examGrade);
+                })
+                .toList();
+        }
+
         return exams.stream()
             .sorted(Comparator
                 .comparing((Exam exam) -> exam.getTitle() == null ? "" : exam.getTitle().toLowerCase(Locale.ROOT))
@@ -92,7 +116,8 @@ public class ExamService {
 
             return new ExamDTO(exam.getId(), exam.getTitle(), exam.getDurationSeconds(),
                 exam.getTotalPoints(), questions.size(), exam.getTags(), questions,
-                exam.getStatus() != null ? exam.getStatus().name() : null);
+                exam.getStatus() != null ? exam.getStatus().name() : null,
+                exam.getGrade());
         });
     }
 
@@ -134,7 +159,8 @@ public class ExamService {
     private ExamDTO toDTO(Exam exam) {
         return new ExamDTO(exam.getId(), exam.getTitle(), exam.getDurationSeconds(),
             exam.getTotalPoints(), exam.getQuestions().size(), exam.getTags(), null,
-            exam.getStatus() != null ? exam.getStatus().name() : null);
+            exam.getStatus() != null ? exam.getStatus().name() : null,
+            exam.getGrade());
     }
 
     // ── BE-new: Create exam from random question bank sample ─────────────────

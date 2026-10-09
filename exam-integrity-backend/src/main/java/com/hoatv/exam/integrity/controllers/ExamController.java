@@ -37,9 +37,10 @@ public class ExamController {
 
     @Operation(
         summary = "List all active exams",
-        description = "Returns summary cards for all ACTIVE exams. Optionally filter by one or more tags.",
+        description = "Returns summary cards for all ACTIVE exams. Optionally filter by one or more tags or grade.",
         parameters = {
-            @Parameter(name = "tags", description = "Tags to filter by, e.g. toan,lop4", example = "toan,lop4")
+            @Parameter(name = "tags", description = "Tags to filter by, e.g. toan,grade4", example = "toan,grade4"),
+            @Parameter(name = "grade", description = "Optional grade level to filter by for teachers/admins", example = "4")
         },
         responses = {
             @ApiResponse(responseCode = "200", description = "List of exam summary cards")
@@ -47,8 +48,9 @@ public class ExamController {
     )
     @GetMapping
     public ResponseEntity<List<ExamDTO>> listExams(
-            @RequestParam(name = "tags", required = false) List<String> tags) {
-        return ResponseEntity.ok(examService.listActive(tags));
+            @RequestParam(name = "tags", required = false) List<String> tags,
+            @RequestParam(name = "grade", required = false) Integer grade) {
+        return ResponseEntity.ok(examService.listActive(tags, grade));
     }
 
     @Operation(

@@ -12,7 +12,6 @@ import { useExamList, useTagList } from '../hooks/useExams';
 import { useCreateSession } from '../hooks/useSession';
 import { useAuth } from '../context/AuthContext';
 import { useStudentPageTheme, extractSubjectFromTags } from '../hooks/useGradeTheme';
-import StudentGradeSwitcherPill from '../components/StudentGradeSwitcherPill';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
   dashboard: '/',
@@ -33,15 +32,15 @@ const LandingPage: React.FC = () => {
   const { data: exams, isLoading } = useExamList(tags);
   const { data: tagList = [], isLoading: isTagsLoading } = useTagList();
   const theme = useStudentPageTheme();
+  const createSession = useCreateSession();
+  const navigate = useNavigate();
+  const { user, logout, displayName } = useAuth();
+  const studentId = user?.username ?? 'guest';
 
   const filterOptions = React.useMemo(
     () => [{ label: 'All', value: '' }, ...tagList.map((tag) => ({ label: tag, value: tag }))],
     [tagList],
   );
-  const createSession = useCreateSession();
-  const navigate = useNavigate();
-  const { user, logout, displayName } = useAuth();
-  const studentId = user?.username ?? 'guest';
 
   const handleLogout = () => {
     logout();
@@ -64,15 +63,6 @@ const LandingPage: React.FC = () => {
       onNavigate={handleNavigate}
       onLogout={handleLogout}
     >
-      {/* Grade Switcher Bar */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 bg-white/90 border border-slate-200 rounded-2xl p-3 shadow-sm">
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-          <span>Active View:</span>
-          <span className="font-bold text-slate-900">{theme.themeName}</span>
-        </div>
-        <StudentGradeSwitcherPill />
-      </div>
-
       {/* Cheerful Elementary Hero Greeting */}
       {theme.isElementary && (
         <div className="mb-8 rounded-3xl border-2 border-amber-300/80 bg-gradient-to-r from-amber-100/90 via-sky-100/70 to-emerald-100/80 p-6 md:p-8 shadow-md">

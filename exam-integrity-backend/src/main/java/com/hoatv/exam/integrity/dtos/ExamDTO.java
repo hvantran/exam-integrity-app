@@ -11,5 +11,19 @@ public record ExamDTO(
     int questionCount,
     List<String> tags,
     List<QuestionSummaryDTO> questions,
-    String status
-) {}
+    String status,
+    Integer grade
+) {
+    public ExamDTO(
+        String id,
+        String title,
+        int durationSeconds,
+        double totalPoints,
+        int questionCount,
+        List<String> tags,
+        List<QuestionSummaryDTO> questions,
+        String status
+    ) {
+        this(id, title, durationSeconds, totalPoints, questionCount, tags, questions, status, null);
+    }
+}

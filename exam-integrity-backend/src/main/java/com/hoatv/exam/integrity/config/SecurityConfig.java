@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
+import com.hoatv.exam.integrity.security.UserContextFilter;
+
 /**
  * Security configuration for Exam Integrity Backend with Keycloak JWT validation.
  * Implements OAuth2 Resource Server pattern:
@@ -37,6 +40,12 @@ public class SecurityConfig {
     private static final String ROLE_ADMIN = "ADMIN";
     private static final String ROLE_TEACHER = "TEACHER";
     private static final String ROLE_STUDENT = "STUDENT";
+
+    private final UserContextFilter userContextFilter;
+
+    public SecurityConfig(UserContextFilter userContextFilter) {
+        this.userContextFilter = userContextFilter;
+    }
 
     @Bean
     @SuppressWarnings("java:S4502") // Stateless REST API using Keycloak JWT bearer tokens
@@ -68,6 +77,7 @@ public class SecurityConfig {
                     .jwtAuthenticationConverter(jwtAuthenticationConverter())
                 )
             )
+            .addFilterAfter(userContextFilter, BearerTokenAuthenticationFilter.class)
             .sessionManagement(session -> 
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )

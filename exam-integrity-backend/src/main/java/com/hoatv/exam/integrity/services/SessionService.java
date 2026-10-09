@@ -51,6 +51,20 @@ public class SessionService {
         Exam exam = examRepository.findById(examId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Exam not found: " + examId));
 
+        if (com.hoatv.exam.integrity.security.UserContext.isStudent()) {
+            Integer studentGrade = com.hoatv.exam.integrity.security.UserContext.getStudentGrade();
+            if (studentGrade != null) {
+                Integer examGrade = exam.getGrade();
+                if (examGrade == null) {
+                    examGrade = ExamGradeExtractor.extractGradeFromTags(exam.getTags());
+                }
+                if (examGrade != null && !studentGrade.equals(examGrade)) {
+                    throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        String.format("Student grade %d cannot access exam for grade %d", studentGrade, examGrade));
+                }
+            }
+        }
+
         sessionRepository.findByStudentIdAndExamIdAndStatus(studentId, examId, ExamSession.SessionStatus.ACTIVE)
             .ifPresent(s -> { throw new ResponseStatusException(HttpStatus.CONFLICT,
                 "Student already has an active session for this exam"); });

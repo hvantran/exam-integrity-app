@@ -16,7 +16,6 @@ import {
 } from '@hvantran/ui-component-library';
 import StudentManQuestionPanel from '../components/QuestionPanel';
 import type { QuestionOption } from '../components/QuestionPanel';
-import StudentGradeSwitcherPill from '../components/StudentGradeSwitcherPill';
 import { useSession, useQuestion, useSaveAnswer, useSubmitExam } from '../hooks/useSession';
 import { useExam } from '../hooks/useExams';
 import { useWebSocketTimer } from '../hooks/useWebSocketTimer';
@@ -261,9 +260,6 @@ const ExamPage: React.FC = () => {
                 <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 font-semibold text-xs">
                   🛡️ Friendly Guardian Active
                 </span>
-              </div>
-              <div className="flex items-center gap-3">
-                <StudentGradeSwitcherPill />
               </div>
             </div>
           </div>
