@@ -13,6 +13,7 @@ import { useCreateSession } from '../hooks/useSession';
 import { useAuth } from '../context/AuthContext';
 import { useStudentPageTheme, extractSubjectFromTags } from '../hooks/useGradeTheme';
 import { useUserProfile } from '../hooks/useUserProfile';
+import { useNavDockMode } from '../hooks/useNavDockMode';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
   dashboard: '/',
@@ -50,6 +51,8 @@ const LandingPage: React.FC = () => {
   };
   const handleNavigate = (section: PortalSection) => navigate(PORTAL_ROUTES[section]);
 
+  const [dockMode, setDockMode] = useNavDockMode();
+
   return (
     <StudentManLandingLayout
       studentName={displayName || 'Student'}
@@ -66,6 +69,8 @@ const LandingPage: React.FC = () => {
       onFilterChange={setActiveFilter}
       onNavigate={handleNavigate}
       onLogout={handleLogout}
+      dockMode={dockMode}
+      onDockModeChange={setDockMode}
     >
       {/* Cheerful Elementary Hero Greeting */}
       {theme.isElementary && (
