@@ -13,5 +13,6 @@ public record SessionResultSummaryDTO(
     double totalEarned,
     double totalMax,
     double finalScore10,
-    int pendingEssayCount
+    int pendingEssayCount,
+    int starsEarned
 ) {}

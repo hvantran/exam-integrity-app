@@ -183,6 +183,7 @@ export interface SessionResultSummaryDTO {
   totalMax: number;
   finalScore10: number;
   pendingEssayCount: number;
+  starsEarned?: number;
 }
 
 export interface TeacherScoreUpdatePayload {

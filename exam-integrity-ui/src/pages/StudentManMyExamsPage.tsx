@@ -10,6 +10,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useReviewDashboard, useStudentResults } from '../hooks/useReviewDashboard';
 import { useStudentPageTheme } from '../hooks/useGradeTheme';
+import { useUserProfile } from '../hooks/useUserProfile';
 import ElementaryResultsCelebration from '../components/ElementaryResultsCelebration';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
@@ -23,6 +24,8 @@ const StudentManMyExamsPage: React.FC = () => {
   const { user, logout, displayName } = useAuth();
   const studentId = user?.username ?? '';
   const { data: sessions = [], isLoading } = useStudentResults(studentId);
+  const { data: profile } = useUserProfile();
+  const totalStars = profile?.stats?.totalStars ?? 0;
   const [selectedSessionId, setSelectedSessionId] = React.useState('');
   const theme = useStudentPageTheme();
 
@@ -47,6 +50,7 @@ const StudentManMyExamsPage: React.FC = () => {
   return (
     <StudentManLandingLayout
       studentName={displayName || 'Student'}
+      starCount={totalStars}
       activeSection="my-exams"
       pageTitle={theme.isElementary ? 'My Completed Quests 🌟' : 'My Exams'}
       pageSubtitle={
@@ -69,7 +73,7 @@ const StudentManMyExamsPage: React.FC = () => {
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
             {sessions.map((session) => {
               const isSelected = session.sessionId === selectedSummary?.sessionId;
-              const earnedStars = Math.round(session.finalScore10 * 2);
+              const earnedStars = session.starsEarned ?? Math.round(session.finalScore10);
 
               if (theme.isElementary) {
                 return (
@@ -125,11 +129,16 @@ const StudentManMyExamsPage: React.FC = () => {
                           : 'Submitted exam'}
                       </div>
                     </div>
-                    {session.pendingEssayCount > 0 && (
-                      <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
-                        {session.pendingEssayCount} essay pending
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 px-2 py-0.5 text-xs font-bold text-amber-700 dark:text-amber-300">
+                        ⭐ {earnedStars}
                       </span>
-                    )}
+                      {session.pendingEssayCount > 0 && (
+                        <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
+                          {session.pendingEssayCount} essay pending
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="flex items-end justify-between">
                     <div>

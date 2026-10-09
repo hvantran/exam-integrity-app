@@ -35,6 +35,9 @@ class SessionReviewServiceTest {
     @Mock
     private ExamRepository examRepository;
 
+    @Mock
+    private UserProfileService userProfileService;
+
     @InjectMocks
     private SessionReviewService sessionReviewService;
 
