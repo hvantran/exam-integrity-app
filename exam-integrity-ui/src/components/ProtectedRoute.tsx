@@ -9,9 +9,9 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, children }) => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, isLoggingOut } = useAuth();
 
-  if (isLoading) {
+  if (isLoading || isLoggingOut) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <span
@@ -23,8 +23,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, children 
   }
 
   if (!user) {
-    const redirectUri = encodeURIComponent(window.location.href);
-    window.location.href = `/oauth2/authorization/keycloak?redirect_uri=${redirectUri}`;
+    const envGateway = (window as any)._env_?.REACT_APP_GATEWAY_URL;
+    const gatewayBaseUrl =
+      envGateway || process.env.REACT_APP_GATEWAY_URL || 'http://localhost:6081';
+    const redirectUri = encodeURIComponent(window.location.origin);
+    window.location.href = `${gatewayBaseUrl}/oauth2/authorization/keycloak?redirect_uri=${redirectUri}`;
     return null;
   }
 

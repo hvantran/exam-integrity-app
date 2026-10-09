@@ -24,10 +24,13 @@ const ReviewPage: React.FC = () => {
   const { data: dashboard, isLoading } = useReviewDashboard(sessionId);
   const { data: profile } = useUserProfile();
   const totalStars = profile?.stats?.totalStars ?? 0;
-  const { displayName } = useAuth();
+  const { displayName, logout } = useAuth();
   const theme = useStudentPageTheme();
   const navigate = useNavigate();
   const handleNavigate = (section: PortalSection) => navigate(PORTAL_ROUTES[section]);
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
     <StudentManReviewLayout
@@ -35,6 +38,7 @@ const ReviewPage: React.FC = () => {
       starCount={totalStars}
       activeSection="my-exams"
       onNavigate={handleNavigate}
+      onLogout={handleLogout}
     >
       <div className="p-2 sm:p-4 min-h-[300px]">
         {isLoading ? (

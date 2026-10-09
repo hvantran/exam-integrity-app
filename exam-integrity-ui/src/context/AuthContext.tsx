@@ -12,6 +12,7 @@ export interface AuthUser {
 interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
+  isLoggingOut: boolean;
   logout: () => void;
   isAdmin: boolean;
   isTeacher: boolean;
@@ -28,6 +29,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [overrideGrade, setOverrideGradeState] = useState<number | null>(() => {
     const saved = localStorage.getItem('exam_integrity_override_grade');
     return saved ? Number(saved) : null;
@@ -48,7 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('exam_integrity_override_grade');
       }
     },
-    [canSwitchGrade]
+    [canSwitchGrade],
   );
 
   const effectiveGrade = (canSwitchGrade ? overrideGrade : null) ?? user?.grade ?? null;
@@ -65,12 +67,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const logout = useCallback(() => {
-    setUser(null);
+    setIsLoggingOut(true);
     const envGateway = (window as any)._env_?.REACT_APP_GATEWAY_URL;
     const gatewayBaseUrl =
-      envGateway ||
-      process.env.REACT_APP_GATEWAY_URL ||
-      '';
+      envGateway || process.env.REACT_APP_GATEWAY_URL || 'http://localhost:6081';
     const redirectUri = encodeURIComponent(window.location.origin);
     window.location.href = `${gatewayBaseUrl}/logout?redirect_uri=${redirectUri}`;
   }, []);
@@ -86,6 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         user,
         isLoading,
+        isLoggingOut,
         logout,
         isAdmin,
         isTeacher,
