@@ -11,6 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { useReviewDashboard, useStudentResults } from '../hooks/useReviewDashboard';
 import { useStudentPageTheme } from '../hooks/useGradeTheme';
 import { useUserProfile } from '../hooks/useUserProfile';
+import { useNavDockMode } from '../hooks/useNavDockMode';
 import ElementaryResultsCelebration from '../components/ElementaryResultsCelebration';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
@@ -46,6 +47,7 @@ const StudentManMyExamsPage: React.FC = () => {
   };
 
   const handleNavigate = (section: PortalSection) => navigate(PORTAL_ROUTES[section]);
+  const [dockMode, setDockMode] = useNavDockMode();
 
   return (
     <StudentManLandingLayout
@@ -60,6 +62,8 @@ const StudentManMyExamsPage: React.FC = () => {
       }
       onNavigate={handleNavigate}
       onLogout={handleLogout}
+      dockMode={dockMode}
+      onDockModeChange={setDockMode}
     >
       {isLoading ? (
         <ReviewDashboard
