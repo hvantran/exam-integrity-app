@@ -25,6 +25,7 @@ import {
 } from '../hooks/useExams';
 import { examService } from '../services/examService';
 import { questionBankService } from '../services/questionBankService';
+import { useNavDockMode, TEACHER_NAV_DOCK_STORAGE_KEY } from '../hooks/useNavDockMode';
 import { useAuth } from '../context/AuthContext';
 import type { CreateExamFromBankCommand, ExamDTO } from '../types/exam.types';
 import { colors } from '../design-system/tokens';
@@ -388,6 +389,7 @@ const ExamCard: React.FC<ExamCardProps> = ({
 const TeacherManDashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { logout, displayName } = useAuth();
+  const [dockMode, setDockMode] = useNavDockMode('pinned', TEACHER_NAV_DOCK_STORAGE_KEY);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectDialogOpen, setSelectDialogOpen] = useState(false);
   const [manageDialogOpen, setManageDialogOpen] = useState(false);
@@ -583,6 +585,8 @@ const TeacherManDashboardPage: React.FC = () => {
       onNavigate={handleNavigate}
       onCreateExam={() => setDialogOpen(true)}
       onLogout={handleLogout}
+      dockMode={dockMode}
+      onDockModeChange={setDockMode}
       syncDialogState={
         syncTarget
           ? {

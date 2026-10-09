@@ -19,6 +19,7 @@ import { questionBankService } from '../services/questionBankService';
 import type { DraftQuestionDTO, QuestionPart, QuestionType } from '../types/exam.types';
 import type { DraftQuestionEditCommand } from '../types/exam.types';
 import { useAuth } from '../context/AuthContext';
+import { useNavDockMode, TEACHER_NAV_DOCK_STORAGE_KEY } from '../hooks/useNavDockMode';
 import StudentManQuestionPanel, { type QuestionOption } from '../components/QuestionPanel';
 
 const SECTION_ROUTES: Record<DashboardSection, string> = {
@@ -399,6 +400,7 @@ const McqOptionsForm: React.FC<McqOptionsProps> = ({
 /* Page                                                                 */
 /* ------------------------------------------------------------------ */
 const QuestionBankPage: React.FC = () => {
+  const [dockMode, setDockMode] = useNavDockMode('pinned', TEACHER_NAV_DOCK_STORAGE_KEY);
   const [q, setQ] = useState('');
   const [type, setType] = useState<QuestionType | ''>('');
   const [tagInput, setTagInput] = useState('');
@@ -600,6 +602,8 @@ const QuestionBankPage: React.FC = () => {
         isLoading={isLoading}
         onNavigate={handleNavigate}
         onLogout={handleLogout}
+        dockMode={dockMode}
+        onDockModeChange={setDockMode}
         filterBar={
           <div className="flex flex-wrap gap-2 items-center">
             {/* Search */}

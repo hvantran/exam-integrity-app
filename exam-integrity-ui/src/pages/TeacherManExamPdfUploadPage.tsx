@@ -10,6 +10,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { draftService } from '../services/draftService';
 import { useAuth } from '../context/AuthContext';
+import { useNavDockMode, TEACHER_NAV_DOCK_STORAGE_KEY } from '../hooks/useNavDockMode';
 
 const SECTION_ROUTES: Record<DashboardSection, string> = {
   dashboard: '/teacher/dashboard',
@@ -23,6 +24,7 @@ const SECTION_ROUTES: Record<DashboardSection, string> = {
 const IngestionPage: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const [dockMode, setDockMode] = useNavDockMode('pinned', TEACHER_NAV_DOCK_STORAGE_KEY);
   const qc = useQueryClient();
   const navigate = useNavigate();
   const { logout, displayName } = useAuth();
@@ -64,6 +66,8 @@ const IngestionPage: React.FC = () => {
       onImportExam={() => inputRef.current?.click()}
       onNavigate={handleNavigate}
       onLogout={handleLogout}
+      dockMode={dockMode}
+      onDockModeChange={setDockMode}
     >
       <div className="p-6 text-center bg-surface text-on-surface">
         <input type="file" accept=".pdf" ref={inputRef} hidden onChange={handleFile} />

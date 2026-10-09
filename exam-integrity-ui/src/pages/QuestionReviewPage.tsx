@@ -15,6 +15,7 @@ import {
 } from '@hvantran/ui-component-library';
 import { useDraft, useEditQuestion, useRemoveQuestion, useAddQuestion } from '../hooks/useDraft';
 import { useAuth } from '../context/AuthContext';
+import { useNavDockMode, TEACHER_NAV_DOCK_STORAGE_KEY } from '../hooks/useNavDockMode';
 import { useQuery } from '@tanstack/react-query';
 import { questionBankService } from '../services/questionBankService';
 import type { DraftQuestionDTO } from '../types/exam.types';
@@ -185,6 +186,7 @@ const ReplaceBankModal: React.FC<ReplaceBankModalProps> = ({
 
 const QuestionReviewPage: React.FC = () => {
   const { draftId = '' } = useParams<{ draftId: string }>();
+  const [dockMode, setDockMode] = useNavDockMode('pinned', TEACHER_NAV_DOCK_STORAGE_KEY);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [bankModalOpen, setBankModalOpen] = useState(false);
   const [scoreInput, setScoreInput] = useState<number | ''>('');
@@ -468,6 +470,8 @@ const QuestionReviewPage: React.FC = () => {
         onLogout={handleLogout}
         onSaveDraft={() => navigate('/teacher/ingestion')}
         onPublish={() => {}}
+        dockMode={dockMode}
+        onDockModeChange={setDockMode}
       />
     );
   }
@@ -501,6 +505,8 @@ const QuestionReviewPage: React.FC = () => {
         onPublish={handlePublishNavigation}
         onNavigate={handleNavigate}
         onLogout={handleLogout}
+        dockMode={dockMode}
+        onDockModeChange={setDockMode}
         leftPanel={
           <div className="p-4">
             {saveError && (

@@ -10,6 +10,7 @@ import {
 } from '@hvantran/ui-component-library';
 import { useDraft, usePublishDraft } from '../hooks/useDraft';
 import { useAuth } from '../context/AuthContext';
+import { useNavDockMode, TEACHER_NAV_DOCK_STORAGE_KEY } from '../hooks/useNavDockMode';
 
 const SECTION_ROUTES: Record<DashboardSection, string> = {
   dashboard: '/teacher/dashboard',
@@ -25,6 +26,7 @@ const FinalPublicationPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout, displayName } = useAuth();
+  const [dockMode, setDockMode] = useNavDockMode('pinned', TEACHER_NAV_DOCK_STORAGE_KEY);
   const handleLogout = () => {
     logout();
   };
@@ -113,6 +115,8 @@ const FinalPublicationPage: React.FC = () => {
       onPublish={handlePublish}
       onNavigate={handleNavigate}
       onLogout={handleLogout}
+      dockMode={dockMode}
+      onDockModeChange={setDockMode}
       questions={activeQuestions}
     />
   );

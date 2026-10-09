@@ -9,6 +9,7 @@ import {
   type ExamIntegrityDashboardSection as DashboardSection,
 } from '@hvantran/ui-component-library';
 import { useAuth } from '../context/AuthContext';
+import { useNavDockMode, TEACHER_NAV_DOCK_STORAGE_KEY } from '../hooks/useNavDockMode';
 import {
   useReviewDashboard,
   useTeacherScore,
@@ -27,6 +28,7 @@ const SECTION_ROUTES: Record<DashboardSection, string> = {
 const TeacherManScoringPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout, displayName } = useAuth();
+  const [dockMode, setDockMode] = useNavDockMode('pinned', TEACHER_NAV_DOCK_STORAGE_KEY);
   const { data: queue = [], isLoading } = useTeacherScoringQueue();
   const [selectedSessionId, setSelectedSessionId] = React.useState('');
   const { data: dashboard, isLoading: reviewLoading } = useReviewDashboard(selectedSessionId);
@@ -75,6 +77,8 @@ const TeacherManScoringPage: React.FC = () => {
       userRole="Teacher"
       onNavigate={handleNavigate}
       onLogout={handleLogout}
+      dockMode={dockMode}
+      onDockModeChange={setDockMode}
     >
       <div className="space-y-6">
         <div>
