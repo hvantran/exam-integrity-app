@@ -71,7 +71,7 @@ public class UserProfileController {
 
     @Operation(summary = "Get user profile by userId")
     @GetMapping("/{userId}")
-    public ResponseEntity<UserProfileDTO> getProfileByUserId(@PathVariable String userId) {
+    public ResponseEntity<UserProfileDTO> getProfileByUserId(@PathVariable("userId") String userId) {
         return userProfileService.findByUserId(userId)
             .map(ResponseEntity::ok)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found for user: " + userId));
