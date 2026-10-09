@@ -36,7 +36,7 @@ const ReviewPage: React.FC = () => {
       activeSection="my-exams"
       onNavigate={handleNavigate}
     >
-      <div className="p-4 min-h-[300px]">
+      <div className="p-2 sm:p-4 min-h-[300px]">
         {isLoading ? (
           <ReviewDashboard
             isLoading

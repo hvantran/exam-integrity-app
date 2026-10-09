@@ -316,7 +316,7 @@ const StudentManQuestionPanelContent: React.FC<StudentManQuestionPanelContentPro
           {questionParts?.map((part, index) => (
             <section
               key={part.key}
-              className="rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-sky-50/60 p-4 shadow-[0_12px_28px_-24px_rgba(15,23,42,0.45)] flex-1 min-w-[calc(50%-0.5rem)]"
+              className="rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-sky-50/60 p-4 shadow-[0_12px_28px_-24px_rgba(15,23,42,0.45)] w-full sm:flex-1 sm:min-w-[calc(50%-0.5rem)]"
             >
               <div className="flex items-start gap-3 mb-3">
                 <div className="min-w-9 h-9 px-2 rounded-full bg-sky-600 text-white text-sm font-bold flex items-center justify-center uppercase shadow-sm">
