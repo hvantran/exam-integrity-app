@@ -13,6 +13,7 @@ import { useCreateSession } from '../hooks/useSession';
 import { useAuth } from '../context/AuthContext';
 import { useStudentPageTheme, extractSubjectFromTags } from '../hooks/useGradeTheme';
 import { useUserProfile } from '../hooks/useUserProfile';
+import { useNavDockMode } from '../hooks/useNavDockMode';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
   dashboard: '/',
@@ -50,6 +51,8 @@ const LandingPage: React.FC = () => {
   };
   const handleNavigate = (section: PortalSection) => navigate(PORTAL_ROUTES[section]);
 
+  const [dockMode, setDockMode] = useNavDockMode();
+
   return (
     <StudentManLandingLayout
       studentName={displayName || 'Student'}
@@ -66,10 +69,12 @@ const LandingPage: React.FC = () => {
       onFilterChange={setActiveFilter}
       onNavigate={handleNavigate}
       onLogout={handleLogout}
+      dockMode={dockMode}
+      onDockModeChange={setDockMode}
       bannerSlot={
         theme.isElementary ? (
-          <div className="rounded-3xl border-2 border-amber-300/80 bg-gradient-to-r from-amber-100/90 via-sky-100/70 to-emerald-100/80 p-6 md:p-8 shadow-md">
-            <div className="flex items-center gap-5">
+        <div className="mb-8 rounded-3xl border-2 border-amber-300/80 bg-gradient-to-r from-amber-100/90 via-sky-100/70 to-emerald-100/80 p-6 md:p-8 shadow-md">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-amber-400 border-4 border-white shadow-md flex items-center justify-center text-3xl md:text-4xl flex-shrink-0">
                 🦁
               </div>
