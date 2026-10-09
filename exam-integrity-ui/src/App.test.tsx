@@ -9,6 +9,7 @@ jest.mock('./context/AuthContext', () => ({
   useAuth: () => ({
     user: { username: 'admin-user', roles: mockRoles, firstName: 'Admin', lastName: 'User' },
     isLoading: false,
+    isLoggingOut: false,
     logout: jest.fn(),
     isAdmin: mockRoles.includes('ADMIN'),
     isTeacher: mockRoles.includes('TEACHER'),
