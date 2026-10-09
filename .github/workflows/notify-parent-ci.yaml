@@ -7,7 +7,32 @@ on:
   workflow_dispatch:
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      ui: ${{ steps.filter.outputs.ui }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          token: ${{ secrets.ACCESS_TOKEN || github.token }}
+          filters: |
+            backend:
+              - 'exam-integrity-backend/**'
+              - 'pdf-ingestion-service/**'
+              - 'pom.xml'
+              - 'openapi.yaml'
+              - '.github/workflows/**'
+            ui:
+              - 'exam-integrity-ui/**'
+              - '.github/workflows/**'
+
   Update:
+    needs: changes
     runs-on: ubuntu-latest
 
     steps:
@@ -34,6 +59,7 @@ jobs:
           max_attempts: 5
           command: git pull --rebase && git push
       - name: Github REST API Call to make exam-integrity-backend-ci service build
+        if: ${{ github.event_name == 'workflow_dispatch' || needs.changes.outputs.backend == 'true' }}
         env:
           CI_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           PARENT_REPO: project-management
@@ -42,6 +68,7 @@ jobs:
         run: |
           curl -fL --retry 3 -X POST -H "Accept: application/vnd.github.v3+json" -H "Authorization: token ${{ env.CI_TOKEN }}" https://api.github.com/repos/hvantran/${{ env.PARENT_REPO }}/actions/workflows/${{ env.WORKFLOW_ID }}/dispatches -d '{"ref":"${{ env.PARENT_BRANCH }}"}'
       - name: Github REST API Call to make exam-integrity-ui-ci service build
+        if: ${{ github.event_name == 'workflow_dispatch' || needs.changes.outputs.ui == 'true' }}
         env:
           CI_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           PARENT_REPO: project-management
