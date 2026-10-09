@@ -363,12 +363,12 @@ const ExamPage: React.FC = () => {
         )}
 
         {/* Main Workspace Grid (Unified max-w-7xl matching Quest Trail) */}
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 md:px-8 py-6 pb-28">
+        <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 md:px-8 py-4 sm:py-6 pb-28">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Question Workspace Panel (8 cols) */}
             <section className="lg:col-span-8 flex flex-col gap-5">
               <div
-                className={`w-full p-6 md:p-8 flex flex-col ${
+                className={`w-full p-3 sm:p-6 md:p-8 flex flex-col ${
                   examLayoutTheme.isElementary
                     ? 'rounded-3xl border-2 border-amber-200/90 bg-white shadow-[0_4px_0_#cbd5e1]'
                     : 'rounded-2xl border border-gray-200 bg-white shadow-sm'

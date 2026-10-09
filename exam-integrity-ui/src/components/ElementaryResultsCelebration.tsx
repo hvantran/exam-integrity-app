@@ -44,27 +44,27 @@ export const ElementaryResultsCelebration: React.FC<ElementaryResultsCelebration
       </div>
 
       {/* Celebration Hero Card */}
-      <div className="relative overflow-hidden rounded-3xl border-2 border-amber-300 bg-gradient-to-br from-amber-300 via-amber-200 to-yellow-100 p-8 md:p-10 shadow-xl text-center">
+      <div className="relative overflow-hidden rounded-3xl border-2 border-amber-300 bg-gradient-to-br from-amber-300 via-amber-200 to-yellow-100 p-5 sm:p-8 md:p-10 shadow-xl text-center">
         {/* Floating Confetti Graphics */}
         <div className="absolute top-3 left-4 text-2xl select-none animate-bounce">✨</div>
         <div className="absolute top-4 right-6 text-2xl select-none animate-bounce delay-100">🎉</div>
         <div className="absolute bottom-4 left-8 text-2xl select-none opacity-80">🎈</div>
         <div className="absolute bottom-4 right-8 text-2xl select-none opacity-80">🌟</div>
 
-        <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-white/90 border-4 border-amber-400 shadow-md flex items-center justify-center text-4xl">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-full bg-white/90 border-4 border-amber-400 shadow-md flex items-center justify-center text-3xl sm:text-4xl">
           🏆
         </div>
 
-        <h1 className="text-2xl md:text-4xl font-black text-amber-950 mb-2">
+        <h1 className="text-xl sm:text-2xl md:text-4xl font-black text-amber-950 mb-2">
           Quest Complete! Fantastic Job, {studentName}!
         </h1>
-        <p className="text-amber-900 text-sm md:text-base font-semibold max-w-lg mx-auto mb-6">
+        <p className="text-amber-900 text-xs sm:text-sm md:text-base font-semibold max-w-lg mx-auto mb-6">
           You worked hard and did your best. Every challenge makes your brain stronger!
         </p>
 
         {/* Big Score & Glowing Stars */}
-        <div className="inline-flex flex-col items-center bg-white/95 border-2 border-amber-400 rounded-3xl px-8 py-5 shadow-lg mb-6">
-          <div className="flex items-center justify-center gap-2 text-3xl mb-1">
+        <div className="inline-flex flex-col items-center bg-white/95 border-2 border-amber-400 rounded-3xl px-5 sm:px-8 py-4 sm:py-5 shadow-lg mb-6 max-w-full">
+          <div className="flex items-center justify-center gap-2 text-2xl sm:text-3xl mb-1">
             {Array.from({ length: 3 }).map((_, i) => (
               <span
                 key={i}
@@ -76,9 +76,9 @@ export const ElementaryResultsCelebration: React.FC<ElementaryResultsCelebration
               </span>
             ))}
           </div>
-          <div className="text-5xl font-black text-slate-900 leading-none my-1">
+          <div className="text-4xl sm:text-5xl font-black text-slate-900 leading-none my-1">
             {score10.toFixed(1)}
-            <span className="text-xl font-bold text-slate-500"> / 10</span>
+            <span className="text-lg sm:text-xl font-bold text-slate-500"> / 10</span>
           </div>
           <div className="mt-1 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-xs font-black text-amber-950 uppercase tracking-wide">
             <span>🥇</span>
@@ -109,8 +109,8 @@ export const ElementaryResultsCelebration: React.FC<ElementaryResultsCelebration
       </div>
 
       {/* Per-Question Encouraging Checklist */}
-      <div className="rounded-3xl border-2 border-slate-200 bg-white p-6 md:p-8 shadow-sm">
-        <h2 className="text-xl font-extrabold text-slate-900 mb-6 flex items-center gap-2">
+      <div className="rounded-3xl border-2 border-slate-200 bg-white p-4 sm:p-6 md:p-8 shadow-sm">
+        <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 mb-4 sm:mb-6 flex items-center gap-2">
           <span>📝</span>
           <span>Your Quest Review</span>
         </h2>
@@ -124,14 +124,14 @@ export const ElementaryResultsCelebration: React.FC<ElementaryResultsCelebration
               return (
                 <div
                   key={score.questionId || idx}
-                  className="rounded-2xl border-2 border-emerald-300 bg-emerald-50/60 p-4 flex items-center justify-between gap-4 shadow-sm"
+                  className="rounded-2xl border-2 border-emerald-300 bg-emerald-50/60 p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 shadow-sm"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-emerald-500 text-white font-black text-lg flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-emerald-500 text-white font-black text-base sm:text-lg flex items-center justify-center flex-shrink-0 shadow-sm">
                       ✓
                     </div>
                     <div>
-                      <div className="font-bold text-slate-900 text-base">
+                      <div className="font-bold text-slate-900 text-sm sm:text-base">
                         Question {qNum}: Spot on! 🎯
                       </div>
                       <div className="text-xs text-slate-600 font-medium mt-0.5">
@@ -139,7 +139,7 @@ export const ElementaryResultsCelebration: React.FC<ElementaryResultsCelebration
                       </div>
                     </div>
                   </div>
-                  <div className="text-sm font-extrabold text-emerald-800 bg-white px-3 py-1.5 rounded-full border border-emerald-200 shadow-xs">
+                  <div className="text-xs sm:text-sm font-extrabold text-emerald-800 bg-white px-3 py-1.5 rounded-full border border-emerald-200 shadow-xs self-end sm:self-center">
                     +{score.earnedPoints ?? 1} pts
                   </div>
                 </div>
@@ -149,14 +149,14 @@ export const ElementaryResultsCelebration: React.FC<ElementaryResultsCelebration
             return (
               <div
                 key={score.questionId || idx}
-                className="rounded-2xl border-2 border-amber-200 bg-amber-50/50 p-4.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm"
+                className="rounded-2xl border-2 border-amber-200 bg-amber-50/50 p-3.5 sm:p-4.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 shadow-sm"
               >
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-amber-400 text-amber-950 font-black text-lg flex items-center justify-center flex-shrink-0 shadow-sm">
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-amber-400 text-amber-950 font-black text-base sm:text-lg flex items-center justify-center flex-shrink-0 shadow-sm">
                     ⭐
                   </div>
                   <div>
-                    <div className="font-bold text-slate-900 text-base flex items-center gap-2">
+                    <div className="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2 flex-wrap">
                       <span>Question {qNum}: Good Try!</span>
                       <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-200/80 text-amber-950">
                         Learning Moment
@@ -183,11 +183,11 @@ export const ElementaryResultsCelebration: React.FC<ElementaryResultsCelebration
       </div>
 
       {/* Bottom Actions */}
-      <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-4">
         <button
           type="button"
           onClick={handleBack}
-          className="min-h-[56px] rounded-full bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-base px-8 shadow-[0_4px_0_#d97706] active:translate-y-1 active:shadow-none transition-all flex items-center gap-2 select-none"
+          className="w-full sm:w-auto min-h-[52px] sm:min-h-[56px] rounded-full bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-base px-8 shadow-[0_4px_0_#d97706] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 select-none"
         >
           <span>Back to Quests</span>
           <span>🚀</span>
@@ -195,7 +195,7 @@ export const ElementaryResultsCelebration: React.FC<ElementaryResultsCelebration
         <button
           type="button"
           onClick={handlePrint}
-          className="min-h-[56px] rounded-full bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-300 font-bold text-base px-7 shadow-sm transition-all flex items-center gap-2 select-none"
+          className="w-full sm:w-auto min-h-[52px] sm:min-h-[56px] rounded-full bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-300 font-bold text-base px-7 shadow-sm transition-all flex items-center justify-center gap-2 select-none"
         >
           <span>Print Certificate</span>
           <span>📜</span>

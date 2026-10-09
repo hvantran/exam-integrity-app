@@ -98,7 +98,7 @@ const StudentManQuestionPanel: React.FC<QuestionPanelProps> = ({
   if (isLoading) {
     return (
       <div
-        className={`bg-white min-w-[750px] w-full border border-l-4 rounded-2xl p-4 md:p-8 ${panelToneClasses.card}`}
+        className={`bg-white w-full border border-l-4 rounded-2xl p-4 sm:p-6 md:p-8 ${panelToneClasses.card}`}
       >
         <div className="flex items-start justify-between gap-3 mb-4">
           <div className="flex items-center gap-4 min-w-0 flex-1">
@@ -127,7 +127,7 @@ const StudentManQuestionPanel: React.FC<QuestionPanelProps> = ({
 
   return (
     <div
-      className={`bg-white min-w-[750px] w-full border border-l-4 rounded-2xl p-4 md:p-8 ${panelToneClasses.card}`}
+      className={`bg-white w-full border border-l-4 rounded-2xl p-4 sm:p-6 md:p-8 ${panelToneClasses.card}`}
     >
       <ExamIntegrityStudentQuestionPanelHeader
         questionNumber={questionNumber}

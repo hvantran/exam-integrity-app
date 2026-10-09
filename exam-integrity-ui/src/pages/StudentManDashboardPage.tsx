@@ -73,16 +73,16 @@ const LandingPage: React.FC = () => {
       onDockModeChange={setDockMode}
       bannerSlot={
         theme.isElementary ? (
-        <div className="mb-8 rounded-3xl border-2 border-amber-300/80 bg-gradient-to-r from-amber-100/90 via-sky-100/70 to-emerald-100/80 p-6 md:p-8 shadow-md">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="rounded-3xl border-2 border-amber-300/80 bg-gradient-to-r from-amber-100/90 via-sky-100/70 to-emerald-100/80 p-5 sm:p-6 md:p-8 shadow-md">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-5">
               <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-amber-400 border-4 border-white shadow-md flex items-center justify-center text-3xl md:text-4xl flex-shrink-0">
                 🦁
               </div>
               <div>
-                <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 mb-1">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 mb-1">
                   Welcome back, {displayName || 'Adventurer'}! 🚀
                 </h1>
-                <p className="text-slate-700 text-sm md:text-base font-medium">
+                <p className="text-slate-700 text-xs sm:text-sm md:text-base font-medium">
                   Ready for today's learning adventures? Have fun exploring your quests!
                 </p>
               </div>
@@ -93,7 +93,7 @@ const LandingPage: React.FC = () => {
     >
 
       {isLoading || isTagsLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {Array.from({ length: 6 }).map((_, index) => (
             <div
               key={index}
@@ -113,7 +113,7 @@ const LandingPage: React.FC = () => {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {(exams ?? []).map((exam) => {
             const subject = extractSubjectFromTags(exam.tags);
             const subjectInfo = SUBJECT_ICONS[subject] ?? SUBJECT_ICONS.general;
