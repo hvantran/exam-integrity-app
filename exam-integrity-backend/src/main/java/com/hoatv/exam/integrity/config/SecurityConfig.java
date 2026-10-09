@@ -67,8 +67,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/drafts/**", "/api/questions/**").hasAnyRole(ROLE_ADMIN, ROLE_TEACHER)
                 // Student, Teacher, Admin can access exams and sessions
                 .requestMatchers("/api/exams/**", "/api/sessions/**").hasAnyRole(ROLE_STUDENT, ROLE_TEACHER, ROLE_ADMIN)
-                // Auth info endpoint
-                .requestMatchers("/api/auth/**").authenticated()
+                // Auth info and profile endpoints
+                .requestMatchers("/api/auth/**", "/api/profiles/**").authenticated()
                 // All other requests require authentication
                 .anyRequest().authenticated()
             )

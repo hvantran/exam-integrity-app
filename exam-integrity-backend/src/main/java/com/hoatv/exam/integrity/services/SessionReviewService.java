@@ -39,13 +39,16 @@ public class SessionReviewService {
     private final ScoreRepository scoreRepository;
     private final SessionRepository sessionRepository;
     private final ExamRepository examRepository;
+    private final UserProfileService userProfileService;
 
     public SessionReviewService(ScoreRepository scoreRepository,
                                 SessionRepository sessionRepository,
-                                ExamRepository examRepository) {
+                                ExamRepository examRepository,
+                                UserProfileService userProfileService) {
         this.scoreRepository = scoreRepository;
         this.sessionRepository = sessionRepository;
         this.examRepository = examRepository;
+        this.userProfileService = userProfileService;
     }
 
     public void initializeScores(ExamSession session) {
@@ -61,6 +64,7 @@ public class SessionReviewService {
             .toList();
 
         scoreRepository.saveAll(scores);
+        recordSessionScoreToProfile(session);
     }
 
     public Optional<ReviewDashboardDTO> getReviewDashboard(String sessionId) {
@@ -154,6 +158,11 @@ public class SessionReviewService {
             score.setExplanation(updateDTO.explanation().trim());
         }
         scoreRepository.save(score);
+
+        ExamSession session = sessionRepository.findById(sessionId).orElse(null);
+        if (session != null) {
+            recordSessionScoreToProfile(session);
+        }
 
         return getReviewDashboard(sessionId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Review dashboard not found for session: " + sessionId));
@@ -322,6 +331,7 @@ public class SessionReviewService {
                 || score.getStatus() == Score.ScoreStatus.PENDING_ESSAY)
             .count();
         double finalScore10 = totalMax > 0 ? roundToOneDecimal((totalEarned / totalMax) * 10.0) : 0.0;
+        int starsEarned = (int) Math.round(finalScore10);
 
         return new SessionResultSummaryDTO(
             session.getId(),
@@ -333,8 +343,20 @@ public class SessionReviewService {
             totalEarned,
             totalMax,
             finalScore10,
-            pendingEssayCount
+            pendingEssayCount,
+            starsEarned
         );
+    }
+
+    public void recordSessionScoreToProfile(ExamSession session) {
+        if (session == null || session.getStudentId() == null) {
+            return;
+        }
+        List<Score> scores = scoreRepository.findBySessionId(session.getId());
+        double totalEarned = scores.stream().mapToDouble(Score::getEarnedPoints).sum();
+        double totalMax = scores.stream().mapToDouble(Score::getMaxPoints).sum();
+        double finalScore10 = totalMax > 0 ? roundToOneDecimal((totalEarned / totalMax) * 10.0) : 0.0;
+        userProfileService.recordSessionCompletion(session.getStudentId(), session.getId(), finalScore10);
     }
 
     private String resolveReferenceAnswer(Question question) {

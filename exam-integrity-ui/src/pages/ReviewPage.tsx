@@ -10,6 +10,7 @@ import {
 import { useReviewDashboard } from '../hooks/useReviewDashboard';
 import { useAuth } from '../context/AuthContext';
 import { useStudentPageTheme } from '../hooks/useGradeTheme';
+import { useUserProfile } from '../hooks/useUserProfile';
 import ElementaryResultsCelebration from '../components/ElementaryResultsCelebration';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
@@ -21,6 +22,8 @@ const PORTAL_ROUTES: Record<PortalSection, string> = {
 const ReviewPage: React.FC = () => {
   const { sessionId = '' } = useParams<{ sessionId: string }>();
   const { data: dashboard, isLoading } = useReviewDashboard(sessionId);
+  const { data: profile } = useUserProfile();
+  const totalStars = profile?.stats?.totalStars ?? 0;
   const { displayName } = useAuth();
   const theme = useStudentPageTheme();
   const navigate = useNavigate();
@@ -29,6 +32,7 @@ const ReviewPage: React.FC = () => {
   return (
     <StudentManReviewLayout
       studentName={displayName || 'Student'}
+      starCount={totalStars}
       activeSection="my-exams"
       onNavigate={handleNavigate}
     >

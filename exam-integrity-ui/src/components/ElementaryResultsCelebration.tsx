@@ -24,7 +24,7 @@ export const ElementaryResultsCelebration: React.FC<ElementaryResultsCelebration
 
   const score10 = dashboard.finalScore10;
   const starCount = score10 >= 8.5 ? 3 : score10 >= 6.5 ? 2 : 1;
-  const earnedStars = Math.round(score10 * 2);
+  const earnedStars = Math.round(score10);
 
   const handlePrint = () => {
     window.print();

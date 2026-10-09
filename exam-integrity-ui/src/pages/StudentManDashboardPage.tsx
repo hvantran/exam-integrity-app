@@ -12,6 +12,7 @@ import { useExamList, useTagList } from '../hooks/useExams';
 import { useCreateSession } from '../hooks/useSession';
 import { useAuth } from '../context/AuthContext';
 import { useStudentPageTheme, extractSubjectFromTags } from '../hooks/useGradeTheme';
+import { useUserProfile } from '../hooks/useUserProfile';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
   dashboard: '/',
@@ -35,7 +36,9 @@ const LandingPage: React.FC = () => {
   const createSession = useCreateSession();
   const navigate = useNavigate();
   const { user, logout, displayName } = useAuth();
+  const { data: profile } = useUserProfile();
   const studentId = user?.username ?? 'guest';
+  const totalStars = profile?.stats?.totalStars ?? 0;
 
   const filterOptions = React.useMemo(
     () => [{ label: 'All', value: '' }, ...tagList.map((tag) => ({ label: tag, value: tag }))],
@@ -50,6 +53,7 @@ const LandingPage: React.FC = () => {
   return (
     <StudentManLandingLayout
       studentName={displayName || 'Student'}
+      starCount={totalStars}
       activeSection="dashboard"
       pageTitle={theme.isElementary ? 'Learning Quests 🌟' : 'Ky thi dang dien ra'}
       pageSubtitle={
@@ -92,7 +96,7 @@ const LandingPage: React.FC = () => {
                 <div className="text-xs font-bold text-sky-800 uppercase">Stars</div>
                 <div className="text-lg font-black text-slate-900 flex items-center justify-center gap-1">
                   <span>⭐</span>
-                  <span>128</span>
+                  <span>{totalStars}</span>
                 </div>
               </div>
             </div>
