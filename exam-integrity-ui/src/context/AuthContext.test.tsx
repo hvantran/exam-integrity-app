@@ -157,4 +157,49 @@ describe('AuthContext logout', () => {
       '/logout?redirect_uri=http%3A%2F%2F192.168.1.6%3A6090',
     );
   });
+
+  it('scopes overrideGrade in localStorage by active user', async () => {
+    (apiClient.get as jest.Mock).mockResolvedValueOnce({
+      data: {
+        username: 'teacher_jane',
+        roles: ['TEACHER'],
+        grade: 3,
+      },
+    });
+
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <AuthProvider>{children}</AuthProvider>
+    );
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(result.current.user?.username).toBe('teacher_jane');
+    expect(result.current.effectiveGrade).toBe(3);
+
+    act(() => {
+      result.current.setOverrideGrade(5);
+    });
+
+    expect(result.current.overrideGrade).toBe(5);
+    expect(result.current.effectiveGrade).toBe(5);
+    expect(
+      localStorage.getItem('exam_integrity_teacher_jane_override_grade')
+    ).toBe('5');
+    // Unpartitioned key must not be populated
+    expect(localStorage.getItem('exam_integrity_override_grade')).toBeNull();
+
+    act(() => {
+      result.current.setOverrideGrade(null);
+    });
+
+    expect(result.current.overrideGrade).toBeNull();
+    expect(
+      localStorage.getItem('exam_integrity_teacher_jane_override_grade')
+    ).toBeNull();
+  });
 });
+

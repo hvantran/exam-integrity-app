@@ -49,4 +49,36 @@ describe('useNavDockMode', () => {
     expect(result.current[0]).toBe('auto-hide');
     expect(localStorage.getItem(TEACHER_NAV_DOCK_STORAGE_KEY)).toBe('auto-hide');
   });
+
+  it('scopes storageKey by explicit userId and isolates users', () => {
+    const { result: user1Result } = renderHook(() =>
+      useNavDockMode('pinned', NAV_DOCK_STORAGE_KEY, 'user1')
+    );
+    const { result: user2Result } = renderHook(() =>
+      useNavDockMode('pinned', NAV_DOCK_STORAGE_KEY, 'user2')
+    );
+
+    act(() => {
+      user1Result.current[1]('auto-hide');
+    });
+
+    expect(user1Result.current[0]).toBe('auto-hide');
+    expect(
+      localStorage.getItem('exam_integrity_user1_nav_mode')
+    ).toBe('auto-hide');
+    expect(localStorage.getItem('exam_integrity_user2_nav_mode')).toBeNull();
+
+    act(() => {
+      user2Result.current[1]('docked');
+    });
+
+    expect(user2Result.current[0]).toBe('docked');
+    expect(
+      localStorage.getItem('exam_integrity_user2_nav_mode')
+    ).toBe('docked');
+    expect(
+      localStorage.getItem('exam_integrity_user1_nav_mode')
+    ).toBe('auto-hide');
+  });
 });
+

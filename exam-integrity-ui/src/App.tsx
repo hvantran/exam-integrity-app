@@ -84,6 +84,14 @@ const App: React.FC = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/collection"
+              element={
+                <ProtectedRoute>
+                  <StudentManEggShopPage />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Teacher routes */}
             <Route
