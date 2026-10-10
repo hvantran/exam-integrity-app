@@ -33,7 +33,10 @@ jest.mock('./pages/TeacherManQuestionBankPage', () => () => <div>Question bank</
 jest.mock('./pages/TeacherManFinalPublicationPage', () => () => <div>Final publication</div>);
 jest.mock('./pages/TeacherManDashboardPage', () => () => <div>Teacher dashboard</div>);
 jest.mock('./pages/TeacherManScoringPage', () => () => <div>Teacher scoring</div>);
-jest.mock('./components/AppToastContainer', () => () => null);
+jest.mock('react-toastify', () => ({
+  ToastContainer: () => null,
+  Slide: {},
+}));
 
 describe('App', () => {
   beforeEach(() => {

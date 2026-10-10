@@ -1,25 +1,24 @@
 /** FE-23: draftRepository — optional local cache for draft state (localStorage) */
-import type { DraftQuestionDTO, ExamDraftSummaryDTO } from '../types/exam.types';
-
-const KEY_PREFIX = 'exam_draft_';
+import type { DraftQuestionDTO } from '../types/exam.types';
+import { getScopedItem, setScopedItem, removeScopedItem } from '../utils/storage';
 
 export const draftRepository = {
-  saveDraftCache: (draftId: string, questions: DraftQuestionDTO[]): void => {
+  saveDraftCache: (draftId: string, questions: DraftQuestionDTO[], userId?: string | null): void => {
     try {
-      localStorage.setItem(`${KEY_PREFIX}${draftId}`, JSON.stringify(questions));
+      setScopedItem(`draft_${draftId}`, JSON.stringify(questions), userId);
     } catch {
       // Ignore storage errors (private browsing, full quota)
     }
   },
-  getDraftCache: (draftId: string): DraftQuestionDTO[] | null => {
+  getDraftCache: (draftId: string, userId?: string | null): DraftQuestionDTO[] | null => {
     try {
-      const raw = localStorage.getItem(`${KEY_PREFIX}${draftId}`);
+      const raw = getScopedItem(`draft_${draftId}`, userId);
       return raw ? JSON.parse(raw) : null;
     } catch {
       return null;
     }
   },
-  clearDraftCache: (draftId: string): void => {
-    localStorage.removeItem(`${KEY_PREFIX}${draftId}`);
+  clearDraftCache: (draftId: string, userId?: string | null): void => {
+    removeScopedItem(`draft_${draftId}`, userId);
   },
 };

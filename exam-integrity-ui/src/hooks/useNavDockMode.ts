@@ -1,16 +1,25 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useContext, useEffect } from 'react';
 import type { ExamIntegrityNavDockMode } from '@hvantran/ui-component-library';
+import { AuthContext } from '../context/AuthContext';
+import { getScopedItem, setScopedItem } from '../utils/storage';
 
 export const NAV_DOCK_STORAGE_KEY = 'exam_integrity_nav_mode';
 export const TEACHER_NAV_DOCK_STORAGE_KEY = 'exam_integrity_teacher_nav_mode';
 
 export const useNavDockMode = (
   defaultMode: ExamIntegrityNavDockMode = 'pinned',
-  storageKey: string = NAV_DOCK_STORAGE_KEY
+  storageKey: string = NAV_DOCK_STORAGE_KEY,
+  explicitUserId?: string | null
 ) => {
+  const auth = useContext(AuthContext);
+  const effectiveUserId =
+    explicitUserId !== undefined
+      ? explicitUserId
+      : auth?.user?.username ?? null;
+
   const [dockMode, setDockModeState] = useState<ExamIntegrityNavDockMode>(() => {
     try {
-      const stored = localStorage.getItem(storageKey);
+      const stored = getScopedItem(storageKey, effectiveUserId);
       if (stored === 'pinned' || stored === 'docked' || stored === 'auto-hide') {
         return stored;
       }
@@ -20,16 +29,25 @@ export const useNavDockMode = (
     return defaultMode;
   });
 
+  useEffect(() => {
+    if (effectiveUserId) {
+      const stored = getScopedItem(storageKey, effectiveUserId);
+      if (stored === 'pinned' || stored === 'docked' || stored === 'auto-hide') {
+        setDockModeState(stored);
+      }
+    }
+  }, [effectiveUserId, storageKey]);
+
   const setDockMode = useCallback(
     (mode: ExamIntegrityNavDockMode) => {
       setDockModeState(mode);
       try {
-        localStorage.setItem(storageKey, mode);
+        setScopedItem(storageKey, mode, effectiveUserId);
       } catch {
         // Ignore localStorage errors
       }
     },
-    [storageKey]
+    [storageKey, effectiveUserId]
   );
 
   return [dockMode, setDockMode] as const;

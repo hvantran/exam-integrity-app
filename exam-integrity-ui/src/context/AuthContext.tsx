@@ -2,6 +2,8 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 import apiClient from '../services/apiClient';
 import { getGatewayBaseUrl } from '../utils/gateway';
 
+import { getScopedItem, setScopedItem, removeScopedItem } from '../utils/storage';
+
 export interface AuthUser {
   username: string;
   roles: string[];
@@ -25,33 +27,40 @@ interface AuthContextValue {
   effectiveGrade: number | null;
 }
 
-const AuthContext = createContext<AuthContextValue | null>(null);
+export const AuthContext = createContext<AuthContextValue | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [overrideGrade, setOverrideGradeState] = useState<number | null>(() => {
-    const saved = localStorage.getItem('exam_integrity_override_grade');
-    return saved ? Number(saved) : null;
-  });
+  const [overrideGrade, setOverrideGradeState] = useState<number | null>(null);
 
   const isAdmin = Boolean(Array.isArray(user?.roles) && user.roles.includes('ADMIN'));
   const isTeacher = Boolean(Array.isArray(user?.roles) && user.roles.includes('TEACHER'));
   const isStudent = !isAdmin && !isTeacher;
   const canSwitchGrade = isAdmin || isTeacher;
+  const currentUserId = user?.username || (user as any)?.userId || null;
+
+  useEffect(() => {
+    if (canSwitchGrade) {
+      const saved = getScopedItem('override_grade', currentUserId);
+      setOverrideGradeState(saved ? Number(saved) : null);
+    } else {
+      setOverrideGradeState(null);
+    }
+  }, [currentUserId, canSwitchGrade]);
 
   const setOverrideGrade = useCallback(
     (grade: number | null) => {
       if (!canSwitchGrade) return;
       setOverrideGradeState(grade);
       if (grade !== null) {
-        localStorage.setItem('exam_integrity_override_grade', String(grade));
+        setScopedItem('override_grade', String(grade), currentUserId);
       } else {
-        localStorage.removeItem('exam_integrity_override_grade');
+        removeScopedItem('override_grade', currentUserId);
       }
     },
-    [canSwitchGrade],
+    [canSwitchGrade, currentUserId],
   );
 
   const effectiveGrade = (canSwitchGrade ? overrideGrade : null) ?? user?.grade ?? null;

@@ -5,19 +5,20 @@ import { Alert } from '@mui/material';
 import {
   ExamIntegrityStudentReviewTemplate as StudentManReviewLayout,
   ExamIntegrityReviewDashboard as ReviewDashboard,
+  ExamIntegrityResultsCelebration as ElementaryResultsCelebration,
   type ExamIntegrityStudentPortalSection as PortalSection,
 } from '@hvantran/ui-component-library';
 import { useReviewDashboard } from '../hooks/useReviewDashboard';
 import { useAuth } from '../context/AuthContext';
 import { useStudentPageTheme } from '../hooks/useGradeTheme';
 import { useUserProfile } from '../hooks/useUserProfile';
-import ElementaryResultsCelebration from '../components/ElementaryResultsCelebration';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
   dashboard: '/',
   'my-exams': '/my-exams',
   results: '/my-exams',
   shop: '/shop',
+  collection: '/collection',
 };
 
 const ReviewPage: React.FC = () => {

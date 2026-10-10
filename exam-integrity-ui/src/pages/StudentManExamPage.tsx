@@ -12,10 +12,10 @@ import {
   ExamIntegrityStudentSubmitModal as StudentManSubmitModal,
   ExamIntegrityStudentFlaggedSidebar as StudentManFlaggedSidebar,
   ExamIntegrityStudentProTips as StudentManProTips,
+  ExamIntegrityQuestionPanel as StudentManQuestionPanel,
+  type QuestionOption,
   Skeleton,
 } from '@hvantran/ui-component-library';
-import StudentManQuestionPanel from '../components/QuestionPanel';
-import type { QuestionOption } from '../components/QuestionPanel';
 import { useSession, useQuestion, useSaveAnswer, useSubmitExam } from '../hooks/useSession';
 import { useExam } from '../hooks/useExams';
 import { useWebSocketTimer } from '../hooks/useWebSocketTimer';

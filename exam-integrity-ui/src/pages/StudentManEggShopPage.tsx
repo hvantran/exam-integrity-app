@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  ExamIntegrityEggShop,
-  ExamIntegrityPetHatchery,
-  ExamIntegrityStudentLandingTemplate as StudentManLandingLayout,
+  ExamIntegrityStudentEggShopTemplate,
   type ExamIntegrityStudentPortalSection as PortalSection,
   type EggShopItem,
   type IncubatingEgg,
   type StudentPet,
+  type EggShopTab,
   DEFAULT_INCUBATING_EGGS,
   DEFAULT_STUDENT_PETS,
 } from '@hvantran/ui-component-library';
@@ -15,12 +14,15 @@ import { useAuth } from '../context/AuthContext';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useNavDockMode } from '../hooks/useNavDockMode';
 import { useStudentPageTheme } from '../hooks/useGradeTheme';
+import { hatcheryService } from '../services/hatcheryService';
+import { getScopedItem, setScopedItem } from '../utils/storage';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
   dashboard: '/',
   'my-exams': '/my-exams',
   results: '/my-exams',
   shop: '/shop',
+  collection: '/collection',
 };
 
 const EGGS_STORAGE_KEY = 'exam_integrity_incubating_eggs';
@@ -28,16 +30,32 @@ const PETS_STORAGE_KEY = 'exam_integrity_student_pets';
 
 const StudentManEggShopPage: React.FC = () => {
   const navigate = useNavigate();
-  const { logout, displayName } = useAuth();
+  const location = useLocation();
+  const { logout, displayName, user } = useAuth();
   const { data: profile } = useUserProfile();
   const totalStars = profile?.stats?.totalStars ?? 0;
   const theme = useStudentPageTheme();
   const [dockMode, setDockMode] = useNavDockMode();
-  const [activeTab, setActiveTab] = useState<'shop' | 'hatchery'>('shop');
+
+  const currentUserId = profile?.userId || user?.username || null;
+  const loadedUserRef = useRef<string | null>(currentUserId);
+
+  const isCollectionRoute = location.pathname.includes('/collection');
+  const [activeTab, setActiveTab] = useState<EggShopTab>(
+    isCollectionRoute ? 'hatchery' : 'shop',
+  );
+
+  useEffect(() => {
+    if (location.pathname.includes('/collection')) {
+      setActiveTab('hatchery');
+    } else if (location.pathname.includes('/shop')) {
+      setActiveTab('shop');
+    }
+  }, [location.pathname]);
 
   const [incubatingEggs, setIncubatingEggs] = useState<IncubatingEgg[]>(() => {
     try {
-      const saved = localStorage.getItem(EGGS_STORAGE_KEY);
+      const saved = getScopedItem(EGGS_STORAGE_KEY, currentUserId);
       return saved ? JSON.parse(saved) : DEFAULT_INCUBATING_EGGS;
     } catch {
       return DEFAULT_INCUBATING_EGGS;
@@ -46,7 +64,7 @@ const StudentManEggShopPage: React.FC = () => {
 
   const [pets, setPets] = useState<StudentPet[]>(() => {
     try {
-      const saved = localStorage.getItem(PETS_STORAGE_KEY);
+      const saved = getScopedItem(PETS_STORAGE_KEY, currentUserId);
       return saved ? JSON.parse(saved) : DEFAULT_STUDENT_PETS;
     } catch {
       return DEFAULT_STUDENT_PETS;
@@ -54,20 +72,57 @@ const StudentManEggShopPage: React.FC = () => {
   });
 
   useEffect(() => {
-    try {
-      localStorage.setItem(EGGS_STORAGE_KEY, JSON.stringify(incubatingEggs));
-    } catch {
-      // storage unavailable or full
+    if (currentUserId && loadedUserRef.current !== currentUserId) {
+      loadedUserRef.current = currentUserId;
+      try {
+        const savedEggs = getScopedItem(EGGS_STORAGE_KEY, currentUserId);
+        setIncubatingEggs(savedEggs ? JSON.parse(savedEggs) : DEFAULT_INCUBATING_EGGS);
+      } catch {
+        setIncubatingEggs(DEFAULT_INCUBATING_EGGS);
+      }
+      try {
+        const savedPets = getScopedItem(PETS_STORAGE_KEY, currentUserId);
+        setPets(savedPets ? JSON.parse(savedPets) : DEFAULT_STUDENT_PETS);
+      } catch {
+        setPets(DEFAULT_STUDENT_PETS);
+      }
     }
-  }, [incubatingEggs]);
+  }, [currentUserId]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(PETS_STORAGE_KEY, JSON.stringify(pets));
-    } catch {
-      // storage unavailable or full
+    let isMounted = true;
+    Promise.all([hatcheryService.getIncubatorEggs(), hatcheryService.getMyPets()])
+      .then(([serverEggs, serverPets]) => {
+        if (!isMounted) return;
+        if (serverEggs && serverEggs.length > 0) {
+          setIncubatingEggs(serverEggs);
+        }
+        if (serverPets && serverPets.length > 0) {
+          setPets(serverPets);
+        }
+      })
+      .catch(() => {
+        // Fallback to local storage or defaults if offline or backend empty
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (currentUserId && loadedUserRef.current !== currentUserId) {
+      return;
     }
-  }, [pets]);
+    setScopedItem(EGGS_STORAGE_KEY, JSON.stringify(incubatingEggs), currentUserId);
+  }, [incubatingEggs, currentUserId]);
+
+  useEffect(() => {
+    if (currentUserId && loadedUserRef.current !== currentUserId) {
+      return;
+    }
+    setScopedItem(PETS_STORAGE_KEY, JSON.stringify(pets), currentUserId);
+  }, [pets, currentUserId]);
 
   const handleLogout = () => {
     logout();
@@ -92,11 +147,17 @@ const StudentManEggShopPage: React.FC = () => {
   };
 
   const handleEggHatched = (eggId: string, hatchedPet: StudentPet) => {
+    hatcheryService.hatchEgg(eggId).catch(() => {
+      // ignore or optimistic
+    });
     setIncubatingEggs((prev) => prev.filter((egg) => egg.id !== eggId));
     setPets((prev) => [hatchedPet, ...prev]);
   };
 
   const handleGrowPet = (petId: string, starsSpent: number) => {
+    hatcheryService.growPet(petId).catch(() => {
+      // ignore or optimistic
+    });
     setPets((prev) =>
       prev.map((pet) => {
         if (pet.id !== petId) return pet;
@@ -112,66 +173,23 @@ const StudentManEggShopPage: React.FC = () => {
   };
 
   return (
-    <StudentManLandingLayout
+    <ExamIntegrityStudentEggShopTemplate
       studentName={displayName || 'Student'}
       starCount={totalStars}
-      activeSection="shop"
-      pageTitle={theme.isElementary ? 'Pet Egg Emporium & Hatchery 🐣' : '3D Pet Egg Shop'}
-      pageSubtitle={
-        theme.isElementary
-          ? 'Spend earned stars on mysterious 3D eggs, hatch companion beasts, and nurture pets!'
-          : 'Purchase 3D mystery eggs using stars earned from exams and manage companion pets.'
-      }
+      isElementary={theme.isElementary}
+      activeSection={isCollectionRoute ? 'collection' : 'shop'}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+      incubatingEggs={incubatingEggs}
+      pets={pets}
+      onPurchaseEgg={handlePurchaseEgg}
+      onEggHatched={handleEggHatched}
+      onGrowPet={handleGrowPet}
       onNavigate={handleNavigate}
       onLogout={handleLogout}
       dockMode={dockMode}
       onDockModeChange={setDockMode}
-    >
-      <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            data-testid="tab-egg-shop"
-            onClick={() => setActiveTab('shop')}
-            className={`px-5 py-2.5 rounded-full font-extrabold text-sm transition-all shadow-sm ${
-              activeTab === 'shop'
-                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-amber-200 ring-2 ring-amber-300'
-                : 'bg-white dark:bg-stone-800 text-slate-700 dark:text-stone-300 hover:bg-amber-50 hover:text-amber-800 border border-slate-200 dark:border-stone-700'
-            }`}
-          >
-            🛒 3D Egg Shop
-          </button>
-          <button
-            type="button"
-            data-testid="tab-pet-hatchery"
-            onClick={() => setActiveTab('hatchery')}
-            className={`px-5 py-2.5 rounded-full font-extrabold text-sm transition-all shadow-sm ${
-              activeTab === 'hatchery'
-                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-amber-200 ring-2 ring-amber-300'
-                : 'bg-white dark:bg-stone-800 text-slate-700 dark:text-stone-300 hover:bg-amber-50 hover:text-amber-800 border border-slate-200 dark:border-stone-700'
-            }`}
-          >
-            🐣 Pet Hatchery & Sanctuary ({incubatingEggs.length} eggs)
-          </button>
-        </div>
-
-        {activeTab === 'shop' ? (
-          <ExamIntegrityEggShop
-            starBalance={totalStars}
-            onPurchaseEgg={handlePurchaseEgg}
-            onOpenHatchery={() => setActiveTab('hatchery')}
-          />
-        ) : (
-          <ExamIntegrityPetHatchery
-            starBalance={totalStars}
-            incubatingEggs={incubatingEggs}
-            pets={pets}
-            onGrowPet={handleGrowPet}
-            onEggHatched={handleEggHatched}
-          />
-        )}
-      </div>
-    </StudentManLandingLayout>
+    />
   );
 };
 

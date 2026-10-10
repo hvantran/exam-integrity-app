@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Button,
   ExamIntegrityReviewDashboard as ReviewDashboard,
+  ExamIntegrityResultsCelebration as ElementaryResultsCelebration,
   ExamIntegrityStudentLandingTemplate as StudentManLandingLayout,
   type ExamIntegrityStudentPortalSection as PortalSection,
 } from '@hvantran/ui-component-library';
@@ -12,13 +13,13 @@ import { useReviewDashboard, useStudentResults } from '../hooks/useReviewDashboa
 import { useStudentPageTheme } from '../hooks/useGradeTheme';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useNavDockMode } from '../hooks/useNavDockMode';
-import ElementaryResultsCelebration from '../components/ElementaryResultsCelebration';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
   dashboard: '/',
   'my-exams': '/my-exams',
   results: '/my-exams',
   shop: '/shop',
+  collection: '/collection',
 };
 
 const StudentManMyExamsPage: React.FC = () => {

@@ -6,10 +6,21 @@ import { useUserProfile } from '../hooks/useUserProfile';
 import { useNavDockMode } from '../hooks/useNavDockMode';
 
 const mockNavigate = jest.fn();
+let mockLocation = { pathname: '/shop' };
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
+  useLocation: () => mockLocation,
+}));
+
+jest.mock('../services/hatcheryService', () => ({
+  hatcheryService: {
+    getIncubatorEggs: jest.fn().mockResolvedValue([]),
+    getMyPets: jest.fn().mockResolvedValue([]),
+    hatchEgg: jest.fn().mockResolvedValue({}),
+    growPet: jest.fn().mockResolvedValue({}),
+  },
 }));
 
 jest.mock('../context/AuthContext', () => ({
@@ -28,49 +39,66 @@ jest.mock('@hvantran/ui-component-library', () => {
   const actual = jest.requireActual('@hvantran/ui-component-library');
   return {
     ...actual,
-    ExamIntegrityEggShop: ({
-      starBalance,
-      onOpenHatchery,
+    ExamIntegrityStudentEggShopTemplate: ({
+      studentName,
+      starCount,
+      activeTab,
+      onTabChange,
+      incubatingEggs,
+      pets,
       onPurchaseEgg,
-    }: {
-      starBalance: number;
-      onOpenHatchery?: () => void;
-      onPurchaseEgg?: (item: any) => void;
-    }) => (
-      <div data-testid="mock-egg-shop">
-        <span>Mock Egg Shop Stars: {starBalance}</span>
-        <button type="button" onClick={onOpenHatchery}>
-          Go to Hatchery Button
+    }: any) => (
+      <div data-testid="mock-egg-shop-template">
+        <div data-testid="student-name">{studentName}</div>
+        <div data-testid="star-count">{starCount}</div>
+        <button
+          type="button"
+          data-testid="tab-egg-shop"
+          onClick={() => onTabChange?.('shop')}
+        >
+          Tab Shop
         </button>
         <button
           type="button"
-          onClick={() =>
-            onPurchaseEgg?.({
-              id: 'test-egg',
-              name: 'Test Egg',
-              tier: 'dragon',
-              rarity: 'Epic',
-              price: 100,
-              description: 'Test',
-              hatchedPetName: 'Test Pet',
-              petElement: 'Fire',
-            })
-          }
+          data-testid="tab-pet-hatchery"
+          onClick={() => onTabChange?.('hatchery')}
         >
-          Mock Buy Egg
+          Tab Hatchery
         </button>
-      </div>
-    ),
-    ExamIntegrityPetHatchery: ({
-      starBalance,
-      incubatingEggs,
-    }: {
-      starBalance: number;
-      incubatingEggs: any[];
-    }) => (
-      <div data-testid="mock-pet-hatchery">
-        <span>Mock Pet Hatchery Stars: {starBalance}</span>
-        <span>Incubating Count: {incubatingEggs?.length ?? 0}</span>
+
+        {activeTab === 'shop' ? (
+          <div data-testid="mock-egg-shop">
+            <span>Mock Egg Shop Stars: {starCount}</span>
+            <button
+              type="button"
+              onClick={() => onTabChange?.('hatchery')}
+            >
+              Go to Hatchery Button
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                onPurchaseEgg?.({
+                  id: 'test-egg',
+                  name: 'Test Egg',
+                  tier: 'dragon',
+                  rarity: 'Epic',
+                  price: 100,
+                  description: 'Test',
+                  hatchedPetName: 'Test Pet',
+                  petElement: 'Fire',
+                })
+              }
+            >
+              Mock Buy Egg
+            </button>
+          </div>
+        ) : (
+          <div data-testid="mock-pet-hatchery">
+            <span>Mock Pet Hatchery Stars: {starCount}</span>
+            <span>Incubating Count: {incubatingEggs?.length ?? 0}</span>
+          </div>
+        )}
       </div>
     ),
   };
@@ -82,6 +110,7 @@ describe('StudentManEggShopPage', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockLocation = { pathname: '/shop' };
     (useAuth as jest.Mock).mockReturnValue({
       user: { username: 'student-tester', roles: ['STUDENT'] },
       displayName: 'Alice Student',
@@ -139,6 +168,30 @@ describe('StudentManEggShopPage', () => {
     // Switch to hatchery tab
     fireEvent.click(screen.getByTestId('tab-pet-hatchery'));
     expect(screen.getByTestId('mock-pet-hatchery')).toBeTruthy();
+  });
+
+  it('defaults to hatchery tab when navigating to /collection route', async () => {
+    mockLocation = { pathname: '/collection' };
+    render(<StudentManEggShopPage />);
+
+    expect(screen.getByTestId('mock-pet-hatchery')).toBeTruthy();
+    expect(screen.queryByTestId('mock-egg-shop')).toBeNull();
+  });
+
+  it('persists eggs to user-scoped localStorage key and isolates other users', () => {
+    localStorage.clear();
+    render(<StudentManEggShopPage />);
+
+    fireEvent.click(screen.getByText('Mock Buy Egg'));
+
+    const userKey = 'exam_integrity_student-tester_incubating_eggs';
+    const saved = localStorage.getItem(userKey);
+    expect(saved).not.toBeNull();
+    const parsed = JSON.parse(saved!);
+    expect(parsed[0].name).toBe('Test Egg');
+
+    // Verify unpartitioned key is not written
+    expect(localStorage.getItem('exam_integrity_incubating_eggs')).toBeNull();
   });
 });
 
