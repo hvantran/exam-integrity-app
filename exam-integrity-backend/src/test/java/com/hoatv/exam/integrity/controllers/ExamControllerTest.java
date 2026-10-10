@@ -1,6 +1,5 @@
 package com.hoatv.exam.integrity.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hoatv.exam.integrity.dtos.ExamDTO;
 import com.hoatv.exam.integrity.dtos.SyncExamQuestionsSummaryDTO;
 import com.hoatv.exam.integrity.services.ExamService;

@@ -71,8 +71,9 @@ public class UserContextFilter extends OncePerRequestFilter {
             return number.intValue();
         } else if (gradeClaim instanceof String str && !str.isBlank()) {
             try {
-                return Integer.parseInt(str.replaceAll("[^0-9]", ""));
+                return Integer.parseInt(str.replaceAll("\\D", ""));
             } catch (NumberFormatException ignored) {
+                // Ignore non-numeric grade and fall back to null
                 return null;
             }
         }

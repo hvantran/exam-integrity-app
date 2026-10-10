@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -74,7 +73,7 @@ class UserProfileControllerTest {
             Instant.now()
         );
 
-        when(userProfileService.getOrCreateProfile(eq("student1"), eq("STUDENT"), eq(5))).thenReturn(profile);
+        when(userProfileService.getOrCreateProfile("student1", "STUDENT", 5)).thenReturn(profile);
         when(userProfileService.toDTO(profile)).thenReturn(dto);
 
         mockMvc.perform(get("/api/profiles/me").principal(auth))

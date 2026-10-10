@@ -40,6 +40,8 @@ import java.util.stream.Collectors;
 @Service
 public class ExamService {
 
+    private static final String EXAM_NOT_FOUND = "Exam not found: ";
+    private static final String LOG_INJECTION_REGEX = "[\r\n]";
     private static final Logger logger = LoggerFactory.getLogger(ExamService.class);
 
     private final ExamRepository examRepository;
@@ -167,10 +169,10 @@ public class ExamService {
 
     public void deleteExam(String examId) {
         if (!examRepository.existsById(examId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Exam not found: " + examId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, EXAM_NOT_FOUND + examId);
         }
         examRepository.deleteById(examId);
-        String safeExamId = examId != null ? examId.replaceAll("[\r\n]", "_") : "";
+        String safeExamId = examId != null ? examId.replaceAll(LOG_INJECTION_REGEX, "_") : "";
         logger.info("Deleted exam {} (question bank untouched)", safeExamId);
     }
 
@@ -298,7 +300,7 @@ public class ExamService {
         }
 
         Exam exam = examRepository.findById(examId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Exam not found: " + examId));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, EXAM_NOT_FOUND + examId));
 
         List<QuestionBankItem> allBankItems = questionBankRepository.findAll();
         List<QuestionBankItem> selectedItems = selectedQuestionIds.stream()
@@ -346,7 +348,7 @@ public class ExamService {
         exam.setTotalPoints(questions.stream().mapToDouble(Question::getPoints).sum());
 
         examRepository.save(exam);
-        String safeExamId = examId != null ? examId.replaceAll("[\r\n]", "_") : "";
+        String safeExamId = examId != null ? examId.replaceAll(LOG_INJECTION_REGEX, "_") : "";
         logger.info("Updated exam {} with {} selected bank question(s)", safeExamId, questions.size());
         return toDTO(exam);
     }
@@ -357,7 +359,7 @@ public class ExamService {
         }
 
         Exam exam = examRepository.findById(examId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Exam not found: " + examId));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, EXAM_NOT_FOUND + examId));
 
         List<Question> questions = exam.getQuestions();
         if (questions == null || questions.isEmpty()) {
@@ -383,35 +385,13 @@ public class ExamService {
         Map<String, QuestionBankItem> bankMap = bankItems.stream()
             .collect(Collectors.toMap(QuestionBankItem::getId, item -> item, (a, b) -> a));
 
-        int syncedCount = 0;
         List<String> missingBankItemIds = new ArrayList<>();
-
-        for (Question q : questions) {
-            String bankId = q.getBankItemId();
-            if (bankId == null || bankId.isBlank()) {
-                continue;
-            }
-            QuestionBankItem item = bankMap.get(bankId);
-            if (item != null) {
-                q.setContent(item.getContent());
-                q.setType(item.getType());
-                q.setPoints(item.getPoints() > 0 ? item.getPoints() : 1.0);
-                q.setOptions(item.getOptions() != null ? item.getOptions() : List.of());
-                q.setCorrectAnswer(item.getCorrectAnswer());
-                q.setRubric(item.getRubric());
-                q.setImageData(item.getImageData());
-                syncedCount++;
-            } else {
-                if (!missingBankItemIds.contains(bankId)) {
-                    missingBankItemIds.add(bankId);
-                }
-            }
-        }
+        int syncedCount = syncQuestionsWithBank(questions, bankMap, missingBankItemIds);
 
         exam.setTotalPoints(questions.stream().mapToDouble(Question::getPoints).sum());
         examRepository.save(exam);
 
-        String safeExamId = examId.replaceAll("[\r\n]", "_");
+        String safeExamId = examId.replaceAll(LOG_INJECTION_REGEX, "_");
         logger.info("Synchronized questions for exam {}: {} synced, {} unlinked, {} missing bank items",
             safeExamId, syncedCount, unlinkedCount, missingBankItemIds.size());
 
@@ -423,6 +403,38 @@ public class ExamService {
             missingBankItemIds,
             toDTO(exam)
         );
+    }
+
+    private int syncQuestionsWithBank(
+        List<Question> questions,
+        Map<String, QuestionBankItem> bankMap,
+        List<String> missingBankItemIds
+    ) {
+        int syncedCount = 0;
+        for (Question q : questions) {
+            String bankId = q.getBankItemId();
+            if (bankId == null || bankId.isBlank()) {
+                continue;
+            }
+            QuestionBankItem item = bankMap.get(bankId);
+            if (item != null) {
+                applyBankItemToQuestion(q, item);
+                syncedCount++;
+            } else if (!missingBankItemIds.contains(bankId)) {
+                missingBankItemIds.add(bankId);
+            }
+        }
+        return syncedCount;
+    }
+
+    private void applyBankItemToQuestion(Question q, QuestionBankItem item) {
+        q.setContent(item.getContent());
+        q.setType(item.getType());
+        q.setPoints(item.getPoints() > 0 ? item.getPoints() : 1.0);
+        q.setOptions(item.getOptions() != null ? item.getOptions() : List.of());
+        q.setCorrectAnswer(item.getCorrectAnswer());
+        q.setRubric(item.getRubric());
+        q.setImageData(item.getImageData());
     }
 
 
@@ -535,7 +547,7 @@ public class ExamService {
 
     public ExamExportPayload exportToJson(String examId) {
         Exam exam = examRepository.findById(examId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Exam not found: " + examId));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, EXAM_NOT_FOUND + examId));
 
         List<ExamExportPayload.ExportedQuestion> questions = exam.getQuestions().stream()
             .map(question -> new ExamExportPayload.ExportedQuestion(

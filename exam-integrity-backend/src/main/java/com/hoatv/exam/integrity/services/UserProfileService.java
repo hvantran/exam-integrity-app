@@ -18,6 +18,7 @@ import java.util.Optional;
 @Service
 public class UserProfileService {
 
+    public static final String ROLE_STUDENT = "STUDENT";
     private static final Logger logger = LoggerFactory.getLogger(UserProfileService.class);
 
     private final UserProfileRepository userProfileRepository;
@@ -49,7 +50,7 @@ public class UserProfileService {
                 return profile;
             })
             .orElseGet(() -> {
-                UserProfile newProfile = new UserProfile(finalUserId, role != null ? role : "STUDENT", grade);
+                UserProfile newProfile = new UserProfile(finalUserId, role != null ? role : ROLE_STUDENT, grade);
                 newProfile.getGamification().setLevel(1);
                 logger.info("Creating initial user profile for {}", finalUserId);
                 return userProfileRepository.save(newProfile);
@@ -68,7 +69,7 @@ public class UserProfileService {
             throw new IllegalArgumentException("userId and sessionId must not be blank");
         }
 
-        UserProfile profile = getOrCreateProfile(userId, "STUDENT", null);
+        UserProfile profile = getOrCreateProfile(userId, ROLE_STUDENT, null);
         int starsEarned = (int) Math.round(finalScore10);
         if (starsEarned < 0) {
             starsEarned = 0;
@@ -115,7 +116,7 @@ public class UserProfileService {
         if (stars <= 0) {
             throw new IllegalArgumentException("Stars to spend must be greater than 0");
         }
-        UserProfile profile = getOrCreateProfile(userId, "STUDENT", null);
+        UserProfile profile = getOrCreateProfile(userId, ROLE_STUDENT, null);
         if (profile.getStats() == null) {
             profile.setStats(new UserProfileStats());
         }
