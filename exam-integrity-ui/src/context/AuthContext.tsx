@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import apiClient from '../services/apiClient';
+import { getGatewayBaseUrl } from '../utils/gateway';
 
 export interface AuthUser {
   username: string;
@@ -68,9 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = useCallback(() => {
     setIsLoggingOut(true);
-    const envGateway = (window as any)._env_?.REACT_APP_GATEWAY_URL;
-    const gatewayBaseUrl =
-      envGateway || process.env.REACT_APP_GATEWAY_URL || 'http://localhost:6081';
+    const gatewayBaseUrl = getGatewayBaseUrl();
     const redirectUri = encodeURIComponent(window.location.origin);
     window.location.href = `${gatewayBaseUrl}/logout?redirect_uri=${redirectUri}`;
   }, []);

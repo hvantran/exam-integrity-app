@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getGatewayBaseUrl } from '../utils/gateway';
 
 interface ProtectedRouteProps {
   /** If specified, user must have at least one of these roles. */
@@ -23,9 +24,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, children 
   }
 
   if (!user) {
-    const envGateway = (window as any)._env_?.REACT_APP_GATEWAY_URL;
-    const gatewayBaseUrl =
-      envGateway || process.env.REACT_APP_GATEWAY_URL || 'http://localhost:6081';
+    const gatewayBaseUrl = getGatewayBaseUrl();
     const redirectUri = encodeURIComponent(window.location.origin);
     window.location.href = `${gatewayBaseUrl}/oauth2/authorization/keycloak?redirect_uri=${redirectUri}`;
     return null;
