@@ -24,6 +24,7 @@ jest.mock('./context/AuthContext', () => ({
 
 jest.mock('./pages/StudentManDashboardPage', () => () => <div>Student dashboard</div>);
 jest.mock('./pages/StudentManMyExamsPage', () => () => <div>My exams</div>);
+jest.mock('./pages/StudentManEggShopPage', () => () => <div>Student egg shop</div>);
 jest.mock('./pages/StudentManExamPage', () => () => <div>Exam</div>);
 jest.mock('./pages/ReviewPage', () => () => <div>Review</div>);
 jest.mock('./pages/TeacherManExamPdfUploadPage', () => () => <div>Ingestion</div>);
@@ -52,5 +53,14 @@ describe('App', () => {
     render(<App />);
 
     expect(await screen.findByText('Teacher dashboard')).toBeTruthy();
+  });
+
+  it('routes a student to the egg shop at /shop', async () => {
+    mockRoles = ['STUDENT'];
+    window.history.replaceState({}, '', '/shop');
+
+    render(<App />);
+
+    expect(await screen.findByText('Student egg shop')).toBeTruthy();
   });
 });

@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import LandingPage from './pages/StudentManDashboardPage';
 import StudentManMyExamsPage from './pages/StudentManMyExamsPage';
+import StudentManEggShopPage from './pages/StudentManEggShopPage';
 import ExamPage from './pages/StudentManExamPage';
 import ReviewPage from './pages/ReviewPage';
 import IngestionPage from './pages/TeacherManExamPdfUploadPage';
@@ -71,6 +72,14 @@ const App: React.FC = () => (
               element={
                 <ProtectedRoute>
                   <StudentManMyExamsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/shop"
+              element={
+                <ProtectedRoute>
+                  <StudentManEggShopPage />
                 </ProtectedRoute>
               }
             />
