@@ -63,6 +63,10 @@ tags:
     description: Anti-cheat event capture during an exam session
   - name: Auth
     description: Current authenticated user details
+  - name: Egg Shop
+    description: 3D pet egg marketplace and star transactions
+  - name: Pet Hatchery
+    description: Egg incubator, hatching, and companion sanctuary
 
 # -----------------------------------------------------------------------------
 # PATHS
@@ -100,6 +104,177 @@ paths:
                     type: string
                     nullable: true
                     example: Doe
+
+  # -- Egg Shop -------------------------------------------------------------
+  /api/shop/eggs:
+    get:
+      tags: [Egg Shop]
+      operationId: getShopEggs
+      summary: Get featured 3D mystery egg available in shop
+      responses:
+        '200':
+          description: List of shop egg items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EggShopItemDTO'
+
+  /api/shop/purchase-egg:
+    post:
+      tags: [Egg Shop]
+      operationId: purchaseMysteryEgg
+      summary: Purchase 3D mystery egg using stars
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                eggId:
+                  type: string
+                  example: mystery-egg-ancient
+      responses:
+        '200':
+          description: Egg purchase response with remaining stars
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseEggResponseDTO'
+
+  # -- Pet Hatchery ---------------------------------------------------------
+  /api/hatchery/incubator:
+    get:
+      tags: [Pet Hatchery]
+      operationId: getIncubatorEggs
+      summary: Get user's incubating eggs
+      responses:
+        '200':
+          description: List of incubating eggs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IncubatingEggDTO'
+
+  /api/hatchery/incubator/{eggId}/strike:
+    post:
+      tags: [Pet Hatchery]
+      operationId: strikeIncubatingEgg
+      summary: Strike / crack egg (+25% fissure progress, speeds up timer)
+      parameters:
+        - name: eggId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Updated incubating egg
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncubatingEggDTO'
+
+  /api/hatchery/incubator/{eggId}/hatch:
+    post:
+      tags: [Pet Hatchery]
+      operationId: hatchEgg
+      summary: Hatch egg and awaken 3D companion pet
+      parameters:
+        - name: eggId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fixedRoll
+          in: query
+          required: false
+          schema:
+            type: number
+            format: double
+      responses:
+        '200':
+          description: Hatched companion pet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentPetDTO'
+
+  /api/hatchery/incubator/{eggId}/equip:
+    post:
+      tags: [Pet Hatchery]
+      operationId: equipIncubatingEgg
+      summary: Equip egg as active companion
+      parameters:
+        - name: eggId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Equipped incubating egg
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncubatingEggDTO'
+
+  /api/hatchery/pets:
+    get:
+      tags: [Pet Hatchery]
+      operationId: getMyPets
+      summary: Get student's hatched pets in sanctuary
+      responses:
+        '200':
+          description: List of companion pets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentPetDTO'
+
+  /api/hatchery/pets/{petId}/grow:
+    post:
+      tags: [Pet Hatchery]
+      operationId: growPet
+      summary: Spend stars to grow / level up pet
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Pet growth response with upgraded stats
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrowPetResponseDTO'
+
+  /api/hatchery/pets/{petId}/equip:
+    post:
+      tags: [Pet Hatchery]
+      operationId: equipPet
+      summary: Equip pet as active companion
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Equipped pet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentPetDTO'
 
   # -- Exam Management ------------------------------------------------------
   /api/exams:
@@ -1649,6 +1824,188 @@ components:
           format: double
           description: "Weighted sum: 0.35*kw + 0.25*steps + 0.20*fa + 0.15*sem + 0.05*fmt"
           example: 0.87
+
+    # -- Egg Shop & Hatchery --------------------------------------------------
+    EggShopItemDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          example: mystery-egg-ancient
+        name:
+          type: string
+          example: Ancient Mysterious Egg
+        tier:
+          type: string
+          example: dragon
+        price:
+          type: integer
+          example: 250
+        hatchDurationHours:
+          type: integer
+          example: 8
+        hatchDurationSeconds:
+          type: integer
+          format: int64
+          example: 28800
+        description:
+          type: string
+          example: Sealed celestial egg
+        rarityDropPercentages:
+          type: object
+          additionalProperties:
+            type: integer
+
+    PurchaseEggResponseDTO:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Egg adopted successfully
+        incubatingEgg:
+          $ref: '#/components/schemas/IncubatingEggDTO'
+        remainingStars:
+          type: integer
+          example: 250
+
+    IncubatingEggDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          example: egg-uuid-001
+        userId:
+          type: string
+          example: student-001
+        name:
+          type: string
+          example: Ancient Mysterious Egg
+        tier:
+          type: string
+          example: dragon
+        rarity:
+          type: string
+          nullable: true
+          example: Common
+        crackProgress:
+          type: number
+          format: double
+          example: 0.25
+        hatchedPetName:
+          type: string
+          example: "??? Mystery Companion"
+        hatchedSpecies:
+          type: string
+          example: Veiled Celestial Beast
+        isEquipped:
+          type: boolean
+          example: true
+        equipCostInStars:
+          type: integer
+          example: 25
+        isMystery:
+          type: boolean
+          example: true
+        hatchDurationHours:
+          type: integer
+          example: 8
+        remainingSeconds:
+          type: integer
+          format: int64
+          example: 21600
+        incubatedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    StudentPetDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          example: pet-uuid-001
+        userId:
+          type: string
+          example: student-001
+        name:
+          type: string
+          example: Sun Ember Fledgling
+        species:
+          type: string
+          example: Primordial Solar Phoenix
+        rarity:
+          type: string
+          enum: [Common, Rare, Epic, Legendary, Mythic]
+          example: Epic
+        tier:
+          type: string
+          example: dragon
+        element:
+          type: string
+          example: "Solar Fire / Flame"
+        level:
+          type: integer
+          example: 1
+        maxLevel:
+          type: integer
+          example: 10
+        currentExp:
+          type: integer
+          example: 0
+        expNeeded:
+          type: integer
+          example: 100
+        growthCostInStars:
+          type: integer
+          example: 25
+        stageLevel:
+          type: integer
+          example: 1
+        totalStages:
+          type: integer
+          example: 5
+        stageName:
+          type: string
+          example: Sun Ember Fledgling
+        avatarEmoji:
+          type: string
+          example: "🔥"
+        imageUrl:
+          type: string
+          nullable: true
+        isEquipped:
+          type: boolean
+          example: true
+        stats:
+          type: object
+          additionalProperties:
+            type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    GrowPetResponseDTO:
+      type: object
+      properties:
+        pet:
+          $ref: '#/components/schemas/StudentPetDTO'
+        remainingStars:
+          type: integer
+          example: 475
+        didEvolve:
+          type: boolean
+          example: true
+        levelGained:
+          type: boolean
+          example: true
 
 security:
   - bearerAuth: []
