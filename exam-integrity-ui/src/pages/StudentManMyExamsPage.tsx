@@ -18,6 +18,7 @@ const PORTAL_ROUTES: Record<PortalSection, string> = {
   dashboard: '/',
   'my-exams': '/my-exams',
   results: '/my-exams',
+  shop: '/shop',
 };
 
 const StudentManMyExamsPage: React.FC = () => {
