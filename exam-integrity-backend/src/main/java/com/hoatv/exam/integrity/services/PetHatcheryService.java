@@ -19,11 +19,11 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class PetHatcheryService {
 
+    private static final String LOG_INJECTION_REGEX = "[\r\n]";
     private static final Logger logger = LoggerFactory.getLogger(PetHatcheryService.class);
     private static final SecureRandom RANDOM = new SecureRandom();
 
@@ -114,7 +114,9 @@ public class PetHatcheryService {
         egg.setUpdatedAt(Instant.now());
 
         IncubatingEgg saved = incubatingEggRepository.save(egg);
-        logger.info("User {} struck egg {}: progress {}%", userId, eggId, Math.round(newProgress * 100));
+        String safeUserId = userId != null ? userId.replaceAll(LOG_INJECTION_REGEX, "_") : "";
+        String safeEggId = eggId != null ? eggId.replaceAll(LOG_INJECTION_REGEX, "_") : "";
+        logger.info("User {} struck egg {}: progress {}%", safeUserId, safeEggId, Math.round(newProgress * 100));
         return toEggDTO(saved);
     }
 
@@ -130,8 +132,11 @@ public class PetHatcheryService {
         StudentPet savedPet = studentPetRepository.save(pet);
         incubatingEggRepository.deleteByIdAndUserId(eggId, userId);
 
+        String safeUserId = userId != null ? userId.replaceAll(LOG_INJECTION_REGEX, "_") : "";
+        String safeEggId = eggId != null ? eggId.replaceAll(LOG_INJECTION_REGEX, "_") : "";
+        String safePetName = savedPet.getName() != null ? savedPet.getName().replaceAll(LOG_INJECTION_REGEX, "_") : "";
         logger.info("Egg {} hatched for user {} -> Pet {} ({}, {} stages)",
-            eggId, userId, savedPet.getName(), savedPet.getRarity(), savedPet.getTotalStages());
+            safeEggId, safeUserId, safePetName, savedPet.getRarity(), savedPet.getTotalStages());
         return toPetDTO(savedPet);
     }
 
@@ -263,47 +268,33 @@ public class PetHatcheryService {
         pet.setUpdatedAt(Instant.now());
 
         StudentPet saved = studentPetRepository.save(pet);
+        String safeUserId = userId != null ? userId.replaceAll(LOG_INJECTION_REGEX, "_") : "";
+        String safePetId = petId != null ? petId.replaceAll(LOG_INJECTION_REGEX, "_") : "";
         logger.info("User {} grew pet {}: Level {} (Stage {}), remaining stars: {}",
-            userId, petId, level, pet.getStageLevel(), remainingStars);
+            safeUserId, safePetId, level, pet.getStageLevel(), remainingStars);
 
         return new GrowPetResponseDTO(toPetDTO(saved), remainingStars, didEvolve, levelGained);
     }
 
+    private static final int[][] STAGE_THRESHOLDS_3 = {{6, 3}, {3, 2}};
+    private static final int[][] STAGE_THRESHOLDS_4 = {{8, 4}, {5, 3}, {3, 2}};
+    private static final int[][] STAGE_THRESHOLDS_5 = {{10, 5}, {7, 4}, {5, 3}, {3, 2}};
+    private static final int[][] STAGE_THRESHOLDS_6 = {{10, 6}, {8, 5}, {7, 4}, {5, 3}, {3, 2}};
+    private static final int[][] STAGE_THRESHOLDS_8 = {{10, 8}, {8, 7}, {7, 6}, {6, 5}, {5, 4}, {3, 3}, {2, 2}};
+
     private int calculateStage(int totalStages, int level) {
-        if (totalStages <= 3) {
-            if (level >= 6) return 3;
-            if (level >= 3) return 2;
-            return 1;
+        int[][] thresholds = switch (totalStages) {
+            case 4 -> STAGE_THRESHOLDS_4;
+            case 5 -> STAGE_THRESHOLDS_5;
+            case 6 -> STAGE_THRESHOLDS_6;
+            case 8 -> STAGE_THRESHOLDS_8;
+            default -> STAGE_THRESHOLDS_3;
+        };
+        for (int[] pair : thresholds) {
+            if (level >= pair[0]) {
+                return pair[1];
+            }
         }
-        if (totalStages == 4) {
-            if (level >= 8) return 4;
-            if (level >= 5) return 3;
-            if (level >= 3) return 2;
-            return 1;
-        }
-        if (totalStages == 5) {
-            if (level >= 10) return 5;
-            if (level >= 7) return 4;
-            if (level >= 5) return 3;
-            if (level >= 3) return 2;
-            return 1;
-        }
-        if (totalStages == 6) {
-            if (level >= 10) return 6;
-            if (level >= 8) return 5;
-            if (level >= 7) return 4;
-            if (level >= 5) return 3;
-            if (level >= 3) return 2;
-            return 1;
-        }
-        // Mythic (8 stages)
-        if (level >= 10) return 8;
-        if (level >= 8) return 7;
-        if (level >= 7) return 6;
-        if (level >= 6) return 5;
-        if (level >= 5) return 4;
-        if (level >= 3) return 3;
-        if (level >= 2) return 2;
         return 1;
     }
 

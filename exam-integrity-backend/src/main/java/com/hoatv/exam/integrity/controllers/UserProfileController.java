@@ -50,23 +50,31 @@ public class UserProfileController {
                 if (jwt.getSubject() != null && !jwt.getSubject().isBlank()) {
                     username = jwt.getSubject();
                 }
-                Object gradeClaim = jwt.getClaim("grade");
-                if (gradeClaim == null) {
-                    gradeClaim = jwt.getClaim("grade_level");
-                }
-                if (gradeClaim instanceof Number number) {
-                    grade = number.intValue();
-                } else if (gradeClaim instanceof String str && !str.isBlank()) {
-                    try {
-                        grade = Integer.parseInt(str.replaceAll("[^0-9]", ""));
-                    } catch (NumberFormatException ignored) {
-                    }
-                }
+                grade = extractGradeFromJwt(jwt);
             }
         }
 
         UserProfile profile = userProfileService.getOrCreateProfile(username, primaryRole, grade);
         return ResponseEntity.ok(userProfileService.toDTO(profile));
+    }
+
+    private Integer extractGradeFromJwt(Jwt jwt) {
+        Object gradeClaim = jwt.getClaim("grade");
+        if (gradeClaim == null) {
+            gradeClaim = jwt.getClaim("grade_level");
+        }
+        if (gradeClaim instanceof Number number) {
+            return number.intValue();
+        }
+        if (gradeClaim instanceof String str && !str.isBlank()) {
+            try {
+                return Integer.parseInt(str.replaceAll("\\D", ""));
+            } catch (NumberFormatException ignored) {
+                // Ignore non-numeric grade values and fall back to null
+                return null;
+            }
+        }
+        return null;
     }
 
     @Operation(summary = "Get user profile by userId")

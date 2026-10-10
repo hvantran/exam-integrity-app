@@ -52,8 +52,9 @@ public class AuthController {
                 grade = number.intValue();
             } else if (gradeClaim instanceof String str && !str.isBlank()) {
                 try {
-                    grade = Integer.parseInt(str.replaceAll("[^0-9]", ""));
+                    grade = Integer.parseInt(str.replaceAll("\\D", ""));
                 } catch (NumberFormatException ignored) {
+                    // Ignore non-numeric grade values and fall back to null
                 }
             }
         }

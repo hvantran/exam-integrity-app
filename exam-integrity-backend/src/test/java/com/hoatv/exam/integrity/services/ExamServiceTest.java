@@ -445,8 +445,8 @@ class ExamServiceTest {
         SyncExamQuestionsSummaryDTO summary = examService.syncQuestionsFromBank("exam-2");
 
         assertThat(summary.totalQuestions()).isEqualTo(1);
-        assertThat(summary.syncedCount()).isEqualTo(0);
-        assertThat(summary.unlinkedCount()).isEqualTo(0);
+        assertThat(summary.syncedCount()).isZero();
+        assertThat(summary.unlinkedCount()).isZero();
         assertThat(summary.missingBankItemIds()).containsExactly("bank-deleted");
         assertThat(linkedQ.getContent()).isEqualTo("Original Content");
         verify(examRepository).save(exam);
