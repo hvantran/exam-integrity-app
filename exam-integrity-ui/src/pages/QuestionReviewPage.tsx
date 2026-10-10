@@ -12,6 +12,7 @@ import {
   Input,
   Skeleton,
   Chip,
+  ExamIntegrityQuestionDisplay as QuestionDisplay,
 } from '@hvantran/ui-component-library';
 import { useDraft, useEditQuestion, useRemoveQuestion, useAddQuestion } from '../hooks/useDraft';
 import { useAuth } from '../context/AuthContext';
@@ -19,7 +20,6 @@ import { useNavDockMode, TEACHER_NAV_DOCK_STORAGE_KEY } from '../hooks/useNavDoc
 import { useQuery } from '@tanstack/react-query';
 import { questionBankService } from '../services/questionBankService';
 import type { DraftQuestionDTO } from '../types/exam.types';
-import QuestionDisplay from '../components/QuestionDisplay';
 
 const SECTION_ROUTES: Record<ExamIntegrityDashboardSection, string> = {
   dashboard: '/teacher/dashboard',

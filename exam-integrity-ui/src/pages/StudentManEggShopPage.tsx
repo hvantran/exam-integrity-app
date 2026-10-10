@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  ExamIntegrityEggShop,
-  ExamIntegrityPetHatchery,
-  ExamIntegrityStudentLandingTemplate as StudentManLandingLayout,
+  ExamIntegrityStudentEggShopTemplate,
   type ExamIntegrityStudentPortalSection as PortalSection,
   type EggShopItem,
   type IncubatingEgg,
   type StudentPet,
+  type EggShopTab,
   DEFAULT_INCUBATING_EGGS,
   DEFAULT_STUDENT_PETS,
 } from '@hvantran/ui-component-library';
@@ -33,7 +32,7 @@ const StudentManEggShopPage: React.FC = () => {
   const totalStars = profile?.stats?.totalStars ?? 0;
   const theme = useStudentPageTheme();
   const [dockMode, setDockMode] = useNavDockMode();
-  const [activeTab, setActiveTab] = useState<'shop' | 'hatchery'>('shop');
+  const [activeTab, setActiveTab] = useState<EggShopTab>('shop');
 
   const [incubatingEggs, setIncubatingEggs] = useState<IncubatingEgg[]>(() => {
     try {
@@ -112,66 +111,22 @@ const StudentManEggShopPage: React.FC = () => {
   };
 
   return (
-    <StudentManLandingLayout
+    <ExamIntegrityStudentEggShopTemplate
       studentName={displayName || 'Student'}
       starCount={totalStars}
-      activeSection="shop"
-      pageTitle={theme.isElementary ? 'Pet Egg Emporium & Hatchery 🐣' : '3D Pet Egg Shop'}
-      pageSubtitle={
-        theme.isElementary
-          ? 'Spend earned stars on mysterious 3D eggs, hatch companion beasts, and nurture pets!'
-          : 'Purchase 3D mystery eggs using stars earned from exams and manage companion pets.'
-      }
+      isElementary={theme.isElementary}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+      incubatingEggs={incubatingEggs}
+      pets={pets}
+      onPurchaseEgg={handlePurchaseEgg}
+      onEggHatched={handleEggHatched}
+      onGrowPet={handleGrowPet}
       onNavigate={handleNavigate}
       onLogout={handleLogout}
       dockMode={dockMode}
       onDockModeChange={setDockMode}
-    >
-      <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            data-testid="tab-egg-shop"
-            onClick={() => setActiveTab('shop')}
-            className={`px-5 py-2.5 rounded-full font-extrabold text-sm transition-all shadow-sm ${
-              activeTab === 'shop'
-                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-amber-200 ring-2 ring-amber-300'
-                : 'bg-white dark:bg-stone-800 text-slate-700 dark:text-stone-300 hover:bg-amber-50 hover:text-amber-800 border border-slate-200 dark:border-stone-700'
-            }`}
-          >
-            🛒 3D Egg Shop
-          </button>
-          <button
-            type="button"
-            data-testid="tab-pet-hatchery"
-            onClick={() => setActiveTab('hatchery')}
-            className={`px-5 py-2.5 rounded-full font-extrabold text-sm transition-all shadow-sm ${
-              activeTab === 'hatchery'
-                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-amber-200 ring-2 ring-amber-300'
-                : 'bg-white dark:bg-stone-800 text-slate-700 dark:text-stone-300 hover:bg-amber-50 hover:text-amber-800 border border-slate-200 dark:border-stone-700'
-            }`}
-          >
-            🐣 Pet Hatchery & Sanctuary ({incubatingEggs.length} eggs)
-          </button>
-        </div>
-
-        {activeTab === 'shop' ? (
-          <ExamIntegrityEggShop
-            starBalance={totalStars}
-            onPurchaseEgg={handlePurchaseEgg}
-            onOpenHatchery={() => setActiveTab('hatchery')}
-          />
-        ) : (
-          <ExamIntegrityPetHatchery
-            starBalance={totalStars}
-            incubatingEggs={incubatingEggs}
-            pets={pets}
-            onGrowPet={handleGrowPet}
-            onEggHatched={handleEggHatched}
-          />
-        )}
-      </div>
-    </StudentManLandingLayout>
+    />
   );
 };
 

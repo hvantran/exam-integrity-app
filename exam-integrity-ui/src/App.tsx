@@ -17,7 +17,8 @@ import QuestionBankPage from './pages/TeacherManQuestionBankPage';
 import FinalPublicationPage from './pages/TeacherManFinalPublicationPage';
 import TeacherManDashboardPage from './pages/TeacherManDashboardPage';
 import TeacherManScoringPage from './pages/TeacherManScoringPage';
-import AppToastContainer from './components/AppToastContainer';
+import { ToastContainer, Slide } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -137,7 +138,19 @@ const App: React.FC = () => (
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-          <AppToastContainer />
+          <ToastContainer
+            position="bottom-right"
+            autoClose={3500}
+            newestOnTop
+            closeOnClick
+            pauseOnHover
+            draggable
+            theme="colored"
+            transition={Slide}
+            toastStyle={{ borderRadius: '12px', fontSize: '14px', fontWeight: 600 }}
+            bodyStyle={{ padding: '10px 12px', color: '#ffffff', margin: 0 }}
+            progressStyle={{ height: '4px', background: 'rgba(255, 255, 255, 0.72)' }}
+          />
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>

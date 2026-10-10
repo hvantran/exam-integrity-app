@@ -12,10 +12,11 @@ import {
   ExamIntegrityTeacherDashboardTemplate as TeacherManDashboardLayout,
   ExamIntegrityStudentExamHeader as StudentManExamHeader,
   ExamIntegrityStudentExamNavigationBar as StudentManExamNavigationBar,
+  ExamIntegrityQuestionPickerModal,
+  ExamIntegrityQuestionPanel as StudentManQuestionPanel,
+  type QuestionOption,
   type ExamIntegrityDashboardSection as DashboardSection,
 } from '@hvantran/ui-component-library';
-import SelectQuestionsFromBankDialog from '../components/SelectQuestionsFromBankDialog';
-import StudentManQuestionPanel, { type QuestionOption } from '../components/QuestionPanel';
 import {
   useExam,
   useCreateExamFromBank,
@@ -27,7 +28,7 @@ import { examService } from '../services/examService';
 import { questionBankService } from '../services/questionBankService';
 import { useNavDockMode, TEACHER_NAV_DOCK_STORAGE_KEY } from '../hooks/useNavDockMode';
 import { useAuth } from '../context/AuthContext';
-import type { CreateExamFromBankCommand, ExamDTO } from '../types/exam.types';
+import type { CreateExamFromBankCommand, ExamDTO, QuestionType } from '../types/exam.types';
 import { colors } from '../design-system/tokens';
 import { BookOpen, Clock, Eye, ListChecks, Plus, RefreshCw, Star, Trash2 } from 'lucide-react';
 const SECTION_ROUTES: Record<DashboardSection, string> = {
@@ -745,14 +746,30 @@ const TeacherManDashboardPage: React.FC = () => {
         isLoading={createFromBank.isPending}
       />
 
-      <SelectQuestionsFromBankDialog
+      <ExamIntegrityQuestionPickerModal
         open={selectDialogOpen}
         onClose={() => setSelectDialogOpen(false)}
-        onSubmit={handleCreate}
+        onSubmit={(result) =>
+          handleCreate({
+            title: result.title,
+            durationSeconds: result.durationSeconds ?? (result.durationMin ? result.durationMin * 60 : 3600),
+            mcqCount: result.mcqCount ?? 0,
+            essayShortCount: result.essayShortCount ?? 0,
+            essayLongCount: result.essayLongCount ?? 0,
+            selectedQuestionIds: result.selectedQuestionIds,
+          })
+        }
         isLoading={createFromBank.isPending}
+        onSearchQuestions={(params) =>
+          questionBankService.search({
+            ...params,
+            type: params.type as QuestionType | undefined,
+          })
+        }
+        onFetchByIds={(ids) => questionBankService.fetchByIds(ids)}
       />
 
-      <SelectQuestionsFromBankDialog
+      <ExamIntegrityQuestionPickerModal
         open={manageDialogOpen}
         onClose={() => {
           if (updateExamQuestions.isPending) return;
@@ -766,6 +783,13 @@ const TeacherManDashboardPage: React.FC = () => {
         initialSelectedQuestionIds={initialManagedQuestionIds}
         onSubmitSelection={handleSubmitManagedQuestions}
         isLoading={updateExamQuestions.isPending}
+        onSearchQuestions={(params) =>
+          questionBankService.search({
+            ...params,
+            type: params.type as QuestionType | undefined,
+          })
+        }
+        onFetchByIds={(ids) => questionBankService.fetchByIds(ids)}
       />
 
       {/* Delete confirmation dialog (Tailwind-based) */}

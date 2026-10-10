@@ -11,6 +11,8 @@ import {
   Skeleton,
   Combobox,
   ExamIntegrityTeacherQuestionBankTemplate as TeacherManQuestionBankLayout,
+  ExamIntegrityQuestionPanel as StudentManQuestionPanel,
+  type QuestionOption,
   type ExamIntegrityDashboardSection as DashboardSection,
 } from '@hvantran/ui-component-library';
 import { Search, Pencil, PlusCircle, X, Star, History, Trash2, Eye } from 'lucide-react';
@@ -20,7 +22,6 @@ import type { DraftQuestionDTO, QuestionPart, QuestionType } from '../types/exam
 import type { DraftQuestionEditCommand } from '../types/exam.types';
 import { useAuth } from '../context/AuthContext';
 import { useNavDockMode, TEACHER_NAV_DOCK_STORAGE_KEY } from '../hooks/useNavDockMode';
-import StudentManQuestionPanel, { type QuestionOption } from '../components/QuestionPanel';
 
 const SECTION_ROUTES: Record<DashboardSection, string> = {
   dashboard: '/teacher/dashboard',
