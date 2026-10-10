@@ -9,9 +9,13 @@ describe('draftRepository', () => {
   const mockQuestions: DraftQuestionDTO[] = [
     {
       id: 'q1',
+      questionNumber: 1,
       content: 'What is 2 + 2?',
       type: 'MCQ',
-      score: 10,
+      points: 10,
+      truncated: false,
+      parserConfidence: 1,
+      reviewStatus: 'APPROVED',
     },
   ];
 
