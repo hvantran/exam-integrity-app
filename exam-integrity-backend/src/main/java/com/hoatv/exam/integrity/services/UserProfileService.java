@@ -105,6 +105,31 @@ public class UserProfileService {
         return toDTO(saved);
     }
 
+    public int getStarBalance(String userId) {
+        return userProfileRepository.findByUserId(userId)
+            .map(p -> p.getStats() != null ? p.getStats().getTotalStars() : 0)
+            .orElse(0);
+    }
+
+    public UserProfile spendStars(String userId, int stars) {
+        if (stars <= 0) {
+            throw new IllegalArgumentException("Stars to spend must be greater than 0");
+        }
+        UserProfile profile = getOrCreateProfile(userId, "STUDENT", null);
+        if (profile.getStats() == null) {
+            profile.setStats(new UserProfileStats());
+        }
+        int currentStars = profile.getStats().getTotalStars();
+        if (currentStars < stars) {
+            throw new IllegalStateException("Insufficient stars: requires " + stars + " but have " + currentStars);
+        }
+        profile.getStats().setTotalStars(currentStars - stars);
+        profile.setUpdatedAt(Instant.now());
+        UserProfile saved = userProfileRepository.save(profile);
+        logger.info("User {} spent {} stars. New balance: {}", userId, stars, profile.getStats().getTotalStars());
+        return saved;
+    }
+
     public UserProfileDTO toDTO(UserProfile profile) {
         UserProfileStats stats = profile.getStats() != null ? profile.getStats() : new UserProfileStats();
         UserProfileGamification gamification = profile.getGamification() != null

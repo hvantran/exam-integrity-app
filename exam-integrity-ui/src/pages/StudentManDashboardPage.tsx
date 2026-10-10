@@ -19,6 +19,7 @@ const PORTAL_ROUTES: Record<PortalSection, string> = {
   dashboard: '/',
   'my-exams': '/my-exams',
   results: '/my-exams',
+  shop: '/shop',
 };
 
 const SUBJECT_ICONS: Record<string, { label: string; icon: string; border: string; bg: string }> = {
