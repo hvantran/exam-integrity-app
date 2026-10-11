@@ -30,6 +30,7 @@ const SECTION_ROUTES: Record<DashboardSection, string> = {
   scoring: '/teacher/scoring',
   'question-bank': '/teacher/question-bank',
   reports: '/teacher/ingestion',
+  settings: '/teacher/settings',
 };
 
 const DIFFICULTY_OPTIONS = ['Easy', 'Medium', 'Hard'];
