@@ -20,6 +20,7 @@ jest.mock('../services/hatcheryService', () => ({
     getMyPets: jest.fn().mockResolvedValue([]),
     hatchEgg: jest.fn().mockResolvedValue({}),
     growPet: jest.fn().mockResolvedValue({}),
+    strikeEgg: jest.fn().mockResolvedValue({ id: 'egg-1', crackProgress: 0.5 }),
   },
 }));
 
@@ -46,6 +47,7 @@ jest.mock('@hvantran/ui-component-library', () => {
       pets,
       onEggHatched,
       onGrowPet,
+      onStrikeCrack,
       onNavigate,
       onLogout,
     }: any) => (
@@ -80,6 +82,13 @@ jest.mock('@hvantran/ui-component-library', () => {
           onClick={() => onGrowPet?.('pet-new', 25)}
         >
           Grow Pet
+        </button>
+        <button
+          type="button"
+          data-testid="mock-strike-egg"
+          onClick={() => onStrikeCrack?.('egg-1', 25)}
+        >
+          Strike Egg
         </button>
         <button
           type="button"
@@ -162,6 +171,16 @@ describe('StudentManCollectionPage', () => {
 
     await waitFor(() => {
       expect(hatcheryService.growPet).toHaveBeenCalledWith('pet-new');
+    });
+  });
+
+  it('handles striking an egg to reduce hatching time and spend stars', async () => {
+    render(<StudentManCollectionPage />);
+
+    fireEvent.click(screen.getByTestId('mock-strike-egg'));
+
+    await waitFor(() => {
+      expect(hatcheryService.strikeEgg).toHaveBeenCalledWith('egg-1');
     });
   });
 

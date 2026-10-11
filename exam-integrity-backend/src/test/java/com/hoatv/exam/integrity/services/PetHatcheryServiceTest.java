@@ -10,6 +10,7 @@ import com.hoatv.exam.integrity.dtos.IncubatingEggDTO;
 import com.hoatv.exam.integrity.dtos.PurchaseEggResponseDTO;
 import com.hoatv.exam.integrity.dtos.StudentPetDTO;
 import com.hoatv.exam.integrity.repositories.IncubatingEggRepository;
+import com.hoatv.exam.integrity.repositories.PetLibraryRepository;
 import com.hoatv.exam.integrity.repositories.StudentPetRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,9 @@ class PetHatcheryServiceTest {
 
     @Mock
     private StudentPetRepository studentPetRepository;
+
+    @Mock
+    private PetLibraryRepository petLibraryRepository;
 
     @Mock
     private UserProfileService userProfileService;
@@ -95,12 +99,14 @@ class PetHatcheryServiceTest {
         egg.setRemainingSeconds(25920L);
 
         when(incubatingEggRepository.findByIdAndUserId("egg-1", "student1")).thenReturn(Optional.of(egg));
+        when(userProfileService.spendStars("student1", 25)).thenReturn(testProfile);
         when(incubatingEggRepository.save(any(IncubatingEgg.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         IncubatingEggDTO result = petHatcheryService.strikeEgg("student1", "egg-1");
 
         assertThat(result.crackProgress()).isEqualTo(0.35);
         assertThat(result.remainingSeconds()).isEqualTo(18720L);
+        verify(userProfileService).spendStars("student1", 25);
     }
 
     @Test
@@ -194,6 +200,16 @@ class PetHatcheryServiceTest {
 
         verify(userProfileService).spendStars("student1", 25);
         verify(studentPetRepository).save(any(StudentPet.class));
+    }
+
+    @Test
+    void growPetThrowsIllegalArgumentExceptionWhenNotFoundInRepository() {
+        when(studentPetRepository.findByIdAndUserId("pet-sproutling-stage-1", "student1"))
+            .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> petHatcheryService.growPet("student1", "pet-sproutling-stage-1"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Pet not found: pet-sproutling-stage-1");
     }
 }
 

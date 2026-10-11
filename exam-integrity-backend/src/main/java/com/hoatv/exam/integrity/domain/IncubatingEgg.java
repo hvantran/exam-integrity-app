@@ -32,6 +32,8 @@ public class IncubatingEgg {
     private long hatchDurationSeconds = 28800L;
     private long remainingSeconds = 28800L;
     private String imageUrl;
+    private String imageName;
+    private String petLibraryId;
     private Instant incubatedAt = Instant.now();
     private Instant createdAt = Instant.now();
     private Instant updatedAt = Instant.now();
@@ -165,6 +167,22 @@ public class IncubatingEgg {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getImageName() {
+        return imageName;
+    }
+
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
+    }
+
+    public String getPetLibraryId() {
+        return petLibraryId;
+    }
+
+    public void setPetLibraryId(String petLibraryId) {
+        this.petLibraryId = petLibraryId;
     }
 
     public Instant getIncubatedAt() {

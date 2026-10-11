@@ -68,6 +68,9 @@ class PetHatcheryControllerTest {
             true,
             8,
             25920L,
+            null,
+            "ancient-egg.png",
+            null,
             Instant.now(),
             Instant.now()
         );
@@ -97,6 +100,9 @@ class PetHatcheryControllerTest {
             true,
             8,
             18720L,
+            null,
+            "ancient-egg.png",
+            null,
             Instant.now(),
             Instant.now()
         );
@@ -127,6 +133,8 @@ class PetHatcheryControllerTest {
             "Hatchling",
             "🔥",
             null,
+            "phoenix-stage-1.png",
+            "phoenix",
             false,
             Map.of("vitality", 60),
             Instant.now(),
@@ -162,6 +170,8 @@ class PetHatcheryControllerTest {
             "Hatchling",
             "🔥",
             null,
+            "phoenix-stage-1.png",
+            "phoenix",
             false,
             Map.of("vitality", 65),
             Instant.now(),
