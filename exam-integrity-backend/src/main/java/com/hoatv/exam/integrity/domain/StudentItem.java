@@ -63,13 +63,7 @@ public class StudentItem {
     private String hatchedPetName;
     private String hatchedSpecies;
     @Builder.Default
-    private int equipCostInStars = 25;
-    @Builder.Default
     private boolean isMystery = true;
-    @Builder.Default
-    private int hatchDurationHours = 8;
-    @Builder.Default
-    private long hatchDurationSeconds = 28800L;
     @Builder.Default
     private long remainingSeconds = 28800L;
     @Builder.Default
@@ -78,13 +72,9 @@ public class StudentItem {
     // Pet-specific attributes (category = PET)
     @Builder.Default
     private int level = 1;
-    @Builder.Default
-    private int maxLevel = 10;
     private int currentExp;
     @Builder.Default
     private int expNeeded = 100;
-    @Builder.Default
-    private int growthCostInStars = 25;
     @Builder.Default
     private int stageLevel = 1;
     @Builder.Default

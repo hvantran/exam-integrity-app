@@ -56,18 +56,25 @@ public class PetHatcheryService {
     private final StudentItemRepository studentItemRepository;
     private final PetLibraryRepository petLibraryRepository;
     private final UserProfileService userProfileService;
+    private final SettingService settingService;
 
     public PetHatcheryService(
         StudentItemRepository studentItemRepository,
         PetLibraryRepository petLibraryRepository,
-        UserProfileService userProfileService
+        UserProfileService userProfileService,
+        SettingService settingService
     ) {
         this.studentItemRepository = studentItemRepository;
         this.petLibraryRepository = petLibraryRepository;
         this.userProfileService = userProfileService;
+        this.settingService = settingService;
     }
 
     public EggShopItemDTO getFeaturedShopEgg() {
+        int price = settingService.getInt(SettingService.KEY_EGG_SHOP_PRICE_STARS, EGG_SHOP_PRICE);
+        int hatchHours = settingService.getInt(SettingService.KEY_EGG_HATCH_DURATION_HOURS, HATCH_DURATION_HOURS);
+        long hatchSeconds = hatchHours * 3600L;
+
         Map<String, Integer> dropRates = new LinkedHashMap<>();
         dropRates.put(RARITY_COMMON, 50);
         dropRates.put(RARITY_RARE, 28);
@@ -79,9 +86,9 @@ public class PetHatcheryService {
             "mystery-egg-ancient",
             "Ancient Mysterious Egg",
             "dragon",
-            EGG_SHOP_PRICE,
-            HATCH_DURATION_HOURS,
-            HATCH_DURATION_SECONDS,
+            price,
+            hatchHours,
+            hatchSeconds,
             "A sealed celestial egg pulsing with ancient magic. The inner species and rarity are completely veiled until hatched. Awakens into a companion based on lucky drop chances!",
             dropRates
         );
@@ -92,7 +99,11 @@ public class PetHatcheryService {
             throw new IllegalArgumentException("userId must not be blank");
         }
 
-        UserProfile updatedProfile = userProfileService.spendStars(userId, EGG_SHOP_PRICE);
+        int price = settingService.getInt(SettingService.KEY_EGG_SHOP_PRICE_STARS, EGG_SHOP_PRICE);
+        int hatchHours = settingService.getInt(SettingService.KEY_EGG_HATCH_DURATION_HOURS, HATCH_DURATION_HOURS);
+        long hatchSeconds = hatchHours * 3600L;
+
+        UserProfile updatedProfile = userProfileService.spendStars(userId, price);
         int remainingStars = updatedProfile.getStats() != null ? updatedProfile.getStats().getTotalStars() : 0;
 
         StudentItem egg = StudentItem.builder()
@@ -102,12 +113,9 @@ public class PetHatcheryService {
             .tier("dragon")
             .rarity(RARITY_COMMON)
             .isMystery(true)
-            .hatchDurationHours(HATCH_DURATION_HOURS)
-            .hatchDurationSeconds(HATCH_DURATION_SECONDS)
-            .remainingSeconds(HATCH_DURATION_SECONDS)
+            .remainingSeconds(hatchSeconds)
             .crackProgress(0.0)
             .isEquipped(false)
-            .equipCostInStars(25)
             .hatchedPetName("??? Mystery Companion")
             .hatchedSpecies("Veiled Celestial Beast")
             .incubatedAt(Instant.now())
@@ -120,7 +128,7 @@ public class PetHatcheryService {
 
         return new PurchaseEggResponseDTO(
             true,
-            "Ancient Mysterious Egg acquired! Transferred to Incubator (8 hours hatching time).",
+            "Ancient Mysterious Egg acquired! Transferred to Incubator (" + hatchHours + " hours hatching time).",
             toEggDTO(saved),
             remainingStars
         );
@@ -139,11 +147,15 @@ public class PetHatcheryService {
         StudentItem egg = studentItemRepository.findByIdAndUserIdAndCategory(eggId, userId, StudentItem.CATEGORY_EGG_SHOP)
             .orElseThrow(() -> new IllegalArgumentException("Incubating egg not found: " + eggId));
 
-        userProfileService.spendStars(userId, STRIKE_CRACK_STAR_COST);
+        int strikeCost = settingService.getInt(SettingService.KEY_STRIKE_CRACK_STAR_COST, STRIKE_CRACK_STAR_COST);
+        double progressBoost = settingService.getDouble(SettingService.KEY_STRIKE_CRACK_PROGRESS_BOOST, 0.25);
+        long timeReduced = settingService.getLong(SettingService.KEY_STRIKE_CRACK_TIME_REDUCED_SECONDS, 7200L);
 
-        double newProgress = Math.min(1.0, egg.getCrackProgress() + 0.25);
+        userProfileService.spendStars(userId, strikeCost);
+
+        double newProgress = Math.min(1.0, egg.getCrackProgress() + progressBoost);
         egg.setCrackProgress(newProgress);
-        egg.setRemainingSeconds(Math.max(0L, egg.getRemainingSeconds() - 7200L));
+        egg.setRemainingSeconds(Math.max(0L, egg.getRemainingSeconds() - timeReduced));
         egg.setUpdatedAt(Instant.now());
 
         StudentItem saved = studentItemRepository.save(egg);
@@ -200,10 +212,8 @@ public class PetHatcheryService {
             .totalStages(totalStages)
             .petLibraryId(petKey)
             .level(1)
-            .maxLevel(10)
             .currentExp(0)
             .expNeeded(100)
-            .growthCostInStars(25)
             .stageLevel(1)
             .stageName("Hatchling")
             .imageName(petKey + "-stage-1.png")
@@ -340,10 +350,8 @@ public class PetHatcheryService {
             .petLibraryId(PET_SPROUTLING)
             .isEquipped(true)
             .level(1)
-            .maxLevel(10)
             .currentExp(0)
             .expNeeded(100)
-            .growthCostInStars(25)
             .stageLevel(1)
             .createdAt(Instant.now())
             .updatedAt(Instant.now())
@@ -373,21 +381,24 @@ public class PetHatcheryService {
         StudentItem pet = studentItemRepository.findByIdAndUserIdAndCategory(petId, userId, StudentItem.CATEGORY_PET)
             .orElseThrow(() -> new IllegalArgumentException("Pet not found: " + petId));
 
-        int growthCost = pet.getGrowthCostInStars() > 0 ? pet.getGrowthCostInStars() : 25;
+        int growthCost = settingService.getInt(SettingService.KEY_PET_GROW_STAR_COST, 25);
+        int gainedExp = settingService.getInt(SettingService.KEY_PET_GROW_EXP_GAIN, 60);
+        int maxLevel = settingService.getInt(SettingService.KEY_PET_MAX_LEVEL, 10);
+        double expMultiplier = settingService.getDouble(SettingService.KEY_PET_EXP_GROWTH_MULTIPLIER, 1.35);
+
         UserProfile updatedProfile = userProfileService.spendStars(userId, growthCost);
         int remainingStars = updatedProfile.getStats() != null ? updatedProfile.getStats().getTotalStars() : 0;
 
-        int gainedExp = 60;
         int newExp = pet.getCurrentExp() + gainedExp;
         int level = pet.getLevel();
         int expNeeded = pet.getExpNeeded();
         boolean levelGained = false;
         boolean didEvolve = false;
 
-        if (newExp >= expNeeded && level < pet.getMaxLevel()) {
+        if (newExp >= expNeeded && level < maxLevel) {
             level += 1;
             newExp -= expNeeded;
-            expNeeded = (int) Math.round(expNeeded * 1.35);
+            expNeeded = (int) Math.round(expNeeded * expMultiplier);
             levelGained = true;
             didEvolve = checkAndApplyEvolution(pet, level);
             boostStatsOnLevelUp(pet);
@@ -507,6 +518,8 @@ public class PetHatcheryService {
     }
 
     public IncubatingEggDTO toEggDTO(StudentItem egg) {
+        int equipCost = settingService.getInt(SettingService.KEY_EQUIP_EGG_STAR_COST, 25);
+        int hatchHours = settingService.getInt(SettingService.KEY_EGG_HATCH_DURATION_HOURS, HATCH_DURATION_HOURS);
         return new IncubatingEggDTO(
             egg.getId(),
             egg.getUserId(),
@@ -517,9 +530,9 @@ public class PetHatcheryService {
             egg.getHatchedPetName(),
             egg.getHatchedSpecies(),
             egg.isEquipped(),
-            egg.getEquipCostInStars(),
+            equipCost,
             egg.isMystery(),
-            egg.getHatchDurationHours(),
+            hatchHours,
             egg.getRemainingSeconds(),
             egg.getImageUrl(),
             egg.getImageName(),
@@ -530,6 +543,8 @@ public class PetHatcheryService {
     }
 
     public StudentPetDTO toPetDTO(StudentItem pet) {
+        int growthCost = settingService.getInt(SettingService.KEY_PET_GROW_STAR_COST, 25);
+        int maxLevel = settingService.getInt(SettingService.KEY_PET_MAX_LEVEL, 10);
         return new StudentPetDTO(
             pet.getId(),
             pet.getUserId(),
@@ -539,10 +554,10 @@ public class PetHatcheryService {
             pet.getTier(),
             pet.getElement(),
             pet.getLevel(),
-            pet.getMaxLevel(),
+            maxLevel,
             pet.getCurrentExp(),
             pet.getExpNeeded(),
-            pet.getGrowthCostInStars(),
+            growthCost,
             pet.getStageLevel(),
             pet.getTotalStages(),
             pet.getStageName(),

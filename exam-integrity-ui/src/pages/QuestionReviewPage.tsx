@@ -28,6 +28,7 @@ const SECTION_ROUTES: Record<ExamIntegrityDashboardSection, string> = {
   scoring: '/teacher/scoring',
   'question-bank': '/teacher/question-bank',
   reports: '/teacher/ingestion',
+  settings: '/teacher/settings',
 };
 
 const MCQ_OPTION_LABELS = ['A', 'B', 'C', 'D', 'E', 'F'];

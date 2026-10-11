@@ -22,9 +22,11 @@ public class UserProfileService {
     private static final Logger logger = LoggerFactory.getLogger(UserProfileService.class);
 
     private final UserProfileRepository userProfileRepository;
+    private final SettingService settingService;
 
-    public UserProfileService(UserProfileRepository userProfileRepository) {
+    public UserProfileService(UserProfileRepository userProfileRepository, SettingService settingService) {
         this.userProfileRepository = userProfileRepository;
+        this.settingService = settingService;
     }
 
     public UserProfile getOrCreateProfile(String userId, String role, Integer grade) {
@@ -70,7 +72,8 @@ public class UserProfileService {
         }
 
         UserProfile profile = getOrCreateProfile(userId, ROLE_STUDENT, null);
-        int starsEarned = (int) Math.round(finalScore10);
+        double starRatio = settingService.getDouble(SettingService.KEY_STARS_PER_SCORE_POINT, 1.0);
+        int starsEarned = (int) Math.round(finalScore10 * starRatio);
         if (starsEarned < 0) {
             starsEarned = 0;
         }
@@ -95,8 +98,8 @@ public class UserProfileService {
         if (profile.getGamification() == null) {
             profile.setGamification(new UserProfileGamification());
         }
-        // Advance level every 20 stars earned
-        int level = Math.max(1, (totalStars / 20) + 1);
+        int starsPerLevel = settingService.getInt(SettingService.KEY_STARS_PER_USER_LEVEL, 20);
+        int level = Math.max(1, (totalStars / (starsPerLevel > 0 ? starsPerLevel : 20)) + 1);
         profile.getGamification().setLevel(level);
 
         profile.setUpdatedAt(Instant.now());
