@@ -1,7 +1,6 @@
 package com.hoatv.exam.integrity.services;
 
-import com.hoatv.exam.integrity.domain.IncubatingEgg;
-import com.hoatv.exam.integrity.domain.StudentPet;
+import com.hoatv.exam.integrity.domain.StudentItem;
 import com.hoatv.exam.integrity.domain.UserProfile;
 import com.hoatv.exam.integrity.domain.UserProfileStats;
 import com.hoatv.exam.integrity.dtos.EggShopItemDTO;
@@ -9,9 +8,8 @@ import com.hoatv.exam.integrity.dtos.GrowPetResponseDTO;
 import com.hoatv.exam.integrity.dtos.IncubatingEggDTO;
 import com.hoatv.exam.integrity.dtos.PurchaseEggResponseDTO;
 import com.hoatv.exam.integrity.dtos.StudentPetDTO;
-import com.hoatv.exam.integrity.repositories.IncubatingEggRepository;
 import com.hoatv.exam.integrity.repositories.PetLibraryRepository;
-import com.hoatv.exam.integrity.repositories.StudentPetRepository;
+import com.hoatv.exam.integrity.repositories.StudentItemRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,10 +29,7 @@ import static org.mockito.Mockito.when;
 class PetHatcheryServiceTest {
 
     @Mock
-    private IncubatingEggRepository incubatingEggRepository;
-
-    @Mock
-    private StudentPetRepository studentPetRepository;
+    private StudentItemRepository studentItemRepository;
 
     @Mock
     private PetLibraryRepository petLibraryRepository;
@@ -72,8 +67,8 @@ class PetHatcheryServiceTest {
     @Test
     void purchaseMysteryEggDeducts250StarsAndCreatesIncubatingEgg() {
         when(userProfileService.spendStars("student1", 250)).thenReturn(testProfile);
-        when(incubatingEggRepository.save(any(IncubatingEgg.class))).thenAnswer(invocation -> {
-            IncubatingEgg saved = invocation.getArgument(0);
+        when(studentItemRepository.save(any(StudentItem.class))).thenAnswer(invocation -> {
+            StudentItem saved = invocation.getArgument(0);
             saved.setId("egg-123");
             return saved;
         });
@@ -88,19 +83,25 @@ class PetHatcheryServiceTest {
         assertThat(response.incubatingEgg().isMystery()).isTrue();
 
         verify(userProfileService).spendStars("student1", 250);
-        verify(incubatingEggRepository).save(any(IncubatingEgg.class));
+        verify(studentItemRepository).save(any(StudentItem.class));
     }
 
     @Test
     void strikeEggAdvancesCrackProgressAndReducesRemainingTime() {
-        IncubatingEgg egg = new IncubatingEgg("student1", "Ancient Mysterious Egg", "dragon");
-        egg.setId("egg-1");
-        egg.setCrackProgress(0.1);
-        egg.setRemainingSeconds(25920L);
+        StudentItem egg = StudentItem.builder()
+            .id("egg-1")
+            .userId("student1")
+            .category(StudentItem.CATEGORY_EGG_SHOP)
+            .name("Ancient Mysterious Egg")
+            .tier("dragon")
+            .crackProgress(0.1)
+            .remainingSeconds(25920L)
+            .build();
 
-        when(incubatingEggRepository.findByIdAndUserId("egg-1", "student1")).thenReturn(Optional.of(egg));
+        when(studentItemRepository.findByIdAndUserIdAndCategory("egg-1", "student1", StudentItem.CATEGORY_EGG_SHOP))
+            .thenReturn(Optional.of(egg));
         when(userProfileService.spendStars("student1", 25)).thenReturn(testProfile);
-        when(incubatingEggRepository.save(any(IncubatingEgg.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(studentItemRepository.save(any(StudentItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         IncubatingEggDTO result = petHatcheryService.strikeEgg("student1", "egg-1");
 
@@ -111,12 +112,18 @@ class PetHatcheryServiceTest {
 
     @Test
     void hatchEggFailsWhenEggNotReady() {
-        IncubatingEgg egg = new IncubatingEgg("student1", "Ancient Mysterious Egg", "dragon");
-        egg.setId("egg-1");
-        egg.setCrackProgress(0.5);
-        egg.setRemainingSeconds(10000L);
+        StudentItem egg = StudentItem.builder()
+            .id("egg-1")
+            .userId("student1")
+            .category(StudentItem.CATEGORY_EGG_SHOP)
+            .name("Ancient Mysterious Egg")
+            .tier("dragon")
+            .crackProgress(0.5)
+            .remainingSeconds(10000L)
+            .build();
 
-        when(incubatingEggRepository.findByIdAndUserId("egg-1", "student1")).thenReturn(Optional.of(egg));
+        when(studentItemRepository.findByIdAndUserIdAndCategory("egg-1", "student1", StudentItem.CATEGORY_EGG_SHOP))
+            .thenReturn(Optional.of(egg));
 
         assertThatThrownBy(() -> petHatcheryService.hatchEgg("student1", "egg-1", 50.0))
             .isInstanceOf(IllegalStateException.class)
@@ -125,14 +132,20 @@ class PetHatcheryServiceTest {
 
     @Test
     void hatchEggSucceedsWhenProgressIs100PercentAndRollsMysteryPet() {
-        IncubatingEgg egg = new IncubatingEgg("student1", "Ancient Mysterious Egg", "dragon");
-        egg.setId("egg-1");
-        egg.setCrackProgress(1.0);
-        egg.setRemainingSeconds(0L);
+        StudentItem egg = StudentItem.builder()
+            .id("egg-1")
+            .userId("student1")
+            .category(StudentItem.CATEGORY_EGG_SHOP)
+            .name("Ancient Mysterious Egg")
+            .tier("dragon")
+            .crackProgress(1.0)
+            .remainingSeconds(0L)
+            .build();
 
-        when(incubatingEggRepository.findByIdAndUserId("egg-1", "student1")).thenReturn(Optional.of(egg));
-        when(studentPetRepository.save(any(StudentPet.class))).thenAnswer(invocation -> {
-            StudentPet p = invocation.getArgument(0);
+        when(studentItemRepository.findByIdAndUserIdAndCategory("egg-1", "student1", StudentItem.CATEGORY_EGG_SHOP))
+            .thenReturn(Optional.of(egg));
+        when(studentItemRepository.save(any(StudentItem.class))).thenAnswer(invocation -> {
+            StudentItem p = invocation.getArgument(0);
             p.setId("pet-99");
             return p;
         });
@@ -145,51 +158,65 @@ class PetHatcheryServiceTest {
         assertThat(hatched.totalStages()).isEqualTo(5);
         assertThat(hatched.level()).isEqualTo(1);
 
-        verify(incubatingEggRepository).deleteByIdAndUserId("egg-1", "student1");
-        verify(studentPetRepository).save(any(StudentPet.class));
+        verify(studentItemRepository).deleteByIdAndUserIdAndCategory("egg-1", "student1", StudentItem.CATEGORY_EGG_SHOP);
+        verify(studentItemRepository).save(any(StudentItem.class));
     }
 
     @Test
     void rollMysteryPetConformsToExactDropPercentages() {
         // Roll 10.0 -> Common (3 stages)
-        StudentPet common = petHatcheryService.rollMysteryPet("student1", 10.0);
+        StudentItem common = petHatcheryService.rollMysteryPet("student1", 10.0);
         assertThat(common.getRarity()).isEqualTo("Common");
         assertThat(common.getTotalStages()).isEqualTo(3);
+        assertThat(common.getCategory()).isEqualTo(StudentItem.CATEGORY_PET);
 
         // Roll 60.0 -> Rare (4 stages)
-        StudentPet rare = petHatcheryService.rollMysteryPet("student1", 60.0);
+        StudentItem rare = petHatcheryService.rollMysteryPet("student1", 60.0);
         assertThat(rare.getRarity()).isEqualTo("Rare");
         assertThat(rare.getTotalStages()).isEqualTo(4);
+        assertThat(rare.getCategory()).isEqualTo(StudentItem.CATEGORY_PET);
 
         // Roll 80.0 -> Epic (5 stages)
-        StudentPet epic = petHatcheryService.rollMysteryPet("student1", 80.0);
+        StudentItem epic = petHatcheryService.rollMysteryPet("student1", 80.0);
         assertThat(epic.getRarity()).isEqualTo("Epic");
         assertThat(epic.getTotalStages()).isEqualTo(5);
+        assertThat(epic.getCategory()).isEqualTo(StudentItem.CATEGORY_PET);
 
         // Roll 95.0 -> Legendary (6 stages)
-        StudentPet leg = petHatcheryService.rollMysteryPet("student1", 95.0);
+        StudentItem leg = petHatcheryService.rollMysteryPet("student1", 95.0);
         assertThat(leg.getRarity()).isEqualTo("Legendary");
         assertThat(leg.getTotalStages()).isEqualTo(6);
+        assertThat(leg.getCategory()).isEqualTo(StudentItem.CATEGORY_PET);
 
         // Roll 99.5 -> Mythic (8 stages)
-        StudentPet mythic = petHatcheryService.rollMysteryPet("student1", 99.5);
+        StudentItem mythic = petHatcheryService.rollMysteryPet("student1", 99.5);
         assertThat(mythic.getRarity()).isEqualTo("Mythic");
         assertThat(mythic.getTotalStages()).isEqualTo(8);
+        assertThat(mythic.getCategory()).isEqualTo(StudentItem.CATEGORY_PET);
     }
 
     @Test
     void growPetSpendsStarsAndLevelsUpPetWithEvolution() {
-        StudentPet pet = new StudentPet("student1", "Sun Ember Fledgling", "Primordial Solar Phoenix", "Epic", 5);
-        pet.setId("pet-1");
-        pet.setLevel(2);
-        pet.setExpNeeded(100);
-        pet.setCurrentExp(80);
-        pet.setStageLevel(1);
-        pet.setGrowthCostInStars(25);
+        StudentItem pet = StudentItem.builder()
+            .id("pet-1")
+            .userId("student1")
+            .category(StudentItem.CATEGORY_PET)
+            .name("Sun Ember Fledgling")
+            .species("Primordial Solar Phoenix")
+            .rarity("Epic")
+            .totalStages(5)
+            .level(2)
+            .expNeeded(100)
+            .currentExp(80)
+            .stageLevel(1)
+            .growthCostInStars(25)
+            .build();
+        pet.initDefaultStats();
 
-        when(studentPetRepository.findByIdAndUserId("pet-1", "student1")).thenReturn(Optional.of(pet));
+        when(studentItemRepository.findByIdAndUserIdAndCategory("pet-1", "student1", StudentItem.CATEGORY_PET))
+            .thenReturn(Optional.of(pet));
         when(userProfileService.spendStars("student1", 25)).thenReturn(testProfile);
-        when(studentPetRepository.save(any(StudentPet.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(studentItemRepository.save(any(StudentItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         GrowPetResponseDTO response = petHatcheryService.growPet("student1", "pet-1");
 
@@ -199,12 +226,12 @@ class PetHatcheryServiceTest {
         assertThat(response.pet().stageLevel()).isEqualTo(2);
 
         verify(userProfileService).spendStars("student1", 25);
-        verify(studentPetRepository).save(any(StudentPet.class));
+        verify(studentItemRepository).save(any(StudentItem.class));
     }
 
     @Test
     void growPetThrowsIllegalArgumentExceptionWhenNotFoundInRepository() {
-        when(studentPetRepository.findByIdAndUserId("pet-sproutling-stage-1", "student1"))
+        when(studentItemRepository.findByIdAndUserIdAndCategory("pet-sproutling-stage-1", "student1", StudentItem.CATEGORY_PET))
             .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> petHatcheryService.growPet("student1", "pet-sproutling-stage-1"))
@@ -212,4 +239,3 @@ class PetHatcheryServiceTest {
             .hasMessageContaining("Pet not found: pet-sproutling-stage-1");
     }
 }
-

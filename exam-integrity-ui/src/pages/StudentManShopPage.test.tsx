@@ -1,10 +1,11 @@
 import React from 'react';
 import '@testing-library/jest-dom';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import StudentManShopPage from './StudentManShopPage';
 import { useAuth } from '../context/AuthContext';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useNavDockMode } from '../hooks/useNavDockMode';
+import { hatcheryService } from '../services/hatcheryService';
 
 const mockNavigate = jest.fn();
 
@@ -23,6 +24,16 @@ jest.mock('../hooks/useUserProfile', () => ({
 
 jest.mock('../hooks/useNavDockMode', () => ({
   useNavDockMode: jest.fn(),
+}));
+
+jest.mock('../services/hatcheryService', () => ({
+  hatcheryService: {
+    purchaseEgg: jest.fn().mockResolvedValue({
+      success: true,
+      egg: { id: 'egg-purchased', name: 'Ancient Mysterious Egg' },
+      remainingStars: 250,
+    }),
+  },
 }));
 
 jest.mock('@hvantran/ui-component-library', () => {
@@ -104,17 +115,17 @@ describe('StudentManShopPage', () => {
     expect(screen.getByTestId('star-count')).toHaveTextContent('500');
   });
 
-  it('handles purchasing egg and persists to scoped storage', () => {
+  it('handles purchasing egg and persists via hatcheryService without using local storage', async () => {
     render(<StudentManShopPage />);
 
     const buyBtn = screen.getByTestId('mock-buy-egg');
     fireEvent.click(buyBtn);
 
-    const saved = localStorage.getItem('exam_integrity_student-123_incubating_eggs');
-    expect(saved).not.toBeNull();
-    const parsed = JSON.parse(saved!);
-    expect(parsed[0].name).toBe('Ancient Mysterious Egg');
-    expect(parsed[0].hatchDurationHours).toBe(8);
+    expect(hatcheryService.purchaseEgg).toHaveBeenCalled();
+    await waitFor(() => {
+      const saved = localStorage.getItem('exam_integrity_student-123_incubating_eggs');
+      expect(saved).toBeNull();
+    });
   });
 
   it('navigates to collection section when requested', () => {
