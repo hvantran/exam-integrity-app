@@ -9,6 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useNavDockMode } from '../hooks/useNavDockMode';
+import { useSettings } from '../context/SettingContext';
 import { hatcheryService } from '../services/hatcheryService';
 import type { UserProfile } from '../services/profileService';
 
@@ -33,6 +34,7 @@ const StudentManShopPage: React.FC = () => {
   const queryClient = useSafeQueryClient();
   const { logout, displayName } = useAuth();
   const { data: profile } = useUserProfile();
+  const { getSettingNumber } = useSettings();
   const totalStars = profile?.stats?.totalStars ?? 0;
   const [dockMode, setDockMode] = useNavDockMode();
 
@@ -43,7 +45,7 @@ const StudentManShopPage: React.FC = () => {
   const handleNavigate = (section: PortalSection) => navigate(PORTAL_ROUTES[section]);
 
   const handlePurchaseEgg = (item: EggShopItem) => {
-    const eggCost = item.price || 250;
+    const eggCost = item.price || getSettingNumber('egg_shop_price_stars', 250);
 
     // Optimistically deduct stars
     queryClient?.setQueryData<UserProfile>(['user-profile', 'me'], (old) => {

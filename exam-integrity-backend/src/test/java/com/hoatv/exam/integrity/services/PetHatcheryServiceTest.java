@@ -37,6 +37,9 @@ class PetHatcheryServiceTest {
     @Mock
     private UserProfileService userProfileService;
 
+    @Mock
+    private SettingService settingService;
+
     @InjectMocks
     private PetHatcheryService petHatcheryService;
 
@@ -46,6 +49,17 @@ class PetHatcheryServiceTest {
     void setUp() {
         testProfile = new UserProfile("student1", "STUDENT", 5);
         testProfile.setStats(new UserProfileStats(500, 5, 9.5));
+
+        org.mockito.Mockito.lenient().when(settingService.getInt(org.mockito.ArgumentMatchers.eq(SettingService.KEY_EGG_SHOP_PRICE_STARS), org.mockito.ArgumentMatchers.anyInt())).thenReturn(250);
+        org.mockito.Mockito.lenient().when(settingService.getInt(org.mockito.ArgumentMatchers.eq(SettingService.KEY_EGG_HATCH_DURATION_HOURS), org.mockito.ArgumentMatchers.anyInt())).thenReturn(8);
+        org.mockito.Mockito.lenient().when(settingService.getInt(org.mockito.ArgumentMatchers.eq(SettingService.KEY_STRIKE_CRACK_STAR_COST), org.mockito.ArgumentMatchers.anyInt())).thenReturn(25);
+        org.mockito.Mockito.lenient().when(settingService.getDouble(org.mockito.ArgumentMatchers.eq(SettingService.KEY_STRIKE_CRACK_PROGRESS_BOOST), org.mockito.ArgumentMatchers.anyDouble())).thenReturn(0.25);
+        org.mockito.Mockito.lenient().when(settingService.getLong(org.mockito.ArgumentMatchers.eq(SettingService.KEY_STRIKE_CRACK_TIME_REDUCED_SECONDS), org.mockito.ArgumentMatchers.anyLong())).thenReturn(7200L);
+        org.mockito.Mockito.lenient().when(settingService.getInt(org.mockito.ArgumentMatchers.eq(SettingService.KEY_EQUIP_EGG_STAR_COST), org.mockito.ArgumentMatchers.anyInt())).thenReturn(25);
+        org.mockito.Mockito.lenient().when(settingService.getInt(org.mockito.ArgumentMatchers.eq(SettingService.KEY_PET_GROW_STAR_COST), org.mockito.ArgumentMatchers.anyInt())).thenReturn(25);
+        org.mockito.Mockito.lenient().when(settingService.getInt(org.mockito.ArgumentMatchers.eq(SettingService.KEY_PET_GROW_EXP_GAIN), org.mockito.ArgumentMatchers.anyInt())).thenReturn(60);
+        org.mockito.Mockito.lenient().when(settingService.getInt(org.mockito.ArgumentMatchers.eq(SettingService.KEY_PET_MAX_LEVEL), org.mockito.ArgumentMatchers.anyInt())).thenReturn(10);
+        org.mockito.Mockito.lenient().when(settingService.getDouble(org.mockito.ArgumentMatchers.eq(SettingService.KEY_PET_EXP_GROWTH_MULTIPLIER), org.mockito.ArgumentMatchers.anyDouble())).thenReturn(1.35);
     }
 
     @Test
@@ -209,7 +223,6 @@ class PetHatcheryServiceTest {
             .expNeeded(100)
             .currentExp(80)
             .stageLevel(1)
-            .growthCostInStars(25)
             .build();
         pet.initDefaultStats();
 

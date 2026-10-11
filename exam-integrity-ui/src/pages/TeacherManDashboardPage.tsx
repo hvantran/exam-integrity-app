@@ -31,13 +31,14 @@ import { useAuth } from '../context/AuthContext';
 import type { CreateExamFromBankCommand, ExamDTO, QuestionType } from '../types/exam.types';
 import { colors } from '../design-system/tokens';
 import { BookOpen, Clock, Eye, ListChecks, Plus, RefreshCw, Star, Trash2 } from 'lucide-react';
-const SECTION_ROUTES: Record<DashboardSection, string> = {
+const SECTION_ROUTES: Record<DashboardSection | 'settings', string> = {
   dashboard: '/teacher/dashboard',
   ingestion: '/teacher/ingestion',
   review: '/teacher/ingestion',
   scoring: '/teacher/scoring',
   'question-bank': '/teacher/question-bank',
   reports: '/teacher/ingestion',
+  settings: '/teacher/settings',
 };
 
 type ExamStatusFilter = 'all' | 'published' | 'draft';

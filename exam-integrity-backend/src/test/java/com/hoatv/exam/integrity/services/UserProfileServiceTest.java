@@ -21,8 +21,17 @@ class UserProfileServiceTest {
     @Mock
     private UserProfileRepository userProfileRepository;
 
+    @Mock
+    private SettingService settingService;
+
     @InjectMocks
     private UserProfileService userProfileService;
+
+    @org.junit.jupiter.api.BeforeEach
+    void setUp() {
+        org.mockito.Mockito.lenient().when(settingService.getDouble(SettingService.KEY_STARS_PER_SCORE_POINT, 1.0)).thenReturn(1.0);
+        org.mockito.Mockito.lenient().when(settingService.getInt(SettingService.KEY_STARS_PER_USER_LEVEL, 20)).thenReturn(20);
+    }
 
     @Test
     void getOrCreateProfileCreatesNewProfileWhenNotFound() {

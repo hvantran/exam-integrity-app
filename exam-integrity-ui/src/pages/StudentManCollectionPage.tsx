@@ -11,6 +11,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useNavDockMode } from '../hooks/useNavDockMode';
+import { useSettings } from '../context/SettingContext';
 import { hatcheryService } from '../services/hatcheryService';
 import type { UserProfile } from '../services/profileService';
 import { removeScopedItem } from '../utils/storage';
@@ -39,8 +40,10 @@ const StudentManCollectionPage: React.FC = () => {
   const queryClient = useSafeQueryClient();
   const { logout, displayName, user } = useAuth();
   const { data: profile } = useUserProfile();
+  const { getSettingNumber } = useSettings();
   const totalStars = profile?.stats?.totalStars ?? 0;
   const [dockMode, setDockMode] = useNavDockMode();
+  const crackCost = getSettingNumber('strike_crack_star_cost', 25);
 
   const currentUserId = profile?.userId || user?.username || null;
 
@@ -182,6 +185,7 @@ const StudentManCollectionPage: React.FC = () => {
     <ExamIntegrityStudentCollectionTemplate
       studentName={displayName || 'Student'}
       starCount={totalStars}
+      crackCostInStars={crackCost}
       incubatingEggs={incubatingEggs}
       pets={pets}
       onEggHatched={handleEggHatched}

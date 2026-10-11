@@ -34,6 +34,7 @@ jest.mock('./pages/TeacherManQuestionBankPage', () => () => <div>Question bank</
 jest.mock('./pages/TeacherManFinalPublicationPage', () => () => <div>Final publication</div>);
 jest.mock('./pages/TeacherManDashboardPage', () => () => <div>Teacher dashboard</div>);
 jest.mock('./pages/TeacherManScoringPage', () => () => <div>Teacher scoring</div>);
+jest.mock('./pages/TeacherManSettingsPage', () => () => <div>Teacher settings</div>);
 jest.mock('react-toastify', () => ({
   ToastContainer: () => null,
   Slide: {},
@@ -75,5 +76,14 @@ describe('App', () => {
     render(<App />);
 
     expect(await screen.findByText('Student collection')).toBeTruthy();
+  });
+
+  it('routes an administrator to the settings page at /teacher/settings', async () => {
+    mockRoles = ['ADMIN'];
+    window.history.replaceState({}, '', '/teacher/settings');
+
+    render(<App />);
+
+    expect(await screen.findByText('Teacher settings')).toBeTruthy();
   });
 });

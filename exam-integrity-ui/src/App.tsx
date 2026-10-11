@@ -18,6 +18,8 @@ import QuestionBankPage from './pages/TeacherManQuestionBankPage';
 import FinalPublicationPage from './pages/TeacherManFinalPublicationPage';
 import TeacherManDashboardPage from './pages/TeacherManDashboardPage';
 import TeacherManScoringPage from './pages/TeacherManScoringPage';
+import TeacherManSettingsPage from './pages/TeacherManSettingsPage';
+import { SettingProvider } from './context/SettingContext';
 import { ToastContainer, Slide } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -43,7 +45,8 @@ const App: React.FC = () => (
       <CssBaseline />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
+          <SettingProvider>
+            <Routes>
             {/* Student routes — any authenticated user */}
             <Route
               path="/"
@@ -143,10 +146,19 @@ const App: React.FC = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/teacher/settings"
+              element={
+                <ProtectedRoute allowedRoles={teacherRoles}>
+                  <TeacherManSettingsPage />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          </SettingProvider>
           <ToastContainer
             position="bottom-right"
             autoClose={3500}
