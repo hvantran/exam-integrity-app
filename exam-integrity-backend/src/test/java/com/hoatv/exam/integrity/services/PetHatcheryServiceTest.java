@@ -22,6 +22,9 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -260,11 +263,11 @@ class PetHatcheryServiceTest {
             .category(StudentItem.CATEGORY_PET)
             .name("Max Level Phoenix")
             .level(10)
-            .maxLevel(10)
             .build();
 
         when(studentItemRepository.findByIdAndUserIdAndCategory("pet-max", "student1", StudentItem.CATEGORY_PET))
             .thenReturn(Optional.of(pet));
+        when(settingService.getInt(SettingService.KEY_PET_MAX_LEVEL, 10)).thenReturn(10);
 
         assertThatThrownBy(() -> petHatcheryService.growPet("student1", "pet-max"))
             .isInstanceOf(IllegalStateException.class)
