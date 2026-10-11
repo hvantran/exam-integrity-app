@@ -15,6 +15,7 @@ import java.util.Map;
 public class SettingService {
 
     private static final Logger logger = LoggerFactory.getLogger(SettingService.class);
+    private static final String LOG_INJECTION_REGEX = "[\r\n]";
 
     public static final String KEY_EGG_SHOP_PRICE_STARS = "egg_shop_price_stars";
     public static final String KEY_EGG_HATCH_DURATION_HOURS = "egg_hatch_duration_hours";
@@ -82,7 +83,9 @@ public class SettingService {
             setting.setValue(value);
             setting.setUpdatedAt(Instant.now());
             settingRepository.save(setting);
-            logger.info("Updated setting '{}' to '{}'", key, value);
+            String safeKey = key.replaceAll(LOG_INJECTION_REGEX, "_");
+            String safeValue = String.valueOf(value).replaceAll(LOG_INJECTION_REGEX, "_");
+            logger.info("Updated setting '{}' to '{}'", safeKey, safeValue);
         }
 
         return getAllSettings();

@@ -37,6 +37,7 @@ public class PetHatcheryService {
     private static final String RARITY_MYTHIC = "Mythic";
 
     private static final String PET_SPROUTLING = "sproutling";
+    private static final String TIER_DRAGON = "dragon";
 
     public static final int EGG_SHOP_PRICE = 250;
     public static final int HATCH_DURATION_HOURS = 8;
@@ -85,7 +86,7 @@ public class PetHatcheryService {
         return new EggShopItemDTO(
             "mystery-egg-ancient",
             "Ancient Mysterious Egg",
-            "dragon",
+            TIER_DRAGON,
             price,
             hatchHours,
             hatchSeconds,
@@ -110,7 +111,7 @@ public class PetHatcheryService {
             .userId(userId)
             .category(StudentItem.CATEGORY_EGG_SHOP)
             .name("Ancient Mysterious Egg")
-            .tier("dragon")
+            .tier(TIER_DRAGON)
             .rarity(RARITY_COMMON)
             .isMystery(true)
             .remainingSeconds(hatchSeconds)
@@ -206,7 +207,7 @@ public class PetHatcheryService {
             .name(petKey)
             .species(petKey)
             .rarity(rarity)
-            .tier("dragon")
+            .tier(TIER_DRAGON)
             .element("Fire / Flame")
             .avatarEmoji("🐣")
             .totalStages(totalStages)
@@ -341,7 +342,7 @@ public class PetHatcheryService {
             .name("Sproutling")
             .species("Flora Sproutling Seedling")
             .rarity(RARITY_COMMON)
-            .tier("dragon")
+            .tier(TIER_DRAGON)
             .totalStages(3)
             .element("Flora / Earth")
             .avatarEmoji("🌱")

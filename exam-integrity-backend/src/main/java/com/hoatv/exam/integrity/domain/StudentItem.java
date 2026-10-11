@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -23,9 +22,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "student_items")
-@CompoundIndexes({
-    @CompoundIndex(name = "user_category_idx", def = "{'userId': 1, 'category': 1}")
-})
+@CompoundIndex(name = "user_category_idx", def = "{'userId': 1, 'category': 1}")
 public class StudentItem {
 
     public static final String CATEGORY_EGG_SHOP = "EGG_SHOP";
