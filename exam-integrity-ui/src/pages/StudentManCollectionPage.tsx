@@ -1,19 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
-  ExamIntegrityStudentEggShopTemplate,
+  ExamIntegrityStudentCollectionTemplate,
   type ExamIntegrityStudentPortalSection as PortalSection,
-  type EggShopItem,
   type IncubatingEgg,
   type StudentPet,
-  type EggShopTab,
   DEFAULT_INCUBATING_EGGS,
   DEFAULT_STUDENT_PETS,
 } from '@hvantran/ui-component-library';
 import { useAuth } from '../context/AuthContext';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useNavDockMode } from '../hooks/useNavDockMode';
-import { useStudentPageTheme } from '../hooks/useGradeTheme';
 import { hatcheryService } from '../services/hatcheryService';
 import { getScopedItem, setScopedItem } from '../utils/storage';
 
@@ -28,30 +25,15 @@ const PORTAL_ROUTES: Record<PortalSection, string> = {
 const EGGS_STORAGE_KEY = 'exam_integrity_incubating_eggs';
 const PETS_STORAGE_KEY = 'exam_integrity_student_pets';
 
-const StudentManEggShopPage: React.FC = () => {
+const StudentManCollectionPage: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { logout, displayName, user } = useAuth();
   const { data: profile } = useUserProfile();
   const totalStars = profile?.stats?.totalStars ?? 0;
-  const theme = useStudentPageTheme();
   const [dockMode, setDockMode] = useNavDockMode();
 
   const currentUserId = profile?.userId || user?.username || null;
   const loadedUserRef = useRef<string | null>(currentUserId);
-
-  const isCollectionRoute = location.pathname.includes('/collection');
-  const [activeTab, setActiveTab] = useState<EggShopTab>(
-    isCollectionRoute ? 'hatchery' : 'shop',
-  );
-
-  useEffect(() => {
-    if (location.pathname.includes('/collection')) {
-      setActiveTab('hatchery');
-    } else if (location.pathname.includes('/shop')) {
-      setActiveTab('shop');
-    }
-  }, [location.pathname]);
 
   const [incubatingEggs, setIncubatingEggs] = useState<IncubatingEgg[]>(() => {
     try {
@@ -130,24 +112,8 @@ const StudentManEggShopPage: React.FC = () => {
 
   const handleNavigate = (section: PortalSection) => navigate(PORTAL_ROUTES[section]);
 
-  const handlePurchaseEgg = (item: EggShopItem) => {
-    const newEgg: IncubatingEgg = {
-      id: `egg-${Date.now()}`,
-      name: item.name,
-      tier: item.tier,
-      rarity: item.rarity,
-      crackProgress: 0,
-      hatchedPetName: item.hatchedPetName,
-      hatchedSpecies: item.name,
-      isMystery: item.id.includes('mystery'),
-      hatchDurationHours: item.hatchDurationHours ?? 8,
-      remainingSeconds: (item.hatchDurationHours ?? 8) * 3600,
-    };
-    setIncubatingEggs((prev) => [newEgg, ...prev]);
-  };
-
   const handleEggHatched = (eggId: string, hatchedPet: StudentPet) => {
-    hatcheryService.hatchEgg(eggId).catch(() => {
+    Promise.resolve(hatcheryService.hatchEgg(eggId)).catch(() => {
       // ignore or optimistic
     });
     setIncubatingEggs((prev) => prev.filter((egg) => egg.id !== eggId));
@@ -155,7 +121,7 @@ const StudentManEggShopPage: React.FC = () => {
   };
 
   const handleGrowPet = (petId: string, starsSpent: number) => {
-    hatcheryService.growPet(petId).catch(() => {
+    Promise.resolve(hatcheryService.growPet(petId)).catch(() => {
       // ignore or optimistic
     });
     setPets((prev) =>
@@ -173,16 +139,11 @@ const StudentManEggShopPage: React.FC = () => {
   };
 
   return (
-    <ExamIntegrityStudentEggShopTemplate
+    <ExamIntegrityStudentCollectionTemplate
       studentName={displayName || 'Student'}
       starCount={totalStars}
-      isElementary={theme.isElementary}
-      activeSection={isCollectionRoute ? 'collection' : 'shop'}
-      activeTab={activeTab}
-      onTabChange={setActiveTab}
       incubatingEggs={incubatingEggs}
       pets={pets}
-      onPurchaseEgg={handlePurchaseEgg}
       onEggHatched={handleEggHatched}
       onGrowPet={handleGrowPet}
       onNavigate={handleNavigate}
@@ -193,4 +154,5 @@ const StudentManEggShopPage: React.FC = () => {
   );
 };
 
-export default StudentManEggShopPage;
+export default StudentManCollectionPage;
+

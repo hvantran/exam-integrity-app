@@ -8,7 +8,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import LandingPage from './pages/StudentManDashboardPage';
 import StudentManMyExamsPage from './pages/StudentManMyExamsPage';
-import StudentManEggShopPage from './pages/StudentManEggShopPage';
+import StudentManShopPage from './pages/StudentManShopPage';
+import StudentManCollectionPage from './pages/StudentManCollectionPage';
 import ExamPage from './pages/StudentManExamPage';
 import ReviewPage from './pages/ReviewPage';
 import IngestionPage from './pages/TeacherManExamPdfUploadPage';
@@ -80,7 +81,7 @@ const App: React.FC = () => (
               path="/shop"
               element={
                 <ProtectedRoute>
-                  <StudentManEggShopPage />
+                  <StudentManShopPage />
                 </ProtectedRoute>
               }
             />
@@ -88,7 +89,7 @@ const App: React.FC = () => (
               path="/collection"
               element={
                 <ProtectedRoute>
-                  <StudentManEggShopPage />
+                  <StudentManCollectionPage />
                 </ProtectedRoute>
               }
             />

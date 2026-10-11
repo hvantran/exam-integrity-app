@@ -24,7 +24,8 @@ jest.mock('./context/AuthContext', () => ({
 
 jest.mock('./pages/StudentManDashboardPage', () => () => <div>Student dashboard</div>);
 jest.mock('./pages/StudentManMyExamsPage', () => () => <div>My exams</div>);
-jest.mock('./pages/StudentManEggShopPage', () => () => <div>Student egg shop</div>);
+jest.mock('./pages/StudentManShopPage', () => () => <div>Student shop</div>);
+jest.mock('./pages/StudentManCollectionPage', () => () => <div>Student collection</div>);
 jest.mock('./pages/StudentManExamPage', () => () => <div>Exam</div>);
 jest.mock('./pages/ReviewPage', () => () => <div>Review</div>);
 jest.mock('./pages/TeacherManExamPdfUploadPage', () => () => <div>Ingestion</div>);
@@ -58,12 +59,21 @@ describe('App', () => {
     expect(await screen.findByText('Teacher dashboard')).toBeTruthy();
   });
 
-  it('routes a student to the egg shop at /shop', async () => {
+  it('routes a student to the shop at /shop', async () => {
     mockRoles = ['STUDENT'];
     window.history.replaceState({}, '', '/shop');
 
     render(<App />);
 
-    expect(await screen.findByText('Student egg shop')).toBeTruthy();
+    expect(await screen.findByText('Student shop')).toBeTruthy();
+  });
+
+  it('routes a student to the collection at /collection', async () => {
+    mockRoles = ['STUDENT'];
+    window.history.replaceState({}, '', '/collection');
+
+    render(<App />);
+
+    expect(await screen.findByText('Student collection')).toBeTruthy();
   });
 });
