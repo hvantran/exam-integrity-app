@@ -87,22 +87,26 @@ const StudentManCollectionPage: React.FC = () => {
 
   const handleNavigate = (section: PortalSection) => navigate(PORTAL_ROUTES[section]);
 
-  const handleEggHatched = (eggId: string, hatchedPet: StudentPet) => {
+  const handleEggHatched = async (eggId: string, clientFallbackPet?: StudentPet) => {
     setIncubatingEggs((prev) => prev.filter((egg) => egg.id !== eggId));
-    setPets((prev) => [hatchedPet, ...prev]);
-
-    Promise.resolve(hatcheryService.hatchEgg(eggId))
-      .then((serverPet) => {
-        if (serverPet && serverPet.id) {
-          setPets((prev) => [
-            serverPet,
-            ...prev.filter((p) => p.id !== hatchedPet.id && p.id !== serverPet.id),
-          ]);
-        }
-      })
-      .catch(() => {
-        // fallback keeps hatchedPet
-      });
+    if (clientFallbackPet) {
+      setPets((prev) => [clientFallbackPet, ...prev]);
+    }
+    try {
+      const serverPet = await hatcheryService.hatchEgg(eggId);
+      if (serverPet && serverPet.id) {
+        setPets((prev) => [
+          serverPet,
+          ...prev.filter((p) => p.id !== serverPet.id && p.id !== clientFallbackPet?.id),
+        ]);
+        return serverPet;
+      }
+    } catch {
+      // server hatch failed; fallback already kept
+      if (clientFallbackPet) {
+        return clientFallbackPet;
+      }
+    }
   };
 
   const handleGrowPet = (petId: string, starsSpent: number) => {
