@@ -129,11 +129,13 @@ describe('StudentManCollectionPage', () => {
     (useNavDockMode as jest.Mock).mockReturnValue(['pinned', mockSetDockMode]);
   });
 
-  it('renders student collection with profile stars and name', () => {
+  it('renders student collection with profile stars and name', async () => {
     render(<StudentManCollectionPage />);
 
-    expect(screen.getByTestId('student-name')).toHaveTextContent('Alice Student');
-    expect(screen.getByTestId('star-count')).toHaveTextContent('500');
+    await waitFor(() => {
+      expect(screen.getByTestId('student-name')).toHaveTextContent('Alice Student');
+      expect(screen.getByTestId('star-count')).toHaveTextContent('500');
+    });
   });
 
   it('loads server eggs and pets into state', async () => {

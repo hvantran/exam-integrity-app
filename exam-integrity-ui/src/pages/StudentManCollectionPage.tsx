@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ExamIntegrityStudentCollectionTemplate,
@@ -13,7 +13,7 @@ import { useUserProfile } from '../hooks/useUserProfile';
 import { useNavDockMode } from '../hooks/useNavDockMode';
 import { hatcheryService } from '../services/hatcheryService';
 import type { UserProfile } from '../services/profileService';
-import { getScopedItem, setScopedItem } from '../utils/storage';
+import { removeScopedItem } from '../utils/storage';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
   dashboard: '/',
@@ -23,8 +23,8 @@ const PORTAL_ROUTES: Record<PortalSection, string> = {
   collection: '/collection',
 };
 
-const EGGS_STORAGE_KEY = 'exam_integrity_incubating_eggs';
-const PETS_STORAGE_KEY = 'exam_integrity_student_pets';
+const LEGACY_EGGS_STORAGE_KEY = 'exam_integrity_incubating_eggs';
+const LEGACY_PETS_STORAGE_KEY = 'exam_integrity_student_pets';
 
 function useSafeQueryClient() {
   try {
@@ -43,43 +43,9 @@ const StudentManCollectionPage: React.FC = () => {
   const [dockMode, setDockMode] = useNavDockMode();
 
   const currentUserId = profile?.userId || user?.username || null;
-  const loadedUserRef = useRef<string | null>(currentUserId);
 
-  const [incubatingEggs, setIncubatingEggs] = useState<IncubatingEgg[]>(() => {
-    try {
-      const saved = getScopedItem(EGGS_STORAGE_KEY, currentUserId);
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  const [pets, setPets] = useState<StudentPet[]>(() => {
-    try {
-      const saved = getScopedItem(PETS_STORAGE_KEY, currentUserId);
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  useEffect(() => {
-    if (currentUserId && loadedUserRef.current !== currentUserId) {
-      loadedUserRef.current = currentUserId;
-      try {
-        const savedEggs = getScopedItem(EGGS_STORAGE_KEY, currentUserId);
-        setIncubatingEggs(savedEggs ? JSON.parse(savedEggs) : []);
-      } catch {
-        setIncubatingEggs([]);
-      }
-      try {
-        const savedPets = getScopedItem(PETS_STORAGE_KEY, currentUserId);
-        setPets(savedPets ? JSON.parse(savedPets) : []);
-      } catch {
-        setPets([]);
-      }
-    }
-  }, [currentUserId]);
+  const [incubatingEggs, setIncubatingEggs] = useState<IncubatingEgg[]>([]);
+  const [pets, setPets] = useState<StudentPet[]>([]);
 
   useEffect(() => {
     let isMounted = true;
@@ -90,38 +56,27 @@ const StudentManCollectionPage: React.FC = () => {
       // ignore
     }
 
+    if (currentUserId) {
+      removeScopedItem(LEGACY_EGGS_STORAGE_KEY, currentUserId);
+      removeScopedItem(LEGACY_PETS_STORAGE_KEY, currentUserId);
+    }
+
     Promise.all([hatcheryService.getIncubatorEggs(), hatcheryService.getMyPets()])
       .then(([serverEggs, serverPets]) => {
         if (!isMounted) return;
-        if (serverEggs && serverEggs.length > 0) {
-          setIncubatingEggs(serverEggs);
-        }
-        if (serverPets && serverPets.length > 0) {
-          setPets(serverPets);
-        }
+        setIncubatingEggs(serverEggs ?? []);
+        setPets(serverPets ?? []);
       })
       .catch(() => {
-        // Fallback to local storage or defaults if offline or backend empty
+        if (!isMounted) return;
+        setIncubatingEggs([]);
+        setPets([]);
       });
 
     return () => {
       isMounted = false;
     };
-  }, []);
-
-  useEffect(() => {
-    if (currentUserId && loadedUserRef.current !== currentUserId) {
-      return;
-    }
-    setScopedItem(EGGS_STORAGE_KEY, JSON.stringify(incubatingEggs), currentUserId);
-  }, [incubatingEggs, currentUserId]);
-
-  useEffect(() => {
-    if (currentUserId && loadedUserRef.current !== currentUserId) {
-      return;
-    }
-    setScopedItem(PETS_STORAGE_KEY, JSON.stringify(pets), currentUserId);
-  }, [pets, currentUserId]);
+  }, [currentUserId]);
 
   const handleLogout = () => {
     logout();
@@ -241,4 +196,3 @@ const StudentManCollectionPage: React.FC = () => {
 };
 
 export default StudentManCollectionPage;
-

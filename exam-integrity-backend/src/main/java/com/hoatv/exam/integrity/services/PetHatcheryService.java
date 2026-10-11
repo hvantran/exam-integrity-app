@@ -1,9 +1,8 @@
 package com.hoatv.exam.integrity.services;
 
-import com.hoatv.exam.integrity.domain.IncubatingEgg;
 import com.hoatv.exam.integrity.domain.PetLibraryItem;
 import com.hoatv.exam.integrity.domain.PetStageDefinition;
-import com.hoatv.exam.integrity.domain.StudentPet;
+import com.hoatv.exam.integrity.domain.StudentItem;
 import com.hoatv.exam.integrity.domain.UserProfile;
 import com.hoatv.exam.integrity.dtos.EggShopItemDTO;
 import com.hoatv.exam.integrity.dtos.GrowPetResponseDTO;
@@ -12,9 +11,8 @@ import com.hoatv.exam.integrity.dtos.PetLibraryItemDTO;
 import com.hoatv.exam.integrity.dtos.PetStageDTO;
 import com.hoatv.exam.integrity.dtos.PurchaseEggResponseDTO;
 import com.hoatv.exam.integrity.dtos.StudentPetDTO;
-import com.hoatv.exam.integrity.repositories.IncubatingEggRepository;
 import com.hoatv.exam.integrity.repositories.PetLibraryRepository;
-import com.hoatv.exam.integrity.repositories.StudentPetRepository;
+import com.hoatv.exam.integrity.repositories.StudentItemRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -55,19 +53,16 @@ public class PetHatcheryService {
         new RollTier(100.0, RARITY_MYTHIC, 8, List.of("voiddragon", "chronodraco", "aegispaladin"))
     );
 
-    private final IncubatingEggRepository incubatingEggRepository;
-    private final StudentPetRepository studentPetRepository;
+    private final StudentItemRepository studentItemRepository;
     private final PetLibraryRepository petLibraryRepository;
     private final UserProfileService userProfileService;
 
     public PetHatcheryService(
-        IncubatingEggRepository incubatingEggRepository,
-        StudentPetRepository studentPetRepository,
+        StudentItemRepository studentItemRepository,
         PetLibraryRepository petLibraryRepository,
         UserProfileService userProfileService
     ) {
-        this.incubatingEggRepository = incubatingEggRepository;
-        this.studentPetRepository = studentPetRepository;
+        this.studentItemRepository = studentItemRepository;
         this.petLibraryRepository = petLibraryRepository;
         this.userProfileService = userProfileService;
     }
@@ -100,18 +95,27 @@ public class PetHatcheryService {
         UserProfile updatedProfile = userProfileService.spendStars(userId, EGG_SHOP_PRICE);
         int remainingStars = updatedProfile.getStats() != null ? updatedProfile.getStats().getTotalStars() : 0;
 
-        IncubatingEgg egg = new IncubatingEgg(userId, "Ancient Mysterious Egg", "dragon");
-        egg.setMystery(true);
-        egg.setHatchDurationHours(HATCH_DURATION_HOURS);
-        egg.setHatchDurationSeconds(HATCH_DURATION_SECONDS);
-        egg.setRemainingSeconds(HATCH_DURATION_SECONDS);
-        egg.setCrackProgress(0.0);
-        egg.setEquipped(false);
-        egg.setEquipCostInStars(25);
-        egg.setHatchedPetName("??? Mystery Companion");
-        egg.setHatchedSpecies("Veiled Celestial Beast");
+        StudentItem egg = StudentItem.builder()
+            .userId(userId)
+            .category(StudentItem.CATEGORY_EGG_SHOP)
+            .name("Ancient Mysterious Egg")
+            .tier("dragon")
+            .rarity(RARITY_COMMON)
+            .isMystery(true)
+            .hatchDurationHours(HATCH_DURATION_HOURS)
+            .hatchDurationSeconds(HATCH_DURATION_SECONDS)
+            .remainingSeconds(HATCH_DURATION_SECONDS)
+            .crackProgress(0.0)
+            .isEquipped(false)
+            .equipCostInStars(25)
+            .hatchedPetName("??? Mystery Companion")
+            .hatchedSpecies("Veiled Celestial Beast")
+            .incubatedAt(Instant.now())
+            .createdAt(Instant.now())
+            .updatedAt(Instant.now())
+            .build();
 
-        IncubatingEgg saved = incubatingEggRepository.save(egg);
+        StudentItem saved = studentItemRepository.save(egg);
         logger.info("User {} purchased mystery egg {}. Remaining stars: {}", userId, saved.getId(), remainingStars);
 
         return new PurchaseEggResponseDTO(
@@ -126,13 +130,13 @@ public class PetHatcheryService {
         if (userId == null || userId.isBlank()) {
             return List.of();
         }
-        return incubatingEggRepository.findByUserId(userId).stream()
+        return studentItemRepository.findByUserIdAndCategory(userId, StudentItem.CATEGORY_EGG_SHOP).stream()
             .map(this::toEggDTO)
             .toList();
     }
 
     public IncubatingEggDTO strikeEgg(String userId, String eggId) {
-        IncubatingEgg egg = incubatingEggRepository.findByIdAndUserId(eggId, userId)
+        StudentItem egg = studentItemRepository.findByIdAndUserIdAndCategory(eggId, userId, StudentItem.CATEGORY_EGG_SHOP)
             .orElseThrow(() -> new IllegalArgumentException("Incubating egg not found: " + eggId));
 
         userProfileService.spendStars(userId, STRIKE_CRACK_STAR_COST);
@@ -142,7 +146,7 @@ public class PetHatcheryService {
         egg.setRemainingSeconds(Math.max(0L, egg.getRemainingSeconds() - 7200L));
         egg.setUpdatedAt(Instant.now());
 
-        IncubatingEgg saved = incubatingEggRepository.save(egg);
+        StudentItem saved = studentItemRepository.save(egg);
         String safeUserId = userId != null ? userId.replaceAll(LOG_INJECTION_REGEX, "_") : "";
         String safeEggId = eggId != null ? eggId.replaceAll(LOG_INJECTION_REGEX, "_") : "";
         logger.info("User {} struck egg {}: progress {}%", safeUserId, safeEggId, Math.round(newProgress * 100));
@@ -150,16 +154,16 @@ public class PetHatcheryService {
     }
 
     public StudentPetDTO hatchEgg(String userId, String eggId, Double fixedRoll) {
-        IncubatingEgg egg = incubatingEggRepository.findByIdAndUserId(eggId, userId)
+        StudentItem egg = studentItemRepository.findByIdAndUserIdAndCategory(eggId, userId, StudentItem.CATEGORY_EGG_SHOP)
             .orElseThrow(() -> new IllegalArgumentException("Incubating egg not found: " + eggId));
 
         if (egg.getCrackProgress() < 1.0 && egg.getRemainingSeconds() > 0) {
             throw new IllegalStateException("Egg is not ready to hatch yet. Progress: " + Math.round(egg.getCrackProgress() * 100) + "%");
         }
 
-        StudentPet pet = rollMysteryPet(userId, fixedRoll);
-        StudentPet savedPet = studentPetRepository.save(pet);
-        incubatingEggRepository.deleteByIdAndUserId(eggId, userId);
+        StudentItem pet = rollMysteryPet(userId, fixedRoll);
+        StudentItem savedPet = studentItemRepository.save(pet);
+        studentItemRepository.deleteByIdAndUserIdAndCategory(eggId, userId, StudentItem.CATEGORY_EGG_SHOP);
 
         String safeUserId = userId != null ? userId.replaceAll(LOG_INJECTION_REGEX, "_") : "";
         String safeEggId = eggId != null ? eggId.replaceAll(LOG_INJECTION_REGEX, "_") : "";
@@ -169,7 +173,7 @@ public class PetHatcheryService {
         return toPetDTO(savedPet);
     }
 
-    public StudentPet rollMysteryPet(String userId, Double fixedRoll) {
+    public StudentItem rollMysteryPet(String userId, Double fixedRoll) {
         double roll = fixedRoll != null ? fixedRoll : (RANDOM.nextDouble() * 100.0);
 
         RollTier selectedTier = ROLL_TIERS.get(ROLL_TIERS.size() - 1);
@@ -184,15 +188,33 @@ public class PetHatcheryService {
         String rarity = selectedTier.rarity();
         int totalStages = selectedTier.totalStages();
 
-        StudentPet pet = new StudentPet(userId, petKey, petKey, rarity, totalStages);
-        pet.setPetLibraryId(petKey);
+        StudentItem pet = StudentItem.builder()
+            .userId(userId)
+            .category(StudentItem.CATEGORY_PET)
+            .name(petKey)
+            .species(petKey)
+            .rarity(rarity)
+            .tier("dragon")
+            .element("Fire / Flame")
+            .avatarEmoji("🐣")
+            .totalStages(totalStages)
+            .petLibraryId(petKey)
+            .level(1)
+            .maxLevel(10)
+            .currentExp(0)
+            .expNeeded(100)
+            .growthCostInStars(25)
+            .stageLevel(1)
+            .stageName("Hatchling")
+            .imageName(petKey + "-stage-1.png")
+            .createdAt(Instant.now())
+            .updatedAt(Instant.now())
+            .build();
+        pet.initDefaultStats();
 
         var libOpt = petLibraryRepository.findByPetKey(petKey);
         if (libOpt.isPresent()) {
             applyLibraryItemToPet(pet, libOpt.get());
-        } else {
-            pet.setImageName(petKey + "-stage-1.png");
-            pet.setStageName("Hatchling");
         }
         return pet;
     }
@@ -291,10 +313,10 @@ public class PetHatcheryService {
         if (userId == null || userId.isBlank()) {
             return List.of();
         }
-        List<StudentPet> pets = studentPetRepository.findByUserId(userId);
+        List<StudentItem> pets = studentItemRepository.findByUserIdAndCategory(userId, StudentItem.CATEGORY_PET);
         if (pets.isEmpty()) {
-            StudentPet starter = createStarterPet(userId);
-            StudentPet saved = studentPetRepository.save(starter);
+            StudentItem starter = createStarterPet(userId);
+            StudentItem saved = studentItemRepository.save(starter);
             return List.of(toPetDTO(saved));
         }
         return pets.stream()
@@ -302,20 +324,37 @@ public class PetHatcheryService {
             .toList();
     }
 
-    private StudentPet createStarterPet(String userId) {
-        StudentPet pet = new StudentPet(userId, "Sproutling", "Flora Sproutling Seedling", RARITY_COMMON, 3);
-        pet.setElement("Flora / Earth");
-        pet.setAvatarEmoji("🌱");
-        pet.setStageName("Hatchling");
-        pet.setImageName("sproutling-stage-1.png");
-        pet.setPetLibraryId(PET_SPROUTLING);
-        pet.setEquipped(true);
+    private StudentItem createStarterPet(String userId) {
+        StudentItem pet = StudentItem.builder()
+            .userId(userId)
+            .category(StudentItem.CATEGORY_PET)
+            .name("Sproutling")
+            .species("Flora Sproutling Seedling")
+            .rarity(RARITY_COMMON)
+            .tier("dragon")
+            .totalStages(3)
+            .element("Flora / Earth")
+            .avatarEmoji("🌱")
+            .stageName("Hatchling")
+            .imageName("sproutling-stage-1.png")
+            .petLibraryId(PET_SPROUTLING)
+            .isEquipped(true)
+            .level(1)
+            .maxLevel(10)
+            .currentExp(0)
+            .expNeeded(100)
+            .growthCostInStars(25)
+            .stageLevel(1)
+            .createdAt(Instant.now())
+            .updatedAt(Instant.now())
+            .build();
+        pet.initDefaultStats();
 
         petLibraryRepository.findByPetKey(PET_SPROUTLING).ifPresent(lib -> applyLibraryItemToPet(pet, lib));
         return pet;
     }
 
-    private void applyLibraryItemToPet(StudentPet pet, PetLibraryItem lib) {
+    private void applyLibraryItemToPet(StudentItem pet, PetLibraryItem lib) {
         pet.setName(lib.getName());
         pet.setSpecies(lib.getSpecies());
         pet.setRarity(lib.getRarity());
@@ -331,7 +370,7 @@ public class PetHatcheryService {
     }
 
     public GrowPetResponseDTO growPet(String userId, String petId) {
-        StudentPet pet = studentPetRepository.findByIdAndUserId(petId, userId)
+        StudentItem pet = studentItemRepository.findByIdAndUserIdAndCategory(petId, userId, StudentItem.CATEGORY_PET)
             .orElseThrow(() -> new IllegalArgumentException("Pet not found: " + petId));
 
         int growthCost = pet.getGrowthCostInStars() > 0 ? pet.getGrowthCostInStars() : 25;
@@ -359,7 +398,7 @@ public class PetHatcheryService {
         pet.setExpNeeded(expNeeded);
         pet.setUpdatedAt(Instant.now());
 
-        StudentPet saved = studentPetRepository.save(pet);
+        StudentItem saved = studentItemRepository.save(pet);
         String safeUserId = userId != null ? userId.replaceAll(LOG_INJECTION_REGEX, "_") : "";
         String safePetId = petId != null ? petId.replaceAll(LOG_INJECTION_REGEX, "_") : "";
         logger.info("User {} grew pet {}: Level {} (Stage {}), remaining stars: {}",
@@ -368,7 +407,7 @@ public class PetHatcheryService {
         return new GrowPetResponseDTO(toPetDTO(saved), remainingStars, didEvolve, levelGained);
     }
 
-    private boolean checkAndApplyEvolution(StudentPet pet, int level) {
+    private boolean checkAndApplyEvolution(StudentItem pet, int level) {
         int oldStage = pet.getStageLevel();
         int newStage = calculateStage(pet.getTotalStages(), level);
         if (newStage <= oldStage) {
@@ -381,7 +420,7 @@ public class PetHatcheryService {
         return true;
     }
 
-    private void updateStageDetailsFromLibrary(StudentPet pet, int newStage) {
+    private void updateStageDetailsFromLibrary(StudentItem pet, int newStage) {
         if (pet.getPetLibraryId() == null) {
             return;
         }
@@ -401,7 +440,7 @@ public class PetHatcheryService {
         });
     }
 
-    private void boostStatsOnLevelUp(StudentPet pet) {
+    private void boostStatsOnLevelUp(StudentItem pet) {
         Map<String, Integer> stats = pet.getStats();
         stats.put("vitality", Math.min(100, stats.getOrDefault("vitality", 60) + 5));
         stats.put("wisdom", Math.min(100, stats.getOrDefault("wisdom", 60) + 5));
@@ -432,9 +471,9 @@ public class PetHatcheryService {
     }
 
     public StudentPetDTO equipPet(String userId, String petId) {
-        List<StudentPet> pets = studentPetRepository.findByUserId(userId);
-        StudentPet target = null;
-        for (StudentPet p : pets) {
+        List<StudentItem> pets = studentItemRepository.findByUserIdAndCategory(userId, StudentItem.CATEGORY_PET);
+        StudentItem target = null;
+        for (StudentItem p : pets) {
             if (p.getId().equals(petId)) {
                 p.setEquipped(true);
                 target = p;
@@ -445,14 +484,14 @@ public class PetHatcheryService {
         if (target == null) {
             throw new IllegalArgumentException("Pet not found: " + petId);
         }
-        studentPetRepository.saveAll(pets);
+        studentItemRepository.saveAll(pets);
         return toPetDTO(target);
     }
 
     public IncubatingEggDTO equipEgg(String userId, String eggId) {
-        List<IncubatingEgg> eggs = incubatingEggRepository.findByUserId(userId);
-        IncubatingEgg target = null;
-        for (IncubatingEgg e : eggs) {
+        List<StudentItem> eggs = studentItemRepository.findByUserIdAndCategory(userId, StudentItem.CATEGORY_EGG_SHOP);
+        StudentItem target = null;
+        for (StudentItem e : eggs) {
             if (e.getId().equals(eggId)) {
                 e.setEquipped(true);
                 target = e;
@@ -463,11 +502,11 @@ public class PetHatcheryService {
         if (target == null) {
             throw new IllegalArgumentException("Egg not found: " + eggId);
         }
-        incubatingEggRepository.saveAll(eggs);
+        studentItemRepository.saveAll(eggs);
         return toEggDTO(target);
     }
 
-    public IncubatingEggDTO toEggDTO(IncubatingEgg egg) {
+    public IncubatingEggDTO toEggDTO(StudentItem egg) {
         return new IncubatingEggDTO(
             egg.getId(),
             egg.getUserId(),
@@ -490,7 +529,7 @@ public class PetHatcheryService {
         );
     }
 
-    public StudentPetDTO toPetDTO(StudentPet pet) {
+    public StudentPetDTO toPetDTO(StudentItem pet) {
         return new StudentPetDTO(
             pet.getId(),
             pet.getUserId(),
