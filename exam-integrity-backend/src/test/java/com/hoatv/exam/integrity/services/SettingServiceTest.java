@@ -32,9 +32,10 @@ class SettingServiceTest {
 
         Map<String, Object> settings = settingService.getAllSettings();
 
-        assertThat(settings).containsEntry(SettingService.KEY_EGG_SHOP_PRICE_STARS, 250);
-        assertThat(settings).containsEntry(SettingService.KEY_EGG_HATCH_DURATION_HOURS, 8);
-        assertThat(settings).containsEntry(SettingService.KEY_PET_GROW_STAR_COST, 25);
+        assertThat(settings)
+            .containsEntry(SettingService.KEY_EGG_SHOP_PRICE_STARS, 250)
+            .containsEntry(SettingService.KEY_EGG_HATCH_DURATION_HOURS, 8)
+            .containsEntry(SettingService.KEY_PET_GROW_STAR_COST, 25);
     }
 
     @Test
@@ -47,8 +48,9 @@ class SettingServiceTest {
 
         Map<String, Object> settings = settingService.getAllSettings();
 
-        assertThat(settings).containsEntry(SettingService.KEY_EGG_SHOP_PRICE_STARS, 300);
-        assertThat(settings).containsEntry(SettingService.KEY_PET_GROW_STAR_COST, 25);
+        assertThat(settings)
+            .containsEntry(SettingService.KEY_EGG_SHOP_PRICE_STARS, 300)
+            .containsEntry(SettingService.KEY_PET_GROW_STAR_COST, 25);
     }
 
     @Test
