@@ -32,9 +32,28 @@ public class PetHatcheryService {
     private static final Logger logger = LoggerFactory.getLogger(PetHatcheryService.class);
     private static final SecureRandom RANDOM = new SecureRandom();
 
+    private static final String RARITY_COMMON = "Common";
+    private static final String RARITY_RARE = "Rare";
+    private static final String RARITY_EPIC = "Epic";
+    private static final String RARITY_LEGENDARY = "Legendary";
+    private static final String RARITY_MYTHIC = "Mythic";
+
+    private static final String PET_SPROUTLING = "sproutling";
+
     public static final int EGG_SHOP_PRICE = 250;
     public static final int HATCH_DURATION_HOURS = 8;
     public static final long HATCH_DURATION_SECONDS = 28800L;
+    public static final int STRIKE_CRACK_STAR_COST = 25;
+
+    private record RollTier(double maxRoll, String rarity, int totalStages, List<String> keys) {}
+
+    private static final List<RollTier> ROLL_TIERS = List.of(
+        new RollTier(50.0, RARITY_COMMON, 3, List.of(PET_SPROUTLING, "pipflick", "embersqueak", "zephyrpuff")),
+        new RollTier(78.0, RARITY_RARE, 4, List.of("frostpaw", "magmafang", "voltwing", "thundercat")),
+        new RollTier(92.0, RARITY_EPIC, 5, List.of("phoenix", "chronochimera", "shadowpanther", "stormstag")),
+        new RollTier(98.0, RARITY_LEGENDARY, 6, List.of("astraldragon", "astralleviathan", "solarwyvern")),
+        new RollTier(100.0, RARITY_MYTHIC, 8, List.of("voiddragon", "chronodraco", "aegispaladin"))
+    );
 
     private final IncubatingEggRepository incubatingEggRepository;
     private final StudentPetRepository studentPetRepository;
@@ -55,11 +74,11 @@ public class PetHatcheryService {
 
     public EggShopItemDTO getFeaturedShopEgg() {
         Map<String, Integer> dropRates = new LinkedHashMap<>();
-        dropRates.put("Common", 50);
-        dropRates.put("Rare", 28);
-        dropRates.put("Epic", 14);
-        dropRates.put("Legendary", 6);
-        dropRates.put("Mythic", 2);
+        dropRates.put(RARITY_COMMON, 50);
+        dropRates.put(RARITY_RARE, 28);
+        dropRates.put(RARITY_EPIC, 14);
+        dropRates.put(RARITY_LEGENDARY, 6);
+        dropRates.put(RARITY_MYTHIC, 2);
 
         return new EggShopItemDTO(
             "mystery-egg-ancient",
@@ -112,8 +131,6 @@ public class PetHatcheryService {
             .toList();
     }
 
-    public static final int STRIKE_CRACK_STAR_COST = 25;
-
     public IncubatingEggDTO strikeEgg(String userId, String eggId) {
         IncubatingEgg egg = incubatingEggRepository.findByIdAndUserId(eggId, userId)
             .orElseThrow(() -> new IllegalArgumentException("Incubating egg not found: " + eggId));
@@ -155,54 +172,24 @@ public class PetHatcheryService {
     public StudentPet rollMysteryPet(String userId, Double fixedRoll) {
         double roll = fixedRoll != null ? fixedRoll : (RANDOM.nextDouble() * 100.0);
 
-        String petKey;
-        String rarity;
-        int totalStages;
-        if (roll < 50.0) {
-            String[] keys = {"sproutling", "pipflick", "embersqueak", "zephyrpuff"};
-            petKey = keys[RANDOM.nextInt(keys.length)];
-            rarity = "Common";
-            totalStages = 3;
-        } else if (roll < 78.0) {
-            String[] keys = {"frostpaw", "magmafang", "voltwing", "thundercat"};
-            petKey = keys[RANDOM.nextInt(keys.length)];
-            rarity = "Rare";
-            totalStages = 4;
-        } else if (roll < 92.0) {
-            String[] keys = {"phoenix", "chronochimera", "shadowpanther", "stormstag"};
-            petKey = keys[RANDOM.nextInt(keys.length)];
-            rarity = "Epic";
-            totalStages = 5;
-        } else if (roll < 98.0) {
-            String[] keys = {"astraldragon", "astralleviathan", "solarwyvern"};
-            petKey = keys[RANDOM.nextInt(keys.length)];
-            rarity = "Legendary";
-            totalStages = 6;
-        } else {
-            String[] keys = {"voiddragon", "chronodraco", "aegispaladin"};
-            petKey = keys[RANDOM.nextInt(keys.length)];
-            rarity = "Mythic";
-            totalStages = 8;
+        RollTier selectedTier = ROLL_TIERS.get(ROLL_TIERS.size() - 1);
+        for (RollTier tier : ROLL_TIERS) {
+            if (roll < tier.maxRoll()) {
+                selectedTier = tier;
+                break;
+            }
         }
+
+        String petKey = selectedTier.keys().get(RANDOM.nextInt(selectedTier.keys().size()));
+        String rarity = selectedTier.rarity();
+        int totalStages = selectedTier.totalStages();
 
         StudentPet pet = new StudentPet(userId, petKey, petKey, rarity, totalStages);
         pet.setPetLibraryId(petKey);
 
         var libOpt = petLibraryRepository.findByPetKey(petKey);
         if (libOpt.isPresent()) {
-            PetLibraryItem lib = libOpt.get();
-            pet.setName(lib.getName());
-            pet.setSpecies(lib.getSpecies());
-            pet.setRarity(lib.getRarity());
-            pet.setTier(lib.getTier());
-            pet.setElement(lib.getElement());
-            pet.setAvatarEmoji(lib.getAvatarEmoji());
-            pet.setTotalStages(lib.getTotalStages());
-            if (lib.getStages() != null && !lib.getStages().isEmpty()) {
-                PetStageDefinition st1 = lib.getStages().get(0);
-                pet.setStageName(st1.getName());
-                pet.setImageName(st1.getImageName());
-            }
+            applyLibraryItemToPet(pet, libOpt.get());
         } else {
             pet.setImageName(petKey + "-stage-1.png");
             pet.setStageName("Hatchling");
@@ -215,47 +202,51 @@ public class PetHatcheryService {
             return List.of();
         }
         for (PetLibraryItemDTO dto : items) {
-            String key = (dto.petKey() != null && !dto.petKey().isBlank()) ? dto.petKey() : dto.id();
-            PetLibraryItem item = petLibraryRepository.findByPetKey(key)
-                .orElseGet(() -> {
-                    PetLibraryItem newItem = new PetLibraryItem();
-                    newItem.setId(key);
-                    newItem.setPetKey(key);
-                    return newItem;
-                });
-
-            item.setName(dto.name());
-            item.setSpecies(dto.species());
-            if (dto.rarity() != null) item.setRarity(dto.rarity());
-            if (dto.tier() != null) item.setTier(dto.tier());
-            if (dto.element() != null) item.setElement(dto.element());
-            if (dto.avatarEmoji() != null) item.setAvatarEmoji(dto.avatarEmoji());
-            if (dto.totalStages() > 0) item.setTotalStages(dto.totalStages());
-            if (dto.maxLevel() > 0) item.setMaxLevel(dto.maxLevel());
-            if (dto.eggShopPrice() > 0) item.setEggShopPrice(dto.eggShopPrice());
-            if (dto.hatchDurationHours() > 0) item.setHatchDurationHours(dto.hatchDurationHours());
-            item.setDescription(dto.description());
-            item.setBannerGradient(dto.bannerGradient());
-
-            if (dto.stages() != null) {
-                List<PetStageDefinition> stageDefs = dto.stages().stream()
-                    .map(s -> new PetStageDefinition(
-                        s.stage(),
-                        s.minLevel(),
-                        s.name(),
-                        s.title(),
-                        s.description(),
-                        s.avatarEmoji(),
-                        s.imageName()
-                    ))
-                    .toList();
-                item.setStages(stageDefs);
-            }
-            item.setUpdatedAt(Instant.now());
-            petLibraryRepository.save(item);
+            syncSinglePetLibraryItem(dto);
         }
         logger.info("Synced {} pet library items into pet_library collection", items.size());
         return getPetLibrary();
+    }
+
+    private void syncSinglePetLibraryItem(PetLibraryItemDTO dto) {
+        String key = (dto.petKey() != null && !dto.petKey().isBlank()) ? dto.petKey() : dto.id();
+        PetLibraryItem item = petLibraryRepository.findByPetKey(key)
+            .orElseGet(() -> {
+                PetLibraryItem newItem = new PetLibraryItem();
+                newItem.setId(key);
+                newItem.setPetKey(key);
+                return newItem;
+            });
+
+        item.setName(dto.name());
+        item.setSpecies(dto.species());
+        if (dto.rarity() != null) item.setRarity(dto.rarity());
+        if (dto.tier() != null) item.setTier(dto.tier());
+        if (dto.element() != null) item.setElement(dto.element());
+        if (dto.avatarEmoji() != null) item.setAvatarEmoji(dto.avatarEmoji());
+        if (dto.totalStages() > 0) item.setTotalStages(dto.totalStages());
+        if (dto.maxLevel() > 0) item.setMaxLevel(dto.maxLevel());
+        if (dto.eggShopPrice() > 0) item.setEggShopPrice(dto.eggShopPrice());
+        if (dto.hatchDurationHours() > 0) item.setHatchDurationHours(dto.hatchDurationHours());
+        item.setDescription(dto.description());
+        item.setBannerGradient(dto.bannerGradient());
+
+        if (dto.stages() != null) {
+            List<PetStageDefinition> stageDefs = dto.stages().stream()
+                .map(s -> new PetStageDefinition(
+                    s.stage(),
+                    s.minLevel(),
+                    s.name(),
+                    s.title(),
+                    s.description(),
+                    s.avatarEmoji(),
+                    s.imageName()
+                ))
+                .toList();
+            item.setStages(stageDefs);
+        }
+        item.setUpdatedAt(Instant.now());
+        petLibraryRepository.save(item);
     }
 
     public List<PetLibraryItemDTO> getPetLibrary() {
@@ -302,7 +293,6 @@ public class PetHatcheryService {
         }
         List<StudentPet> pets = studentPetRepository.findByUserId(userId);
         if (pets.isEmpty()) {
-            // Seed starter pet from pet library if available, else default sproutling
             StudentPet starter = createStarterPet(userId);
             StudentPet saved = studentPetRepository.save(starter);
             return List.of(toPetDTO(saved));
@@ -313,29 +303,31 @@ public class PetHatcheryService {
     }
 
     private StudentPet createStarterPet(String userId) {
-        StudentPet pet = new StudentPet(userId, "Sproutling", "Flora Sproutling Seedling", "Common", 3);
+        StudentPet pet = new StudentPet(userId, "Sproutling", "Flora Sproutling Seedling", RARITY_COMMON, 3);
         pet.setElement("Flora / Earth");
         pet.setAvatarEmoji("🌱");
         pet.setStageName("Hatchling");
         pet.setImageName("sproutling-stage-1.png");
-        pet.setPetLibraryId("sproutling");
+        pet.setPetLibraryId(PET_SPROUTLING);
         pet.setEquipped(true);
 
-        petLibraryRepository.findByPetKey("sproutling").ifPresent(lib -> {
-            pet.setName(lib.getName());
-            pet.setSpecies(lib.getSpecies());
-            pet.setRarity(lib.getRarity());
-            pet.setTier(lib.getTier());
-            pet.setElement(lib.getElement());
-            pet.setAvatarEmoji(lib.getAvatarEmoji());
-            pet.setTotalStages(lib.getTotalStages());
-            if (lib.getStages() != null && !lib.getStages().isEmpty()) {
-                PetStageDefinition st1 = lib.getStages().get(0);
-                pet.setStageName(st1.getName());
-                pet.setImageName(st1.getImageName());
-            }
-        });
+        petLibraryRepository.findByPetKey(PET_SPROUTLING).ifPresent(lib -> applyLibraryItemToPet(pet, lib));
         return pet;
+    }
+
+    private void applyLibraryItemToPet(StudentPet pet, PetLibraryItem lib) {
+        pet.setName(lib.getName());
+        pet.setSpecies(lib.getSpecies());
+        pet.setRarity(lib.getRarity());
+        pet.setTier(lib.getTier());
+        pet.setElement(lib.getElement());
+        pet.setAvatarEmoji(lib.getAvatarEmoji());
+        pet.setTotalStages(lib.getTotalStages());
+        if (lib.getStages() != null && !lib.getStages().isEmpty()) {
+            PetStageDefinition st1 = lib.getStages().get(0);
+            pet.setStageName(st1.getName());
+            pet.setImageName(st1.getImageName());
+        }
     }
 
     public GrowPetResponseDTO growPet(String userId, String petId) {
@@ -358,37 +350,8 @@ public class PetHatcheryService {
             newExp -= expNeeded;
             expNeeded = (int) Math.round(expNeeded * 1.35);
             levelGained = true;
-
-            int oldStage = pet.getStageLevel();
-            int newStage = calculateStage(pet.getTotalStages(), level);
-            if (newStage > oldStage) {
-                pet.setStageLevel(newStage);
-                pet.setStageName("Evolution Form Stage " + newStage);
-                didEvolve = true;
-
-                // Update imageName and stageName from PetLibraryItem if libraryId is present
-                if (pet.getPetLibraryId() != null) {
-                    petLibraryRepository.findByPetKey(pet.getPetLibraryId()).ifPresent(libItem -> {
-                        if (libItem.getStages() != null) {
-                            libItem.getStages().stream()
-                                .filter(s -> s.getStage() == newStage)
-                                .findFirst()
-                                .ifPresent(stageDef -> {
-                                    pet.setStageName(stageDef.getName());
-                                    if (stageDef.getImageName() != null && !stageDef.getImageName().isBlank()) {
-                                        pet.setImageName(stageDef.getImageName());
-                                    }
-                                });
-                        }
-                    });
-                }
-            }
-
-            Map<String, Integer> stats = pet.getStats();
-            stats.put("vitality", Math.min(100, stats.getOrDefault("vitality", 60) + 5));
-            stats.put("wisdom", Math.min(100, stats.getOrDefault("wisdom", 60) + 5));
-            stats.put("integrityBond", Math.min(100, stats.getOrDefault("integrityBond", 80) + 3));
-            stats.put("solarRadiance", Math.min(100, stats.getOrDefault("solarRadiance", 50) + 6));
+            didEvolve = checkAndApplyEvolution(pet, level);
+            boostStatsOnLevelUp(pet);
         }
 
         pet.setLevel(level);
@@ -403,6 +366,47 @@ public class PetHatcheryService {
             safeUserId, safePetId, level, pet.getStageLevel(), remainingStars);
 
         return new GrowPetResponseDTO(toPetDTO(saved), remainingStars, didEvolve, levelGained);
+    }
+
+    private boolean checkAndApplyEvolution(StudentPet pet, int level) {
+        int oldStage = pet.getStageLevel();
+        int newStage = calculateStage(pet.getTotalStages(), level);
+        if (newStage <= oldStage) {
+            return false;
+        }
+
+        pet.setStageLevel(newStage);
+        pet.setStageName("Evolution Form Stage " + newStage);
+        updateStageDetailsFromLibrary(pet, newStage);
+        return true;
+    }
+
+    private void updateStageDetailsFromLibrary(StudentPet pet, int newStage) {
+        if (pet.getPetLibraryId() == null) {
+            return;
+        }
+        petLibraryRepository.findByPetKey(pet.getPetLibraryId()).ifPresent(libItem -> {
+            if (libItem.getStages() == null) {
+                return;
+            }
+            libItem.getStages().stream()
+                .filter(s -> s.getStage() == newStage)
+                .findFirst()
+                .ifPresent(stageDef -> {
+                    pet.setStageName(stageDef.getName());
+                    if (stageDef.getImageName() != null && !stageDef.getImageName().isBlank()) {
+                        pet.setImageName(stageDef.getImageName());
+                    }
+                });
+        });
+    }
+
+    private void boostStatsOnLevelUp(StudentPet pet) {
+        Map<String, Integer> stats = pet.getStats();
+        stats.put("vitality", Math.min(100, stats.getOrDefault("vitality", 60) + 5));
+        stats.put("wisdom", Math.min(100, stats.getOrDefault("wisdom", 60) + 5));
+        stats.put("integrityBond", Math.min(100, stats.getOrDefault("integrityBond", 80) + 3));
+        stats.put("solarRadiance", Math.min(100, stats.getOrDefault("solarRadiance", 50) + 6));
     }
 
     private static final int[][] STAGE_THRESHOLDS_3 = {{6, 3}, {3, 2}};
@@ -514,4 +518,3 @@ public class PetHatcheryService {
         );
     }
 }
-

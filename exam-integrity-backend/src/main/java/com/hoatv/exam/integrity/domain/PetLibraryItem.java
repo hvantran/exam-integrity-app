@@ -13,7 +13,7 @@ import java.util.List;
  * Collection: pet_library
  */
 @Document(collection = "pet_library")
-public class PetLibraryItem {
+public class PetLibraryItem extends BasePetEntity {
 
     @Id
     private String id;
@@ -21,25 +21,16 @@ public class PetLibraryItem {
     @Indexed(unique = true)
     private String petKey;
 
-    private String name;
-    private String species;
-    private String rarity = "Common";
-    private String tier = "dragon";
-    private String element = "Fire / Flame";
-    private String avatarEmoji = "🐣";
-    private int totalStages = 3;
     private int maxLevel = 10;
     private int eggShopPrice = 250;
     private int hatchDurationHours = 8;
     private String description;
     private String bannerGradient;
     private List<PetStageDefinition> stages = new ArrayList<>();
-    private Instant createdAt = Instant.now();
-    private Instant updatedAt = Instant.now();
 
     public PetLibraryItem() {}
 
-    public PetLibraryItem(String petKey, String name, String species, String rarity, String tier, String element, String avatarEmoji, int totalStages) {
+    public PetLibraryItem(String petKey, String name, String species, String rarity, String tier, String element) {
         this.id = petKey;
         this.petKey = petKey;
         this.name = name;
@@ -47,8 +38,6 @@ public class PetLibraryItem {
         this.rarity = rarity;
         this.tier = tier;
         this.element = element;
-        this.avatarEmoji = avatarEmoji;
-        this.totalStages = totalStages;
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
     }
@@ -67,62 +56,6 @@ public class PetLibraryItem {
 
     public void setPetKey(String petKey) {
         this.petKey = petKey;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getSpecies() {
-        return species;
-    }
-
-    public void setSpecies(String species) {
-        this.species = species;
-    }
-
-    public String getRarity() {
-        return rarity;
-    }
-
-    public void setRarity(String rarity) {
-        this.rarity = rarity;
-    }
-
-    public String getTier() {
-        return tier;
-    }
-
-    public void setTier(String tier) {
-        this.tier = tier;
-    }
-
-    public String getElement() {
-        return element;
-    }
-
-    public void setElement(String element) {
-        this.element = element;
-    }
-
-    public String getAvatarEmoji() {
-        return avatarEmoji;
-    }
-
-    public void setAvatarEmoji(String avatarEmoji) {
-        this.avatarEmoji = avatarEmoji;
-    }
-
-    public int getTotalStages() {
-        return totalStages;
-    }
-
-    public void setTotalStages(int totalStages) {
-        this.totalStages = totalStages;
     }
 
     public int getMaxLevel() {
@@ -172,21 +105,4 @@ public class PetLibraryItem {
     public void setStages(List<PetStageDefinition> stages) {
         this.stages = stages;
     }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 }
-

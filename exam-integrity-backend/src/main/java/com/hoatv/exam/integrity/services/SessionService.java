@@ -30,6 +30,8 @@ public class SessionService {
 
     private static final Logger logger = LoggerFactory.getLogger(SessionService.class);
     private static final String ACTIVE_SESSIONS_KEY = "active_sessions";
+    private static final String TIMER_KEY_PREFIX = "timer:";
+    private static final String LOG_INJECTION_REGEX = "[\r\n]";
 
     private final SessionRepository sessionRepository;
     private final ExamRepository examRepository;
@@ -79,13 +81,16 @@ public class SessionService {
 
         int duration = exam.getDurationSeconds();
         redisTemplate.opsForValue().set(
-            "timer:" + session.getId(),
+            TIMER_KEY_PREFIX + session.getId(),
             String.valueOf(duration),
             duration, TimeUnit.SECONDS
         );
         redisTemplate.opsForSet().add(ACTIVE_SESSIONS_KEY, session.getId());
 
-        logger.info("Session {} created for student {} on exam {}", session.getId(), studentId, examId);
+        String safeSessionId = session.getId() != null ? session.getId().replaceAll(LOG_INJECTION_REGEX, "_") : "";
+        String safeStudentId = studentId != null ? studentId.replaceAll(LOG_INJECTION_REGEX, "_") : "";
+        String safeExamId = examId != null ? examId.replaceAll(LOG_INJECTION_REGEX, "_") : "";
+        logger.info("Session {} created for student {} on exam {}", safeSessionId, safeStudentId, safeExamId);
         return toDTO(session, duration);
     }
 
@@ -97,7 +102,7 @@ public class SessionService {
 
     // BE-13: getTimer (REST fallback)
     public long getRemainingSeconds(String sessionId) {
-        Long ttl = redisTemplate.getExpire("timer:" + sessionId, TimeUnit.SECONDS);
+        Long ttl = redisTemplate.getExpire(TIMER_KEY_PREFIX + sessionId, TimeUnit.SECONDS);
         return ttl != null && ttl > 0 ? ttl : 0;
     }
 
@@ -130,12 +135,12 @@ public class SessionService {
         if (session.getStatus() != ExamSession.SessionStatus.ACTIVE) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Session is not ACTIVE");
         }
-        ExamSession.AnswerRecord record = new ExamSession.AnswerRecord();
-        record.setAnswer(normalizeAnswer(answer, answerParts));
-        record.setAnswerParts(toAnswerPartRecords(answerParts));
-        record.setFlaggedForReview(flaggedForReview);
-        record.setSavedAt(Instant.now());
-        session.getAnswers().put(questionId, record);
+        ExamSession.AnswerRecord answerRecord = new ExamSession.AnswerRecord();
+        answerRecord.setAnswer(normalizeAnswer(answer, answerParts));
+        answerRecord.setAnswerParts(toAnswerPartRecords(answerParts));
+        answerRecord.setFlaggedForReview(flaggedForReview);
+        answerRecord.setSavedAt(Instant.now());
+        session.getAnswers().put(questionId, answerRecord);
         sessionRepository.save(session);
     }
 
@@ -153,11 +158,12 @@ public class SessionService {
         session.setSubmittedAt(Instant.now());
         sessionRepository.save(session);
 
-        redisTemplate.delete("timer:" + sessionId);
+        redisTemplate.delete(TIMER_KEY_PREFIX + sessionId);
         redisTemplate.opsForSet().remove(ACTIVE_SESSIONS_KEY, sessionId);
 
         sessionReviewService.initializeScores(session);
-        logger.info("Session {} submitted (force={})", sessionId, forceSubmit);
+        String safeSessionId = sessionId != null ? sessionId.replaceAll(LOG_INJECTION_REGEX, "_") : "";
+        logger.info("Session {} submitted (force={})", safeSessionId, forceSubmit);
     }
 
     public Set<String> getActiveSessionIds() {

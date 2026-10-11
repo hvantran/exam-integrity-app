@@ -31,6 +31,7 @@ import static org.springframework.http.HttpStatus.*;
 public class ExamDraftService {
 
     private static final Logger logger = LoggerFactory.getLogger(ExamDraftService.class);
+    private static final String LOG_INJECTION_REGEX = "[\r\n]";
 
     private final ExamDraftRepository draftRepository;
     private final ExamRepository examRepository;
@@ -107,7 +108,7 @@ public class ExamDraftService {
 
         ExamDraft draft = buildDraftFromParsedExam(parsedExam, filename, jobId, examSetIndex);
         ExamDraft saved = draftRepository.save(draft);
-        String safeFilename = filename.replaceAll("[\r\n]", "_");
+        String safeFilename = filename.replaceAll(LOG_INJECTION_REGEX, "_");
         logger.info("Draft {} created from PDF {}", saved.getId(), safeFilename);
         return toSummaryDTO(saved, null);
     }
@@ -118,7 +119,7 @@ public class ExamDraftService {
         List<ExamDraft> drafts = (status != null)
                 ? draftRepository.findByStatus(ExamDraft.DraftStatus.valueOf(status))
                 : draftRepository.findAll();
-        return drafts.stream().map(d -> toSummaryDTO(d, null)).collect(Collectors.toList());
+        return drafts.stream().map(d -> toSummaryDTO(d, null)).toList();
     }
 
     // ── BE-03: Get full draft (transitions PENDING→UNDER_REVIEW) ─────────────
@@ -132,7 +133,7 @@ public class ExamDraftService {
         ExamDraftSummaryDTO summary = toSummaryDTO(draft, null);
         List<DraftQuestionDTO> questions = draft.getQuestions().stream()
                 .map(this::toDraftQuestionDTO)
-                .collect(Collectors.toList());
+                .toList();
         return new FullDraftDTO(summary, questions);
     }
 
@@ -221,7 +222,7 @@ public class ExamDraftService {
         // Validation
         List<DraftQuestion> approved = draft.getQuestions().stream()
             .filter(q -> q.getReviewStatus() != DraftQuestion.ReviewStatus.EXCLUDED)
-            .collect(Collectors.toList());
+            .toList();
         if (approved.isEmpty()) {
             throw new ResponseStatusException(BAD_REQUEST, "No questions to publish");
         }
@@ -238,7 +239,7 @@ public class ExamDraftService {
 
         List<Question> questions = approved.stream()
                 .map(this::toQuestion)
-                .collect(Collectors.toList());
+                .toList();
 
         // Renumber sequentially 1..N so student navigation by position always works,
         // regardless of which questions were excluded during review.
@@ -261,7 +262,9 @@ public class ExamDraftService {
         draft.setReviewedAt(Instant.now());
         draftRepository.save(draft);
 
-        logger.info("Draft {} published as exam {}", draftId, exam.getId());
+        String safeDraftId = draftId != null ? draftId.replaceAll(LOG_INJECTION_REGEX, "_") : "";
+        String safeExamId = exam.getId() != null ? exam.getId().replaceAll(LOG_INJECTION_REGEX, "_") : "";
+        logger.info("Draft {} published as exam {}", safeDraftId, safeExamId);
         return new ExamDTO(exam.getId(), exam.getTitle(), exam.getDurationSeconds(),
             exam.getTotalPoints(), questions.size(), exam.getTags(), null,
             exam.getStatus() != null ? exam.getStatus().name() : null);
@@ -380,17 +383,15 @@ public class ExamDraftService {
 
         List<?> rawWarnings = (List<?>) parsedExam.get("data_warnings");
         if (rawWarnings != null) {
-            draft.setParserWarnings(rawWarnings.stream().map(Object::toString).collect(Collectors.toList()));
+            draft.setParserWarnings(rawWarnings.stream().map(Object::toString).toList());
         }
 
         List<?> rawQuestions = (List<?>) parsedExam.get("questions");
         if (rawQuestions != null) {
-            List<DraftQuestion> dqs = new ArrayList<>();
-            for (Object rq : rawQuestions) {
-                if (rq instanceof Map) {
-                    dqs.add(mapToDraftQuestion((Map<?, ?>) rq));
-                }
-            }
+            List<DraftQuestion> dqs = rawQuestions.stream()
+                .filter(Map.class::isInstance)
+                .map(rq -> mapToDraftQuestion((Map<?, ?>) rq))
+                .toList();
             draft.setQuestions(dqs);
         }
         return draft;
@@ -457,8 +458,12 @@ public class ExamDraftService {
     }
 
     private ExamDraftSummaryDTO toSummaryDTO(ExamDraft d, String overrideStatus) {
-        String statusStr = overrideStatus != null ? overrideStatus
-                : (d.getStatus() != null ? d.getStatus().name() : "PENDING_REVIEW");
+        String statusStr;
+        if (overrideStatus != null) {
+            statusStr = overrideStatus;
+        } else {
+            statusStr = (d.getStatus() != null) ? d.getStatus().name() : "PENDING_REVIEW";
+        }
         int flagged = (int) d.getQuestions().stream()
                 .filter(q -> q.getParserConfidence() < 0.8
                         || (q.getOcrConfidence() != null && q.getOcrConfidence() < 0.75))

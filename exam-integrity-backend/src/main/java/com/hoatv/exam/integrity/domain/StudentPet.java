@@ -13,7 +13,7 @@ import java.util.Map;
  * Collection: student_pets
  */
 @Document(collection = "student_pets")
-public class StudentPet {
+public class StudentPet extends BasePetEntity {
 
     @Id
     private String id;
@@ -21,27 +21,18 @@ public class StudentPet {
     @Indexed
     private String userId;
 
-    private String name;
-    private String species;
-    private String rarity = "Common";
-    private String tier = "dragon";
-    private String element = "Fire / Flame";
     private int level = 1;
     private int maxLevel = 10;
     private int currentExp = 0;
     private int expNeeded = 100;
     private int growthCostInStars = 25;
     private int stageLevel = 1;
-    private int totalStages = 3;
     private String stageName = "Hatchling";
-    private String avatarEmoji = "🐣";
     private String imageUrl;
     private String imageName;
     private String petLibraryId;
     private boolean isEquipped = false;
     private Map<String, Integer> stats = new HashMap<>();
-    private Instant createdAt = Instant.now();
-    private Instant updatedAt = Instant.now();
 
     public StudentPet() {
         initDefaultStats();
@@ -82,46 +73,6 @@ public class StudentPet {
 
     public void setUserId(String userId) {
         this.userId = userId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getSpecies() {
-        return species;
-    }
-
-    public void setSpecies(String species) {
-        this.species = species;
-    }
-
-    public String getRarity() {
-        return rarity;
-    }
-
-    public void setRarity(String rarity) {
-        this.rarity = rarity;
-    }
-
-    public String getTier() {
-        return tier;
-    }
-
-    public void setTier(String tier) {
-        this.tier = tier;
-    }
-
-    public String getElement() {
-        return element;
-    }
-
-    public void setElement(String element) {
-        this.element = element;
     }
 
     public int getLevel() {
@@ -172,28 +123,12 @@ public class StudentPet {
         this.stageLevel = stageLevel;
     }
 
-    public int getTotalStages() {
-        return totalStages;
-    }
-
-    public void setTotalStages(int totalStages) {
-        this.totalStages = totalStages;
-    }
-
     public String getStageName() {
         return stageName;
     }
 
     public void setStageName(String stageName) {
         this.stageName = stageName;
-    }
-
-    public String getAvatarEmoji() {
-        return avatarEmoji;
-    }
-
-    public void setAvatarEmoji(String avatarEmoji) {
-        this.avatarEmoji = avatarEmoji;
     }
 
     public String getImageUrl() {
@@ -220,14 +155,6 @@ public class StudentPet {
         this.stats = stats != null ? stats : new HashMap<>();
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public String getImageName() {
         return imageName;
     }
@@ -243,13 +170,4 @@ public class StudentPet {
     public void setPetLibraryId(String petLibraryId) {
         this.petLibraryId = petLibraryId;
     }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 }
-
