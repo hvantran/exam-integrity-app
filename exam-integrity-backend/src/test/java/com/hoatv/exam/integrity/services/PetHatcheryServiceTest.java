@@ -251,4 +251,26 @@ class PetHatcheryServiceTest {
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Pet not found: pet-sproutling-stage-1");
     }
+
+    @Test
+    void growPetThrowsIllegalStateExceptionWhenPetAlreadyAtMaxLevel() {
+        StudentItem pet = StudentItem.builder()
+            .id("pet-max")
+            .userId("student1")
+            .category(StudentItem.CATEGORY_PET)
+            .name("Max Level Phoenix")
+            .level(10)
+            .maxLevel(10)
+            .build();
+
+        when(studentItemRepository.findByIdAndUserIdAndCategory("pet-max", "student1", StudentItem.CATEGORY_PET))
+            .thenReturn(Optional.of(pet));
+
+        assertThatThrownBy(() -> petHatcheryService.growPet("student1", "pet-max"))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Pet has already reached maximum level: 10");
+
+        verify(userProfileService, never()).spendStars(anyString(), anyInt());
+        verify(studentItemRepository, never()).save(any(StudentItem.class));
+    }
 }

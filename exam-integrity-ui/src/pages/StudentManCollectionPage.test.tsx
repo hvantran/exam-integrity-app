@@ -85,6 +85,13 @@ jest.mock('@hvantran/ui-component-library', () => {
         </button>
         <button
           type="button"
+          data-testid="mock-grow-pet-max"
+          onClick={() => onGrowPet?.('pet-max', 25)}
+        >
+          Grow Max Pet
+        </button>
+        <button
+          type="button"
           data-testid="mock-strike-egg"
           onClick={() => onStrikeCrack?.('egg-1', 25)}
         >
@@ -204,4 +211,21 @@ describe('StudentManCollectionPage', () => {
     fireEvent.click(screen.getByTestId('mock-logout'));
     expect(mockLogout).toHaveBeenCalled();
   });
+
+  it('does not grow pet or call backend when pet is already at max level', async () => {
+    (hatcheryService.getMyPets as jest.Mock).mockResolvedValue([
+      { id: 'pet-max', name: 'Max Pet', level: 10, maxLevel: 10, expNeeded: 100, currentExp: 100 },
+    ]);
+
+    render(<StudentManCollectionPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('pet-count')).toHaveTextContent('1');
+    });
+
+    fireEvent.click(screen.getByTestId('mock-grow-pet-max'));
+
+    expect(hatcheryService.growPet).not.toHaveBeenCalled();
+  });
 });
+
