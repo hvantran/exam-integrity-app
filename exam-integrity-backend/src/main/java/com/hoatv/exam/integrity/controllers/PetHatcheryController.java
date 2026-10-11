@@ -95,6 +95,20 @@ public class PetHatcheryController {
         return ResponseEntity.ok(petHatcheryService.equipPet(userId, petId));
     }
 
+    @Operation(summary = "Get pet library catalogue")
+    @GetMapping("/library")
+    public ResponseEntity<List<com.hoatv.exam.integrity.dtos.PetLibraryItemDTO>> getPetLibrary() {
+        return ResponseEntity.ok(petHatcheryService.getPetLibrary());
+    }
+
+    @Operation(summary = "Sync pet definitions from UI / client to pet library")
+    @PostMapping("/library/sync")
+    public ResponseEntity<List<com.hoatv.exam.integrity.dtos.PetLibraryItemDTO>> syncPetLibrary(
+        @org.springframework.web.bind.annotation.RequestBody List<com.hoatv.exam.integrity.dtos.PetLibraryItemDTO> items
+    ) {
+        return ResponseEntity.ok(petHatcheryService.syncPetLibrary(items));
+    }
+
     private String resolveUserId(Authentication auth) {
         if (auth != null) {
             if (auth.getPrincipal() instanceof Jwt jwt && jwt.getSubject() != null && !jwt.getSubject().isBlank()) {

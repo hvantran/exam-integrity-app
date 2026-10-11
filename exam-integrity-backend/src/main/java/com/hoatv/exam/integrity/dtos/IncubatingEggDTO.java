@@ -16,6 +16,9 @@ public record IncubatingEggDTO(
     boolean isMystery,
     int hatchDurationHours,
     long remainingSeconds,
+    String imageUrl,
+    String imageName,
+    String petLibraryId,
     Instant incubatedAt,
     Instant createdAt
 ) {}

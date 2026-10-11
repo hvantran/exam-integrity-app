@@ -36,6 +36,8 @@ public class StudentPet {
     private String stageName = "Hatchling";
     private String avatarEmoji = "🐣";
     private String imageUrl;
+    private String imageName;
+    private String petLibraryId;
     private boolean isEquipped = false;
     private Map<String, Integer> stats = new HashMap<>();
     private Instant createdAt = Instant.now();
@@ -224,6 +226,22 @@ public class StudentPet {
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getImageName() {
+        return imageName;
+    }
+
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
+    }
+
+    public String getPetLibraryId() {
+        return petLibraryId;
+    }
+
+    public void setPetLibraryId(String petLibraryId) {
+        this.petLibraryId = petLibraryId;
     }
 
     public Instant getUpdatedAt() {

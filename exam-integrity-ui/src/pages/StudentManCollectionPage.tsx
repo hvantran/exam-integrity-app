@@ -7,11 +7,14 @@ import {
   type StudentPet,
   DEFAULT_INCUBATING_EGGS,
   DEFAULT_STUDENT_PETS,
+  getExportedPetLibrary,
 } from '@hvantran/ui-component-library';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useNavDockMode } from '../hooks/useNavDockMode';
 import { hatcheryService } from '../services/hatcheryService';
+import type { UserProfile } from '../services/profileService';
 import { getScopedItem, setScopedItem } from '../utils/storage';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
@@ -25,8 +28,17 @@ const PORTAL_ROUTES: Record<PortalSection, string> = {
 const EGGS_STORAGE_KEY = 'exam_integrity_incubating_eggs';
 const PETS_STORAGE_KEY = 'exam_integrity_student_pets';
 
+function useSafeQueryClient() {
+  try {
+    return useQueryClient();
+  } catch {
+    return null;
+  }
+}
+
 const StudentManCollectionPage: React.FC = () => {
   const navigate = useNavigate();
+  const queryClient = useSafeQueryClient();
   const { logout, displayName, user } = useAuth();
   const { data: profile } = useUserProfile();
   const totalStars = profile?.stats?.totalStars ?? 0;
@@ -73,6 +85,13 @@ const StudentManCollectionPage: React.FC = () => {
 
   useEffect(() => {
     let isMounted = true;
+    try {
+      const exported = getExportedPetLibrary();
+      hatcheryService.syncPetLibrary(exported).catch(() => {});
+    } catch {
+      // ignore
+    }
+
     Promise.all([hatcheryService.getIncubatorEggs(), hatcheryService.getMyPets()])
       .then(([serverEggs, serverPets]) => {
         if (!isMounted) return;
@@ -113,17 +132,36 @@ const StudentManCollectionPage: React.FC = () => {
   const handleNavigate = (section: PortalSection) => navigate(PORTAL_ROUTES[section]);
 
   const handleEggHatched = (eggId: string, hatchedPet: StudentPet) => {
-    Promise.resolve(hatcheryService.hatchEgg(eggId)).catch(() => {
-      // ignore or optimistic
-    });
     setIncubatingEggs((prev) => prev.filter((egg) => egg.id !== eggId));
     setPets((prev) => [hatchedPet, ...prev]);
+
+    Promise.resolve(hatcheryService.hatchEgg(eggId))
+      .then((serverPet) => {
+        if (serverPet && serverPet.id) {
+          setPets((prev) => [
+            serverPet,
+            ...prev.filter((p) => p.id !== hatchedPet.id && p.id !== serverPet.id),
+          ]);
+        }
+      })
+      .catch(() => {
+        // fallback keeps hatchedPet
+      });
   };
 
   const handleGrowPet = (petId: string, starsSpent: number) => {
-    Promise.resolve(hatcheryService.growPet(petId)).catch(() => {
-      // ignore or optimistic
+    // Optimistically deduct stars
+    queryClient?.setQueryData<UserProfile>(['user-profile', 'me'], (old) => {
+      if (!old) return old;
+      return {
+        ...old,
+        stats: {
+          ...old.stats,
+          totalStars: Math.max(0, (old.stats?.totalStars ?? 0) - starsSpent),
+        },
+      };
     });
+
     setPets((prev) =>
       prev.map((pet) => {
         if (pet.id !== petId) return pet;
@@ -136,6 +174,55 @@ const StudentManCollectionPage: React.FC = () => {
         };
       }),
     );
+
+    Promise.resolve(hatcheryService.growPet(petId))
+      .then((res) => {
+        if (res && res.pet) {
+          setPets((prev) => prev.map((p) => (p.id === petId ? { ...p, ...res.pet } : p)));
+        }
+        if (res && res.remainingStars !== undefined) {
+          queryClient?.setQueryData<UserProfile>(['user-profile', 'me'], (old) => {
+            if (!old) return old;
+            return {
+              ...old,
+              stats: {
+                ...old.stats,
+                totalStars: res.remainingStars,
+              },
+            };
+          });
+        }
+        queryClient?.invalidateQueries({ queryKey: ['user-profile', 'me'] });
+      })
+      .catch(() => {
+        // fallback
+      });
+  };
+
+  const handleStrikeCrack = (eggId: string, starsSpent: number) => {
+    queryClient?.setQueryData<UserProfile>(['user-profile', 'me'], (old) => {
+      if (!old) return old;
+      return {
+        ...old,
+        stats: {
+          ...old.stats,
+          totalStars: Math.max(0, (old.stats?.totalStars ?? 0) - starsSpent),
+        },
+      };
+    });
+
+    Promise.resolve(hatcheryService.strikeEgg(eggId))
+      .then((updatedEgg) => {
+        if (updatedEgg && updatedEgg.id) {
+          setIncubatingEggs((prev) =>
+            prev.map((e) => (e.id === eggId ? { ...e, ...updatedEgg } : e))
+          );
+        }
+        queryClient?.invalidateQueries({ queryKey: ['user-profile', 'me'] });
+      })
+      .catch(() => {
+        // fallback
+      });
   };
 
   return (
@@ -146,6 +233,7 @@ const StudentManCollectionPage: React.FC = () => {
       pets={pets}
       onEggHatched={handleEggHatched}
       onGrowPet={handleGrowPet}
+      onStrikeCrack={handleStrikeCrack}
       onNavigate={handleNavigate}
       onLogout={handleLogout}
       dockMode={dockMode}

@@ -21,6 +21,8 @@ public record StudentPetDTO(
     String stageName,
     String avatarEmoji,
     String imageUrl,
+    String imageName,
+    String petLibraryId,
     boolean isEquipped,
     Map<String, Integer> stats,
     Instant createdAt,

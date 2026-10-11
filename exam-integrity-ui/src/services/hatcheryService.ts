@@ -42,5 +42,30 @@ export const hatcheryService = {
     );
     return res.data;
   },
+
+  purchaseEgg: async (): Promise<{
+    success: boolean;
+    message: string;
+    egg: IncubatingEgg;
+    remainingStars: number;
+  }> => {
+    const res = await apiClient.post<{
+      success: boolean;
+      message: string;
+      egg: IncubatingEgg;
+      remainingStars: number;
+    }>('/api/shop/purchase-egg');
+    return res.data;
+  },
+
+  syncPetLibrary: async (items: unknown[]): Promise<unknown[]> => {
+    const res = await apiClient.post<unknown[]>('/api/hatchery/library/sync', items);
+    return res.data;
+  },
+
+  getPetLibrary: async (): Promise<unknown[]> => {
+    const res = await apiClient.get<unknown[]>('/api/hatchery/library');
+    return res.data;
+  },
 };
 

@@ -90,6 +90,9 @@ class EggShopControllerTest {
             true,
             8,
             28800L,
+            null,
+            "ancient-egg.png",
+            null,
             Instant.now(),
             Instant.now()
         );

@@ -1,14 +1,19 @@
 package com.hoatv.exam.integrity.services;
 
 import com.hoatv.exam.integrity.domain.IncubatingEgg;
+import com.hoatv.exam.integrity.domain.PetLibraryItem;
+import com.hoatv.exam.integrity.domain.PetStageDefinition;
 import com.hoatv.exam.integrity.domain.StudentPet;
 import com.hoatv.exam.integrity.domain.UserProfile;
 import com.hoatv.exam.integrity.dtos.EggShopItemDTO;
 import com.hoatv.exam.integrity.dtos.GrowPetResponseDTO;
 import com.hoatv.exam.integrity.dtos.IncubatingEggDTO;
+import com.hoatv.exam.integrity.dtos.PetLibraryItemDTO;
+import com.hoatv.exam.integrity.dtos.PetStageDTO;
 import com.hoatv.exam.integrity.dtos.PurchaseEggResponseDTO;
 import com.hoatv.exam.integrity.dtos.StudentPetDTO;
 import com.hoatv.exam.integrity.repositories.IncubatingEggRepository;
+import com.hoatv.exam.integrity.repositories.PetLibraryRepository;
 import com.hoatv.exam.integrity.repositories.StudentPetRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,15 +38,18 @@ public class PetHatcheryService {
 
     private final IncubatingEggRepository incubatingEggRepository;
     private final StudentPetRepository studentPetRepository;
+    private final PetLibraryRepository petLibraryRepository;
     private final UserProfileService userProfileService;
 
     public PetHatcheryService(
         IncubatingEggRepository incubatingEggRepository,
         StudentPetRepository studentPetRepository,
+        PetLibraryRepository petLibraryRepository,
         UserProfileService userProfileService
     ) {
         this.incubatingEggRepository = incubatingEggRepository;
         this.studentPetRepository = studentPetRepository;
+        this.petLibraryRepository = petLibraryRepository;
         this.userProfileService = userProfileService;
     }
 
@@ -104,9 +112,13 @@ public class PetHatcheryService {
             .toList();
     }
 
+    public static final int STRIKE_CRACK_STAR_COST = 25;
+
     public IncubatingEggDTO strikeEgg(String userId, String eggId) {
         IncubatingEgg egg = incubatingEggRepository.findByIdAndUserId(eggId, userId)
             .orElseThrow(() -> new IllegalArgumentException("Incubating egg not found: " + eggId));
+
+        userProfileService.spendStars(userId, STRIKE_CRACK_STAR_COST);
 
         double newProgress = Math.min(1.0, egg.getCrackProgress() + 0.25);
         egg.setCrackProgress(newProgress);
@@ -143,87 +155,187 @@ public class PetHatcheryService {
     public StudentPet rollMysteryPet(String userId, Double fixedRoll) {
         double roll = fixedRoll != null ? fixedRoll : (RANDOM.nextDouble() * 100.0);
 
+        String petKey;
+        String rarity;
+        int totalStages;
         if (roll < 50.0) {
-            // 50% Common (3 stages)
-            String[] commonNames = {"Sproutling", "Pipflick", "Embersqueak", "Zephyrpuff"};
-            String[] commonSpecies = {"Flora Sproutling Seedling", "Tidal Ocean Drake", "Solar Ember Tiger Cub", "Zephyr Cloud Hare"};
-            String[] elements = {"Flora / Earth", "Ocean / Water", "Solar Fire / Flame", "Wind / Cloud"};
-            String[] emojis = {"🌱", "💧", "🐯", "🐰"};
-            int pick = RANDOM.nextInt(commonNames.length);
+            String[] keys = {"sproutling", "pipflick", "embersqueak", "zephyrpuff"};
+            petKey = keys[RANDOM.nextInt(keys.length)];
+            rarity = "Common";
+            totalStages = 3;
+        } else if (roll < 78.0) {
+            String[] keys = {"frostpaw", "magmafang", "voltwing", "thundercat"};
+            petKey = keys[RANDOM.nextInt(keys.length)];
+            rarity = "Rare";
+            totalStages = 4;
+        } else if (roll < 92.0) {
+            String[] keys = {"phoenix", "chronochimera", "shadowpanther", "stormstag"};
+            petKey = keys[RANDOM.nextInt(keys.length)];
+            rarity = "Epic";
+            totalStages = 5;
+        } else if (roll < 98.0) {
+            String[] keys = {"astraldragon", "astralleviathan", "solarwyvern"};
+            petKey = keys[RANDOM.nextInt(keys.length)];
+            rarity = "Legendary";
+            totalStages = 6;
+        } else {
+            String[] keys = {"voiddragon", "chronodraco", "aegispaladin"};
+            petKey = keys[RANDOM.nextInt(keys.length)];
+            rarity = "Mythic";
+            totalStages = 8;
+        }
 
-            StudentPet pet = new StudentPet(userId, commonNames[pick], commonSpecies[pick], "Common", 3);
-            pet.setElement(elements[pick]);
-            pet.setAvatarEmoji(emojis[pick]);
+        StudentPet pet = new StudentPet(userId, petKey, petKey, rarity, totalStages);
+        pet.setPetLibraryId(petKey);
+
+        var libOpt = petLibraryRepository.findByPetKey(petKey);
+        if (libOpt.isPresent()) {
+            PetLibraryItem lib = libOpt.get();
+            pet.setName(lib.getName());
+            pet.setSpecies(lib.getSpecies());
+            pet.setRarity(lib.getRarity());
+            pet.setTier(lib.getTier());
+            pet.setElement(lib.getElement());
+            pet.setAvatarEmoji(lib.getAvatarEmoji());
+            pet.setTotalStages(lib.getTotalStages());
+            if (lib.getStages() != null && !lib.getStages().isEmpty()) {
+                PetStageDefinition st1 = lib.getStages().get(0);
+                pet.setStageName(st1.getName());
+                pet.setImageName(st1.getImageName());
+            }
+        } else {
+            pet.setImageName(petKey + "-stage-1.png");
             pet.setStageName("Hatchling");
-            return pet;
         }
-
-        if (roll < 78.0) {
-            // 28% Rare (4 stages)
-            String[] rareNames = {"Frostpaw", "Magmafang", "Voltwing", "Thundercat"};
-            String[] rareSpecies = {"Arctic Snow Leopard", "Caldera Molten Boar", "Tempest Storm Owl", "Raijin Thunder Lynx"};
-            String[] elements = {"Frost / Ice", "Fire / Earth", "Lightning / Air", "Electric / Storm"};
-            String[] emojis = {"❄️", "🐗", "⚡", "⚡"};
-            int pick = RANDOM.nextInt(rareNames.length);
-
-            StudentPet pet = new StudentPet(userId, rareNames[pick], rareSpecies[pick], "Rare", 4);
-            pet.setElement(elements[pick]);
-            pet.setAvatarEmoji(emojis[pick]);
-            pet.setStageName("Fledgling");
-            return pet;
-        }
-
-        if (roll < 92.0) {
-            // 14% Epic (5 stages)
-            String[] epicNames = {"Sun Ember Fledgling", "Chronopip", "Umbralpaw", "Sparkfawn"};
-            String[] epicSpecies = {"Primordial Solar Phoenix", "Celestial Time Sprite", "Eclipse Umbral Panther", "Celestial Thunder Elk"};
-            String[] elements = {"Solar Fire / Flame", "Temporal / Cosmic", "Shadow / Cosmic", "Lightning / Nature"};
-            String[] emojis = {"🔥", "⏳", "🌑", "🦌"};
-            int pick = RANDOM.nextInt(epicNames.length);
-
-            StudentPet pet = new StudentPet(userId, epicNames[pick], epicSpecies[pick], "Epic", 5);
-            pet.setElement(elements[pick]);
-            pet.setAvatarEmoji(emojis[pick]);
-            pet.setStageName("Sun Ember Fledgling");
-            return pet;
-        }
-
-        if (roll < 98.0) {
-            // 6% Legendary (6 stages)
-            String[] legNames = {"Stardrop Wyrmlet", "Astraea Pip", "Solarpup"};
-            String[] legSpecies = {"Celestial Astral Dragon", "Cosmic Ocean Leviathan", "Sunfire Archon Wyvern"};
-            String[] elements = {"Astral / Cosmic", "Cosmic / Water", "Fire / Celestial"};
-            String[] emojis = {"🌌", "🐋", "☀️"};
-            int pick = RANDOM.nextInt(legNames.length);
-
-            StudentPet pet = new StudentPet(userId, legNames[pick], legSpecies[pick], "Legendary", 6);
-            pet.setElement(elements[pick]);
-            pet.setAvatarEmoji(emojis[pick]);
-            pet.setStageName("Cosmic Wyrmlet");
-            return pet;
-        }
-
-        // 2% Mythic (8 stages)
-        String[] mythicNames = {"Voidling Pip", "Chronowing Pip", "Aegis Pip"};
-        String[] mythicSpecies = {"Mythic Void Abyssal Dragon", "Lord of Spacetime Chrono-Draco", "Aegis Divine Paladin Dragon"};
-        String[] elements = {"Void / Singularity", "Temporal / Spacetime", "Divine / Paladin"};
-        String[] emojis = {"🕳️", "⌛", "🛡️"};
-        int pick = RANDOM.nextInt(mythicNames.length);
-
-        StudentPet pet = new StudentPet(userId, mythicNames[pick], mythicSpecies[pick], "Mythic", 8);
-        pet.setElement(elements[pick]);
-        pet.setAvatarEmoji(emojis[pick]);
-        pet.setStageName("Primal Seedling");
         return pet;
+    }
+
+    public List<PetLibraryItemDTO> syncPetLibrary(List<PetLibraryItemDTO> items) {
+        if (items == null || items.isEmpty()) {
+            return List.of();
+        }
+        for (PetLibraryItemDTO dto : items) {
+            String key = (dto.petKey() != null && !dto.petKey().isBlank()) ? dto.petKey() : dto.id();
+            PetLibraryItem item = petLibraryRepository.findByPetKey(key)
+                .orElseGet(() -> {
+                    PetLibraryItem newItem = new PetLibraryItem();
+                    newItem.setId(key);
+                    newItem.setPetKey(key);
+                    return newItem;
+                });
+
+            item.setName(dto.name());
+            item.setSpecies(dto.species());
+            if (dto.rarity() != null) item.setRarity(dto.rarity());
+            if (dto.tier() != null) item.setTier(dto.tier());
+            if (dto.element() != null) item.setElement(dto.element());
+            if (dto.avatarEmoji() != null) item.setAvatarEmoji(dto.avatarEmoji());
+            if (dto.totalStages() > 0) item.setTotalStages(dto.totalStages());
+            if (dto.maxLevel() > 0) item.setMaxLevel(dto.maxLevel());
+            if (dto.eggShopPrice() > 0) item.setEggShopPrice(dto.eggShopPrice());
+            if (dto.hatchDurationHours() > 0) item.setHatchDurationHours(dto.hatchDurationHours());
+            item.setDescription(dto.description());
+            item.setBannerGradient(dto.bannerGradient());
+
+            if (dto.stages() != null) {
+                List<PetStageDefinition> stageDefs = dto.stages().stream()
+                    .map(s -> new PetStageDefinition(
+                        s.stage(),
+                        s.minLevel(),
+                        s.name(),
+                        s.title(),
+                        s.description(),
+                        s.avatarEmoji(),
+                        s.imageName()
+                    ))
+                    .toList();
+                item.setStages(stageDefs);
+            }
+            item.setUpdatedAt(Instant.now());
+            petLibraryRepository.save(item);
+        }
+        logger.info("Synced {} pet library items into pet_library collection", items.size());
+        return getPetLibrary();
+    }
+
+    public List<PetLibraryItemDTO> getPetLibrary() {
+        return petLibraryRepository.findAll().stream()
+            .map(this::toLibraryDTO)
+            .toList();
+    }
+
+    private PetLibraryItemDTO toLibraryDTO(PetLibraryItem item) {
+        List<PetStageDTO> stages = (item.getStages() != null) ? item.getStages().stream()
+            .map(s -> new PetStageDTO(
+                s.getStage(),
+                s.getMinLevel(),
+                s.getName(),
+                s.getTitle(),
+                s.getDescription(),
+                s.getAvatarEmoji(),
+                s.getImageName()
+            ))
+            .toList() : List.of();
+
+        return new PetLibraryItemDTO(
+            item.getId(),
+            item.getPetKey(),
+            item.getName(),
+            item.getSpecies(),
+            item.getRarity(),
+            item.getTier(),
+            item.getElement(),
+            item.getAvatarEmoji(),
+            item.getTotalStages(),
+            item.getMaxLevel(),
+            item.getEggShopPrice(),
+            item.getHatchDurationHours(),
+            item.getDescription(),
+            item.getBannerGradient(),
+            stages
+        );
     }
 
     public List<StudentPetDTO> getMyPets(String userId) {
         if (userId == null || userId.isBlank()) {
             return List.of();
         }
-        return studentPetRepository.findByUserId(userId).stream()
+        List<StudentPet> pets = studentPetRepository.findByUserId(userId);
+        if (pets.isEmpty()) {
+            // Seed starter pet from pet library if available, else default sproutling
+            StudentPet starter = createStarterPet(userId);
+            StudentPet saved = studentPetRepository.save(starter);
+            return List.of(toPetDTO(saved));
+        }
+        return pets.stream()
             .map(this::toPetDTO)
             .toList();
+    }
+
+    private StudentPet createStarterPet(String userId) {
+        StudentPet pet = new StudentPet(userId, "Sproutling", "Flora Sproutling Seedling", "Common", 3);
+        pet.setElement("Flora / Earth");
+        pet.setAvatarEmoji("🌱");
+        pet.setStageName("Hatchling");
+        pet.setImageName("sproutling-stage-1.png");
+        pet.setPetLibraryId("sproutling");
+        pet.setEquipped(true);
+
+        petLibraryRepository.findByPetKey("sproutling").ifPresent(lib -> {
+            pet.setName(lib.getName());
+            pet.setSpecies(lib.getSpecies());
+            pet.setRarity(lib.getRarity());
+            pet.setTier(lib.getTier());
+            pet.setElement(lib.getElement());
+            pet.setAvatarEmoji(lib.getAvatarEmoji());
+            pet.setTotalStages(lib.getTotalStages());
+            if (lib.getStages() != null && !lib.getStages().isEmpty()) {
+                PetStageDefinition st1 = lib.getStages().get(0);
+                pet.setStageName(st1.getName());
+                pet.setImageName(st1.getImageName());
+            }
+        });
+        return pet;
     }
 
     public GrowPetResponseDTO growPet(String userId, String petId) {
@@ -253,6 +365,23 @@ public class PetHatcheryService {
                 pet.setStageLevel(newStage);
                 pet.setStageName("Evolution Form Stage " + newStage);
                 didEvolve = true;
+
+                // Update imageName and stageName from PetLibraryItem if libraryId is present
+                if (pet.getPetLibraryId() != null) {
+                    petLibraryRepository.findByPetKey(pet.getPetLibraryId()).ifPresent(libItem -> {
+                        if (libItem.getStages() != null) {
+                            libItem.getStages().stream()
+                                .filter(s -> s.getStage() == newStage)
+                                .findFirst()
+                                .ifPresent(stageDef -> {
+                                    pet.setStageName(stageDef.getName());
+                                    if (stageDef.getImageName() != null && !stageDef.getImageName().isBlank()) {
+                                        pet.setImageName(stageDef.getImageName());
+                                    }
+                                });
+                        }
+                    });
+                }
             }
 
             Map<String, Integer> stats = pet.getStats();
@@ -349,6 +478,9 @@ public class PetHatcheryService {
             egg.isMystery(),
             egg.getHatchDurationHours(),
             egg.getRemainingSeconds(),
+            egg.getImageUrl(),
+            egg.getImageName(),
+            egg.getPetLibraryId(),
             egg.getIncubatedAt(),
             egg.getCreatedAt()
         );
@@ -373,6 +505,8 @@ public class PetHatcheryService {
             pet.getStageName(),
             pet.getAvatarEmoji(),
             pet.getImageUrl(),
+            pet.getImageName(),
+            pet.getPetLibraryId(),
             pet.isEquipped(),
             pet.getStats(),
             pet.getCreatedAt(),
