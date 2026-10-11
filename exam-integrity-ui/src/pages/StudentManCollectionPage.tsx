@@ -5,8 +5,6 @@ import {
   type ExamIntegrityStudentPortalSection as PortalSection,
   type IncubatingEgg,
   type StudentPet,
-  DEFAULT_INCUBATING_EGGS,
-  DEFAULT_STUDENT_PETS,
   getExportedPetLibrary,
 } from '@hvantran/ui-component-library';
 import { useQueryClient } from '@tanstack/react-query';
@@ -50,18 +48,18 @@ const StudentManCollectionPage: React.FC = () => {
   const [incubatingEggs, setIncubatingEggs] = useState<IncubatingEgg[]>(() => {
     try {
       const saved = getScopedItem(EGGS_STORAGE_KEY, currentUserId);
-      return saved ? JSON.parse(saved) : DEFAULT_INCUBATING_EGGS;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return DEFAULT_INCUBATING_EGGS;
+      return [];
     }
   });
 
   const [pets, setPets] = useState<StudentPet[]>(() => {
     try {
       const saved = getScopedItem(PETS_STORAGE_KEY, currentUserId);
-      return saved ? JSON.parse(saved) : DEFAULT_STUDENT_PETS;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return DEFAULT_STUDENT_PETS;
+      return [];
     }
   });
 
@@ -70,15 +68,15 @@ const StudentManCollectionPage: React.FC = () => {
       loadedUserRef.current = currentUserId;
       try {
         const savedEggs = getScopedItem(EGGS_STORAGE_KEY, currentUserId);
-        setIncubatingEggs(savedEggs ? JSON.parse(savedEggs) : DEFAULT_INCUBATING_EGGS);
+        setIncubatingEggs(savedEggs ? JSON.parse(savedEggs) : []);
       } catch {
-        setIncubatingEggs(DEFAULT_INCUBATING_EGGS);
+        setIncubatingEggs([]);
       }
       try {
         const savedPets = getScopedItem(PETS_STORAGE_KEY, currentUserId);
-        setPets(savedPets ? JSON.parse(savedPets) : DEFAULT_STUDENT_PETS);
+        setPets(savedPets ? JSON.parse(savedPets) : []);
       } catch {
-        setPets(DEFAULT_STUDENT_PETS);
+        setPets([]);
       }
     }
   }, [currentUserId]);

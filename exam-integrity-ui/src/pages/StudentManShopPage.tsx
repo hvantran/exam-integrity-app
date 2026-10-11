@@ -5,7 +5,6 @@ import {
   type ExamIntegrityStudentPortalSection as PortalSection,
   type EggShopItem,
   type IncubatingEgg,
-  DEFAULT_INCUBATING_EGGS,
 } from '@hvantran/ui-component-library';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
@@ -80,7 +79,7 @@ const StudentManShopPage: React.FC = () => {
     const saveEggToStorage = (eggToSave: IncubatingEgg) => {
       try {
         const saved = getScopedItem(EGGS_STORAGE_KEY, currentUserId);
-        const currentEggs: IncubatingEgg[] = saved ? JSON.parse(saved) : DEFAULT_INCUBATING_EGGS;
+        const currentEggs: IncubatingEgg[] = saved ? JSON.parse(saved) : [];
         const updated = [eggToSave, ...currentEggs];
         setScopedItem(EGGS_STORAGE_KEY, JSON.stringify(updated), currentUserId);
       } catch {
