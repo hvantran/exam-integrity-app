@@ -216,10 +216,23 @@ const ExamPage: React.FC = () => {
 
   // Map string[] options from API to QuestionOption[] and strip prefix
   const mappedOptions: QuestionOption[] | undefined = question?.options?.map(
-    (text: string, i: number) => ({
-      key: String.fromCharCode(65 + i), // A, B, C, D...
-      text: stripOptionPrefix(text),
-    }),
+    (raw: string, i: number) => {
+      if (!raw) return { key: String.fromCharCode(65 + i), text: '' };
+      const imgIdx = raw.indexOf('data:image/');
+      if (imgIdx === -1) {
+        return {
+          key: String.fromCharCode(65 + i), // A, B, C, D...
+          text: stripOptionPrefix(raw),
+        };
+      }
+      const textPart = raw.substring(0, imgIdx).trim();
+      const imagePart = raw.substring(imgIdx).trim();
+      return {
+        key: String.fromCharCode(65 + i),
+        text: stripOptionPrefix(textPart),
+        imageBase64: imagePart || undefined,
+      };
+    },
   );
 
   // Compute flagged question numbers

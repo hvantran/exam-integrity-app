@@ -15,7 +15,7 @@ import {
   type QuestionOption,
   type ExamIntegrityDashboardSection as DashboardSection,
 } from '@hvantran/ui-component-library';
-import { Search, Pencil, PlusCircle, X, Star, History, Trash2, Eye } from 'lucide-react';
+import { Search, Pencil, PlusCircle, X, Star, History, Trash2, Eye, Image as ImageIcon } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { questionBankService } from '../services/questionBankService';
 import type { DraftQuestionDTO, QuestionPart, QuestionType } from '../types/exam.types';
@@ -60,25 +60,55 @@ interface EditFormState {
   type: QuestionType;
   difficulty: string;
   options: string[];
+  optionImages: (string | undefined)[];
   correctAnswer: string;
   points: number;
   tags: string;
   imageData?: string;
 }
 
-const toEditForm = (q: DraftQuestionDTO): EditFormState => ({
-  content: q.content,
-  type: q.type ?? 'MCQ',
-  difficulty: 'Medium',
-  options:
-    q.options && q.options.length > 0
-      ? [...q.options.map(stripOptionPrefix), '', '', '', ''].slice(0, 4)
-      : ['', '', '', ''],
-  correctAnswer: resolveMcqCorrectAnswerLabel(q.correctAnswer, q.options ?? []),
-  points: q.points ?? DEFAULT_POINTS_BY_TYPE[q.type ?? 'MCQ'],
-  tags: q.rubric?.keywords?.join(', ') ?? '',
-  imageData: q.imageData ?? '',
-});
+export const extractOptionParts = (raw: string): { text: string; imageBase64?: string } => {
+  if (!raw) return { text: '' };
+  const imgIdx = raw.indexOf('data:image/');
+  if (imgIdx === -1) {
+    return { text: stripOptionPrefix(raw) };
+  }
+  const textPart = raw.substring(0, imgIdx).trim();
+  const imagePart = raw.substring(imgIdx).trim();
+  return {
+    text: stripOptionPrefix(textPart),
+    imageBase64: imagePart || undefined,
+  };
+};
+
+export const serializeOption = (text: string, imageBase64?: string): string => {
+  const cleanText = text.trim();
+  if (cleanText && imageBase64) {
+    return `${cleanText} ${imageBase64}`;
+  }
+  if (imageBase64) {
+    return imageBase64;
+  }
+  return cleanText;
+};
+
+const toEditForm = (q: DraftQuestionDTO): EditFormState => {
+  const parsed = (q.options && q.options.length > 0 ? q.options : ['', '', '', '']).map(extractOptionParts);
+  const options = [...parsed.map((p) => p.text), '', '', '', ''].slice(0, 4);
+  const optionImages = [...parsed.map((p) => p.imageBase64), undefined, undefined, undefined, undefined].slice(0, 4);
+
+  return {
+    content: q.content,
+    type: q.type ?? 'MCQ',
+    difficulty: 'Medium',
+    options,
+    optionImages,
+    correctAnswer: resolveMcqCorrectAnswerLabel(q.correctAnswer, q.options ?? []),
+    points: q.points ?? DEFAULT_POINTS_BY_TYPE[q.type ?? 'MCQ'],
+    tags: q.rubric?.keywords?.join(', ') ?? '',
+    imageData: q.imageData ?? '',
+  };
+};
 
 const OPTION_LABELS = ['A', 'B', 'C', 'D'];
 
@@ -152,18 +182,28 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
       return { ...prev, options: opts };
     });
 
+  const setOptionImage = (idx: number, imageBase64?: string) =>
+    setForm((prev) => {
+      const optImgs = [...prev.optionImages];
+      optImgs[idx] = imageBase64;
+      return { ...prev, optionImages: optImgs };
+    });
+
   const handleSave = () => {
     const tagList = form.tags
       .split(',')
       .map((t) => t.trim())
       .filter(Boolean);
     const normalizedCorrectAnswer = resolveMcqCorrectAnswerLabel(form.correctAnswer, form.options);
+    const serializedOptions = form.options.map((optText, idx) =>
+      serializeOption(optText, form.optionImages[idx]),
+    );
 
     onSave(question.id, {
       content: form.content,
       type: form.type,
       points: form.points,
-      options: form.type === 'MCQ' ? form.options : undefined,
+      options: form.type === 'MCQ' ? serializedOptions : undefined,
       correctAnswer: form.type === 'MCQ' ? normalizedCorrectAnswer : undefined,
       rubric: tagList.length ? { keywords: tagList } : undefined,
       imageData: form.imageData || undefined,
@@ -197,30 +237,15 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
 
       {/* Answer options (MCQ only) */}
       {form.type === 'MCQ' && (
-        <div className="mb-2">
-          <p className="text-xs font-semibold uppercase tracking-wide mb-1 text-on-surfaceVariant">
-            Answer Options
-          </p>
-          {OPTION_LABELS.map((label, idx) => (
-            <label key={label} className="flex items-center gap-1 mb-1 cursor-pointer">
-              <input
-                type="radio"
-                name={`correctAnswer-${question.id}`}
-                value={label}
-                checked={form.correctAnswer === label}
-                onChange={(e) => setField('correctAnswer', e.target.value)}
-                className="accent-primary-600 w-4 h-4 shrink-0"
-              />
-              <span className="text-sm font-semibold min-w-[20px] text-on-surface">{label}</span>
-              <input
-                className={`${inputCls} flex-1`}
-                placeholder={`Option ${label}`}
-                value={form.options[idx] ?? ''}
-                onChange={(e) => setOption(idx, e.target.value)}
-              />
-            </label>
-          ))}
-        </div>
+        <McqOptionsForm
+          options={form.options}
+          optionImages={form.optionImages}
+          correctAnswer={form.correctAnswer}
+          idPrefix={`edit-${question.id}`}
+          onOptionChange={setOption}
+          onOptionImageChange={setOptionImage}
+          onCorrectAnswerChange={(val) => setField('correctAnswer', val)}
+        />
       )}
 
       {/* Points + Tags row */}
@@ -359,44 +384,105 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, index, onEdit }) 
 /* ------------------------------------------------------------------ */
 interface McqOptionsProps {
   options: string[];
+  optionImages?: (string | undefined)[];
   correctAnswer: string;
   idPrefix: string;
   onOptionChange: (idx: number, val: string) => void;
+  onOptionImageChange?: (idx: number, imageBase64?: string) => void;
   onCorrectAnswerChange: (val: string) => void;
 }
 
 const McqOptionsForm: React.FC<McqOptionsProps> = ({
   options,
+  optionImages,
   correctAnswer,
   idPrefix,
   onOptionChange,
+  onOptionImageChange,
   onCorrectAnswerChange,
-}) => (
-  <div className="mb-4">
-    <p className="text-xs font-semibold uppercase tracking-wide mb-2 text-on-surfaceVariant">
-      Answer Options
-    </p>
-    {OPTION_LABELS.map((label, idx) => (
-      <label key={label} className="flex items-center gap-2 mb-2 cursor-pointer">
-        <input
-          type="radio"
-          name={`${idPrefix}-correctAnswer`}
-          value={label}
-          checked={correctAnswer === label}
-          onChange={(e) => onCorrectAnswerChange(e.target.value)}
-          className="accent-primary-600 w-4 h-4 shrink-0"
-        />
-        <span className="text-sm font-semibold min-w-[20px] text-on-surface">{label}</span>
-        <input
-          className={`${inputCls} flex-1`}
-          placeholder={`Option ${label}`}
-          value={options[idx] ?? ''}
-          onChange={(e) => onOptionChange(idx, e.target.value)}
-        />
-      </label>
-    ))}
-  </div>
-);
+}) => {
+  const handleFileChange = (idx: number, file?: File) => {
+    if (!file) return;
+    if (file.size > 1024 * 1024) {
+      toast.error('Image size must be less than 1MB');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      onOptionImageChange?.(idx, result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  return (
+    <div className="mb-4">
+      <p className="text-xs font-semibold uppercase tracking-wide mb-2 text-on-surfaceVariant">
+        Answer Options
+      </p>
+      {OPTION_LABELS.map((label, idx) => {
+        const optionImage = optionImages?.[idx];
+        return (
+          <div key={label} className="mb-2 p-2 rounded-lg border border-gray-100 bg-gray-50/50">
+            <div className="flex items-center gap-2">
+              <input
+                type="radio"
+                name={`${idPrefix}-correctAnswer`}
+                value={label}
+                checked={correctAnswer === label}
+                onChange={(e) => onCorrectAnswerChange(e.target.value)}
+                className="accent-primary-600 w-4 h-4 shrink-0 cursor-pointer"
+              />
+              <span className="text-sm font-semibold min-w-[20px] text-on-surface">{label}</span>
+              <input
+                className={`${inputCls} flex-1`}
+                placeholder={`Option ${label}`}
+                value={options[idx] ?? ''}
+                onChange={(e) => onOptionChange(idx, e.target.value)}
+              />
+              {/* Option Image Upload Button */}
+              <label
+                title="Upload option image"
+                className="p-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 hover:text-primary transition shrink-0 flex items-center justify-center text-gray-600"
+              >
+                <ImageIcon size={16} />
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    handleFileChange(idx, e.target.files?.[0]);
+                    e.target.value = '';
+                  }}
+                />
+              </label>
+            </div>
+            {optionImage && (
+              <div className="mt-2 ml-7 flex items-center gap-2">
+                <div className="relative group rounded-md border border-gray-200 overflow-hidden bg-white p-1">
+                  <img
+                    src={optionImage}
+                    alt={`Option ${label}`}
+                    className="max-h-20 max-w-[160px] object-contain rounded"
+                  />
+                  <button
+                    type="button"
+                    title="Remove image"
+                    onClick={() => onOptionImageChange?.(idx, undefined)}
+                    className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full shadow hover:bg-red-700 transition"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+                <span className="text-xs text-gray-500">Image attached</span>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 /* ------------------------------------------------------------------ */
 /* Page                                                                 */
@@ -420,6 +506,7 @@ const QuestionBankPage: React.FC = () => {
     type: 'MCQ',
     difficulty: 'Medium',
     options: ['', '', '', ''],
+    optionImages: [undefined, undefined, undefined, undefined],
     correctAnswer: 'A',
     points: DEFAULT_POINTS_BY_TYPE.MCQ,
     tags: '',
@@ -511,10 +598,14 @@ const QuestionBankPage: React.FC = () => {
   };
 
   const mapPreviewOptions = (options?: string[]): QuestionOption[] | undefined =>
-    options?.map((text, i) => ({
-      key: String.fromCharCode(65 + i),
-      text: stripOptionPrefix(text),
-    }));
+    options?.map((raw, i) => {
+      const parsed = extractOptionParts(raw);
+      return {
+        key: String.fromCharCode(65 + i),
+        text: parsed.text,
+        imageBase64: parsed.imageBase64,
+      };
+    });
 
   const { mutate: updateQuestion, isPending: isSaving } = useMutation({
     mutationFn: ({ id, cmd }: { id: string; cmd: DraftQuestionEditCommand }) =>
@@ -537,6 +628,7 @@ const QuestionBankPage: React.FC = () => {
         type: 'MCQ',
         difficulty: 'Medium',
         options: ['', '', '', ''],
+        optionImages: [undefined, undefined, undefined, undefined],
         correctAnswer: 'A',
         points: DEFAULT_POINTS_BY_TYPE.MCQ,
         tags: '',
@@ -564,12 +656,15 @@ const QuestionBankPage: React.FC = () => {
       .map((t) => t.trim())
       .filter(Boolean);
     const normalizedCorrectAnswer = resolveMcqCorrectAnswerLabel(addForm.correctAnswer, addForm.options);
+    const serializedOptions = addForm.options.map((optText, idx) =>
+      serializeOption(optText, addForm.optionImages[idx]),
+    );
 
     addQuestion({
       content: addForm.content,
       type: addForm.type,
       points: addForm.points,
-      options: addForm.type === 'MCQ' ? addForm.options : undefined,
+      options: addForm.type === 'MCQ' ? serializedOptions : undefined,
       correctAnswer: addForm.type === 'MCQ' ? normalizedCorrectAnswer : undefined,
       rubric: tagList.length ? { keywords: tagList } : undefined,
       imageData: addForm.imageData || undefined,
@@ -804,6 +899,7 @@ const QuestionBankPage: React.FC = () => {
         {addForm.type === 'MCQ' && (
           <McqOptionsForm
             options={addForm.options}
+            optionImages={addForm.optionImages}
             correctAnswer={addForm.correctAnswer}
             idPrefix="add"
             onOptionChange={(idx, val) =>
@@ -811,6 +907,13 @@ const QuestionBankPage: React.FC = () => {
                 const opts = [...f.options];
                 opts[idx] = val;
                 return { ...f, options: opts };
+              })
+            }
+            onOptionImageChange={(idx, imageBase64) =>
+              setAddForm((f) => {
+                const optImgs = [...f.optionImages];
+                optImgs[idx] = imageBase64;
+                return { ...f, optionImages: optImgs };
               })
             }
             onCorrectAnswerChange={(val) => setAddForm((f) => ({ ...f, correctAnswer: val }))}
