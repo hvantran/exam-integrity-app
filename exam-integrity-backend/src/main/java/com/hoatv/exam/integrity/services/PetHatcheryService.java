@@ -46,14 +46,6 @@ public class PetHatcheryService {
 
     private record RollTier(double maxRoll, String rarity, int totalStages, List<String> keys) {}
 
-    private static final List<RollTier> ROLL_TIERS = List.of(
-        new RollTier(50.0, RARITY_COMMON, 3, List.of(PET_SPROUTLING, "pipflick", "embersqueak", "zephyrpuff")),
-        new RollTier(78.0, RARITY_RARE, 4, List.of("frostpaw", "magmafang", "voltwing", "thundercat")),
-        new RollTier(92.0, RARITY_EPIC, 5, List.of("phoenix", "chronochimera", "shadowpanther", "stormstag")),
-        new RollTier(98.0, RARITY_LEGENDARY, 6, List.of("astraldragon", "astralleviathan", "solarwyvern")),
-        new RollTier(100.0, RARITY_MYTHIC, 8, List.of("voiddragon", "chronodraco", "aegispaladin"))
-    );
-
     private final StudentItemRepository studentItemRepository;
     private final PetLibraryRepository petLibraryRepository;
     private final UserProfileService userProfileService;
@@ -71,17 +63,39 @@ public class PetHatcheryService {
         this.settingService = settingService;
     }
 
+    public List<RollTier> getRollTiers() {
+        int common = settingService.getInt(SettingService.KEY_EGG_DROP_RATE_COMMON, 50);
+        int rare = settingService.getInt(SettingService.KEY_EGG_DROP_RATE_RARE, 28);
+        int epic = settingService.getInt(SettingService.KEY_EGG_DROP_RATE_EPIC, 14);
+        int legendary = settingService.getInt(SettingService.KEY_EGG_DROP_RATE_LEGENDARY, 6);
+        int mythic = settingService.getInt(SettingService.KEY_EGG_DROP_RATE_MYTHIC, 2);
+
+        double total = Math.max(1, common + rare + epic + legendary + mythic);
+        double commonMax = (common / total) * 100.0;
+        double rareMax = commonMax + (rare / total) * 100.0;
+        double epicMax = rareMax + (epic / total) * 100.0;
+        double legendaryMax = epicMax + (legendary / total) * 100.0;
+
+        return List.of(
+            new RollTier(commonMax, RARITY_COMMON, 3, List.of(PET_SPROUTLING, "pipflick", "embersqueak", "zephyrpuff")),
+            new RollTier(rareMax, RARITY_RARE, 4, List.of("frostpaw", "magmafang", "voltwing", "thundercat")),
+            new RollTier(epicMax, RARITY_EPIC, 5, List.of("phoenix", "chronochimera", "shadowpanther", "stormstag")),
+            new RollTier(legendaryMax, RARITY_LEGENDARY, 6, List.of("astraldragon", "astralleviathan", "solarwyvern")),
+            new RollTier(100.0, RARITY_MYTHIC, 8, List.of("voiddragon", "chronodraco", "aegispaladin"))
+        );
+    }
+
     public EggShopItemDTO getFeaturedShopEgg() {
         int price = settingService.getInt(SettingService.KEY_EGG_SHOP_PRICE_STARS, EGG_SHOP_PRICE);
         int hatchHours = settingService.getInt(SettingService.KEY_EGG_HATCH_DURATION_HOURS, HATCH_DURATION_HOURS);
         long hatchSeconds = hatchHours * 3600L;
 
         Map<String, Integer> dropRates = new LinkedHashMap<>();
-        dropRates.put(RARITY_COMMON, 50);
-        dropRates.put(RARITY_RARE, 28);
-        dropRates.put(RARITY_EPIC, 14);
-        dropRates.put(RARITY_LEGENDARY, 6);
-        dropRates.put(RARITY_MYTHIC, 2);
+        dropRates.put(RARITY_COMMON, settingService.getInt(SettingService.KEY_EGG_DROP_RATE_COMMON, 50));
+        dropRates.put(RARITY_RARE, settingService.getInt(SettingService.KEY_EGG_DROP_RATE_RARE, 28));
+        dropRates.put(RARITY_EPIC, settingService.getInt(SettingService.KEY_EGG_DROP_RATE_EPIC, 14));
+        dropRates.put(RARITY_LEGENDARY, settingService.getInt(SettingService.KEY_EGG_DROP_RATE_LEGENDARY, 6));
+        dropRates.put(RARITY_MYTHIC, settingService.getInt(SettingService.KEY_EGG_DROP_RATE_MYTHIC, 2));
 
         return new EggShopItemDTO(
             "mystery-egg-ancient",
@@ -189,8 +203,9 @@ public class PetHatcheryService {
     public StudentItem rollMysteryPet(String userId, Double fixedRoll) {
         double roll = fixedRoll != null ? fixedRoll : (RANDOM.nextDouble() * 100.0);
 
-        RollTier selectedTier = ROLL_TIERS.get(ROLL_TIERS.size() - 1);
-        for (RollTier tier : ROLL_TIERS) {
+        List<RollTier> tiers = getRollTiers();
+        RollTier selectedTier = tiers.get(tiers.size() - 1);
+        for (RollTier tier : tiers) {
             if (roll < tier.maxRoll()) {
                 selectedTier = tier;
                 break;

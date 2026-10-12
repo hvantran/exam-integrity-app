@@ -19,6 +19,11 @@ public class SettingService {
 
     public static final String KEY_EGG_SHOP_PRICE_STARS = "egg_shop_price_stars";
     public static final String KEY_EGG_HATCH_DURATION_HOURS = "egg_hatch_duration_hours";
+    public static final String KEY_EGG_DROP_RATE_COMMON = "egg_drop_rate_common";
+    public static final String KEY_EGG_DROP_RATE_RARE = "egg_drop_rate_rare";
+    public static final String KEY_EGG_DROP_RATE_EPIC = "egg_drop_rate_epic";
+    public static final String KEY_EGG_DROP_RATE_LEGENDARY = "egg_drop_rate_legendary";
+    public static final String KEY_EGG_DROP_RATE_MYTHIC = "egg_drop_rate_mythic";
     public static final String KEY_STRIKE_CRACK_STAR_COST = "strike_crack_star_cost";
     public static final String KEY_STRIKE_CRACK_PROGRESS_BOOST = "strike_crack_progress_boost";
     public static final String KEY_STRIKE_CRACK_TIME_REDUCED_SECONDS = "strike_crack_time_reduced_seconds";
@@ -36,6 +41,11 @@ public class SettingService {
     static {
         DEFAULTS.put(KEY_EGG_SHOP_PRICE_STARS, 250);
         DEFAULTS.put(KEY_EGG_HATCH_DURATION_HOURS, 8);
+        DEFAULTS.put(KEY_EGG_DROP_RATE_COMMON, 50);
+        DEFAULTS.put(KEY_EGG_DROP_RATE_RARE, 28);
+        DEFAULTS.put(KEY_EGG_DROP_RATE_EPIC, 14);
+        DEFAULTS.put(KEY_EGG_DROP_RATE_LEGENDARY, 6);
+        DEFAULTS.put(KEY_EGG_DROP_RATE_MYTHIC, 2);
         DEFAULTS.put(KEY_STRIKE_CRACK_STAR_COST, 25);
         DEFAULTS.put(KEY_STRIKE_CRACK_PROGRESS_BOOST, 0.25);
         DEFAULTS.put(KEY_STRIKE_CRACK_TIME_REDUCED_SECONDS, 7200L);

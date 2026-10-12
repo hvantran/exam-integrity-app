@@ -35,6 +35,11 @@ class SettingServiceTest {
         assertThat(settings)
             .containsEntry(SettingService.KEY_EGG_SHOP_PRICE_STARS, 250)
             .containsEntry(SettingService.KEY_EGG_HATCH_DURATION_HOURS, 8)
+            .containsEntry(SettingService.KEY_EGG_DROP_RATE_COMMON, 50)
+            .containsEntry(SettingService.KEY_EGG_DROP_RATE_RARE, 28)
+            .containsEntry(SettingService.KEY_EGG_DROP_RATE_EPIC, 14)
+            .containsEntry(SettingService.KEY_EGG_DROP_RATE_LEGENDARY, 6)
+            .containsEntry(SettingService.KEY_EGG_DROP_RATE_MYTHIC, 2)
             .containsEntry(SettingService.KEY_PET_GROW_STAR_COST, 25);
     }
 

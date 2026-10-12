@@ -3,6 +3,11 @@ import apiClient from './apiClient';
 export interface SystemSettings {
   egg_shop_price_stars?: number;
   egg_hatch_duration_hours?: number;
+  egg_drop_rate_common?: number;
+  egg_drop_rate_rare?: number;
+  egg_drop_rate_epic?: number;
+  egg_drop_rate_legendary?: number;
+  egg_drop_rate_mythic?: number;
   strike_crack_star_cost?: number;
   strike_crack_progress_boost?: number;
   strike_crack_time_reduced_seconds?: number;
@@ -20,6 +25,11 @@ export interface SystemSettings {
 export const DEFAULT_SETTINGS: SystemSettings = {
   egg_shop_price_stars: 250,
   egg_hatch_duration_hours: 8,
+  egg_drop_rate_common: 50,
+  egg_drop_rate_rare: 28,
+  egg_drop_rate_epic: 14,
+  egg_drop_rate_legendary: 6,
+  egg_drop_rate_mythic: 2,
   strike_crack_star_cost: 25,
   strike_crack_progress_boost: 0.25,
   strike_crack_time_reduced_seconds: 7200,

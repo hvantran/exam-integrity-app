@@ -63,6 +63,9 @@ describe('TeacherManSettingsPage', () => {
 
     expect(screen.getByText('System & Gameplay Settings')).toBeInTheDocument();
     expect(screen.getByText('Egg Shop Price (Stars)')).toBeInTheDocument();
+    expect(screen.getByText('Egg Rarity Drop Rates (% Chance)')).toBeInTheDocument();
+    expect(screen.getByText('Common (%)')).toBeInTheDocument();
+    expect(screen.getByText('Mythic (%)')).toBeInTheDocument();
     expect(screen.getByText('Pet Growth Cost (Stars)')).toBeInTheDocument();
   });
 

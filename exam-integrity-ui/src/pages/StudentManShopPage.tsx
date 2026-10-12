@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ExamIntegrityStudentShopTemplate,
   type ExamIntegrityStudentPortalSection as PortalSection,
   type EggShopItem,
+  createMysteryEggItem,
 } from '@hvantran/ui-component-library';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
@@ -38,6 +39,24 @@ const StudentManShopPage: React.FC = () => {
   const totalStars = profile?.stats?.totalStars ?? 0;
   const [dockMode, setDockMode] = useNavDockMode();
 
+  const eggPrice = getSettingNumber('egg_shop_price_stars', 250);
+  const hatchDurationHours = getSettingNumber('egg_hatch_duration_hours', 8);
+  const dropRates = useMemo(() => ({
+    Common: getSettingNumber('egg_drop_rate_common', 50),
+    Rare: getSettingNumber('egg_drop_rate_rare', 28),
+    Epic: getSettingNumber('egg_drop_rate_epic', 14),
+    Legendary: getSettingNumber('egg_drop_rate_legendary', 6),
+    Mythic: getSettingNumber('egg_drop_rate_mythic', 2),
+  }), [getSettingNumber]);
+
+  const shopItems: EggShopItem[] = useMemo(() => [
+    createMysteryEggItem({
+      price: eggPrice,
+      hatchDurationHours,
+      dropRates,
+    }),
+  ], [eggPrice, hatchDurationHours, dropRates]);
+
   const handleLogout = () => {
     logout();
   };
@@ -45,7 +64,7 @@ const StudentManShopPage: React.FC = () => {
   const handleNavigate = (section: PortalSection) => navigate(PORTAL_ROUTES[section]);
 
   const handlePurchaseEgg = (item: EggShopItem) => {
-    const eggCost = item.price || getSettingNumber('egg_shop_price_stars', 250);
+    const eggCost = item.price ?? eggPrice;
 
     // Optimistically deduct stars
     queryClient?.setQueryData<UserProfile>(['user-profile', 'me'], (old) => {
@@ -84,6 +103,8 @@ const StudentManShopPage: React.FC = () => {
     <ExamIntegrityStudentShopTemplate
       studentName={displayName || 'Student'}
       starCount={totalStars}
+      items={shopItems}
+      dropRates={dropRates}
       onPurchaseEgg={handlePurchaseEgg}
       onNavigate={handleNavigate}
       onLogout={handleLogout}
