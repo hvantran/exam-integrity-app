@@ -397,9 +397,13 @@ public class PetHatcheryService {
         StudentItem pet = studentItemRepository.findByIdAndUserIdAndCategory(petId, userId, StudentItem.CATEGORY_PET)
             .orElseThrow(() -> new IllegalArgumentException("Pet not found: " + petId));
 
+        int maxLevel = settingService.getInt(SettingService.KEY_PET_MAX_LEVEL, 10);
+        if (pet.getLevel() >= maxLevel) {
+            throw new IllegalStateException("Pet has already reached maximum level: " + maxLevel);
+        }
+
         int growthCost = settingService.getInt(SettingService.KEY_PET_GROW_STAR_COST, 25);
         int gainedExp = settingService.getInt(SettingService.KEY_PET_GROW_EXP_GAIN, 60);
-        int maxLevel = settingService.getInt(SettingService.KEY_PET_MAX_LEVEL, 10);
         double expMultiplier = settingService.getDouble(SettingService.KEY_PET_EXP_GROWTH_MULTIPLIER, 1.35);
 
         UserProfile updatedProfile = userProfileService.spendStars(userId, growthCost);
