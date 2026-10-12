@@ -62,8 +62,6 @@ public class StudentItem {
     @Builder.Default
     private boolean isMystery = true;
     @Builder.Default
-    private long remainingSeconds = 28800L;
-    @Builder.Default
     private Instant incubatedAt = Instant.now();
 
     // Pet-specific attributes (category = PET)

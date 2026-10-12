@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -128,7 +129,6 @@ public class PetHatcheryService {
             .tier(TIER_DRAGON)
             .rarity(RARITY_COMMON)
             .isMystery(true)
-            .remainingSeconds(hatchSeconds)
             .crackProgress(0.0)
             .isEquipped(false)
             .hatchedPetName("??? Mystery Companion")
@@ -170,7 +170,8 @@ public class PetHatcheryService {
 
         double newProgress = Math.min(1.0, egg.getCrackProgress() + progressBoost);
         egg.setCrackProgress(newProgress);
-        egg.setRemainingSeconds(Math.max(0L, egg.getRemainingSeconds() - timeReduced));
+        Instant currentIncubatedAt = egg.getIncubatedAt() != null ? egg.getIncubatedAt() : Instant.now();
+        egg.setIncubatedAt(currentIncubatedAt.minusSeconds(timeReduced));
         egg.setUpdatedAt(Instant.now());
 
         StudentItem saved = studentItemRepository.save(egg);
@@ -184,7 +185,8 @@ public class PetHatcheryService {
         StudentItem egg = studentItemRepository.findByIdAndUserIdAndCategory(eggId, userId, StudentItem.CATEGORY_EGG_SHOP)
             .orElseThrow(() -> new IllegalArgumentException("Incubating egg not found: " + eggId));
 
-        if (egg.getCrackProgress() < 1.0 && egg.getRemainingSeconds() > 0) {
+        long remainingSeconds = calculateRemainingHatchingSeconds(egg);
+        if (egg.getCrackProgress() < 1.0 && remainingSeconds > 0) {
             throw new IllegalStateException("Egg is not ready to hatch yet. Progress: " + Math.round(egg.getCrackProgress() * 100) + "%");
         }
 
@@ -537,9 +539,24 @@ public class PetHatcheryService {
         return toEggDTO(target);
     }
 
+    public long calculateRemainingHatchingSeconds(StudentItem egg) {
+        if (egg == null) {
+            return 0L;
+        }
+        int hatchHours = settingService.getInt(SettingService.KEY_EGG_HATCH_DURATION_HOURS, HATCH_DURATION_HOURS);
+        long hatchSeconds = hatchHours * 3600L;
+        Instant incubatedAt = egg.getIncubatedAt() != null ? egg.getIncubatedAt() : egg.getCreatedAt();
+        if (incubatedAt == null) {
+            return hatchSeconds;
+        }
+        long elapsedSeconds = Math.max(0L, Duration.between(incubatedAt, Instant.now()).getSeconds());
+        return Math.max(0L, hatchSeconds - elapsedSeconds);
+    }
+
     public IncubatingEggDTO toEggDTO(StudentItem egg) {
         int equipCost = settingService.getInt(SettingService.KEY_EQUIP_EGG_STAR_COST, 25);
         int hatchHours = settingService.getInt(SettingService.KEY_EGG_HATCH_DURATION_HOURS, HATCH_DURATION_HOURS);
+        long remainingSeconds = calculateRemainingHatchingSeconds(egg);
         return new IncubatingEggDTO(
             egg.getId(),
             egg.getUserId(),
@@ -553,7 +570,7 @@ public class PetHatcheryService {
             equipCost,
             egg.isMystery(),
             hatchHours,
-            egg.getRemainingSeconds(),
+            remainingSeconds,
             egg.getImageUrl(),
             egg.getImageName(),
             egg.getPetLibraryId(),

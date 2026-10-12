@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -117,7 +118,7 @@ class PetHatcheryServiceTest {
             .name("Ancient Mysterious Egg")
             .tier("dragon")
             .crackProgress(0.1)
-            .remainingSeconds(25920L)
+            .incubatedAt(Instant.now().minusSeconds(2880L))
             .build();
 
         when(studentItemRepository.findByIdAndUserIdAndCategory("egg-1", "student1", StudentItem.CATEGORY_EGG_SHOP))
@@ -128,7 +129,7 @@ class PetHatcheryServiceTest {
         IncubatingEggDTO result = petHatcheryService.strikeEgg("student1", "egg-1");
 
         assertThat(result.crackProgress()).isEqualTo(0.35);
-        assertThat(result.remainingSeconds()).isEqualTo(18720L);
+        assertThat(result.remainingSeconds()).isBetween(18718L, 18720L);
         verify(userProfileService).spendStars("student1", 25);
     }
 
@@ -141,7 +142,7 @@ class PetHatcheryServiceTest {
             .name("Ancient Mysterious Egg")
             .tier("dragon")
             .crackProgress(0.5)
-            .remainingSeconds(10000L)
+            .incubatedAt(Instant.now())
             .build();
 
         when(studentItemRepository.findByIdAndUserIdAndCategory("egg-1", "student1", StudentItem.CATEGORY_EGG_SHOP))
@@ -161,7 +162,6 @@ class PetHatcheryServiceTest {
             .name("Ancient Mysterious Egg")
             .tier("dragon")
             .crackProgress(1.0)
-            .remainingSeconds(0L)
             .build();
 
         when(studentItemRepository.findByIdAndUserIdAndCategory("egg-1", "student1", StudentItem.CATEGORY_EGG_SHOP))
