@@ -110,6 +110,11 @@ const StudentManCollectionPage: React.FC = () => {
   };
 
   const handleGrowPet = (petId: string, starsSpent: number) => {
+    const targetPet = pets.find((p) => p.id === petId);
+    if (targetPet && targetPet.level >= (targetPet.maxLevel || 10)) {
+      return;
+    }
+
     // Optimistically deduct stars
     queryClient?.setQueryData<UserProfile>(['user-profile', 'me'], (old) => {
       if (!old) return old;
