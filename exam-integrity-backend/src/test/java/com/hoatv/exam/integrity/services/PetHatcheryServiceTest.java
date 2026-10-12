@@ -60,6 +60,11 @@ class PetHatcheryServiceTest {
         org.mockito.Mockito.lenient().when(settingService.getInt(org.mockito.ArgumentMatchers.eq(SettingService.KEY_PET_GROW_EXP_GAIN), org.mockito.ArgumentMatchers.anyInt())).thenReturn(60);
         org.mockito.Mockito.lenient().when(settingService.getInt(org.mockito.ArgumentMatchers.eq(SettingService.KEY_PET_MAX_LEVEL), org.mockito.ArgumentMatchers.anyInt())).thenReturn(10);
         org.mockito.Mockito.lenient().when(settingService.getDouble(org.mockito.ArgumentMatchers.eq(SettingService.KEY_PET_EXP_GROWTH_MULTIPLIER), org.mockito.ArgumentMatchers.anyDouble())).thenReturn(1.35);
+        org.mockito.Mockito.lenient().when(settingService.getInt(org.mockito.ArgumentMatchers.eq(SettingService.KEY_EGG_DROP_RATE_COMMON), org.mockito.ArgumentMatchers.anyInt())).thenReturn(50);
+        org.mockito.Mockito.lenient().when(settingService.getInt(org.mockito.ArgumentMatchers.eq(SettingService.KEY_EGG_DROP_RATE_RARE), org.mockito.ArgumentMatchers.anyInt())).thenReturn(28);
+        org.mockito.Mockito.lenient().when(settingService.getInt(org.mockito.ArgumentMatchers.eq(SettingService.KEY_EGG_DROP_RATE_EPIC), org.mockito.ArgumentMatchers.anyInt())).thenReturn(14);
+        org.mockito.Mockito.lenient().when(settingService.getInt(org.mockito.ArgumentMatchers.eq(SettingService.KEY_EGG_DROP_RATE_LEGENDARY), org.mockito.ArgumentMatchers.anyInt())).thenReturn(6);
+        org.mockito.Mockito.lenient().when(settingService.getInt(org.mockito.ArgumentMatchers.eq(SettingService.KEY_EGG_DROP_RATE_MYTHIC), org.mockito.ArgumentMatchers.anyInt())).thenReturn(2);
     }
 
     @Test
@@ -207,6 +212,20 @@ class PetHatcheryServiceTest {
         assertThat(mythic.getRarity()).isEqualTo("Mythic");
         assertThat(mythic.getTotalStages()).isEqualTo(8);
         assertThat(mythic.getCategory()).isEqualTo(StudentItem.CATEGORY_PET);
+    }
+
+    @Test
+    void rollMysteryPetUsesCustomDropRatesFromSettings() {
+        // Configure 100% Mythic drop rate
+        when(settingService.getInt(SettingService.KEY_EGG_DROP_RATE_COMMON, 50)).thenReturn(0);
+        when(settingService.getInt(SettingService.KEY_EGG_DROP_RATE_RARE, 28)).thenReturn(0);
+        when(settingService.getInt(SettingService.KEY_EGG_DROP_RATE_EPIC, 14)).thenReturn(0);
+        when(settingService.getInt(SettingService.KEY_EGG_DROP_RATE_LEGENDARY, 6)).thenReturn(0);
+        when(settingService.getInt(SettingService.KEY_EGG_DROP_RATE_MYTHIC, 2)).thenReturn(100);
+
+        StudentItem rolled = petHatcheryService.rollMysteryPet("student1", 10.0);
+        assertThat(rolled.getRarity()).isEqualTo("Mythic");
+        assertThat(rolled.getTotalStages()).isEqualTo(8);
     }
 
     @Test

@@ -43,6 +43,8 @@ jest.mock('@hvantran/ui-component-library', () => {
     ExamIntegrityStudentShopTemplate: ({
       studentName,
       starCount,
+      items,
+      dropRates,
       onPurchaseEgg,
       onNavigate,
       onLogout,
@@ -50,21 +52,26 @@ jest.mock('@hvantran/ui-component-library', () => {
       <div data-testid="mock-shop-template">
         <div data-testid="student-name">{studentName}</div>
         <div data-testid="star-count">{starCount}</div>
+        <div data-testid="egg-price">{items?.[0]?.price}</div>
+        <div data-testid="egg-duration">{items?.[0]?.hatchDurationHours}</div>
+        <div data-testid="drop-common">{dropRates?.Common}</div>
         <button
           type="button"
           data-testid="mock-buy-egg"
           onClick={() =>
-            onPurchaseEgg?.({
-              id: 'mystery-egg-1',
-              name: 'Ancient Mysterious Egg',
-              tier: 'dragon',
-              rarity: 'Common',
-              price: 250,
-              description: 'Test',
-              hatchedPetName: 'Mystery Pet',
-              petElement: 'Cosmic',
-              hatchDurationHours: 8,
-            })
+            onPurchaseEgg?.(
+              items?.[0] || {
+                id: 'mystery-egg-1',
+                name: 'Ancient Mysterious Egg',
+                tier: 'dragon',
+                rarity: 'Common',
+                price: 250,
+                description: 'Test',
+                hatchedPetName: 'Mystery Pet',
+                petElement: 'Cosmic',
+                hatchDurationHours: 8,
+              }
+            )
           }
         >
           Buy Mystery Egg
@@ -108,11 +115,14 @@ describe('StudentManShopPage', () => {
     (useNavDockMode as jest.Mock).mockReturnValue(['pinned', mockSetDockMode]);
   });
 
-  it('renders student shop with profile stars and name', () => {
+  it('renders student shop with profile stars, name, and settings values', () => {
     render(<StudentManShopPage />);
 
     expect(screen.getByTestId('student-name')).toHaveTextContent('Alice Student');
     expect(screen.getByTestId('star-count')).toHaveTextContent('500');
+    expect(screen.getByTestId('egg-price')).toHaveTextContent('250');
+    expect(screen.getByTestId('egg-duration')).toHaveTextContent('8');
+    expect(screen.getByTestId('drop-common')).toHaveTextContent('50');
   });
 
   it('handles purchasing egg and persists via hatcheryService without using local storage', async () => {

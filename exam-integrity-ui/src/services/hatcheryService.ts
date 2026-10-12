@@ -1,5 +1,5 @@
 import apiClient from './apiClient';
-import type { IncubatingEgg, StudentPet } from '@hvantran/ui-component-library';
+import type { IncubatingEgg, StudentPet, EggShopItem } from '@hvantran/ui-component-library';
 
 export interface EggHatchResponse {
   id: string;
@@ -13,6 +13,11 @@ export interface EggHatchResponse {
 }
 
 export const hatcheryService = {
+  getShopEggs: async (): Promise<EggShopItem[]> => {
+    const res = await apiClient.get<EggShopItem[]>('/api/shop/eggs');
+    return res.data;
+  },
+
   getIncubatorEggs: async (): Promise<IncubatingEgg[]> => {
     const res = await apiClient.get<IncubatingEgg[]>('/api/hatchery/incubator');
     return res.data;
