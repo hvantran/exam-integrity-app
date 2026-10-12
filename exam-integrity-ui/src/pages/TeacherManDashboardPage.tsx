@@ -447,10 +447,21 @@ const TeacherManDashboardPage: React.FC = () => {
   const previewTotalQuestions = previewQuestions.length;
 
   const mapPreviewOptions = (options?: string[]): QuestionOption[] | undefined =>
-    options?.map((text, index) => ({
-      key: String.fromCharCode(65 + index),
-      text,
-    }));
+    options?.map((raw, index) => {
+      if (!raw) return { key: String.fromCharCode(65 + index), text: '' };
+      const imgIdx = raw.indexOf('data:image/');
+      if (imgIdx === -1) {
+        return {
+          key: String.fromCharCode(65 + index),
+          text: raw,
+        };
+      }
+      return {
+        key: String.fromCharCode(65 + index),
+        text: raw.substring(0, imgIdx).trim(),
+        imageBase64: raw.substring(imgIdx).trim() || undefined,
+      };
+    });
 
   const handlePreviewClose = () => {
     setPreviewExamId('');
