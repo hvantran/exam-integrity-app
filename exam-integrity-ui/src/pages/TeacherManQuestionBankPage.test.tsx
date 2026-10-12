@@ -38,3 +38,4 @@ describe('TeacherManQuestionBankPage MCQ option helpers', () => {
     expect(serializeOption('')).toBe('');
   });
 });
+
