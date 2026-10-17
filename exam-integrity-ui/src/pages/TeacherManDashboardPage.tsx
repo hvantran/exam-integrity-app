@@ -4,17 +4,17 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
-  Modal,
-  Combobox,
   Skeleton,
   Button,
-  Chip,
+  Input,
+  EmptyState,
+  ConfirmationDialog,
   ExamIntegrityTeacherDashboardTemplate as TeacherManDashboardLayout,
-  ExamIntegrityStudentExamHeader as StudentManExamHeader,
-  ExamIntegrityStudentExamNavigationBar as StudentManExamNavigationBar,
   ExamIntegrityQuestionPickerModal,
-  ExamIntegrityQuestionPanel as StudentManQuestionPanel,
-  type QuestionOption,
+  ExamIntegrityExamCard,
+  ExamIntegrityCreateExamDialog,
+  ExamIntegrityExamFilterBar,
+  ExamIntegrityExamPreviewModal,
   type ExamIntegrityDashboardSection as DashboardSection,
 } from '@hvantran/ui-component-library';
 import {
@@ -29,8 +29,7 @@ import { questionBankService } from '../services/questionBankService';
 import { useNavDockMode, TEACHER_NAV_DOCK_STORAGE_KEY } from '../hooks/useNavDockMode';
 import { useAuth } from '../context/AuthContext';
 import type { CreateExamFromBankCommand, ExamDTO, QuestionType } from '../types/exam.types';
-import { colors } from '../design-system/tokens';
-import { BookOpen, Clock, Eye, ListChecks, Plus, RefreshCw, Star, Trash2 } from 'lucide-react';
+import { ListChecks, Plus } from 'lucide-react';
 const SECTION_ROUTES: Record<DashboardSection, string> = {
   dashboard: '/teacher/dashboard',
   ingestion: '/teacher/ingestion',
@@ -42,349 +41,6 @@ const SECTION_ROUTES: Record<DashboardSection, string> = {
 };
 
 type ExamStatusFilter = 'all' | 'published' | 'draft';
-
-interface CreateExamDialogProps {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (cmd: CreateExamFromBankCommand) => void;
-  isLoading: boolean;
-}
-
-const CreateExamDialog: React.FC<CreateExamDialogProps> = ({
-  open,
-  onClose,
-  onSubmit,
-  isLoading,
-}) => {
-  const [title, setTitle] = useState('');
-  const [durationMin, setDurationMin] = useState(60);
-  const [tagInput, setTagInput] = useState('');
-  const [tags, setTags] = useState<string[]>([]);
-  const [reviewNotes, setReviewNotes] = useState('');
-  const [mcqCount, setMcqCount] = useState(10);
-  const [essayShortCount, setEssayShortCount] = useState(1);
-  const [essayLongCount, setEssayLongCount] = useState(1);
-
-  const { data: questionBankTags = [], isLoading: isTagsLoading } = useQuery({
-    queryKey: ['question-bank-tags', 'create-exam-dialog'],
-    queryFn: () => questionBankService.listTags(),
-    enabled: open,
-    staleTime: 60_000,
-  });
-
-  const handleAddTag = (rawTag?: string) => {
-    const t = (rawTag ?? tagInput).trim();
-    if (t && !tags.includes(t)) setTags((prev) => [...prev, t]);
-    setTagInput('');
-  };
-
-  const handleRemoveTag = (t: string) => setTags((prev) => prev.filter((x) => x !== t));
-
-  const handleSubmit = () => {
-    if (!title.trim()) return;
-    onSubmit({
-      title: title.trim(),
-      durationSeconds: durationMin * 60,
-      tags: tags.length > 0 ? tags : undefined,
-      reviewNotes: reviewNotes.trim() || undefined,
-      mcqCount,
-      essayShortCount,
-      essayLongCount,
-    });
-  };
-
-  const handleClose = () => {
-    if (isLoading) return;
-    setTitle('');
-    setDurationMin(60);
-    setTagInput('');
-    setTags([]);
-    setReviewNotes('');
-    setMcqCount(10);
-    setEssayShortCount(1);
-    setEssayLongCount(1);
-    onClose();
-  };
-
-  if (!open) return null;
-
-  const footerActions = (
-    <div className="flex justify-end gap-2">
-      <Button type="button" variant="neutral" onClick={handleClose} disabled={isLoading}>
-        Cancel
-      </Button>
-      <Button
-        type="submit"
-        form="create-exam-form"
-        variant="primary"
-        disabled={isLoading || !title.trim() || mcqCount + essayShortCount + essayLongCount === 0}
-      >
-        {isLoading ? 'Creating…' : 'Create Exam'}
-      </Button>
-    </div>
-  );
-
-  return (
-    <Modal
-      isOpen={open}
-      onClose={handleClose}
-      title="Create Exam from Question Bank"
-      maxWidth="lg"
-      footer={footerActions}
-    >
-      <form
-        id="create-exam-form"
-        className="space-y-4"
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSubmit();
-        }}
-      >
-        <div>
-          <label className="block text-xs font-medium text-on-surface mb-1">Exam Name</label>
-          <input
-            className="w-full border border-outline rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-on-surface mb-1">
-            Duration (minutes)
-          </label>
-          <input
-            type="number"
-            min={1}
-            className="w-full border border-outline rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            value={durationMin}
-            onChange={(e) => setDurationMin(Math.max(1, Number(e.target.value)))}
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-on-surface mb-1">
-            Question Bank Tags
-          </label>
-          <Combobox
-            value={tagInput}
-            onChange={(selected) => {
-              if (selected) {
-                handleAddTag(selected);
-              }
-            }}
-            options={questionBankTags.map((tag) => ({ value: tag, label: tag }))}
-            className="w-full"
-            placeholder={isTagsLoading ? 'Loading tags…' : 'Select tag…'}
-          />
-          <p className="mt-1 text-[11px] text-gray-500">
-            Selected tags control which question-bank questions are eligible for this exam.
-          </p>
-          {tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-2">
-              {tags.map((t) => (
-                <Chip
-                  key={t}
-                  label={t}
-                  size="sm"
-                  onDelete={() => handleRemoveTag(t)}
-                  style={{
-                    backgroundColor: `${colors.primary.main}18`,
-                    color: colors.primary.main,
-                  }}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-        <div>
-          <div className="text-xs font-semibold text-on-surface mb-2">
-            Question Bank Selection
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-on-surface mb-1"># MCQ</label>
-              <input
-                type="number"
-                min={0}
-                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                value={mcqCount}
-                onChange={(e) => setMcqCount(Math.max(0, Number(e.target.value)))}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                # Essay Short
-              </label>
-              <input
-                type="number"
-                min={0}
-                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                value={essayShortCount}
-                onChange={(e) => setEssayShortCount(Math.max(0, Number(e.target.value)))}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1"># Essay Long</label>
-              <input
-                type="number"
-                min={0}
-                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                value={essayLongCount}
-                onChange={(e) => setEssayLongCount(Math.max(0, Number(e.target.value)))}
-              />
-            </div>
-          </div>
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">Notes</label>
-          <textarea
-            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-            value={reviewNotes}
-            onChange={(e) => setReviewNotes(e.target.value)}
-            rows={2}
-            placeholder="Optional notes for this exam"
-          />
-        </div>
-      </form>
-    </Modal>
-  );
-};
-
-// ── Exam Card ────────────────────────────────────────────────────────────────
-
-interface ExamCardProps {
-  examId: string;
-  title: string;
-  durationSeconds: number;
-  questionCount: number;
-  totalPoints: number;
-  tags?: string[];
-  status?: string;
-  onPreview: () => void;
-  onManageQuestions: (examId: string) => void;
-  isUpdatingQuestions: boolean;
-  onExport: () => void;
-  isExporting: boolean;
-  onDelete: () => void;
-  onSyncQuestions: (examId: string, title: string) => void;
-  isSyncingQuestions: boolean;
-}
-
-const ExamCard: React.FC<ExamCardProps> = ({
-  examId,
-  title,
-  durationSeconds,
-  questionCount,
-  totalPoints,
-  tags,
-  status,
-  onPreview,
-  onManageQuestions,
-  isUpdatingQuestions,
-  onExport,
-  isExporting,
-  onDelete,
-  onSyncQuestions,
-  isSyncingQuestions,
-}) => (
-  <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary-300 min-h-[200px]">
-    {/* Left accent bar */}
-    <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary-600 rounded-l-2xl" />
-
-    <div className="flex flex-col flex-1 pl-5 pr-4 pt-4 pb-3">
-      {/* Title */}
-      <h3 className="font-semibold text-base text-gray-900 leading-snug line-clamp-2 mb-3">
-        {title}
-      </h3>
-
-      {status && (
-        <div className="mb-3">
-          <span
-            className={`inline-flex items-center text-[11px] font-semibold rounded px-1.5 h-[22px] ${status === 'ACTIVE' ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'}`}
-          >
-            {status === 'ACTIVE' ? 'Published' : status}
-          </span>
-        </div>
-      )}
-
-      {/* Stats chips */}
-      <div className="flex flex-wrap gap-2 mb-3">
-        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1">
-          <Clock size={13} className="text-primary-500" />
-          {Math.round(durationSeconds / 60)} min
-        </span>
-        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1">
-          <BookOpen size={13} className="text-primary-500" />
-          {questionCount} questions
-        </span>
-        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1">
-          <Star size={13} className="text-amber-400" />
-          {totalPoints} pts
-        </span>
-      </div>
-
-      {/* Tags */}
-      {tags && tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {tags.map((t) => (
-            <span
-              key={t}
-              className="text-[11px] font-semibold uppercase tracking-wide bg-primary-50 text-primary-700 px-2 py-0.5 rounded-full"
-            >
-              {t}
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
-
-    {/* Footer */}
-    <div className="flex items-center justify-end gap-2 border-t border-gray-100 px-4 py-2.5 flex-wrap">
-      <button
-        type="button"
-        onClick={onPreview}
-        className="inline-flex items-center gap-1.5 text-xs font-medium text-primary-700 hover:text-primary-800 hover:bg-primary-50 px-3 py-1.5 rounded-lg transition-colors duration-150"
-      >
-        <Eye size={13} />
-        Preview
-      </button>
-      <button
-        type="button"
-        onClick={() => onManageQuestions(examId)}
-        disabled={isUpdatingQuestions}
-        className="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-700 hover:text-indigo-800 hover:bg-indigo-50 px-3 py-1.5 rounded-lg transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <ListChecks size={13} />
-        {isUpdatingQuestions ? 'Updating…' : 'Manage Questions'}
-      </button>
-      <button
-        type="button"
-        onClick={() => onSyncQuestions(examId, title)}
-        disabled={isSyncingQuestions || isUpdatingQuestions}
-        className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 px-3 py-1.5 rounded-lg transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <RefreshCw size={13} className={isSyncingQuestions ? 'animate-spin' : ''} />
-        {isSyncingQuestions ? 'Syncing…' : 'Sync Bank'}
-      </button>
-      <button
-        type="button"
-        onClick={onExport}
-        disabled={isExporting}
-        className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700 hover:text-gray-800 hover:bg-gray-50 px-3 py-1.5 rounded-lg transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {isExporting ? 'Exporting…' : 'Export JSON'}
-      </button>
-      <button
-        type="button"
-        onClick={onDelete}
-        className="inline-flex items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors duration-150"
-      >
-        <Trash2 size={13} />
-        Delete
-      </button>
-    </div>
-  </div>
-);
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
@@ -402,12 +58,26 @@ const TeacherManDashboardPage: React.FC = () => {
   const [previewExamId, setPreviewExamId] = useState('');
   const [previewQuestionIndex, setPreviewQuestionIndex] = useState(0);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
-  const [syncTarget, setSyncTarget] = useState<{ id: string; title: string; linkedCount?: number } | null>(null);
+  const [syncTarget, setSyncTarget] = useState<{
+    id: string;
+    title: string;
+    linkedCount?: number;
+  } | null>(null);
   const importFileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const { data: exams, isLoading, refetch: refetchExams } = useQuery({
+  const {
+    data: exams,
+    isLoading,
+    refetch: refetchExams,
+  } = useQuery({
     queryKey: ['teacher-exams'],
     queryFn: () => examService.listAllExams(),
+  });
+  const { data: questionBankTags = [], isLoading: isTagsLoading } = useQuery({
+    queryKey: ['question-bank-tags', 'create-exam-dialog'],
+    queryFn: () => questionBankService.listTags(),
+    enabled: dialogOpen,
+    staleTime: 60_000,
   });
   const { data: previewExam, isLoading: isPreviewLoading } = useExam(previewExamId);
   const createFromBank = useCreateExamFromBank();
@@ -441,27 +111,6 @@ const TeacherManDashboardPage: React.FC = () => {
 
   const publishedCount = (exams ?? []).filter((exam) => exam.status === 'ACTIVE').length;
   const draftCount = (exams ?? []).length - publishedCount;
-
-  const previewQuestions = previewExam?.questions ?? [];
-  const activePreviewQuestion = previewQuestions[previewQuestionIndex];
-  const previewTotalQuestions = previewQuestions.length;
-
-  const mapPreviewOptions = (options?: string[]): QuestionOption[] | undefined =>
-    options?.map((raw, index) => {
-      if (!raw) return { key: String.fromCharCode(65 + index), text: '' };
-      const imgIdx = raw.indexOf('data:image/');
-      if (imgIdx === -1) {
-        return {
-          key: String.fromCharCode(65 + index),
-          text: raw,
-        };
-      }
-      return {
-        key: String.fromCharCode(65 + index),
-        text: raw.substring(0, imgIdx).trim(),
-        imageBase64: raw.substring(imgIdx).trim() || undefined,
-      };
-    });
 
   const handlePreviewClose = () => {
     setPreviewExamId('');
@@ -556,7 +205,7 @@ const TeacherManDashboardPage: React.FC = () => {
         setSyncTarget(null);
         refetchExams();
         toast.success(
-          `Successfully synced ${data.syncedCount} question(s) from question bank for "${syncTarget.title}".`
+          `Successfully synced ${data.syncedCount} question(s) from question bank for "${syncTarget.title}".`,
         );
       },
       onError: (err: Error) => {
@@ -600,27 +249,11 @@ const TeacherManDashboardPage: React.FC = () => {
       onLogout={handleLogout}
       dockMode={dockMode}
       onDockModeChange={setDockMode}
-      syncDialogState={
-        syncTarget
-          ? {
-              examId: syncTarget.id,
-              examTitle: syncTarget.title,
-              linkedQuestionCount: syncTarget.linkedCount,
-            }
-          : null
-      }
-      onConfirmSync={handleConfirmSync}
-      onCancelSync={() => setSyncTarget(null)}
-      isSyncingQuestions={syncExamQuestions.isPending}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <div className="text-sm text-gray-500 mt-1">Exams in the system, including drafts and published exams</div>
-        </div>
-        <div className="flex items-center gap-2">
-          <input
+      headerTitle="Dashboard"
+      headerSubtitle="Exams in the system, including drafts and published exams"
+      headerActionsSlot={
+        <>
+          <Input
             ref={importFileInputRef}
             type="file"
             accept="application/json,.json"
@@ -650,112 +283,85 @@ const TeacherManDashboardPage: React.FC = () => {
           >
             Create Exam from Bank
           </Button>
-        </div>
-      </div>
-
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
-        <div>
-          <div className="text-sm font-semibold text-gray-900">Filter exams</div>
-          <div className="text-xs text-gray-500">
-            Showing {visibleExams.length} of {(exams ?? []).length} exams
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {[
+        </>
+      }
+      filtersSlot={
+        <ExamIntegrityExamFilterBar
+          title="Filter exams"
+          subtitle={`Showing ${visibleExams.length} of ${(exams ?? []).length} exams`}
+          selectedKey={examStatusFilter}
+          onSelectKey={(k) => setExamStatusFilter(k as ExamStatusFilter)}
+          options={[
             { key: 'all', label: 'All', count: (exams ?? []).length },
             { key: 'published', label: 'Published', count: publishedCount },
             { key: 'draft', label: 'Draft', count: draftCount },
-          ].map((option) => {
-            const active = examStatusFilter === option.key;
-            return (
-              <button
-                key={option.key}
-                type="button"
-                aria-pressed={active}
-                onClick={() => setExamStatusFilter(option.key as ExamStatusFilter)}
-                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors duration-150 ${
-                  active
-                    ? 'border-primary-600 bg-primary-50 text-primary-700'
-                    : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50'
-                }`}
-              >
-                <span>{option.label}</span>
-                <span
-                  className={`inline-flex min-w-6 items-center justify-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                    active ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-600'
-                  }`}
-                >
-                  {option.count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Content */}
-      {isLoading && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 py-2">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <Skeleton key={index} height={220} />
-          ))}
-        </div>
-      )}
-
+          ]}
+        />
+      }
+      syncDialogState={
+        syncTarget
+          ? {
+              examId: syncTarget.id,
+              examTitle: syncTarget.title,
+              linkedQuestionCount: syncTarget.linkedCount,
+            }
+          : null
+      }
+      onConfirmSync={handleConfirmSync}
+      onCancelSync={() => setSyncTarget(null)}
+      isSyncingQuestions={syncExamQuestions.isPending}
+      gridSlot={
+        isLoading
+          ? Array.from({ length: 6 }).map((_, index) => <Skeleton key={index} height={220} />)
+          : exams && exams.length > 0 && visibleExams.length > 0
+            ? visibleExams.map((exam) => (
+                <ExamIntegrityExamCard
+                  key={exam.id}
+                  examId={exam.id}
+                  title={exam.title}
+                  durationSeconds={exam.durationSeconds}
+                  questionCount={exam.questionCount}
+                  totalPoints={exam.totalPoints}
+                  tags={exam.tags}
+                  status={exam.status}
+                  onPreview={() => {
+                    setPreviewQuestionIndex(0);
+                    setPreviewExamId(exam.id);
+                  }}
+                  onManageQuestions={openManageQuestions}
+                  isUpdatingQuestions={updateExamQuestions.isPending || isManageExamLoading}
+                  onSyncQuestions={handleOpenSyncDialog}
+                  isSyncingQuestions={syncExamQuestions.isPending && syncTarget?.id === exam.id}
+                  onExport={() => handleExportExam(exam.id, exam.title)}
+                  isExporting={exportExamMutation.isPending}
+                  onDelete={() => setDeleteTarget({ id: exam.id, title: exam.title })}
+                />
+              ))
+            : null
+      }
+    >
+      {/* Empty States */}
       {!isLoading && (!exams || exams.length === 0) && (
-        <div className="text-center py-16 text-gray-400 border border-dashed border-gray-300 rounded-2xl">
-          <div className="text-base font-semibold mb-2">No exams yet</div>
-          <div className="text-sm">
-            Create an exam from the question bank or publish a draft to get started.
-          </div>
-        </div>
+        <EmptyState
+          title="No exams yet"
+          description="Create an exam from the question bank or publish a draft to get started."
+        />
       )}
 
       {!isLoading && exams && exams.length > 0 && visibleExams.length === 0 && (
-        <div className="text-center py-16 text-gray-400 border border-dashed border-gray-300 rounded-2xl">
-          <div className="text-base font-semibold mb-2">
-            No {examStatusFilter === 'published' ? 'published' : 'draft'} exams found
-          </div>
-          <div className="text-sm">
-            Try a different filter to view the rest of your exam library.
-          </div>
-        </div>
+        <EmptyState
+          title={`No ${examStatusFilter === 'published' ? 'published' : 'draft'} exams found`}
+          description="Try a different filter to view the rest of your exam library."
+        />
       )}
 
-      {!isLoading && exams && exams.length > 0 && visibleExams.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {visibleExams.map((exam) => (
-            <div key={exam.id}>
-              <ExamCard
-                examId={exam.id}
-                title={exam.title}
-                durationSeconds={exam.durationSeconds}
-                questionCount={exam.questionCount}
-                totalPoints={exam.totalPoints}
-                tags={exam.tags}
-                status={exam.status}
-                onPreview={() => {
-                  setPreviewQuestionIndex(0);
-                  setPreviewExamId(exam.id);
-                }}
-                onManageQuestions={openManageQuestions}
-                isUpdatingQuestions={updateExamQuestions.isPending || isManageExamLoading}
-                onSyncQuestions={handleOpenSyncDialog}
-                isSyncingQuestions={syncExamQuestions.isPending && syncTarget?.id === exam.id}
-                onExport={() => handleExportExam(exam.id, exam.title)}
-                isExporting={exportExamMutation.isPending}
-                onDelete={() => setDeleteTarget({ id: exam.id, title: exam.title })}
-              />
-            </div>
-          ))}
-        </div>
-      )}
-
-      <CreateExamDialog
+      <ExamIntegrityCreateExamDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onSubmit={handleCreate}
         isLoading={createFromBank.isPending}
+        availableTags={questionBankTags}
+        isTagsLoading={isTagsLoading}
       />
 
       <ExamIntegrityQuestionPickerModal
@@ -764,7 +370,8 @@ const TeacherManDashboardPage: React.FC = () => {
         onSubmit={(result) =>
           handleCreate({
             title: result.title,
-            durationSeconds: result.durationSeconds ?? (result.durationMin ? result.durationMin * 60 : 3600),
+            durationSeconds:
+              result.durationSeconds ?? (result.durationMin ? result.durationMin * 60 : 3600),
             mcqCount: result.mcqCount ?? 0,
             essayShortCount: result.essayShortCount ?? 0,
             essayLongCount: result.essayLongCount ?? 0,
@@ -791,7 +398,9 @@ const TeacherManDashboardPage: React.FC = () => {
         }}
         mode="edit"
         initialTitle={manageTargetExam?.title}
-        initialDurationMin={manageTargetExam ? Math.round(manageTargetExam.durationSeconds / 60) : 60}
+        initialDurationMin={
+          manageTargetExam ? Math.round(manageTargetExam.durationSeconds / 60) : 60
+        }
         initialSelectedQuestionIds={initialManagedQuestionIds}
         onSubmitSelection={handleSubmitManagedQuestions}
         isLoading={updateExamQuestions.isPending}
@@ -804,116 +413,37 @@ const TeacherManDashboardPage: React.FC = () => {
         onFetchByIds={(ids) => questionBankService.fetchByIds(ids)}
       />
 
-      {/* Delete confirmation dialog (Tailwind-based) */}
-      {deleteTarget && (
-        <Modal
-          isOpen
-          title="Delete Exam"
-          onClose={() => {
-            if (!deleteExam.isPending) setDeleteTarget(null);
-          }}
-          footer={
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="neutral"
-                onClick={() => setDeleteTarget(null)}
-                disabled={deleteExam.isPending}
-              >
-                Cancel
-              </Button>
-              <Button variant="danger" onClick={handleDeleteConfirm} disabled={deleteExam.isPending}>
-                {deleteExam.isPending ? 'Deleting…' : 'Delete'}
-              </Button>
-            </div>
-          }
-        >
-          <div className="mb-4 text-gray-700">
-            Are you sure you want to delete <strong>{deleteTarget.title}</strong>?
-            <br />
-            <span className="text-gray-500 text-xs">
-              Questions in the question bank will not be affected.
-            </span>
-          </div>
-        </Modal>
-      )}
+      {/* Delete confirmation dialog */}
+      <ConfirmationDialog
+        open={Boolean(deleteTarget)}
+        title="Delete Exam"
+        content={
+          deleteTarget
+            ? `Are you sure you want to delete "${deleteTarget.title}"? Questions in the question bank will not be affected.`
+            : undefined
+        }
+        positiveText={deleteExam.isPending ? 'Deleting…' : 'Delete'}
+        positiveVariant="danger"
+        positiveAction={handleDeleteConfirm}
+        negativeText="Cancel"
+        negativeAction={() => {
+          if (!deleteExam.isPending) setDeleteTarget(null);
+        }}
+        onClose={() => {
+          if (!deleteExam.isPending) setDeleteTarget(null);
+        }}
+        loading={deleteExam.isPending}
+      />
 
-      {previewExamId && (
-        <Modal
-          isOpen
-          onClose={handlePreviewClose}
-          title="Exam Preview"
-          className="!max-w-6xl w-full"
-          footer={
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="neutral" onClick={handlePreviewClose}>
-                Close Preview
-              </Button>
-            </div>
-          }
-        >
-          <div>
-            <div className="mb-4 flex items-center justify-between gap-3 text-sm text-gray-500">
-              <span>{previewExam?.title ?? 'Loading exam…'}</span>
-              <span>
-                {previewTotalQuestions > 0
-                  ? `${previewQuestionIndex + 1} / ${previewTotalQuestions} questions`
-                  : 'Previewing exam layout'}
-              </span>
-            </div>
-
-            {isPreviewLoading ? (
-              <Skeleton height={420} />
-            ) : previewTotalQuestions === 0 || !activePreviewQuestion ? (
-              <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center text-sm text-gray-500">
-                This exam does not contain previewable questions yet.
-              </div>
-            ) : (
-              <div className="space-y-6">
-                <StudentManExamHeader
-                  currentQuestion={previewQuestionIndex + 1}
-                  totalQuestions={previewTotalQuestions}
-                  remainingSeconds={previewExam?.durationSeconds ?? 0}
-                  isProctoringActive={false}
-                  onSettings={() => {}}
-                />
-                <div className="max-h-[58vh] overflow-y-auto pr-2">
-                  <div className="space-y-5 pb-2">
-                    <div className="overflow-x-auto pb-1">
-                      <StudentManQuestionPanel
-                        questionNumber={activePreviewQuestion.questionNumber}
-                        questionText={activePreviewQuestion.content}
-                        questionStem={activePreviewQuestion.stem}
-                        questionType={activePreviewQuestion.type}
-                        options={mapPreviewOptions(activePreviewQuestion.options)}
-                        questionParts={activePreviewQuestion.questionParts}
-                        selectedAnswer=""
-                        selectedAnswerParts={[]}
-                        disabled
-                        imageData={activePreviewQuestion.imageData}
-                        onAnswerChange={() => {}}
-                      />
-                    </div>
-                    <StudentManExamNavigationBar
-                      canGoPrev={previewQuestionIndex > 0}
-                      canGoNext={previewQuestionIndex < previewTotalQuestions - 1}
-                      isLastQuestion={previewQuestionIndex === previewTotalQuestions - 1}
-                      onPrevious={() =>
-                        setPreviewQuestionIndex((index) => Math.max(0, index - 1))
-                      }
-                      onNext={() =>
-                        setPreviewQuestionIndex((index) =>
-                          Math.min(previewTotalQuestions - 1, index + 1),
-                        )
-                      }
-                      onSubmit={handlePreviewClose}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </Modal>
-      )}
+      {/* Exam Preview Modal */}
+      <ExamIntegrityExamPreviewModal
+        open={Boolean(previewExamId)}
+        onClose={handlePreviewClose}
+        examTitle={previewExam?.title ?? 'Exam Preview'}
+        durationSeconds={previewExam?.durationSeconds ?? 0}
+        questions={previewExam?.questions}
+        isLoading={isPreviewLoading}
+      />
     </TeacherManDashboardLayout>
   );
 };
