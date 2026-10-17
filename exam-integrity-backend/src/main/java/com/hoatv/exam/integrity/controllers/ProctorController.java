@@ -1,6 +1,8 @@
 package com.hoatv.exam.integrity.controllers;
 
 import com.hoatv.exam.integrity.events.ProctorAlertEvent;
+import com.hoatv.exam.integrity.dtos.ProctorEventRequestDTO;
+import com.hoatv.fwk.common.exceptions.InvalidArgumentException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -44,8 +46,23 @@ public class ProctorController {
     @PostMapping("/events")
     public ResponseEntity<Void> reportEvent(
             @PathVariable("sessionId") String sessionId,
-            @RequestParam("eventType") String eventType,
-            @RequestParam("studentId") String studentId) {
+            @org.springframework.web.bind.annotation.RequestBody(required = false) ProctorEventRequestDTO body,
+            @RequestParam(value = "eventType", required = false) String queryEventType,
+            @RequestParam(value = "studentId", required = false) String queryStudentId) {
+        String eventType = (body != null && body.eventType() != null && !body.eventType().isBlank())
+            ? body.eventType()
+            : queryEventType;
+        String studentId = (body != null && body.studentId() != null && !body.studentId().isBlank())
+            ? body.studentId()
+            : queryStudentId;
+
+        if (eventType == null || eventType.isBlank()) {
+            throw new InvalidArgumentException("eventType is required");
+        }
+        if (studentId == null || studentId.isBlank()) {
+            throw new InvalidArgumentException("studentId is required");
+        }
+
         ProctorAlertEvent event = new ProctorAlertEvent(
             sessionId, studentId, eventType, 10, Instant.now()
         );
