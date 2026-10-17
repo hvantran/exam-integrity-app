@@ -258,7 +258,8 @@ const ExamPage: React.FC = () => {
     : currentQuestion;
 
   return (
-    <StudentManExamLayout
+    <>
+      <StudentManExamLayout
       pageAccentClass={examTheme.pageAccentClass}
       headerClass={examTheme.headerClass}
       headerSlot={
@@ -465,22 +466,22 @@ const ExamPage: React.FC = () => {
         )
       }
       footerSlot={<StudentManExamFooter />}
-    >
-      <StudentManSubmitModal
-        open={showSubmitModal}
-        answeredCount={answeredCount}
-        totalCount={totalQuestions}
-        onBack={() => setShowSubmitModal(false)}
-        onFinalSubmit={() => {
-          submitExam.mutate(undefined, {
-            onSuccess: () => toast.success('Exam submitted successfully.'),
-            onError: (e: Error) => toast.error(e.message || 'Failed to submit exam.'),
-          });
-          setShowSubmitModal(false);
-        }}
-      />
-    </StudentManExamLayout>
-  );
+    />
+    <StudentManSubmitModal
+      open={showSubmitModal}
+      answeredCount={answeredCount}
+      totalCount={totalQuestions}
+      onBack={() => setShowSubmitModal(false)}
+      onFinalSubmit={() => {
+        submitExam.mutate(undefined, {
+          onSuccess: () => toast.success('Exam submitted successfully.'),
+          onError: (e: Error) => toast.error(e.message || 'Failed to submit exam.'),
+        });
+        setShowSubmitModal(false);
+      }}
+    />
+  </>
+);
 };
 
 export default ExamPage;
