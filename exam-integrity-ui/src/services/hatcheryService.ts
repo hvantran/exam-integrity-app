@@ -48,6 +48,16 @@ export const hatcheryService = {
     return res.data;
   },
 
+  equipPet: async (petId: string): Promise<StudentPet> => {
+    const res = await apiClient.post<StudentPet>(`/api/hatchery/pets/${petId}/equip`);
+    return res.data;
+  },
+
+  equipEgg: async (eggId: string): Promise<IncubatingEgg> => {
+    const res = await apiClient.post<IncubatingEgg>(`/api/hatchery/incubator/${eggId}/equip`);
+    return res.data;
+  },
+
   purchaseEgg: async (): Promise<{
     success: boolean;
     message: string;

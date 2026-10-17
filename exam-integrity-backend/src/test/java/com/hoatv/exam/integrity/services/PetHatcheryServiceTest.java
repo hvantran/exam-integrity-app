@@ -350,4 +350,111 @@ class PetHatcheryServiceTest {
         assertThat(pets.get(0).name()).isEqualTo("Sun Ember Fledgling");
         assertThat(pets.get(0).isEquipped()).isTrue();
     }
+
+    @Test
+    void equipPetEquipsTargetPetAndUnequipsOtherPetsAndEggs() {
+        StudentItem pet1 = StudentItem.builder()
+            .id("pet-1")
+            .userId("student1")
+            .category(StudentItem.CATEGORY_PET)
+            .name("Pet One")
+            .isEquipped(true)
+            .build();
+        pet1.initDefaultStats();
+
+        StudentItem pet2 = StudentItem.builder()
+            .id("pet-2")
+            .userId("student1")
+            .category(StudentItem.CATEGORY_PET)
+            .name("Pet Two")
+            .isEquipped(false)
+            .build();
+        pet2.initDefaultStats();
+
+        StudentItem egg = StudentItem.builder()
+            .id("egg-1")
+            .userId("student1")
+            .category(StudentItem.CATEGORY_EGG_SHOP)
+            .name("Egg One")
+            .isEquipped(true)
+            .build();
+
+        when(studentItemRepository.findByUserIdAndCategory("student1", StudentItem.CATEGORY_PET))
+            .thenReturn(new java.util.ArrayList<>(java.util.List.of(pet1, pet2)));
+        when(studentItemRepository.findByUserIdAndCategory("student1", StudentItem.CATEGORY_EGG_SHOP))
+            .thenReturn(new java.util.ArrayList<>(java.util.List.of(egg)));
+
+        StudentPetDTO result = petHatcheryService.equipPet("student1", "pet-2");
+
+        assertThat(result.id()).isEqualTo("pet-2");
+        assertThat(result.isEquipped()).isTrue();
+        assertThat(pet1.isEquipped()).isFalse();
+        assertThat(pet2.isEquipped()).isTrue();
+        assertThat(egg.isEquipped()).isFalse();
+        verify(studentItemRepository).saveAll(java.util.List.of(pet1, pet2));
+        verify(studentItemRepository).saveAll(java.util.List.of(egg));
+    }
+
+    @Test
+    void equipPetThrowsEntityNotFoundExceptionWhenPetNotFound() {
+        when(studentItemRepository.findByUserIdAndCategory("student1", StudentItem.CATEGORY_PET))
+            .thenReturn(java.util.List.of());
+
+        assertThatThrownBy(() -> petHatcheryService.equipPet("student1", "non-existent"))
+            .isInstanceOf(EntityNotFoundException.class)
+            .hasMessageContaining("Pet not found: non-existent");
+    }
+
+    @Test
+    void equipEggEquipsTargetEggAndUnequipsOtherEggsAndPets() {
+        StudentItem egg1 = StudentItem.builder()
+            .id("egg-1")
+            .userId("student1")
+            .category(StudentItem.CATEGORY_EGG_SHOP)
+            .name("Egg One")
+            .isEquipped(true)
+            .build();
+
+        StudentItem egg2 = StudentItem.builder()
+            .id("egg-2")
+            .userId("student1")
+            .category(StudentItem.CATEGORY_EGG_SHOP)
+            .name("Egg Two")
+            .isEquipped(false)
+            .build();
+
+        StudentItem pet = StudentItem.builder()
+            .id("pet-1")
+            .userId("student1")
+            .category(StudentItem.CATEGORY_PET)
+            .name("Pet One")
+            .isEquipped(true)
+            .build();
+        pet.initDefaultStats();
+
+        when(studentItemRepository.findByUserIdAndCategory("student1", StudentItem.CATEGORY_EGG_SHOP))
+            .thenReturn(new java.util.ArrayList<>(java.util.List.of(egg1, egg2)));
+        when(studentItemRepository.findByUserIdAndCategory("student1", StudentItem.CATEGORY_PET))
+            .thenReturn(new java.util.ArrayList<>(java.util.List.of(pet)));
+
+        IncubatingEggDTO result = petHatcheryService.equipEgg("student1", "egg-2");
+
+        assertThat(result.id()).isEqualTo("egg-2");
+        assertThat(result.isEquipped()).isTrue();
+        assertThat(egg1.isEquipped()).isFalse();
+        assertThat(egg2.isEquipped()).isTrue();
+        assertThat(pet.isEquipped()).isFalse();
+        verify(studentItemRepository).saveAll(java.util.List.of(egg1, egg2));
+        verify(studentItemRepository).saveAll(java.util.List.of(pet));
+    }
+
+    @Test
+    void equipEggThrowsEntityNotFoundExceptionWhenEggNotFound() {
+        when(studentItemRepository.findByUserIdAndCategory("student1", StudentItem.CATEGORY_EGG_SHOP))
+            .thenReturn(java.util.List.of());
+
+        assertThatThrownBy(() -> petHatcheryService.equipEgg("student1", "non-existent"))
+            .isInstanceOf(EntityNotFoundException.class)
+            .hasMessageContaining("Egg not found: non-existent");
+    }
 }

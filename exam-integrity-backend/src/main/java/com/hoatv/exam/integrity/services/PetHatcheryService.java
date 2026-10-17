@@ -487,6 +487,19 @@ public class PetHatcheryService {
             throw new EntityNotFoundException("Pet not found: " + petId);
         }
         studentItemRepository.saveAll(pets);
+
+        List<StudentItem> eggs = studentItemRepository.findByUserIdAndCategory(userId, StudentItem.CATEGORY_EGG_SHOP);
+        boolean eggChanged = false;
+        for (StudentItem e : eggs) {
+            if (e.isEquipped()) {
+                e.setEquipped(false);
+                eggChanged = true;
+            }
+        }
+        if (eggChanged) {
+            studentItemRepository.saveAll(eggs);
+        }
+
         return toPetDTO(target);
     }
 
@@ -505,6 +518,19 @@ public class PetHatcheryService {
             throw new EntityNotFoundException("Egg not found: " + eggId);
         }
         studentItemRepository.saveAll(eggs);
+
+        List<StudentItem> pets = studentItemRepository.findByUserIdAndCategory(userId, StudentItem.CATEGORY_PET);
+        boolean petChanged = false;
+        for (StudentItem p : pets) {
+            if (p.isEquipped()) {
+                p.setEquipped(false);
+                petChanged = true;
+            }
+        }
+        if (petChanged) {
+            studentItemRepository.saveAll(pets);
+        }
+
         return toEggDTO(target);
     }
 

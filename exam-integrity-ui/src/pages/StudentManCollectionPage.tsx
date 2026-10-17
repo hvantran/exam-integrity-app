@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import {
   ExamIntegrityStudentCollectionTemplate,
   type ExamIntegrityStudentPortalSection as PortalSection,
@@ -190,6 +191,68 @@ const StudentManCollectionPage: React.FC = () => {
       });
   };
 
+  const handleEquipPet = async (petId: string) => {
+    setPets((prev) =>
+      prev.map((p) => ({
+        ...p,
+        isEquipped: p.id === petId,
+      }))
+    );
+    setIncubatingEggs((prev) =>
+      prev.map((e) => ({
+        ...e,
+        isEquipped: false,
+      }))
+    );
+
+    try {
+      const updatedPet = await hatcheryService.equipPet(petId);
+      if (updatedPet && updatedPet.id) {
+        setPets((prev) =>
+          prev.map((p) =>
+            p.id === updatedPet.id ? { ...p, ...updatedPet, isEquipped: true } : { ...p, isEquipped: false }
+          )
+        );
+      }
+      queryClient?.invalidateQueries({ queryKey: ['hatchery', 'pets'] });
+      queryClient?.invalidateQueries({ queryKey: ['hatchery', 'incubator'] });
+      toast.success(`${updatedPet?.name || 'Pet'} equipped as active companion! 🌟`);
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to equip companion pet.');
+    }
+  };
+
+  const handleEquipEgg = async (eggId: string) => {
+    setIncubatingEggs((prev) =>
+      prev.map((e) => ({
+        ...e,
+        isEquipped: e.id === eggId,
+      }))
+    );
+    setPets((prev) =>
+      prev.map((p) => ({
+        ...p,
+        isEquipped: false,
+      }))
+    );
+
+    try {
+      const updatedEgg = await hatcheryService.equipEgg(eggId);
+      if (updatedEgg && updatedEgg.id) {
+        setIncubatingEggs((prev) =>
+          prev.map((e) =>
+            e.id === updatedEgg.id ? { ...e, ...updatedEgg, isEquipped: true } : { ...e, isEquipped: false }
+          )
+        );
+      }
+      queryClient?.invalidateQueries({ queryKey: ['hatchery', 'pets'] });
+      queryClient?.invalidateQueries({ queryKey: ['hatchery', 'incubator'] });
+      toast.success(`${updatedEgg?.name || 'Egg'} equipped as active companion! 🥚`);
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to equip incubating egg.');
+    }
+  };
+
   return (
     <ExamIntegrityStudentCollectionTemplate
       studentName={displayName || 'Student'}
@@ -200,6 +263,8 @@ const StudentManCollectionPage: React.FC = () => {
       onEggHatched={handleEggHatched}
       onGrowPet={handleGrowPet}
       onStrikeCrack={handleStrikeCrack}
+      onEquipEgg={handleEquipEgg}
+      onEquipPet={handleEquipPet}
       onNavigate={handleNavigate}
       onLogout={handleLogout}
       dockMode={dockMode}

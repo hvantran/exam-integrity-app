@@ -28,6 +28,7 @@ import { useExam } from '../hooks/useExams';
 import { useWebSocketTimer } from '../hooks/useWebSocketTimer';
 import { useProctor } from '../hooks/useProctor';
 import { useExamLayoutTheme } from '../hooks/useGradeTheme';
+import { useEquippedCompanion } from '../hooks/useEquippedCompanion';
 import type { AnswerPart } from '../types/exam.types';
 
 type ExamUiVariant = 'elementary' | 'middle' | 'high';
@@ -185,6 +186,21 @@ const ExamPage: React.FC = () => {
   const gradeLevelTag = exam?.tags?.find((tag) => /(?:grade|lop|lớp)\s*\d+/iu.test(tag));
   const examLayoutTheme = useExamLayoutTheme(exam?.tags);
   const examVariant = examLayoutTheme.tier;
+  const { companion } = useEquippedCompanion();
+
+  const effectiveMascotEmoji = companion?.avatarEmoji || examLayoutTheme.mascotEmoji;
+  const effectiveMascotName = companion
+    ? companion.type === 'pet' && companion.level
+      ? `${companion.name} (Lv. ${companion.level})`
+      : companion.name
+    : examLayoutTheme.mascotName;
+  const effectiveMascotTip = companion
+    ? `Your loyal companion ${companion.name} is right by your side! Stay calm, read each question carefully, and do your best! ⭐`
+    : examLayoutTheme.mascotTip;
+  const proTipsWithCompanion = companion
+    ? [`${companion.avatarEmoji} ${companion.name}: Take your time and double check flagged questions!`, ...(EXAM_UI_THEME[examVariant]?.proTips ?? [])]
+    : EXAM_UI_THEME[examVariant].proTips;
+
   const examTheme = {
     brandName: examLayoutTheme.brandTitle,
     headerClass: examLayoutTheme.headerClass,
@@ -194,7 +210,7 @@ const ExamPage: React.FC = () => {
     sidebarClass: examLayoutTheme.isElementary
       ? 'border-2 border-amber-200 bg-amber-50/40 rounded-2xl'
       : EXAM_UI_THEME[examVariant].sidebarClass,
-    proTips: EXAM_UI_THEME[examVariant].proTips,
+    proTips: proTipsWithCompanion,
   };
 
   useEffect(() => {
@@ -273,7 +289,7 @@ const ExamPage: React.FC = () => {
       bannerSlot={
         examLayoutTheme.isElementary ? (
           <ExamIntegrityStudentElementaryBanner
-            mascotEmoji={examLayoutTheme.mascotEmoji}
+            mascotEmoji={effectiveMascotEmoji}
             subjectTitle={examLayoutTheme.subjectTitle}
           />
         ) : undefined
@@ -432,9 +448,9 @@ const ExamPage: React.FC = () => {
       sidebarSlot={
         examLayoutTheme.isElementary ? (
           <ExamIntegrityStudentElementarySidebar
-            mascotEmoji={examLayoutTheme.mascotEmoji}
-            mascotName={examLayoutTheme.mascotName}
-            mascotTip={examLayoutTheme.mascotTip}
+            mascotEmoji={effectiveMascotEmoji}
+            mascotName={effectiveMascotName}
+            mascotTip={effectiveMascotTip}
             flaggedNumbers={flaggedNumbers}
             onJumpToQuestion={(qNum) => {
               if (inReviewFlagged) {
