@@ -344,42 +344,9 @@ public class PetHatcheryService {
             return List.of();
         }
         List<StudentItem> pets = studentItemRepository.findByUserIdAndCategory(userId, StudentItem.CATEGORY_PET);
-        if (pets.isEmpty()) {
-            StudentItem starter = createStarterPet(userId);
-            StudentItem saved = studentItemRepository.save(starter);
-            return List.of(toPetDTO(saved));
-        }
         return pets.stream()
             .map(this::toPetDTO)
             .toList();
-    }
-
-    private StudentItem createStarterPet(String userId) {
-        StudentItem pet = StudentItem.builder()
-            .userId(userId)
-            .category(StudentItem.CATEGORY_PET)
-            .name("Sproutling")
-            .species("Flora Sproutling Seedling")
-            .rarity(RARITY_COMMON)
-            .tier(TIER_DRAGON)
-            .totalStages(3)
-            .element("Flora / Earth")
-            .avatarEmoji("🌱")
-            .stageName("Hatchling")
-            .imageName("sproutling-stage-1.png")
-            .petLibraryId(PET_SPROUTLING)
-            .isEquipped(true)
-            .level(1)
-            .currentExp(0)
-            .expNeeded(100)
-            .stageLevel(1)
-            .createdAt(Instant.now())
-            .updatedAt(Instant.now())
-            .build();
-        pet.initDefaultStats();
-
-        petLibraryRepository.findByPetKey(PET_SPROUTLING).ifPresent(lib -> applyLibraryItemToPet(pet, lib));
-        return pet;
     }
 
     private void applyLibraryItemToPet(StudentItem pet, PetLibraryItem lib) {
