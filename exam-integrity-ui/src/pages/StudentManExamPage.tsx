@@ -206,13 +206,16 @@ const ExamPage: React.FC = () => {
 
   if (sessionLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#f7fafc] to-[#e9eef6] px-4 md:px-8 py-8">
-        <div className="max-w-[1200px] mx-auto">
-          <Skeleton width="45%" height={28} className="mb-3" />
-          <Skeleton width="30%" height={18} className="mb-8" />
-          <Skeleton width="100%" height={460} />
-        </div>
-      </div>
+      <ExamIntegrityStudentExamTemplate
+        pageAccentClass="from-[#f7fafc] to-[#e9eef6]"
+        contentSlot={
+          <>
+            <Skeleton width="45%" height={28} className="mb-3" />
+            <Skeleton width="30%" height={18} className="mb-8" />
+            <Skeleton width="100%" height={460} />
+          </>
+        }
+      />
     );
   }
   if (!session) return <Alert severity="error">Exam session not found.</Alert>;
