@@ -211,5 +211,70 @@ class PetHatcheryControllerTest {
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.message").value("Incubating egg not found: nonexistent-egg"));
     }
+
+    @Test
+    void equipPetReturnsEquippedPet() throws Exception {
+        StudentPetDTO pet = new StudentPetDTO(
+            "pet-1",
+            "student1",
+            "Sun Ember Fledgling",
+            "Primordial Solar Phoenix",
+            "Epic",
+            "dragon",
+            "Solar Fire / Flame",
+            1,
+            10,
+            0,
+            100,
+            25,
+            1,
+            5,
+            "Hatchling",
+            "🔥",
+            null,
+            "phoenix-stage-1.png",
+            "phoenix",
+            true,
+            Map.of("vitality", 60),
+            Instant.now(),
+            Instant.now()
+        );
+        when(petHatcheryService.equipPet("student1", "pet-1")).thenReturn(pet);
+
+        mockMvc.perform(post("/api/hatchery/pets/pet-1/equip").principal(auth))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value("pet-1"))
+            .andExpect(jsonPath("$.isEquipped").value(true));
+    }
+
+    @Test
+    void equipEggReturnsEquippedEgg() throws Exception {
+        IncubatingEggDTO egg = new IncubatingEggDTO(
+            "egg-1",
+            "student1",
+            "Ancient Mysterious Egg",
+            "dragon",
+            null,
+            0.5,
+            "??? Mystery Pet",
+            "Veiled Beast",
+            true,
+            25,
+            true,
+            8,
+            14400L,
+            null,
+            "ancient-egg.png",
+            null,
+            Instant.now(),
+            Instant.now()
+        );
+        when(petHatcheryService.equipEgg("student1", "egg-1")).thenReturn(egg);
+
+        mockMvc.perform(post("/api/hatchery/incubator/egg-1/equip").principal(auth))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value("egg-1"))
+            .andExpect(jsonPath("$.isEquipped").value(true));
+    }
 }
 

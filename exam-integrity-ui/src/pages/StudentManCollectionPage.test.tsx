@@ -21,6 +21,8 @@ jest.mock('../services/hatcheryService', () => ({
     hatchEgg: jest.fn().mockResolvedValue({ id: 'pet-new', name: 'Sun Fledgling' }),
     growPet: jest.fn().mockResolvedValue({}),
     strikeEgg: jest.fn().mockResolvedValue({ id: 'egg-1', crackProgress: 0.5 }),
+    equipPet: jest.fn().mockResolvedValue({ id: 'pet-1', name: 'Pet One', isEquipped: true }),
+    equipEgg: jest.fn().mockResolvedValue({ id: 'egg-1', name: 'Egg One', isEquipped: true }),
   },
 }));
 
@@ -48,6 +50,8 @@ jest.mock('@hvantran/ui-component-library', () => {
       onEggHatched,
       onGrowPet,
       onStrikeCrack,
+      onEquipEgg,
+      onEquipPet,
       onNavigate,
       onLogout,
     }: any) => (
@@ -56,6 +60,20 @@ jest.mock('@hvantran/ui-component-library', () => {
         <div data-testid="star-count">{starCount}</div>
         <div data-testid="egg-count">{incubatingEggs?.length ?? 0}</div>
         <div data-testid="pet-count">{pets?.length ?? 0}</div>
+        <button
+          type="button"
+          data-testid="mock-equip-pet"
+          onClick={() => onEquipPet?.('pet-1')}
+        >
+          Equip Pet
+        </button>
+        <button
+          type="button"
+          data-testid="mock-equip-egg"
+          onClick={() => onEquipEgg?.('egg-1')}
+        >
+          Equip Egg
+        </button>
         <button
           type="button"
           data-testid="mock-hatch-egg"
@@ -226,6 +244,26 @@ describe('StudentManCollectionPage', () => {
     fireEvent.click(screen.getByTestId('mock-grow-pet-max'));
 
     expect(hatcheryService.growPet).not.toHaveBeenCalled();
+  });
+
+  it('equips a pet companion and calls hatcheryService.equipPet', async () => {
+    render(<StudentManCollectionPage />);
+
+    fireEvent.click(screen.getByTestId('mock-equip-pet'));
+
+    await waitFor(() => {
+      expect(hatcheryService.equipPet).toHaveBeenCalledWith('pet-1');
+    });
+  });
+
+  it('equips an incubating egg companion and calls hatcheryService.equipEgg', async () => {
+    render(<StudentManCollectionPage />);
+
+    fireEvent.click(screen.getByTestId('mock-equip-egg'));
+
+    await waitFor(() => {
+      expect(hatcheryService.equipEgg).toHaveBeenCalledWith('egg-1');
+    });
   });
 });
 
