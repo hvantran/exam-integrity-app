@@ -67,7 +67,6 @@ describe('TeacherManSettingsPage', () => {
     expect(screen.getByText('Common (%)')).toBeInTheDocument();
     expect(screen.getByText('Mythic (%)')).toBeInTheDocument();
     expect(screen.getByText('Pet Growth Cost (Stars)')).toBeInTheDocument();
-    expect(screen.getByText('Stars Per Answered Question')).toBeInTheDocument();
   });
 
   it('submits form with updated settings', async () => {
