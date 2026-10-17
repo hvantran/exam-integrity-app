@@ -330,7 +330,8 @@ public class SessionReviewService {
                 || score.getStatus() == Score.ScoreStatus.PENDING_ESSAY)
             .count();
         double finalScore10 = totalMax > 0 ? roundToOneDecimal((totalEarned / totalMax) * 10.0) : 0.0;
-        int starsEarned = (int) Math.round(finalScore10);
+        int answeredQuestionsCount = countAnsweredQuestions(session);
+        int starsEarned = userProfileService.calculateStarsEarned(finalScore10, answeredQuestionsCount);
 
         return new SessionResultSummaryDTO(
             session.getId(),
@@ -355,7 +356,31 @@ public class SessionReviewService {
         double totalEarned = scores.stream().mapToDouble(Score::getEarnedPoints).sum();
         double totalMax = scores.stream().mapToDouble(Score::getMaxPoints).sum();
         double finalScore10 = totalMax > 0 ? roundToOneDecimal((totalEarned / totalMax) * 10.0) : 0.0;
-        userProfileService.recordSessionCompletion(session.getStudentId(), session.getId(), finalScore10);
+        int answeredQuestionsCount = countAnsweredQuestions(session);
+        userProfileService.recordSessionCompletion(session.getStudentId(), session.getId(), finalScore10, answeredQuestionsCount);
+    }
+
+    private int countAnsweredQuestions(ExamSession session) {
+        if (session == null || session.getAnswers() == null) {
+            return 0;
+        }
+        return (int) session.getAnswers().values().stream()
+            .filter(this::isAnswered)
+            .count();
+    }
+
+    private boolean isAnswered(ExamSession.AnswerRecord record) {
+        if (record == null) {
+            return false;
+        }
+        if (record.getAnswer() != null && !record.getAnswer().trim().isEmpty()) {
+            return true;
+        }
+        if (record.getAnswerParts() != null && !record.getAnswerParts().isEmpty()) {
+            return record.getAnswerParts().stream()
+                .anyMatch(part -> part != null && part.getAnswer() != null && !part.getAnswer().trim().isEmpty());
+        }
+        return false;
     }
 
     private String resolveReferenceAnswer(Question question) {

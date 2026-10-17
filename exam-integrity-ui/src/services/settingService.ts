@@ -18,6 +18,7 @@ export interface SystemSettings {
   pet_exp_growth_multiplier?: number;
   pet_max_level?: number;
   stars_per_score_point?: number;
+  stars_per_answered_question?: number;
   stars_per_user_level?: number;
   [key: string]: any;
 }
@@ -40,6 +41,7 @@ export const DEFAULT_SETTINGS: SystemSettings = {
   pet_exp_growth_multiplier: 1.35,
   pet_max_level: 10,
   stars_per_score_point: 1.0,
+  stars_per_answered_question: 0.5,
   stars_per_user_level: 20,
 };
 

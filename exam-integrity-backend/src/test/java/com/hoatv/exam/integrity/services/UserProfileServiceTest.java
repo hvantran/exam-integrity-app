@@ -30,6 +30,7 @@ class UserProfileServiceTest {
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
         org.mockito.Mockito.lenient().when(settingService.getDouble(SettingService.KEY_STARS_PER_SCORE_POINT, 1.0)).thenReturn(1.0);
+        org.mockito.Mockito.lenient().when(settingService.getDouble(SettingService.KEY_STARS_PER_ANSWERED_QUESTION, 0.5)).thenReturn(0.5);
         org.mockito.Mockito.lenient().when(settingService.getInt(SettingService.KEY_STARS_PER_USER_LEVEL, 20)).thenReturn(20);
     }
 
@@ -119,6 +120,20 @@ class UserProfileServiceTest {
         UserProfileDTO rescoreDecrease = userProfileService.recordSessionCompletion("student1", "sess-1", 7.0);
         assertThat(rescoreDecrease.stats().totalStars()).isEqualTo(7);
         assertThat(rescoreDecrease.stats().completedExams()).isEqualTo(1);
+    }
+
+    @Test
+    void recordSessionCompletionAwardsStarsForAnsweredQuestions() {
+        UserProfile existing = new UserProfile("student1", "STUDENT", 5);
+        when(userProfileRepository.findByUserId("student1")).thenReturn(Optional.of(existing));
+        when(userProfileRepository.save(any(UserProfile.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Score 8.0 (8 stars) + 10 answered questions (10 * 0.5 = 5 stars) -> 13 stars
+        UserProfileDTO result = userProfileService.recordSessionCompletion("student1", "sess-answered", 8.0, 10);
+
+        assertThat(result.stats().totalStars()).isEqualTo(13);
+        assertThat(result.stats().completedExams()).isEqualTo(1);
+        assertThat(result.stats().highestScore10()).isEqualTo(8.0);
     }
 }
 

@@ -34,6 +34,7 @@ public class SettingService {
     public static final String KEY_PET_EXP_GROWTH_MULTIPLIER = "pet_exp_growth_multiplier";
     public static final String KEY_PET_MAX_LEVEL = "pet_max_level";
     public static final String KEY_STARS_PER_SCORE_POINT = "stars_per_score_point";
+    public static final String KEY_STARS_PER_ANSWERED_QUESTION = "stars_per_answered_question";
     public static final String KEY_STARS_PER_USER_LEVEL = "stars_per_user_level";
 
     private static final Map<String, Object> DEFAULTS = new LinkedHashMap<>();
@@ -56,6 +57,7 @@ public class SettingService {
         DEFAULTS.put(KEY_PET_EXP_GROWTH_MULTIPLIER, 1.35);
         DEFAULTS.put(KEY_PET_MAX_LEVEL, 10);
         DEFAULTS.put(KEY_STARS_PER_SCORE_POINT, 1.0);
+        DEFAULTS.put(KEY_STARS_PER_ANSWERED_QUESTION, 0.5);
         DEFAULTS.put(KEY_STARS_PER_USER_LEVEL, 20);
     }
 
