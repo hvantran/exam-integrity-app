@@ -297,4 +297,57 @@ class PetHatcheryServiceTest {
         verify(userProfileService, never()).spendStars(anyString(), anyInt());
         verify(studentItemRepository, never()).save(any(StudentItem.class));
     }
+
+    @Test
+    void getMyPetsReturnsEmptyListWhenUserIdIsBlank() {
+        assertThat(petHatcheryService.getMyPets("")).isEmpty();
+        assertThat(petHatcheryService.getMyPets(null)).isEmpty();
+        verify(studentItemRepository, never()).findByUserIdAndCategory(anyString(), anyString());
+    }
+
+    @Test
+    void getMyPetsReturnsEmptyListWhenUserHasNoPets() {
+        when(studentItemRepository.findByUserIdAndCategory("new-student", StudentItem.CATEGORY_PET))
+            .thenReturn(java.util.List.of());
+
+        java.util.List<StudentPetDTO> pets = petHatcheryService.getMyPets("new-student");
+
+        assertThat(pets).isEmpty();
+        verify(studentItemRepository, never()).save(any(StudentItem.class));
+    }
+
+    @Test
+    void getMyPetsReturnsMappedPetsWhenUserHasPets() {
+        StudentItem pet = StudentItem.builder()
+            .id("pet-1")
+            .userId("student1")
+            .category(StudentItem.CATEGORY_PET)
+            .name("Sun Ember Fledgling")
+            .species("Primordial Solar Phoenix")
+            .rarity("Epic")
+            .tier("dragon")
+            .element("Solar")
+            .level(1)
+            .currentExp(0)
+            .expNeeded(100)
+            .stageLevel(1)
+            .totalStages(5)
+            .stageName("Hatchling")
+            .avatarEmoji("🐣")
+            .isEquipped(true)
+            .createdAt(Instant.now())
+            .updatedAt(Instant.now())
+            .build();
+        pet.initDefaultStats();
+
+        when(studentItemRepository.findByUserIdAndCategory("student1", StudentItem.CATEGORY_PET))
+            .thenReturn(java.util.List.of(pet));
+
+        java.util.List<StudentPetDTO> pets = petHatcheryService.getMyPets("student1");
+
+        assertThat(pets).hasSize(1);
+        assertThat(pets.get(0).id()).isEqualTo("pet-1");
+        assertThat(pets.get(0).name()).isEqualTo("Sun Ember Fledgling");
+        assertThat(pets.get(0).isEquipped()).isTrue();
+    }
 }
