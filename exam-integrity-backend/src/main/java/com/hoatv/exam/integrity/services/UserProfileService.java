@@ -69,10 +69,14 @@ public class UserProfileService {
     }
 
     public UserProfileDTO recordSessionCompletion(String userId, String sessionId, double finalScore10) {
+        return recordSessionCompletion(userId, sessionId, finalScore10, 0);
+    }
+
+    public UserProfileDTO recordSessionCompletion(String userId, String sessionId, double finalScore10, int answeredQuestionsCount) {
         validateSessionCompletionInput(userId, sessionId);
 
         UserProfile profile = getOrCreateProfile(userId, ROLE_STUDENT, null);
-        int starsEarned = calculateStarsEarned(finalScore10);
+        int starsEarned = calculateStarsEarned(finalScore10, answeredQuestionsCount);
 
         updateProfileStats(profile, sessionId, starsEarned, finalScore10);
         updateGamificationLevel(profile);
@@ -90,9 +94,16 @@ public class UserProfileService {
         }
     }
 
-    private int calculateStarsEarned(double finalScore10) {
+    public int calculateStarsEarned(double finalScore10) {
+        return calculateStarsEarned(finalScore10, 0);
+    }
+
+    public int calculateStarsEarned(double finalScore10, int answeredQuestionsCount) {
         double starRatio = settingService.getDouble(SettingService.KEY_STARS_PER_SCORE_POINT, 1.0);
-        int starsEarned = (int) Math.round(finalScore10 * starRatio);
+        double questionStarRatio = settingService.getDouble(SettingService.KEY_STARS_PER_ANSWERED_QUESTION, 0.5);
+        double scoreStars = finalScore10 * starRatio;
+        double questionStars = Math.max(0, answeredQuestionsCount) * questionStarRatio;
+        int starsEarned = (int) Math.round(scoreStars + questionStars);
         return Math.max(0, starsEarned);
     }
 

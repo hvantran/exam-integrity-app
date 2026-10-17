@@ -40,6 +40,7 @@ class SettingServiceTest {
             .containsEntry(SettingService.KEY_EGG_DROP_RATE_EPIC, 14)
             .containsEntry(SettingService.KEY_EGG_DROP_RATE_LEGENDARY, 6)
             .containsEntry(SettingService.KEY_EGG_DROP_RATE_MYTHIC, 2)
+            .containsEntry(SettingService.KEY_STARS_PER_ANSWERED_QUESTION, 0.5)
             .containsEntry(SettingService.KEY_PET_GROW_STAR_COST, 25);
     }
 
