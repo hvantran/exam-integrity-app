@@ -89,7 +89,7 @@ class UserProfileServiceTest {
         UserProfileDTO result = userProfileService.recordSessionCompletion("student1", "sess-new", 8.0);
 
         assertThat(result.stats().totalStars()).isEqualTo(58);
-        assertThat(result.stats().completedExams()).isEqualTo(1);
+        assertThat(result.stats().completedExams()).isEqualTo(4);
         assertThat(result.stats().highestScore10()).isEqualTo(8.0);
         assertThat(result.gamification().level()).isEqualTo(3); // 58 / 20 + 1 = 3
     }

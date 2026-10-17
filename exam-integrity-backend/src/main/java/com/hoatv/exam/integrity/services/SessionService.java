@@ -18,6 +18,7 @@ import com.hoatv.fwk.common.exceptions.DuplicateResourceException;
 import com.hoatv.fwk.common.exceptions.EntityNotFoundException;
 import com.hoatv.fwk.common.exceptions.InvalidArgumentException;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -70,9 +71,7 @@ public class SessionService {
             }
         }
 
-        sessionRepository.findByStudentIdAndExamIdAndStatus(studentId, examId, ExamSession.SessionStatus.ACTIVE)
-            .ifPresent(s -> { throw new DuplicateResourceException(
-                "Student already has an active session for this exam"); });
+        validateNoActiveSession(studentId, examId, exam);
 
         ExamSession session = new ExamSession();
         session.setId(UUID.randomUUID().toString());
@@ -232,5 +231,34 @@ public class SessionService {
                 return partRecord;
             })
             .toList();
+    }
+
+    private void validateNoActiveSession(String studentId, String examId, Exam exam) {
+        sessionRepository.findFirstByStudentIdAndStatus(studentId, ExamSession.SessionStatus.ACTIVE)
+            .ifPresent(activeSession -> {
+                long remaining = getRemainingSeconds(activeSession.getId());
+                boolean expired = remaining <= 0;
+                if (activeSession.getStartedAt() != null) {
+                    Exam prevExam = examId.equals(activeSession.getExamId())
+                        ? exam
+                        : examRepository.findById(activeSession.getExamId()).orElse(null);
+                    if (prevExam != null && prevExam.getDurationSeconds() > 0) {
+                        long elapsed = Duration.between(activeSession.getStartedAt(), Instant.now()).getSeconds();
+                        expired = expired && elapsed >= prevExam.getDurationSeconds();
+                    }
+                }
+                if (expired) {
+                    try {
+                        submitExam(activeSession.getId(), true);
+                    } catch (Exception e) {
+                        logger.warn("Auto-submitting expired session {} failed: {}", activeSession.getId(), e.getMessage());
+                    }
+                } else {
+                    if (examId.equals(activeSession.getExamId())) {
+                        throw new DuplicateResourceException("Student already has an active session for this exam");
+                    }
+                    throw new DuplicateResourceException("Student already has an active session in progress for another exam");
+                }
+            });
     }
 }
