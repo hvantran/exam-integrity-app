@@ -42,7 +42,6 @@ const SECTION_ROUTES: Record<DashboardSection, string> = {
 
 type ExamStatusFilter = 'all' | 'published' | 'draft';
 
-
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 const TeacherManDashboardPage: React.FC = () => {
@@ -59,10 +58,18 @@ const TeacherManDashboardPage: React.FC = () => {
   const [previewExamId, setPreviewExamId] = useState('');
   const [previewQuestionIndex, setPreviewQuestionIndex] = useState(0);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
-  const [syncTarget, setSyncTarget] = useState<{ id: string; title: string; linkedCount?: number } | null>(null);
+  const [syncTarget, setSyncTarget] = useState<{
+    id: string;
+    title: string;
+    linkedCount?: number;
+  } | null>(null);
   const importFileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const { data: exams, isLoading, refetch: refetchExams } = useQuery({
+  const {
+    data: exams,
+    isLoading,
+    refetch: refetchExams,
+  } = useQuery({
     queryKey: ['teacher-exams'],
     queryFn: () => examService.listAllExams(),
   });
@@ -104,27 +111,6 @@ const TeacherManDashboardPage: React.FC = () => {
 
   const publishedCount = (exams ?? []).filter((exam) => exam.status === 'ACTIVE').length;
   const draftCount = (exams ?? []).length - publishedCount;
-
-  const previewQuestions = previewExam?.questions ?? [];
-  const activePreviewQuestion = previewQuestions[previewQuestionIndex];
-  const previewTotalQuestions = previewQuestions.length;
-
-  const mapPreviewOptions = (options?: string[]): QuestionOption[] | undefined =>
-    options?.map((raw, index) => {
-      if (!raw) return { key: String.fromCharCode(65 + index), text: '' };
-      const imgIdx = raw.indexOf('data:image/');
-      if (imgIdx === -1) {
-        return {
-          key: String.fromCharCode(65 + index),
-          text: raw,
-        };
-      }
-      return {
-        key: String.fromCharCode(65 + index),
-        text: raw.substring(0, imgIdx).trim(),
-        imageBase64: raw.substring(imgIdx).trim() || undefined,
-      };
-    });
 
   const handlePreviewClose = () => {
     setPreviewExamId('');
@@ -219,7 +205,7 @@ const TeacherManDashboardPage: React.FC = () => {
         setSyncTarget(null);
         refetchExams();
         toast.success(
-          `Successfully synced ${data.syncedCount} question(s) from question bank for "${syncTarget.title}".`
+          `Successfully synced ${data.syncedCount} question(s) from question bank for "${syncTarget.title}".`,
         );
       },
       onError: (err: Error) => {
@@ -324,16 +310,37 @@ const TeacherManDashboardPage: React.FC = () => {
       onConfirmSync={handleConfirmSync}
       onCancelSync={() => setSyncTarget(null)}
       isSyncingQuestions={syncExamQuestions.isPending}
+      gridSlot={
+        isLoading
+          ? Array.from({ length: 6 }).map((_, index) => <Skeleton key={index} height={220} />)
+          : exams && exams.length > 0 && visibleExams.length > 0
+            ? visibleExams.map((exam) => (
+                <ExamIntegrityExamCard
+                  key={exam.id}
+                  examId={exam.id}
+                  title={exam.title}
+                  durationSeconds={exam.durationSeconds}
+                  questionCount={exam.questionCount}
+                  totalPoints={exam.totalPoints}
+                  tags={exam.tags}
+                  status={exam.status}
+                  onPreview={() => {
+                    setPreviewQuestionIndex(0);
+                    setPreviewExamId(exam.id);
+                  }}
+                  onManageQuestions={openManageQuestions}
+                  isUpdatingQuestions={updateExamQuestions.isPending || isManageExamLoading}
+                  onSyncQuestions={handleOpenSyncDialog}
+                  isSyncingQuestions={syncExamQuestions.isPending && syncTarget?.id === exam.id}
+                  onExport={() => handleExportExam(exam.id, exam.title)}
+                  isExporting={exportExamMutation.isPending}
+                  onDelete={() => setDeleteTarget({ id: exam.id, title: exam.title })}
+                />
+              ))
+            : null
+      }
     >
-      {/* Content */}
-      {isLoading && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 py-2">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <Skeleton key={index} height={220} />
-          ))}
-        </div>
-      )}
-
+      {/* Empty States */}
       {!isLoading && (!exams || exams.length === 0) && (
         <EmptyState
           title="No exams yet"
@@ -346,34 +353,6 @@ const TeacherManDashboardPage: React.FC = () => {
           title={`No ${examStatusFilter === 'published' ? 'published' : 'draft'} exams found`}
           description="Try a different filter to view the rest of your exam library."
         />
-      )}
-
-      {!isLoading && exams && exams.length > 0 && visibleExams.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {visibleExams.map((exam) => (
-            <ExamIntegrityExamCard
-              key={exam.id}
-              examId={exam.id}
-              title={exam.title}
-              durationSeconds={exam.durationSeconds}
-              questionCount={exam.questionCount}
-              totalPoints={exam.totalPoints}
-              tags={exam.tags}
-              status={exam.status}
-              onPreview={() => {
-                setPreviewQuestionIndex(0);
-                setPreviewExamId(exam.id);
-              }}
-              onManageQuestions={openManageQuestions}
-              isUpdatingQuestions={updateExamQuestions.isPending || isManageExamLoading}
-              onSyncQuestions={handleOpenSyncDialog}
-              isSyncingQuestions={syncExamQuestions.isPending && syncTarget?.id === exam.id}
-              onExport={() => handleExportExam(exam.id, exam.title)}
-              isExporting={exportExamMutation.isPending}
-              onDelete={() => setDeleteTarget({ id: exam.id, title: exam.title })}
-            />
-          ))}
-        </div>
       )}
 
       <ExamIntegrityCreateExamDialog
@@ -391,7 +370,8 @@ const TeacherManDashboardPage: React.FC = () => {
         onSubmit={(result) =>
           handleCreate({
             title: result.title,
-            durationSeconds: result.durationSeconds ?? (result.durationMin ? result.durationMin * 60 : 3600),
+            durationSeconds:
+              result.durationSeconds ?? (result.durationMin ? result.durationMin * 60 : 3600),
             mcqCount: result.mcqCount ?? 0,
             essayShortCount: result.essayShortCount ?? 0,
             essayLongCount: result.essayLongCount ?? 0,
@@ -418,7 +398,9 @@ const TeacherManDashboardPage: React.FC = () => {
         }}
         mode="edit"
         initialTitle={manageTargetExam?.title}
-        initialDurationMin={manageTargetExam ? Math.round(manageTargetExam.durationSeconds / 60) : 60}
+        initialDurationMin={
+          manageTargetExam ? Math.round(manageTargetExam.durationSeconds / 60) : 60
+        }
         initialSelectedQuestionIds={initialManagedQuestionIds}
         onSubmitSelection={handleSubmitManagedQuestions}
         isLoading={updateExamQuestions.isPending}
