@@ -3,23 +3,21 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Alert } from '@mui/material';
-import { Search } from 'lucide-react';
 import {
   ExamIntegrityTeacherQuestionReviewTemplate,
   ExamIntegrityDashboardSection,
-  Modal,
-  Button,
-  Input,
-  Skeleton,
-  Chip,
   ExamIntegrityQuestionDisplay as QuestionDisplay,
+  ExamIntegrityReplaceFromBankModal,
+  ExamIntegrityQuestionReviewWorkspace,
+  ExamIntegrityQuestionReviewSummaryCard,
+  type DraftQuestionDTO as UCLDraftQuestionDTO,
 } from '@hvantran/ui-component-library';
 import { useDraft, useEditQuestion, useRemoveQuestion, useAddQuestion } from '../hooks/useDraft';
 import { useAuth } from '../context/AuthContext';
 import { useNavDockMode, TEACHER_NAV_DOCK_STORAGE_KEY } from '../hooks/useNavDockMode';
 import { useQuery } from '@tanstack/react-query';
 import { questionBankService } from '../services/questionBankService';
-import type { DraftQuestionDTO } from '../types/exam.types';
+import type { DraftQuestionDTO, QuestionType } from '../types/exam.types';
 
 const SECTION_ROUTES: Record<ExamIntegrityDashboardSection, string> = {
   dashboard: '/teacher/dashboard',
@@ -59,130 +57,6 @@ function normalizeMcqAnswer(answer: string | undefined, options: string[] | unde
   return directLabel;
 }
 
-// ── Replace-from-Bank modal ──────────────────────────────────────────────────
-
-interface ReplaceBankModalProps {
-  open: boolean;
-  insertPosition: number; // 1-based position in the draft
-  draftId: string;
-  onClose: () => void;
-}
-
-const ReplaceBankModal: React.FC<ReplaceBankModalProps> = ({
-  open,
-  insertPosition,
-  draftId,
-  onClose,
-}) => {
-  const [search, setSearch] = useState('');
-  const addQuestion = useAddQuestion(draftId);
-
-  const { data, isLoading } = useQuery({
-    queryKey: ['question-bank-pick', search],
-    queryFn: () => questionBankService.search({ q: search || undefined, size: 20 }),
-    enabled: open,
-    placeholderData: (prev) => prev,
-  });
-
-  const handlePick = (q: DraftQuestionDTO) => {
-    addQuestion.mutate(
-      {
-        question: {
-          content: q.content,
-          type: q.type,
-          points: q.points,
-          options: q.options,
-          correctAnswer: q.correctAnswer,
-          rubric: q.rubric,
-        },
-        position: insertPosition,
-      },
-      {
-        onSuccess: () => {
-          toast.success('Question inserted from bank.');
-          onClose();
-        },
-        onError: (e: Error) => toast.error(e.message || 'Failed to insert question.'),
-      },
-    );
-  };
-
-  return (
-    <Modal
-      isOpen={open}
-      onClose={onClose}
-      title="Select questions from the bank"
-      maxWidth="lg"
-      footer={
-        <Button variant="ghost" size="sm" onClick={onClose}>
-          Close
-        </Button>
-      }
-    >
-      <div className="space-y-4">
-        <Input
-          placeholder="Search question content…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          icon={<Search size={18} className="text-gray-400" />}
-          fullWidth
-        />
-        {isLoading ? (
-          <div className="py-2 space-y-2">
-            <Skeleton height={40} width="100%" />
-            <Skeleton height={40} width="100%" />
-            <Skeleton height={40} width="100%" />
-            <Skeleton height={40} width="100%" />
-          </div>
-        ) : (
-          <div className="overflow-x-auto border border-gray-200 dark:border-gray-800 rounded-lg">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800 text-xs text-gray-500 uppercase">
-                <tr>
-                  <th className="px-4 py-2.5">Content</th>
-                  <th className="px-4 py-2.5 w-24">Type</th>
-                  <th className="px-4 py-2.5 w-20">Points</th>
-                  <th className="px-4 py-2.5 w-24 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                {(data?.content ?? []).map((q) => (
-                  <tr key={q.id} className="hover:bg-gray-50/80 dark:hover:bg-gray-800/40 transition-colors">
-                    <td className="px-4 py-2.5 max-w-[420px]">
-                      <span className="truncate block text-gray-900 dark:text-gray-100">{q.content}</span>
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <Chip label={q.type} size="sm" />
-                    </td>
-                    <td className="px-4 py-2.5 text-gray-700 dark:text-gray-300">{q.points}</td>
-                    <td className="px-4 py-2.5 text-right">
-                      <Button
-                        size="sm"
-                        variant="primary"
-                        disabled={addQuestion.isPending}
-                        onClick={() => handlePick(q)}
-                      >
-                        Select
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-                {data?.content.length === 0 && (
-                  <tr>
-                    <td colSpan={4} className="text-center text-gray-400 py-6 text-sm">
-                      No questions found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    </Modal>
-  );
-};
-
 // ── Main page ────────────────────────────────────────────────────────────────
 
 const QuestionReviewPage: React.FC = () => {
@@ -190,6 +64,7 @@ const QuestionReviewPage: React.FC = () => {
   const [dockMode, setDockMode] = useNavDockMode('pinned', TEACHER_NAV_DOCK_STORAGE_KEY);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [bankModalOpen, setBankModalOpen] = useState(false);
+  const [bankSearch, setBankSearch] = useState('');
   const [scoreInput, setScoreInput] = useState<number | ''>('');
   const [correctAnswerInput, setCorrectAnswerInput] = useState('');
   const [pendingCorrectAnswers, setPendingCorrectAnswers] = useState<Record<string, string>>({});
@@ -206,6 +81,14 @@ const QuestionReviewPage: React.FC = () => {
   const { data: draft, isLoading } = useDraft(draftId);
   const editQuestion = useEditQuestion(draftId);
   const removeQuestion = useRemoveQuestion(draftId);
+  const addQuestion = useAddQuestion(draftId);
+
+  const { data: bankData, isLoading: isBankLoading } = useQuery({
+    queryKey: ['question-bank-pick', bankSearch],
+    queryFn: () => questionBankService.search({ q: bankSearch || undefined, size: 20 }),
+    enabled: bankModalOpen,
+    placeholderData: (prev) => prev,
+  });
 
   // Only show non-excluded questions in the reviewer
   const questions = (draft?.questions ?? []).filter((q) => q.reviewStatus !== 'EXCLUDED');
@@ -458,6 +341,29 @@ const QuestionReviewPage: React.FC = () => {
     });
   };
 
+  const handlePickFromBank = (q: UCLDraftQuestionDTO) => {
+    addQuestion.mutate(
+      {
+        question: {
+          content: q.content,
+          type: q.type as QuestionType,
+          points: q.points,
+          options: q.options,
+          correctAnswer: q.correctAnswer,
+          rubric: q.rubric,
+        },
+        position: currentIdx + 1,
+      },
+      {
+        onSuccess: () => {
+          toast.success('Question inserted from bank.');
+          setBankModalOpen(false);
+        },
+        onError: (e: Error) => toast.error(e.message || 'Failed to insert question.'),
+      },
+    );
+  };
+
   // Now early returns can happen
   if (isLoading) {
     return (
@@ -509,31 +415,14 @@ const QuestionReviewPage: React.FC = () => {
         dockMode={dockMode}
         onDockModeChange={setDockMode}
         leftPanel={
-          <div className="p-4">
-            {saveError && (
-              <Alert severity="warning" className="mb-3">
-                {saveError}
-              </Alert>
-            )}
-
-            {/* Question navigator pills */}
-            {total > 0 && (
-              <div className="flex flex-wrap gap-2 mb-4">
-                {questions.map((q, i) => (
-                  <Button
-                    key={q.id}
-                    type="button"
-                    onClick={() => setCurrentIdx(i)}
-                    variant={currentIdx === i ? 'primary' : 'neutral'}
-                    size="sm"
-                    className="!px-3 !py-1 text-xs"
-                  >
-                    {`Question ${q.questionNumber > 0 ? q.questionNumber : i + 1}`}
-                  </Button>
-                ))}
-              </div>
-            )}
-
+          <ExamIntegrityQuestionReviewWorkspace
+            saveError={saveError}
+            questions={questions}
+            currentIndex={currentIdx}
+            onSelectIndex={setCurrentIdx}
+            onPrev={() => setCurrentIdx((i) => i - 1)}
+            onNext={() => setCurrentIdx((i) => i + 1)}
+          >
             {currentQ ? (
               <QuestionDisplay
                 question={currentQ}
@@ -551,53 +440,27 @@ const QuestionReviewPage: React.FC = () => {
             ) : (
               <Alert severity="info">No questions were extracted from this PDF.</Alert>
             )}
-
-            <div className="flex gap-2 mt-4 items-center">
-              <Button
-                variant="neutral"
-                size="sm"
-                disabled={currentIdx === 0}
-                onClick={() => setCurrentIdx((i) => i - 1)}
-                className="!px-3 !py-1 text-xs"
-              >
-                ← Prev
-              </Button>
-              <span className="flex-1 text-center text-xs text-gray-500">
-                {total > 0 ? `${currentIdx + 1} / ${total}` : 'No questions'}
-              </span>
-              <Button
-                variant="neutral"
-                size="sm"
-                disabled={currentIdx >= total - 1}
-                onClick={() => setCurrentIdx((i) => i + 1)}
-                className="!px-3 !py-1 text-xs"
-              >
-                Next →
-              </Button>
-            </div>
-          </div>
+          </ExamIntegrityQuestionReviewWorkspace>
         }
         rightPanel={
-          <div className="p-4">
-            <div className="text-xs font-semibold text-gray-700 mb-1">Draft Info</div>
-            <div className="text-xs text-gray-500">{draft.summary.originalFilename}</div>
-            <div className="text-xs text-gray-500 mt-2">
-              {total} questions · {draft.summary.totalPoints} pts
-            </div>
-            {draft.summary.flaggedQuestionCount > 0 && (
-              <div className="text-xs text-yellow-700 mt-2">
-                ⚠ {draft.summary.flaggedQuestionCount} questions need review
-              </div>
-            )}
-          </div>
+          <ExamIntegrityQuestionReviewSummaryCard
+            filename={draft.summary.originalFilename}
+            totalQuestions={total}
+            totalPoints={draft.summary.totalPoints}
+            flaggedCount={draft.summary.flaggedQuestionCount}
+          />
         }
       />
 
-      <ReplaceBankModal
+      <ExamIntegrityReplaceFromBankModal
         open={bankModalOpen}
-        insertPosition={currentIdx + 1}
-        draftId={draftId}
         onClose={() => setBankModalOpen(false)}
+        search={bankSearch}
+        onSearchChange={setBankSearch}
+        questions={bankData?.content as unknown as UCLDraftQuestionDTO[]}
+        isLoading={isBankLoading}
+        isSelecting={addQuestion.isPending}
+        onSelect={handlePickFromBank}
       />
     </>
   );
