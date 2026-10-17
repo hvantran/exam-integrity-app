@@ -1,10 +1,10 @@
 /** FE-17: Teacher PDF ingestion page */
 import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Typography, Alert, LinearProgress } from '@mui/material';
 import { toast } from 'react-toastify';
 import {
   ExamIntegrityTeacherIngestionTemplate as TeacherManIngestionLayout,
+  ExamIntegrityTeacherPdfIngestionZone,
   type ExamIntegrityDashboardSection as DashboardSection,
 } from '@hvantran/ui-component-library';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -70,25 +70,13 @@ const IngestionPage: React.FC = () => {
       dockMode={dockMode}
       onDockModeChange={setDockMode}
     >
-      <div className="p-6 text-center bg-surface text-on-surface">
-        <input type="file" accept=".pdf" ref={inputRef} hidden onChange={handleFile} />
-        {upload.isPending && (
-          <>
-            <LinearProgress className="mt-2" />
-            <div className="mt-2 text-on-surface text-sm">Processing PDF…</div>
-          </>
-        )}
-        {upload.isSuccess && (
-          <Alert severity="success" className="mt-2">
-            Upload successful! Redirecting to review page…
-          </Alert>
-        )}
-        {error && (
-          <Alert severity="error" className="mt-2">
-            {error}
-          </Alert>
-        )}
-      </div>
+      <ExamIntegrityTeacherPdfIngestionZone
+        ref={inputRef}
+        onFileSelect={handleFile}
+        isProcessing={upload.isPending}
+        isSuccess={upload.isSuccess}
+        error={error}
+      />
     </TeacherManIngestionLayout>
   );
 };

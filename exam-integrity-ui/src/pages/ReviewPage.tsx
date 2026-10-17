@@ -6,6 +6,7 @@ import {
   ExamIntegrityStudentReviewTemplate as StudentManReviewLayout,
   ExamIntegrityReviewDashboard as ReviewDashboard,
   ExamIntegrityResultsCelebration as ElementaryResultsCelebration,
+  ExamIntegrityReviewContentContainer,
   type ExamIntegrityStudentPortalSection as PortalSection,
 } from '@hvantran/ui-component-library';
 import { useReviewDashboard } from '../hooks/useReviewDashboard';
@@ -38,7 +39,7 @@ const ReviewPage: React.FC = () => {
       activeSection="my-exams"
       onNavigate={handleNavigate}
     >
-      <div className="p-2 sm:p-4 min-h-[300px]">
+      <ExamIntegrityReviewContentContainer>
         {isLoading ? (
           <ReviewDashboard
             isLoading
@@ -59,7 +60,7 @@ const ReviewPage: React.FC = () => {
         ) : (
           <ReviewDashboard dashboard={dashboard} />
         )}
-      </div>
+      </ExamIntegrityReviewContentContainer>
     </StudentManReviewLayout>
   );
 };
