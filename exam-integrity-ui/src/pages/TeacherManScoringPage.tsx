@@ -103,26 +103,32 @@ const TeacherManScoringPage: React.FC = () => {
                 const isSelected = item.sessionId === selectedSummary?.sessionId;
                 return (
                   <Card
-                      key={item.sessionId}
-                      selected={isSelected}
-                      onClick={() => setSelectedSessionId(item.sessionId)}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="font-semibold text-gray-900 truncate">{item.examTitle}</div>
-                          <div className="text-sm text-gray-500 mt-0.5">Student: {item.studentId}</div>
+                    key={item.sessionId}
+                    selected={isSelected}
+                    onClick={() => setSelectedSessionId(item.sessionId)}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="font-semibold text-gray-900 truncate">{item.examTitle}</div>
+                        <div className="text-sm text-gray-500 mt-0.5">
+                          Student: {item.studentId}
                         </div>
-                        <span className="shrink-0 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
-                          {item.pendingEssayCount} pending
-                        </span>
                       </div>
-                      <div className="mt-3 flex items-center justify-between text-sm text-gray-500">
-                        <span>{item.submittedAt ? new Date(item.submittedAt).toLocaleString() : 'Submitted'}</span>
-                        <span className="font-medium text-gray-700">
-                          {item.totalEarned.toFixed(1)} / {item.totalMax.toFixed(1)} pts
-                        </span>
-                      </div>
-                    </Card>
+                      <span className="shrink-0 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
+                        {item.pendingEssayCount} pending
+                      </span>
+                    </div>
+                    <div className="mt-3 flex items-center justify-between text-sm text-gray-500">
+                      <span>
+                        {item.submittedAt
+                          ? new Date(item.submittedAt).toLocaleString()
+                          : 'Submitted'}
+                      </span>
+                      <span className="font-medium text-gray-700">
+                        {item.totalEarned.toFixed(1)} / {item.totalMax.toFixed(1)} pts
+                      </span>
+                    </div>
+                  </Card>
                 );
               })}
             </div>
@@ -257,31 +263,65 @@ const TeacherManScoringPage: React.FC = () => {
                               {score.status.replaceAll('_', ' ')}
                             </span>
                           </div>
-                          <Button
-                            type="button"
-                            disabled={isInvalid || teacherScore.isPending}
-                            onClick={() =>
-                              teacherScore.mutate(
-                                {
-                                  questionId: score.questionId,
-                                  payload: {
-                                    earnedPoints: parsedPoints,
-                                    explanation: draft.explanation.trim() || undefined,
+                          <div className="flex items-center gap-2">
+                            <Button
+                              type="button"
+                              disabled={teacherScore.isPending}
+                              onClick={() => {
+                                setDrafts((current) => ({
+                                  ...current,
+                                  [score.questionId]: {
+                                    ...draft,
+                                    earnedPoints: String(score.maxPoints),
                                   },
-                                },
-                                {
-                                  onSuccess: () => toast.success('Score saved successfully.'),
-                                  onError: (e: Error) =>
-                                    toast.error(e.message || 'Failed to save score.'),
-                                },
-                              )
-                            }
-                            variant="primary"
-                            size="sm"
-                            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
-                          >
-                            {teacherScore.isPending ? 'Saving…' : 'Save score'}
-                          </Button>
+                                }));
+                                teacherScore.mutate(
+                                  {
+                                    questionId: score.questionId,
+                                    payload: {
+                                      earnedPoints: score.maxPoints,
+                                      explanation: draft.explanation.trim() || undefined,
+                                    },
+                                  },
+                                  {
+                                    onSuccess: () => toast.success('Score saved successfully.'),
+                                    onError: (e: Error) =>
+                                      toast.error(e.message || 'Failed to save score.'),
+                                  },
+                                );
+                              }}
+                              variant="secondary"
+                              size="sm"
+                              className="rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              Mark correct
+                            </Button>
+                            <Button
+                              type="button"
+                              disabled={isInvalid || teacherScore.isPending}
+                              onClick={() =>
+                                teacherScore.mutate(
+                                  {
+                                    questionId: score.questionId,
+                                    payload: {
+                                      earnedPoints: parsedPoints,
+                                      explanation: draft.explanation.trim() || undefined,
+                                    },
+                                  },
+                                  {
+                                    onSuccess: () => toast.success('Score saved successfully.'),
+                                    onError: (e: Error) =>
+                                      toast.error(e.message || 'Failed to save score.'),
+                                  },
+                                )
+                              }
+                              variant="primary"
+                              size="sm"
+                              className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+                            >
+                              {teacherScore.isPending ? 'Saving…' : 'Save score'}
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     );
