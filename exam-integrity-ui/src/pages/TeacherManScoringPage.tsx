@@ -1,11 +1,8 @@
-import React from 'react';
-import { Alert, CircularProgress } from '@mui/material';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
-  Button,
-  Card,
-  ExamIntegrityTeacherDashboardTemplate as TeacherManDashboardLayout,
+  ExamIntegrityTeacherScoringTemplate,
   type ExamIntegrityDashboardSection as DashboardSection,
 } from '@hvantran/ui-component-library';
 import { useAuth } from '../context/AuthContext';
@@ -28,17 +25,14 @@ const SECTION_ROUTES: Record<DashboardSection, string> = {
 
 const TeacherManScoringPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, logout, displayName } = useAuth();
+  const { logout, displayName } = useAuth();
   const [dockMode, setDockMode] = useNavDockMode('pinned', TEACHER_NAV_DOCK_STORAGE_KEY);
-  const { data: queue = [], isLoading } = useTeacherScoringQueue();
-  const [selectedSessionId, setSelectedSessionId] = React.useState('');
-  const { data: dashboard, isLoading: reviewLoading } = useReviewDashboard(selectedSessionId);
+  const { data: queue = [], isLoading: isLoadingQueue } = useTeacherScoringQueue();
+  const [selectedSessionId, setSelectedSessionId] = useState('');
+  const { data: dashboard, isLoading: isLoadingSubmission } = useReviewDashboard(selectedSessionId);
   const teacherScore = useTeacherScore(selectedSessionId);
-  const [drafts, setDrafts] = React.useState<
-    Record<string, { earnedPoints: string; explanation: string }>
-  >({});
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (queue.length === 0) {
       return;
     }
@@ -47,258 +41,78 @@ const TeacherManScoringPage: React.FC = () => {
     }
   }, [queue, selectedSessionId]);
 
-  React.useEffect(() => {
-    if (!dashboard) {
-      return;
-    }
-    const nextDrafts = dashboard.scores
-      .filter((score) => score.questionType !== 'MCQ')
-      .reduce<Record<string, { earnedPoints: string; explanation: string }>>((acc, score) => {
-        acc[score.questionId] = {
-          earnedPoints: String(score.earnedPoints),
-          explanation: score.explanation ?? '',
-        };
-        return acc;
-      }, {});
-    setDrafts(nextDrafts);
-  }, [dashboard]);
-
   const handleLogout = () => {
     logout();
   };
 
   const handleNavigate = (section: DashboardSection) => navigate(SECTION_ROUTES[section]);
-  const selectedSummary = queue.find((item) => item.sessionId === selectedSessionId);
-  const essayScores = dashboard?.scores.filter((score) => score.questionType !== 'MCQ') ?? [];
+
+  const handleSaveScore = ({
+    questionId,
+    earnedPoints,
+    explanation,
+  }: {
+    questionId: string;
+    earnedPoints: number;
+    explanation?: string;
+  }) => {
+    teacherScore.mutate(
+      {
+        questionId,
+        payload: {
+          earnedPoints,
+          explanation,
+        },
+      },
+      {
+        onSuccess: () => toast.success('Score saved successfully.'),
+        onError: (e: Error) => toast.error(e.message || 'Failed to save score.'),
+      },
+    );
+  };
+
+  const handleMarkCorrect = ({
+    questionId,
+    maxPoints,
+    explanation,
+  }: {
+    questionId: string;
+    maxPoints: number;
+    explanation?: string;
+  }) => {
+    teacherScore.mutate(
+      {
+        questionId,
+        payload: {
+          earnedPoints: maxPoints,
+          explanation,
+        },
+      },
+      {
+        onSuccess: () => toast.success('Score saved successfully.'),
+        onError: (e: Error) => toast.error(e.message || 'Failed to save score.'),
+      },
+    );
+  };
 
   return (
-    <TeacherManDashboardLayout
-      activeSection="scoring"
+    <ExamIntegrityTeacherScoringTemplate
       userName={displayName || 'Teacher'}
       userRole="Teacher"
       onNavigate={handleNavigate}
       onLogout={handleLogout}
       dockMode={dockMode}
       onDockModeChange={setDockMode}
-    >
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Essay Scoring</h1>
-          <p className="mt-2 text-gray-600">
-            Auto-grade MCQ on submission, then review and score essay questions manually.
-          </p>
-        </div>
-
-        {isLoading ? (
-          <div className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-white p-6">
-            <CircularProgress size={20} />
-            <span className="text-sm text-gray-600">Loading grading queue…</span>
-          </div>
-        ) : queue.length === 0 ? (
-          <Alert severity="success">No essay submissions are waiting for teacher grading.</Alert>
-        ) : (
-          <div className="grid grid-cols-1 xl:grid-cols-[340px_minmax(0,1fr)] gap-6">
-            <div className="space-y-3">
-              {queue.map((item) => {
-                const isSelected = item.sessionId === selectedSummary?.sessionId;
-                return (
-                  <Card
-                      key={item.sessionId}
-                      selected={isSelected}
-                      onClick={() => setSelectedSessionId(item.sessionId)}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="font-semibold text-gray-900 truncate">{item.examTitle}</div>
-                          <div className="text-sm text-gray-500 mt-0.5">Student: {item.studentId}</div>
-                        </div>
-                        <span className="shrink-0 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
-                          {item.pendingEssayCount} pending
-                        </span>
-                      </div>
-                      <div className="mt-3 flex items-center justify-between text-sm text-gray-500">
-                        <span>{item.submittedAt ? new Date(item.submittedAt).toLocaleString() : 'Submitted'}</span>
-                        <span className="font-medium text-gray-700">
-                          {item.totalEarned.toFixed(1)} / {item.totalMax.toFixed(1)} pts
-                        </span>
-                      </div>
-                    </Card>
-                );
-              })}
-            </div>
-
-            <div className="space-y-4">
-              {reviewLoading ? (
-                <div className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-white p-6">
-                  <CircularProgress size={20} />
-                  <span className="text-sm text-gray-600">Loading selected submission…</span>
-                </div>
-              ) : !dashboard || !selectedSummary ? (
-                <Alert severity="info">Select a submitted exam to score its essay questions.</Alert>
-              ) : (
-                <>
-                  <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <div className="text-2xl font-bold text-gray-900">
-                          {selectedSummary.examTitle}
-                        </div>
-                        <div className="mt-1 text-sm text-gray-500">
-                          Student: {selectedSummary.studentId}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm text-gray-500">Current total</div>
-                        <div className="text-3xl font-bold text-gray-900">
-                          {dashboard.finalScore10.toFixed(1)}
-                          <span className="text-base font-medium text-gray-500">/10</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {essayScores.map((score) => {
-                    const draft = drafts[score.questionId] ?? {
-                      earnedPoints: String(score.earnedPoints),
-                      explanation: score.explanation ?? '',
-                    };
-                    const parsedPoints = Number(draft.earnedPoints);
-                    const isInvalid =
-                      draft.earnedPoints.trim() === '' ||
-                      Number.isNaN(parsedPoints) ||
-                      parsedPoints < 0 ||
-                      parsedPoints > score.maxPoints;
-
-                    return (
-                      <div
-                        key={score.questionId}
-                        className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
-                      >
-                        <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-                          <div>
-                            <div className="text-lg font-semibold text-gray-900">
-                              Question {score.questionNumber}
-                            </div>
-                            <div className="mt-2 whitespace-pre-wrap text-sm text-gray-700">
-                              {score.questionText || 'Essay question'}
-                            </div>
-                          </div>
-                          <div className="rounded-full bg-gray-100 px-3 py-1 text-sm font-semibold text-gray-700">
-                            Max {score.maxPoints.toFixed(1)} pts
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-                          <div className="rounded-xl border border-red-100 bg-red-50 p-4">
-                            <div className="text-xs font-semibold uppercase tracking-wide text-red-700">
-                              Student Answer
-                            </div>
-                            <div className="mt-2 whitespace-pre-wrap text-sm text-red-900">
-                              {score.studentAnswer || '(No answer)'}
-                            </div>
-                          </div>
-                          <div className="rounded-xl border border-green-100 bg-green-50 p-4">
-                            <div className="text-xs font-semibold uppercase tracking-wide text-green-700">
-                              Reference Answer
-                            </div>
-                            <div className="mt-2 whitespace-pre-wrap text-sm text-green-900">
-                              {score.correctAnswer || 'No reference answer configured.'}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 lg:grid-cols-[160px_minmax(0,1fr)] gap-4">
-                          <label className="block">
-                            <span className="mb-2 block text-sm font-medium text-gray-700">
-                              Awarded points
-                            </span>
-                            <input
-                              type="number"
-                              min={0}
-                              max={score.maxPoints}
-                              step={0.1}
-                              value={draft.earnedPoints}
-                              onChange={(event) =>
-                                setDrafts((current) => ({
-                                  ...current,
-                                  [score.questionId]: {
-                                    ...draft,
-                                    earnedPoints: event.target.value,
-                                  },
-                                }))
-                              }
-                              className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                            />
-                          </label>
-
-                          <label className="block">
-                            <span className="mb-2 block text-sm font-medium text-gray-700">
-                              Teacher feedback
-                            </span>
-                            <textarea
-                              rows={4}
-                              value={draft.explanation}
-                              onChange={(event) =>
-                                setDrafts((current) => ({
-                                  ...current,
-                                  [score.questionId]: { ...draft, explanation: event.target.value },
-                                }))
-                              }
-                              className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                              placeholder="Optional guidance shown to the student"
-                            />
-                          </label>
-                        </div>
-
-                        <div className="mt-4 flex items-center justify-between gap-4">
-                          <div className="text-sm text-gray-500">
-                            Status:{' '}
-                            <span className="font-semibold text-gray-700">
-                              {score.status.replaceAll('_', ' ')}
-                            </span>
-                          </div>
-                          <Button
-                            type="button"
-                            disabled={isInvalid || teacherScore.isPending}
-                            onClick={() =>
-                              teacherScore.mutate(
-                                {
-                                  questionId: score.questionId,
-                                  payload: {
-                                    earnedPoints: parsedPoints,
-                                    explanation: draft.explanation.trim() || undefined,
-                                  },
-                                },
-                                {
-                                  onSuccess: () => toast.success('Score saved successfully.'),
-                                  onError: (e: Error) =>
-                                    toast.error(e.message || 'Failed to save score.'),
-                                },
-                              )
-                            }
-                            variant="primary"
-                            size="sm"
-                            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
-                          >
-                            {teacherScore.isPending ? 'Saving…' : 'Save score'}
-                          </Button>
-                        </div>
-                      </div>
-                    );
-                  })}
-
-                  {essayScores.length === 0 && (
-                    <Alert severity="success">
-                      All essay questions in this submission are already graded.
-                    </Alert>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    </TeacherManDashboardLayout>
+      queue={queue}
+      selectedSessionId={selectedSessionId}
+      onSelectSession={setSelectedSessionId}
+      dashboard={dashboard}
+      isLoadingQueue={isLoadingQueue}
+      isLoadingSubmission={isLoadingSubmission}
+      isSavingScore={teacherScore.isPending}
+      onSaveScore={handleSaveScore}
+      onMarkCorrect={handleMarkCorrect}
+    />
   );
 };
 
