@@ -12,6 +12,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import com.hoatv.fwk.common.exceptions.EntityNotFoundException;
+import com.hoatv.springboot.common.advices.DefaultExceptionHandler;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -37,7 +39,9 @@ class PetHatcheryControllerTest {
     @BeforeEach
     void setUp() {
         PetHatcheryController controller = new PetHatcheryController(petHatcheryService);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(controller)
+            .setControllerAdvice(new DefaultExceptionHandler())
+            .build();
 
         Jwt jwt = new Jwt(
             "token",
@@ -186,6 +190,26 @@ class PetHatcheryControllerTest {
             .andExpect(jsonPath("$.pet.level").value(2))
             .andExpect(jsonPath("$.remainingStars").value(475))
             .andExpect(jsonPath("$.levelGained").value(true));
+    }
+
+    @Test
+    void growPetReturns404WhenPetNotFound() throws Exception {
+        when(petHatcheryService.growPet("student1", "nonexistent-pet"))
+            .thenThrow(new EntityNotFoundException("Pet not found: nonexistent-pet"));
+
+        mockMvc.perform(post("/api/hatchery/pets/nonexistent-pet/grow").principal(auth))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.message").value("Pet not found: nonexistent-pet"));
+    }
+
+    @Test
+    void strikeEggReturns404WhenEggNotFound() throws Exception {
+        when(petHatcheryService.strikeEgg("student1", "nonexistent-egg"))
+            .thenThrow(new EntityNotFoundException("Incubating egg not found: nonexistent-egg"));
+
+        mockMvc.perform(post("/api/hatchery/incubator/nonexistent-egg/strike").principal(auth))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.message").value("Incubating egg not found: nonexistent-egg"));
     }
 }
 

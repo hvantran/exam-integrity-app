@@ -18,6 +18,7 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.hoatv.fwk.common.exceptions.DuplicateResourceException;
 import java.util.List;
 import java.util.Optional;
 
@@ -81,7 +82,7 @@ class SessionServiceTest {
         exam.setTags(List.of("science", "grade 4"));
 
         when(examRepository.findById("exam-4")).thenReturn(Optional.of(exam));
-        when(sessionRepository.findByStudentIdAndExamIdAndStatus("student1", "exam-4", ExamSession.SessionStatus.ACTIVE))
+        when(sessionRepository.findFirstByStudentIdAndStatus("student1", ExamSession.SessionStatus.ACTIVE))
                 .thenReturn(Optional.empty());
 
         @SuppressWarnings("unchecked")
@@ -99,6 +100,56 @@ class SessionServiceTest {
         assertThat(sessionDTO).isNotNull();
         assertThat(sessionDTO.examId()).isEqualTo("exam-4");
         verify(sessionRepository).save(any(ExamSession.class));
+    }
+
+    @Test
+    void cannotStartNewExamWhenAnotherExamSessionIsActive() {
+        Exam exam2 = new Exam();
+        exam2.setId("exam-2");
+        exam2.setTitle("Grade 4 Math");
+        exam2.setDurationSeconds(1800);
+        when(examRepository.findById("exam-2")).thenReturn(Optional.of(exam2));
+
+        ExamSession activeSession = new ExamSession();
+        activeSession.setId("sess-active-1");
+        activeSession.setExamId("exam-1");
+        activeSession.setStudentId("student1");
+        activeSession.setStatus(ExamSession.SessionStatus.ACTIVE);
+        activeSession.setStartedAt(java.time.Instant.now());
+
+        when(sessionRepository.findFirstByStudentIdAndStatus("student1", ExamSession.SessionStatus.ACTIVE))
+                .thenReturn(Optional.of(activeSession));
+        when(redisTemplate.getExpire("timer:sess-active-1", java.util.concurrent.TimeUnit.SECONDS))
+                .thenReturn(600L);
+
+        assertThatThrownBy(() -> sessionService.createSession("exam-2", "student1"))
+                .isInstanceOf(DuplicateResourceException.class)
+                .hasMessage("Student already has an active session in progress for another exam");
+    }
+
+    @Test
+    void cannotStartSameExamWhenSessionIsAlreadyActive() {
+        Exam exam1 = new Exam();
+        exam1.setId("exam-1");
+        exam1.setTitle("Grade 4 Science");
+        exam1.setDurationSeconds(1800);
+        when(examRepository.findById("exam-1")).thenReturn(Optional.of(exam1));
+
+        ExamSession activeSession = new ExamSession();
+        activeSession.setId("sess-active-1");
+        activeSession.setExamId("exam-1");
+        activeSession.setStudentId("student1");
+        activeSession.setStatus(ExamSession.SessionStatus.ACTIVE);
+        activeSession.setStartedAt(java.time.Instant.now());
+
+        when(sessionRepository.findFirstByStudentIdAndStatus("student1", ExamSession.SessionStatus.ACTIVE))
+                .thenReturn(Optional.of(activeSession));
+        when(redisTemplate.getExpire("timer:sess-active-1", java.util.concurrent.TimeUnit.SECONDS))
+                .thenReturn(600L);
+
+        assertThatThrownBy(() -> sessionService.createSession("exam-1", "student1"))
+                .isInstanceOf(DuplicateResourceException.class)
+                .hasMessage("Student already has an active session for this exam");
     }
 }
 

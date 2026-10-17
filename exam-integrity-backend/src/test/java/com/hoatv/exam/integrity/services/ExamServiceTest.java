@@ -17,6 +17,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
+import com.hoatv.fwk.common.exceptions.DuplicateResourceException;
+import com.hoatv.fwk.common.exceptions.EntityNotFoundException;
+import com.hoatv.fwk.common.exceptions.InvalidArgumentException;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -126,7 +129,7 @@ class ExamServiceTest {
             0
         );
         assertThatThrownBy(() -> examService.createFromBank(commandWithReusedItem))
-            .isInstanceOf(ResponseStatusException.class)
+            .isInstanceOf(DuplicateResourceException.class)
             .hasMessageContaining("already used in other exams");
     }
 
@@ -153,7 +156,7 @@ class ExamServiceTest {
             0
         );
         assertThatThrownBy(() -> examService.createFromBank(commandWithNoUnusedQuestions))
-            .isInstanceOf(ResponseStatusException.class)
+            .isInstanceOf(InvalidArgumentException.class)
             .hasMessageContaining("Not enough available MCQ questions");
     }
 
@@ -335,7 +338,7 @@ class ExamServiceTest {
             List.of("bank-reused")
         );
         assertThatThrownBy(() -> examService.updateQuestionsFromBank("exam-target", commandWithReusedQuestion))
-            .isInstanceOf(ResponseStatusException.class)
+            .isInstanceOf(DuplicateResourceException.class)
             .hasMessageContaining("already used in other exams");
     }
 
@@ -457,7 +460,7 @@ class ExamServiceTest {
         when(examRepository.findById("non-existent")).thenReturn(java.util.Optional.empty());
 
         assertThatThrownBy(() -> examService.syncQuestionsFromBank("non-existent"))
-            .isInstanceOf(ResponseStatusException.class)
+            .isInstanceOf(EntityNotFoundException.class)
             .hasMessageContaining("Exam not found");
     }
 

@@ -54,27 +54,44 @@ class UserProfileServiceTest {
         when(userProfileRepository.findByUserId("student1")).thenReturn(Optional.of(existing));
         when(userProfileRepository.save(any(UserProfile.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // First session: score 8.5 -> 9 stars
+        // First session: score 8.5 -> 9 stars (0 + 9 = 9)
         UserProfileDTO result1 = userProfileService.recordSessionCompletion("student1", "sess-1", 8.5);
         assertThat(result1.stats().totalStars()).isEqualTo(9);
         assertThat(result1.stats().completedExams()).isEqualTo(1);
         assertThat(result1.stats().highestScore10()).isEqualTo(8.5);
 
-        // Second session: score 10.0 -> 10 stars (total = 19 stars)
+        // Second session: score 10.0 -> 10 stars (9 + 10 = 19)
         UserProfileDTO result2 = userProfileService.recordSessionCompletion("student1", "sess-2", 10.0);
         assertThat(result2.stats().totalStars()).isEqualTo(19);
         assertThat(result2.stats().completedExams()).isEqualTo(2);
         assertThat(result2.stats().highestScore10()).isEqualTo(10.0);
 
-        // Re-scoring sess-1 with score 9.0 -> 9 stars (total remains 19, no duplicate)
-        UserProfileDTO result3 = userProfileService.recordSessionCompletion("student1", "sess-1", 9.0);
-        assertThat(result3.stats().totalStars()).isEqualTo(19);
-        assertThat(result3.stats().completedExams()).isEqualTo(2);
+        // Third session: score 10.0 -> 10 stars (19 + 10 = 29 -> level increases to 2)
+        UserProfileDTO result3 = userProfileService.recordSessionCompletion("student1", "sess-3", 10.0);
+        assertThat(result3.stats().totalStars()).isEqualTo(29);
+        assertThat(result3.stats().completedExams()).isEqualTo(3);
+        assertThat(result3.gamification().level()).isEqualTo(2);
+    }
 
-        // Third session: score 10.0 -> total stars 29 -> level increases to 2
-        UserProfileDTO result4 = userProfileService.recordSessionCompletion("student1", "sess-3", 10.0);
-        assertThat(result4.stats().totalStars()).isEqualTo(29);
-        assertThat(result4.gamification().level()).isEqualTo(2);
+    @Test
+    void recordSessionCompletionAddsEarnedStarsToCurrentTotalStars() {
+        UserProfile existing = new UserProfile("student1", "STUDENT", 5);
+        existing.getSessionStars().put("sess-old-1", 10);
+        existing.getSessionStars().put("sess-old-2", 20);
+        existing.getSessionStars().put("sess-old-3", 20);
+        existing.getStats().setTotalStars(50);
+        existing.getStats().setCompletedExams(3);
+        existing.getStats().setHighestScore10(8.0);
+        when(userProfileRepository.findByUserId("student1")).thenReturn(Optional.of(existing));
+        when(userProfileRepository.save(any(UserProfile.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Current 50 stars + 8 earned stars = 58 stars
+        UserProfileDTO result = userProfileService.recordSessionCompletion("student1", "sess-new", 8.0);
+
+        assertThat(result.stats().totalStars()).isEqualTo(58);
+        assertThat(result.stats().completedExams()).isEqualTo(4);
+        assertThat(result.stats().highestScore10()).isEqualTo(8.0);
+        assertThat(result.gamification().level()).isEqualTo(3); // 58 / 20 + 1 = 3
     }
 }
 

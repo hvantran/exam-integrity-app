@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
+import com.hoatv.fwk.common.exceptions.EntityNotFoundException;
 
 import java.util.List;
 
@@ -82,7 +82,7 @@ public class UserProfileController {
     public ResponseEntity<UserProfileDTO> getProfileByUserId(@PathVariable("userId") String userId) {
         return userProfileService.findByUserId(userId)
             .map(ResponseEntity::ok)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found for user: " + userId));
+            .orElseThrow(() -> new EntityNotFoundException("Profile not found for user: " + userId));
     }
 }
 

@@ -13,6 +13,8 @@ import com.hoatv.exam.integrity.dtos.PurchaseEggResponseDTO;
 import com.hoatv.exam.integrity.dtos.StudentPetDTO;
 import com.hoatv.exam.integrity.repositories.PetLibraryRepository;
 import com.hoatv.exam.integrity.repositories.StudentItemRepository;
+import com.hoatv.fwk.common.exceptions.EntityNotFoundException;
+import com.hoatv.fwk.common.exceptions.InvalidArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -160,7 +162,7 @@ public class PetHatcheryService {
 
     public IncubatingEggDTO strikeEgg(String userId, String eggId) {
         StudentItem egg = studentItemRepository.findByIdAndUserIdAndCategory(eggId, userId, StudentItem.CATEGORY_EGG_SHOP)
-            .orElseThrow(() -> new IllegalArgumentException("Incubating egg not found: " + eggId));
+            .orElseThrow(() -> new EntityNotFoundException("Incubating egg not found: " + eggId));
 
         int strikeCost = settingService.getInt(SettingService.KEY_STRIKE_CRACK_STAR_COST, STRIKE_CRACK_STAR_COST);
         double progressBoost = settingService.getDouble(SettingService.KEY_STRIKE_CRACK_PROGRESS_BOOST, 0.25);
@@ -183,11 +185,11 @@ public class PetHatcheryService {
 
     public StudentPetDTO hatchEgg(String userId, String eggId, Double fixedRoll) {
         StudentItem egg = studentItemRepository.findByIdAndUserIdAndCategory(eggId, userId, StudentItem.CATEGORY_EGG_SHOP)
-            .orElseThrow(() -> new IllegalArgumentException("Incubating egg not found: " + eggId));
+            .orElseThrow(() -> new EntityNotFoundException("Incubating egg not found: " + eggId));
 
         long remainingSeconds = calculateRemainingHatchingSeconds(egg);
         if (egg.getCrackProgress() < 1.0 && remainingSeconds > 0) {
-            throw new IllegalStateException("Egg is not ready to hatch yet. Progress: " + Math.round(egg.getCrackProgress() * 100) + "%");
+            throw new InvalidArgumentException("Egg is not ready to hatch yet. Progress: " + Math.round(egg.getCrackProgress() * 100) + "%");
         }
 
         StudentItem pet = rollMysteryPet(userId, fixedRoll);
@@ -397,11 +399,11 @@ public class PetHatcheryService {
 
     public GrowPetResponseDTO growPet(String userId, String petId) {
         StudentItem pet = studentItemRepository.findByIdAndUserIdAndCategory(petId, userId, StudentItem.CATEGORY_PET)
-            .orElseThrow(() -> new IllegalArgumentException("Pet not found: " + petId));
+            .orElseThrow(() -> new EntityNotFoundException("Pet not found: " + petId));
 
         int maxLevel = settingService.getInt(SettingService.KEY_PET_MAX_LEVEL, 10);
         if (pet.getLevel() >= maxLevel) {
-            throw new IllegalStateException("Pet has already reached maximum level: " + maxLevel);
+            throw new InvalidArgumentException("Pet has already reached maximum level: " + maxLevel);
         }
 
         int growthCost = settingService.getInt(SettingService.KEY_PET_GROW_STAR_COST, 25);
@@ -515,7 +517,7 @@ public class PetHatcheryService {
             }
         }
         if (target == null) {
-            throw new IllegalArgumentException("Pet not found: " + petId);
+            throw new EntityNotFoundException("Pet not found: " + petId);
         }
         studentItemRepository.saveAll(pets);
         return toPetDTO(target);
@@ -533,7 +535,7 @@ public class PetHatcheryService {
             }
         }
         if (target == null) {
-            throw new IllegalArgumentException("Egg not found: " + eggId);
+            throw new EntityNotFoundException("Egg not found: " + eggId);
         }
         studentItemRepository.saveAll(eggs);
         return toEggDTO(target);

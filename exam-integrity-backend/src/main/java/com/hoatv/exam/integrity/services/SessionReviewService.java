@@ -12,9 +12,9 @@ import com.hoatv.exam.integrity.dtos.TeacherScoreUpdateDTO;
 import com.hoatv.exam.integrity.repositories.ExamRepository;
 import com.hoatv.exam.integrity.repositories.ScoreRepository;
 import com.hoatv.exam.integrity.repositories.SessionRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import com.hoatv.fwk.common.exceptions.EntityNotFoundException;
+import com.hoatv.fwk.common.exceptions.InvalidArgumentException;
 
 import java.util.EnumSet;
 import java.util.Comparator;
@@ -57,7 +57,7 @@ public class SessionReviewService {
         }
 
         Exam exam = examRepository.findById(session.getExamId())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Exam not found: " + session.getExamId()));
+            .orElseThrow(() -> new EntityNotFoundException("Exam not found: " + session.getExamId()));
 
         List<Score> scores = exam.getQuestions().stream()
             .map(question -> createInitialScore(session, question))
@@ -138,16 +138,15 @@ public class SessionReviewService {
 
     public ReviewDashboardDTO gradeEssay(String sessionId, String questionId, TeacherScoreUpdateDTO updateDTO) {
         Score score = scoreRepository.findBySessionIdAndQuestionId(sessionId, questionId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Score not found for question: " + questionId));
+            .orElseThrow(() -> new EntityNotFoundException("Score not found for question: " + questionId));
 
         if (Question.QuestionType.MCQ.name().equals(score.getQuestionType())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "MCQ questions are auto-graded and cannot be teacher-scored");
+            throw new InvalidArgumentException("MCQ questions are auto-graded and cannot be teacher-scored");
         }
 
         double earnedPoints = updateDTO.earnedPoints();
         if (earnedPoints > score.getMaxPoints()) {
-            throw new ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
+            throw new InvalidArgumentException(
                 "Essay score cannot exceed configured question points"
             );
         }
@@ -165,7 +164,7 @@ public class SessionReviewService {
         }
 
         return getReviewDashboard(sessionId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Review dashboard not found for session: " + sessionId));
+            .orElseThrow(() -> new EntityNotFoundException("Review dashboard not found for session: " + sessionId));
     }
 
     private Score createInitialScore(ExamSession session, Question question) {
@@ -226,7 +225,7 @@ public class SessionReviewService {
 
     private Map<String, Question> loadQuestionMap(String examId, Set<String> requestedQuestionIds) {
         Exam exam = examRepository.findById(examId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Exam not found: " + examId));
+            .orElseThrow(() -> new EntityNotFoundException("Exam not found: " + examId));
 
         Map<String, Question> questionMap = new HashMap<>();
         for (Question question : exam.getQuestions()) {

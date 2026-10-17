@@ -14,7 +14,11 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import com.hoatv.fwk.common.exceptions.DuplicateResourceException;
+import com.hoatv.fwk.common.exceptions.EntityNotFoundException;
+import com.hoatv.fwk.common.exceptions.InvalidArgumentException;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -51,7 +55,7 @@ public class SessionService {
     // BE-11: createSession
     public SessionDTO createSession(String examId, String studentId) {
         Exam exam = examRepository.findById(examId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Exam not found: " + examId));
+            .orElseThrow(() -> new EntityNotFoundException("Exam not found: " + examId));
 
         if (com.hoatv.exam.integrity.security.UserContext.isStudent()) {
             Integer studentGrade = com.hoatv.exam.integrity.security.UserContext.getStudentGrade();
@@ -67,9 +71,7 @@ public class SessionService {
             }
         }
 
-        sessionRepository.findByStudentIdAndExamIdAndStatus(studentId, examId, ExamSession.SessionStatus.ACTIVE)
-            .ifPresent(s -> { throw new ResponseStatusException(HttpStatus.CONFLICT,
-                "Student already has an active session for this exam"); });
+        validateNoActiveSession(studentId, examId, exam);
 
         ExamSession session = new ExamSession();
         session.setId(UUID.randomUUID().toString());
@@ -110,11 +112,11 @@ public class SessionService {
     public QuestionSummaryDTO getQuestion(String sessionId, int questionNumber) {
         ExamSession session = findSessionOrThrow(sessionId);
         if (session.getStatus() != ExamSession.SessionStatus.ACTIVE) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+            throw new InvalidArgumentException(
                 "Session is " + session.getStatus() + ", not ACTIVE");
         }
         Exam exam = examRepository.findById(session.getExamId())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Exam not found"));
+            .orElseThrow(() -> new EntityNotFoundException("Exam not found"));
 
         List<Question> questionList = exam.getQuestions();
         return questionList.stream()
@@ -125,7 +127,7 @@ public class SessionService {
                 ? Optional.of(questionList.get(questionNumber - 1))
                 : Optional.empty())
             .map(this::toQuestionSummary)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            .orElseThrow(() -> new EntityNotFoundException(
                 "Question " + questionNumber + " not found"));
     }
 
@@ -133,7 +135,7 @@ public class SessionService {
     public void saveAnswer(String sessionId, String questionId, String answer, boolean flaggedForReview, List<AnswerPartDTO> answerParts) {
         ExamSession session = findSessionOrThrow(sessionId);
         if (session.getStatus() != ExamSession.SessionStatus.ACTIVE) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Session is not ACTIVE");
+            throw new InvalidArgumentException("Session is not ACTIVE");
         }
         ExamSession.AnswerRecord answerRecord = new ExamSession.AnswerRecord();
         answerRecord.setAnswer(normalizeAnswer(answer, answerParts));
@@ -151,7 +153,7 @@ public class SessionService {
          || session.getStatus() == ExamSession.SessionStatus.FORCE_SUBMITTED) {
             // Clean up Redis even when already submitted to evict stale active_sessions entries
             redisTemplate.opsForSet().remove(ACTIVE_SESSIONS_KEY, sessionId);
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Already submitted");
+            throw new DuplicateResourceException("Already submitted");
         }
         session.setStatus(forceSubmit ? ExamSession.SessionStatus.FORCE_SUBMITTED
                                       : ExamSession.SessionStatus.SUBMITTED);
@@ -173,7 +175,7 @@ public class SessionService {
 
     public ExamSession findSessionOrThrow(String sessionId) {
         return sessionRepository.findById(sessionId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found: " + sessionId));
+            .orElseThrow(() -> new EntityNotFoundException("Session not found: " + sessionId));
     }
 
     private SessionDTO toDTO(ExamSession s, long remainingSeconds) {
@@ -229,5 +231,34 @@ public class SessionService {
                 return partRecord;
             })
             .toList();
+    }
+
+    private void validateNoActiveSession(String studentId, String examId, Exam exam) {
+        sessionRepository.findFirstByStudentIdAndStatus(studentId, ExamSession.SessionStatus.ACTIVE)
+            .ifPresent(activeSession -> {
+                long remaining = getRemainingSeconds(activeSession.getId());
+                boolean expired = remaining <= 0;
+                if (activeSession.getStartedAt() != null) {
+                    Exam prevExam = examId.equals(activeSession.getExamId())
+                        ? exam
+                        : examRepository.findById(activeSession.getExamId()).orElse(null);
+                    if (prevExam != null && prevExam.getDurationSeconds() > 0) {
+                        long elapsed = Duration.between(activeSession.getStartedAt(), Instant.now()).getSeconds();
+                        expired = expired && elapsed >= prevExam.getDurationSeconds();
+                    }
+                }
+                if (expired) {
+                    try {
+                        submitExam(activeSession.getId(), true);
+                    } catch (Exception e) {
+                        logger.warn("Auto-submitting expired session {} failed: {}", activeSession.getId(), e.getMessage());
+                    }
+                } else {
+                    if (examId.equals(activeSession.getExamId())) {
+                        throw new DuplicateResourceException("Student already has an active session for this exam");
+                    }
+                    throw new DuplicateResourceException("Student already has an active session in progress for another exam");
+                }
+            });
     }
 }

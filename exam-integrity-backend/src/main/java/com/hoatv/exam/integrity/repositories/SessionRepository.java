@@ -10,6 +10,8 @@ import java.util.Optional;
 public interface SessionRepository extends MongoRepository<ExamSession, String> {
     Optional<ExamSession> findByStudentIdAndExamIdAndStatus(
         String studentId, String examId, ExamSession.SessionStatus status);
+    Optional<ExamSession> findFirstByStudentIdAndStatus(
+        String studentId, ExamSession.SessionStatus status);
     List<ExamSession> findByExamId(String examId);
     List<ExamSession> findByStudentId(String studentId);
 }
