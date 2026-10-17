@@ -206,7 +206,7 @@ const ExamPage: React.FC = () => {
 
   if (sessionLoading) {
     return (
-      <ExamIntegrityStudentExamTemplate
+      <StudentManExamLayout
         pageAccentClass="from-[#f7fafc] to-[#e9eef6]"
         contentSlot={
           <>
