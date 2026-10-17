@@ -10,9 +10,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import com.hoatv.fwk.common.exceptions.DuplicateResourceException;
+import com.hoatv.fwk.common.exceptions.EntityNotFoundException;
+import com.hoatv.fwk.common.exceptions.InvalidArgumentException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Instant;
@@ -110,11 +111,11 @@ public class QuestionBankService {
 
     public DraftQuestionDTO addQuestion(DraftQuestionEditCommand cmd) {
         if (cmd.content() == null || cmd.content().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Question content is required");
+            throw new InvalidArgumentException("Question content is required");
         }
         String hash = sha256(cmd.content());
         bankRepository.findByContentHash(hash).ifPresent(existing -> {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "A question with identical content already exists in the bank");
+            throw new DuplicateResourceException("A question with identical content already exists in the bank");
         });
         QuestionBankItem item = new QuestionBankItem();
         item.setId(UUID.randomUUID().toString());
@@ -157,7 +158,7 @@ public class QuestionBankService {
 
     public DraftQuestionDTO update(String id, DraftQuestionEditCommand cmd) {
         QuestionBankItem item = bankRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Question not found: " + id));
+            .orElseThrow(() -> new EntityNotFoundException("Question not found: " + id));
         if (cmd.content() != null) item.setContent(cmd.content());
         if (cmd.type() != null) {
             Question.QuestionType updatedType = parseQuestionType(cmd.type());

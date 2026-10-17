@@ -7,11 +7,13 @@ import com.hoatv.exam.integrity.dtos.UserProfileDTO;
 import com.hoatv.exam.integrity.dtos.UserProfileGamificationDTO;
 import com.hoatv.exam.integrity.dtos.UserProfileStatsDTO;
 import com.hoatv.exam.integrity.repositories.UserProfileRepository;
+import com.hoatv.fwk.common.exceptions.InvalidArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -67,46 +69,59 @@ public class UserProfileService {
     }
 
     public UserProfileDTO recordSessionCompletion(String userId, String sessionId, double finalScore10) {
-        if (userId == null || userId.isBlank() || sessionId == null || sessionId.isBlank()) {
-            throw new IllegalArgumentException("userId and sessionId must not be blank");
-        }
+        validateSessionCompletionInput(userId, sessionId);
 
         UserProfile profile = getOrCreateProfile(userId, ROLE_STUDENT, null);
-        double starRatio = settingService.getDouble(SettingService.KEY_STARS_PER_SCORE_POINT, 1.0);
-        int starsEarned = (int) Math.round(finalScore10 * starRatio);
-        if (starsEarned < 0) {
-            starsEarned = 0;
-        }
+        int starsEarned = calculateStarsEarned(finalScore10);
 
-        Map<String, Integer> sessionStars = profile.getSessionStars();
-        sessionStars.put(sessionId, starsEarned);
-
-        int totalStars = sessionStars.values().stream().mapToInt(Integer::intValue).sum();
-        int completedExams = sessionStars.size();
-        double highestScore10 = Math.max(
-            profile.getStats() != null ? profile.getStats().getHighestScore10() : 0.0,
-            finalScore10
-        );
-
-        if (profile.getStats() == null) {
-            profile.setStats(new UserProfileStats());
-        }
-        profile.getStats().setTotalStars(totalStars);
-        profile.getStats().setCompletedExams(completedExams);
-        profile.getStats().setHighestScore10(highestScore10);
-
-        if (profile.getGamification() == null) {
-            profile.setGamification(new UserProfileGamification());
-        }
-        int starsPerLevel = settingService.getInt(SettingService.KEY_STARS_PER_USER_LEVEL, 20);
-        int level = Math.max(1, (totalStars / (starsPerLevel > 0 ? starsPerLevel : 20)) + 1);
-        profile.getGamification().setLevel(level);
+        updateProfileStats(profile, sessionId, starsEarned, finalScore10);
+        updateGamificationLevel(profile);
 
         profile.setUpdatedAt(Instant.now());
         UserProfile saved = userProfileRepository.save(profile);
         logger.info("Updated stars for user {}: session {} awarded {} stars (total: {})",
-            userId, sessionId, starsEarned, totalStars);
+            userId, sessionId, starsEarned, saved.getStats().getTotalStars());
         return toDTO(saved);
+    }
+
+    private void validateSessionCompletionInput(String userId, String sessionId) {
+        if (userId == null || userId.isBlank() || sessionId == null || sessionId.isBlank()) {
+            throw new IllegalArgumentException("userId and sessionId must not be blank");
+        }
+    }
+
+    private int calculateStarsEarned(double finalScore10) {
+        double starRatio = settingService.getDouble(SettingService.KEY_STARS_PER_SCORE_POINT, 1.0);
+        int starsEarned = (int) Math.round(finalScore10 * starRatio);
+        return Math.max(0, starsEarned);
+    }
+
+    private void updateProfileStats(UserProfile profile, String sessionId, int starsEarned, double finalScore10) {
+        if (profile.getSessionStars() == null) {
+            profile.setSessionStars(new HashMap<>());
+        }
+        profile.getSessionStars().put(sessionId, starsEarned);
+
+        if (profile.getStats() == null) {
+            profile.setStats(new UserProfileStats());
+        }
+
+        UserProfileStats stats = profile.getStats();
+        int currentTotalStars = stats.getTotalStars();
+        stats.setTotalStars(currentTotalStars + starsEarned);
+        stats.setCompletedExams(profile.getSessionStars().size());
+        stats.setHighestScore10(Math.max(stats.getHighestScore10(), finalScore10));
+    }
+
+    private void updateGamificationLevel(UserProfile profile) {
+        if (profile.getGamification() == null) {
+            profile.setGamification(new UserProfileGamification());
+        }
+        int totalStars = profile.getStats() != null ? profile.getStats().getTotalStars() : 0;
+        int starsPerLevel = settingService.getInt(SettingService.KEY_STARS_PER_USER_LEVEL, 20);
+        int divisor = starsPerLevel > 0 ? starsPerLevel : 20;
+        int level = Math.max(1, (totalStars / divisor) + 1);
+        profile.getGamification().setLevel(level);
     }
 
     public int getStarBalance(String userId) {
@@ -125,7 +140,7 @@ public class UserProfileService {
         }
         int currentStars = profile.getStats().getTotalStars();
         if (currentStars < stars) {
-            throw new IllegalStateException("Insufficient stars: requires " + stars + " but have " + currentStars);
+            throw new InvalidArgumentException("Insufficient stars: requires " + stars + " but have " + currentStars);
         }
         profile.getStats().setTotalStars(currentStars - stars);
         profile.setUpdatedAt(Instant.now());

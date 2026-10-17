@@ -10,6 +10,8 @@ import com.hoatv.exam.integrity.dtos.PurchaseEggResponseDTO;
 import com.hoatv.exam.integrity.dtos.StudentPetDTO;
 import com.hoatv.exam.integrity.repositories.PetLibraryRepository;
 import com.hoatv.exam.integrity.repositories.StudentItemRepository;
+import com.hoatv.fwk.common.exceptions.EntityNotFoundException;
+import com.hoatv.fwk.common.exceptions.InvalidArgumentException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -149,7 +151,7 @@ class PetHatcheryServiceTest {
             .thenReturn(Optional.of(egg));
 
         assertThatThrownBy(() -> petHatcheryService.hatchEgg("student1", "egg-1", 50.0))
-            .isInstanceOf(IllegalStateException.class)
+            .isInstanceOf(InvalidArgumentException.class)
             .hasMessageContaining("not ready to hatch");
     }
 
@@ -265,17 +267,17 @@ class PetHatcheryServiceTest {
     }
 
     @Test
-    void growPetThrowsIllegalArgumentExceptionWhenNotFoundInRepository() {
+    void growPetThrowsEntityNotFoundExceptionWhenNotFoundInRepository() {
         when(studentItemRepository.findByIdAndUserIdAndCategory("pet-sproutling-stage-1", "student1", StudentItem.CATEGORY_PET))
             .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> petHatcheryService.growPet("student1", "pet-sproutling-stage-1"))
-            .isInstanceOf(IllegalArgumentException.class)
+            .isInstanceOf(EntityNotFoundException.class)
             .hasMessageContaining("Pet not found: pet-sproutling-stage-1");
     }
 
     @Test
-    void growPetThrowsIllegalStateExceptionWhenPetAlreadyAtMaxLevel() {
+    void growPetThrowsInvalidArgumentExceptionWhenPetAlreadyAtMaxLevel() {
         StudentItem pet = StudentItem.builder()
             .id("pet-max")
             .userId("student1")
@@ -289,7 +291,7 @@ class PetHatcheryServiceTest {
         when(settingService.getInt(SettingService.KEY_PET_MAX_LEVEL, 10)).thenReturn(10);
 
         assertThatThrownBy(() -> petHatcheryService.growPet("student1", "pet-max"))
-            .isInstanceOf(IllegalStateException.class)
+            .isInstanceOf(InvalidArgumentException.class)
             .hasMessageContaining("Pet has already reached maximum level: 10");
 
         verify(userProfileService, never()).spendStars(anyString(), anyInt());

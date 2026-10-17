@@ -13,14 +13,15 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
+import com.hoatv.fwk.common.exceptions.AppException;
+import com.hoatv.fwk.common.exceptions.DuplicateResourceException;
+import com.hoatv.fwk.common.exceptions.EntityNotFoundException;
+import com.hoatv.fwk.common.exceptions.InvalidArgumentException;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Instant;
 import java.util.*;
-
-import static org.springframework.http.HttpStatus.*;
 
 /**
  * All exam-draft business logic.
@@ -51,11 +52,11 @@ public class ExamDraftService {
 
     public ExamDraftSummaryDTO uploadPdf(MultipartFile file, Integer examSetIndex) {
         if (file == null || file.isEmpty()) {
-            throw new ResponseStatusException(BAD_REQUEST, "File must not be empty");
+            throw new InvalidArgumentException("File must not be empty");
         }
         String filename = file.getOriginalFilename();
         if (filename == null || !filename.toLowerCase().endsWith(".pdf")) {
-            throw new ResponseStatusException(BAD_REQUEST, "Only PDF files accepted");
+            throw new InvalidArgumentException("Only PDF files accepted");
         }
 
         // Build multipart body for ingestion service.
@@ -72,7 +73,7 @@ public class ExamDraftService {
                 }
             });
         } catch (Exception e) {
-            throw new ResponseStatusException(UNPROCESSABLE_ENTITY, "Cannot read uploaded file");
+            throw new InvalidArgumentException("Cannot read uploaded file");
         }
 
         String query = examSetIndex != null ? "?exam_set_index=" + examSetIndex : "";
@@ -85,11 +86,11 @@ public class ExamDraftService {
             response = resp.getBody();
         } catch (Exception e) {
             logger.error("Ingestion service call failed", e);
-            throw new ResponseStatusException(UNPROCESSABLE_ENTITY, "PDF ingestion failed: " + e.getMessage());
+            throw new AppException("PDF ingestion failed: " + e.getMessage(), e);
         }
 
         if (response == null) {
-            throw new ResponseStatusException(UNPROCESSABLE_ENTITY, "Empty response from ingestion service");
+            throw new AppException("Empty response from ingestion service");
         }
 
         String status = (String) response.get("status");
@@ -170,7 +171,7 @@ public class ExamDraftService {
 
         boolean removed = draft.getQuestions().removeIf(q -> questionId.equals(q.getId()));
         if (!removed)
-            throw new ResponseStatusException(NOT_FOUND, "Question not found");
+            throw new EntityNotFoundException("Question not found");
         resequence(draft.getQuestions());
         draftRepository.save(draft);
     }
@@ -214,7 +215,7 @@ public class ExamDraftService {
     public ExamDTO publishDraft(String draftId, ExamDraftPublishCommand cmd) {
         ExamDraft draft = findDraftOrThrow(draftId);
         if (draft.getStatus() == ExamDraft.DraftStatus.APPROVED) {
-            throw new ResponseStatusException(CONFLICT, "Draft already published");
+            throw new DuplicateResourceException("Draft already published");
         }
         requireEditable(draft);
 
@@ -223,7 +224,7 @@ public class ExamDraftService {
             .filter(q -> q.getReviewStatus() != DraftQuestion.ReviewStatus.EXCLUDED)
             .toList();
         if (approved.isEmpty()) {
-            throw new ResponseStatusException(BAD_REQUEST, "No questions to publish");
+            throw new InvalidArgumentException("No questions to publish");
         }
 
         // Build Exam
@@ -274,7 +275,7 @@ public class ExamDraftService {
     public void rejectDraft(String draftId, String reason) {
         ExamDraft draft = findDraftOrThrow(draftId);
         if (draft.getStatus() == ExamDraft.DraftStatus.APPROVED) {
-            throw new ResponseStatusException(CONFLICT, "Cannot reject an already approved draft");
+            throw new DuplicateResourceException("Cannot reject an already approved draft");
         }
         draft.setStatus(ExamDraft.DraftStatus.REJECTED);
         draft.setReviewNotes(reason);
@@ -286,20 +287,20 @@ public class ExamDraftService {
 
     private ExamDraft findDraftOrThrow(String draftId) {
         return draftRepository.findById(draftId)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Draft not found: " + draftId));
+                .orElseThrow(() -> new EntityNotFoundException("Draft not found: " + draftId));
     }
 
     private DraftQuestion findQuestionOrThrow(ExamDraft draft, String questionId) {
         return draft.getQuestions().stream()
                 .filter(q -> questionId.equals(q.getId()))
                 .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Question not found: " + questionId));
+                .orElseThrow(() -> new EntityNotFoundException("Question not found: " + questionId));
     }
 
     private void requireEditable(ExamDraft draft) {
         if (draft.getStatus() == ExamDraft.DraftStatus.APPROVED
                 || draft.getStatus() == ExamDraft.DraftStatus.REJECTED) {
-            throw new ResponseStatusException(CONFLICT, "Draft is " + draft.getStatus() + ", cannot edit");
+            throw new DuplicateResourceException("Draft is " + draft.getStatus() + ", cannot edit");
         }
     }
 

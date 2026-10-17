@@ -14,9 +14,10 @@ import com.hoatv.exam.integrity.repositories.ExamRepository;
 import com.hoatv.exam.integrity.repositories.QuestionBankRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import com.hoatv.fwk.common.exceptions.DuplicateResourceException;
+import com.hoatv.fwk.common.exceptions.EntityNotFoundException;
+import com.hoatv.fwk.common.exceptions.InvalidArgumentException;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -169,7 +170,7 @@ public class ExamService {
 
     public void deleteExam(String examId) {
         if (!examRepository.existsById(examId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, EXAM_NOT_FOUND + examId);
+            throw new EntityNotFoundException(EXAM_NOT_FOUND + examId);
         }
         examRepository.deleteById(examId);
         String safeExamId = examId != null ? examId.replaceAll(LOG_INJECTION_REGEX, "_") : "";
@@ -186,7 +187,7 @@ public class ExamService {
         int essayShortCount = Math.max(0, cmd.essayShortCount());
         int essayLongCount = Math.max(0, cmd.essayLongCount());
         if (selectedQuestionIds.isEmpty() && mcqCount + essayShortCount + essayLongCount == 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "At least one question must be requested");
+            throw new InvalidArgumentException("At least one question must be requested");
         }
 
         Set<String> usedBankItemIds = examRepository.findAll().stream()
@@ -237,14 +238,14 @@ public class ExamService {
             .toList();
 
         if (selectedItems.size() != selectedQuestionIds.size()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+            throw new EntityNotFoundException(
                 "One or more selected question IDs do not exist in the question bank");
         }
 
         boolean hasTagMismatch = selectedItems.stream()
             .anyMatch(item -> !matchesExamTags(item, examTags));
         if (hasTagMismatch) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+            throw new InvalidArgumentException(
                 "Selected question tags do not match exam tags");
         }
 
@@ -253,7 +254,7 @@ public class ExamService {
             .map(QuestionBankItem::getId)
             .toList();
         if (!alreadyUsed.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+            throw new DuplicateResourceException(
                 "The following question bank items are already used in other exams: " + alreadyUsed);
         }
 
@@ -276,7 +277,7 @@ public class ExamService {
             .collect(Collectors.toList());
         Collections.shuffle(pool);
         if (pool.size() < requestedCount) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+            throw new InvalidArgumentException(
                 "Not enough available " + typeLabel + " questions (not already used in other exams) for selected tags: requested "
                     + requestedCount + ", available " + pool.size());
         }
@@ -287,7 +288,7 @@ public class ExamService {
 
     public ExamDTO updateQuestionsFromBank(String examId, UpdateExamQuestionsFromBankCommand cmd) {
         if (cmd == null || cmd.selectedQuestionIds() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "selectedQuestionIds is required");
+            throw new InvalidArgumentException("selectedQuestionIds is required");
         }
 
         List<String> selectedQuestionIds = cmd.selectedQuestionIds().stream()
@@ -296,11 +297,11 @@ public class ExamService {
             .toList();
 
         if (selectedQuestionIds.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "At least one question must be selected");
+            throw new InvalidArgumentException("At least one question must be selected");
         }
 
         Exam exam = examRepository.findById(examId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, EXAM_NOT_FOUND + examId));
+            .orElseThrow(() -> new EntityNotFoundException(EXAM_NOT_FOUND + examId));
 
         List<QuestionBankItem> allBankItems = questionBankRepository.findAll();
         List<QuestionBankItem> selectedItems = selectedQuestionIds.stream()
@@ -309,14 +310,14 @@ public class ExamService {
 
         boolean hasMissing = selectedItems.stream().anyMatch(Objects::isNull);
         if (hasMissing) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+            throw new EntityNotFoundException(
                 "One or more selected question IDs do not exist in the question bank");
         }
 
         List<String> examTags = exam.getTags() != null ? exam.getTags() : List.of();
         boolean hasTagMismatch = selectedItems.stream().anyMatch(item -> !matchesExamTags(item, examTags));
         if (hasTagMismatch) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+            throw new InvalidArgumentException(
                 "Selected question tags do not match exam tags");
         }
 
@@ -332,7 +333,7 @@ public class ExamService {
             .filter(usedByOtherExams::contains)
             .toList();
         if (!alreadyUsed.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+            throw new DuplicateResourceException(
                 "The following question bank items are already used in other exams: " + alreadyUsed);
         }
 
@@ -355,11 +356,11 @@ public class ExamService {
 
     public SyncExamQuestionsSummaryDTO syncQuestionsFromBank(String examId) {
         if (examId == null || examId.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "examId is required");
+            throw new InvalidArgumentException("examId is required");
         }
 
         Exam exam = examRepository.findById(examId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, EXAM_NOT_FOUND + examId));
+            .orElseThrow(() -> new EntityNotFoundException(EXAM_NOT_FOUND + examId));
 
         List<Question> questions = exam.getQuestions();
         if (questions == null || questions.isEmpty()) {
@@ -478,7 +479,7 @@ public class ExamService {
 
     public ExamDTO importFromJson(ExamImportPayload payload) {
         if (payload == null || payload.questions() == null || payload.questions().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Import JSON must include at least one question");
+            throw new InvalidArgumentException("Import JSON must include at least one question");
         }
 
         List<Question> questions = new ArrayList<>();
@@ -522,7 +523,7 @@ public class ExamService {
     private Question convertImportedQuestion(ExamImportPayload.ImportedQuestion imported, int index) {
         String content = imported.content() != null ? imported.content().trim() : "";
         if (content.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+            throw new InvalidArgumentException(
                 "Question content is required at index " + index);
         }
 
@@ -547,7 +548,7 @@ public class ExamService {
 
     public ExamExportPayload exportToJson(String examId) {
         Exam exam = examRepository.findById(examId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, EXAM_NOT_FOUND + examId));
+            .orElseThrow(() -> new EntityNotFoundException(EXAM_NOT_FOUND + examId));
 
         List<ExamExportPayload.ExportedQuestion> questions = exam.getQuestions().stream()
             .map(question -> new ExamExportPayload.ExportedQuestion(
@@ -576,7 +577,7 @@ public class ExamService {
         try {
             return Question.QuestionType.valueOf(rawType.trim().toUpperCase());
         } catch (IllegalArgumentException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+            throw new InvalidArgumentException(
                 "Unsupported question type: " + rawType);
         }
     }
