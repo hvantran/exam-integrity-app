@@ -93,5 +93,32 @@ class UserProfileServiceTest {
         assertThat(result.stats().highestScore10()).isEqualTo(8.0);
         assertThat(result.gamification().level()).isEqualTo(3); // 58 / 20 + 1 = 3
     }
+
+    @Test
+    void recordSessionCompletionAppliesDeltaWhenRescoringSameSession() {
+        UserProfile existing = new UserProfile("student1", "STUDENT", 5);
+        when(userProfileRepository.findByUserId("student1")).thenReturn(Optional.of(existing));
+        when(userProfileRepository.save(any(UserProfile.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Initial completion: score 5.0 -> 5 stars
+        UserProfileDTO initial = userProfileService.recordSessionCompletion("student1", "sess-1", 5.0);
+        assertThat(initial.stats().totalStars()).isEqualTo(5);
+        assertThat(initial.stats().completedExams()).isEqualTo(1);
+
+        // Teacher reviews question 1 (saves score with same total): score 5.0 -> delta 0 -> stays 5 stars
+        UserProfileDTO rescoreSame = userProfileService.recordSessionCompletion("student1", "sess-1", 5.0);
+        assertThat(rescoreSame.stats().totalStars()).isEqualTo(5);
+        assertThat(rescoreSame.stats().completedExams()).isEqualTo(1);
+
+        // Teacher marks question 2 correct: score increases to 8.0 -> delta +3 (8 - 5) -> 8 stars
+        UserProfileDTO rescoreIncrease = userProfileService.recordSessionCompletion("student1", "sess-1", 8.0);
+        assertThat(rescoreIncrease.stats().totalStars()).isEqualTo(8);
+        assertThat(rescoreIncrease.stats().completedExams()).isEqualTo(1);
+
+        // Teacher adjusts score down: score becomes 7.0 -> delta -1 (7 - 8) -> 7 stars
+        UserProfileDTO rescoreDecrease = userProfileService.recordSessionCompletion("student1", "sess-1", 7.0);
+        assertThat(rescoreDecrease.stats().totalStars()).isEqualTo(7);
+        assertThat(rescoreDecrease.stats().completedExams()).isEqualTo(1);
+    }
 }
 
