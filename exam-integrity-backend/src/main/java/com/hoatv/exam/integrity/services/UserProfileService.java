@@ -100,6 +100,8 @@ public class UserProfileService {
         if (profile.getSessionStars() == null) {
             profile.setSessionStars(new HashMap<>());
         }
+        int previousStars = profile.getSessionStars().getOrDefault(sessionId, 0);
+        int starDelta = starsEarned - previousStars;
         profile.getSessionStars().put(sessionId, starsEarned);
 
         if (profile.getStats() == null) {
@@ -108,7 +110,7 @@ public class UserProfileService {
 
         UserProfileStats stats = profile.getStats();
         int currentTotalStars = stats.getTotalStars();
-        stats.setTotalStars(currentTotalStars + starsEarned);
+        stats.setTotalStars(Math.max(0, currentTotalStars + starDelta));
         stats.setCompletedExams(profile.getSessionStars().size());
         stats.setHighestScore10(Math.max(stats.getHighestScore10(), finalScore10));
     }

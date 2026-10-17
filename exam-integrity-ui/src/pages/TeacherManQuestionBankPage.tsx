@@ -3,19 +3,21 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
-  Button,
-  Chip,
-  Modal,
-  Select,
-  ScrollArea,
-  Skeleton,
-  Combobox,
   ExamIntegrityTeacherQuestionBankTemplate as TeacherManQuestionBankLayout,
-  ExamIntegrityQuestionPanel as StudentManQuestionPanel,
+  ExamIntegrityQuestionBankFilterBar,
+  ExamIntegrityQuestionBankActionBar,
+  ExamIntegrityQuestionBankCard,
+  ExamIntegrityQuestionBankEditCard,
+  ExamIntegrityQuestionBankListLoader,
+  ExamIntegrityQuestionBankEndMessage,
+  ExamIntegrityAddQuestionDialog,
+  ExamIntegrityDeleteAllQuestionsDialog,
+  ExamIntegrityQuestionBankPreviewModal,
+  ScrollArea,
   type QuestionOption,
   type ExamIntegrityDashboardSection as DashboardSection,
+  type ExamIntegrityQuestionBankEditFormState,
 } from '@hvantran/ui-component-library';
-import { Search, Pencil, PlusCircle, X, Star, History, Trash2, Eye, Image as ImageIcon } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { questionBankService } from '../services/questionBankService';
 import type { DraftQuestionDTO, QuestionPart, QuestionType } from '../types/exam.types';
@@ -33,7 +35,6 @@ const SECTION_ROUTES: Record<DashboardSection, string> = {
   settings: '/teacher/settings',
 };
 
-const DIFFICULTY_OPTIONS = ['Easy', 'Medium', 'Hard'];
 const TYPE_OPTIONS: { value: QuestionType; label: string }[] = [
   { value: 'MCQ', label: 'MCQ' },
   { value: 'ESSAY_SHORT', label: 'Essay (Short)' },
@@ -45,27 +46,6 @@ const DEFAULT_POINTS_BY_TYPE: Record<QuestionType, number> = {
   ESSAY_SHORT: 1,
   ESSAY_LONG: 2,
 };
-
-// ── Input style helpers ───────────────────────────────────────────────────────
-
-const inputCls =
-  'border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white';
-const labelCls = 'block text-xs font-medium text-gray-500 mb-1';
-
-/* ------------------------------------------------------------------ */
-/* Inline Edit Form                                                     */
-/* ------------------------------------------------------------------ */
-interface EditFormState {
-  content: string;
-  type: QuestionType;
-  difficulty: string;
-  options: string[];
-  optionImages: (string | undefined)[];
-  correctAnswer: string;
-  points: number;
-  tags: string;
-  imageData?: string;
-}
 
 export const extractOptionParts = (raw: string): { text: string; imageBase64?: string } => {
   if (!raw) return { text: '' };
@@ -92,7 +72,7 @@ export const serializeOption = (text: string, imageBase64?: string): string => {
   return cleanText;
 };
 
-const toEditForm = (q: DraftQuestionDTO): EditFormState => {
+const toEditForm = (q: DraftQuestionDTO): ExamIntegrityQuestionBankEditFormState => {
   const parsed = (q.options && q.options.length > 0 ? q.options : ['', '', '', '']).map(extractOptionParts);
   const options = [...parsed.map((p) => p.text), '', '', '', ''].slice(0, 4);
   const optionImages = [...parsed.map((p) => p.imageBase64), undefined, undefined, undefined, undefined].slice(0, 4);
@@ -158,334 +138,8 @@ const derivePreviewQuestionPayload = (question: DraftQuestionDTO): PreviewQuesti
   };
 };
 
-interface QuestionEditCardProps {
-  question: DraftQuestionDTO;
-  onSave: (id: string, cmd: DraftQuestionEditCommand) => void;
-  onCancel: () => void;
-  isSaving: boolean;
-}
-const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
-  question,
-  onSave,
-  onCancel,
-  isSaving,
-}) => {
-  const [form, setForm] = useState<EditFormState>(toEditForm(question));
-
-  const setField = <K extends keyof EditFormState>(key: K, val: EditFormState[K]) =>
-    setForm((prev) => ({ ...prev, [key]: val }));
-
-  const setOption = (idx: number, val: string) =>
-    setForm((prev) => {
-      const opts = [...prev.options];
-      opts[idx] = val;
-      return { ...prev, options: opts };
-    });
-
-  const setOptionImage = (idx: number, imageBase64?: string) =>
-    setForm((prev) => {
-      const optImgs = [...prev.optionImages];
-      optImgs[idx] = imageBase64;
-      return { ...prev, optionImages: optImgs };
-    });
-
-  const handleSave = () => {
-    const tagList = form.tags
-      .split(',')
-      .map((t) => t.trim())
-      .filter(Boolean);
-    const normalizedCorrectAnswer = resolveMcqCorrectAnswerLabel(form.correctAnswer, form.options);
-    const serializedOptions = form.options.map((optText, idx) =>
-      serializeOption(optText, form.optionImages[idx]),
-    );
-
-    onSave(question.id, {
-      content: form.content,
-      type: form.type,
-      points: form.points,
-      options: form.type === 'MCQ' ? serializedOptions : undefined,
-      correctAnswer: form.type === 'MCQ' ? normalizedCorrectAnswer : undefined,
-      rubric: tagList.length ? { keywords: tagList } : undefined,
-      imageData: form.imageData || undefined,
-    });
-  };
-
-  return (
-    <div className="rounded-lg p-3 shadow-lg bg-surface-lowest border-2 border-l-4 border-primary">
-      {/* Header */}
-      <p className="text-xs font-semibold tracking-wide uppercase mb-2 text-primary">
-        Edit Question
-      </p>
-
-      {/* Content */}
-      <textarea
-        className={`${inputCls} resize-y min-h-[72px] w-full mb-2`}
-        placeholder="Question Content"
-        rows={3}
-        value={form.content}
-        onChange={(e) => setField('content', e.target.value)}
-      />
-
-      <div className="flex gap-2 mb-2">
-        <Select
-          value={form.difficulty}
-          onChange={(e) => setField('difficulty', e.target.value)}
-          options={DIFFICULTY_OPTIONS.map((d) => ({ value: d, label: d }))}
-          className="flex-1"
-        />
-      </div>
-
-      {/* Answer options (MCQ only) */}
-      {form.type === 'MCQ' && (
-        <McqOptionsForm
-          options={form.options}
-          optionImages={form.optionImages}
-          correctAnswer={form.correctAnswer}
-          idPrefix={`edit-${question.id}`}
-          onOptionChange={setOption}
-          onOptionImageChange={setOptionImage}
-          onCorrectAnswerChange={(val) => setField('correctAnswer', val)}
-        />
-      )}
-
-      {/* Points + Tags row */}
-      <div className="flex gap-2 mb-3">
-        <input
-          type="number"
-          className={`${inputCls} w-24`}
-          placeholder="Points"
-          min={0}
-          value={form.points}
-          onChange={(e) => setField('points', Number(e.target.value))}
-        />
-        <input
-          className={`${inputCls} flex-1`}
-          placeholder="Tags / Keywords (comma separated)"
-          value={form.tags}
-          onChange={(e) => setField('tags', e.target.value)}
-        />
-      </div>
-
-      {/* Image Upload */}
-      <label className="inline-flex items-center gap-1.5 mb-2 px-3 py-1.5 text-sm border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition text-on-surface">
-        Upload Image
-        <input
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={async (e) => {
-            const file = e.target.files?.[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-              setField('imageData', ev.target?.result as string);
-            };
-            reader.readAsDataURL(file);
-          }}
-        />
-      </label>
-      {form.imageData && (
-        <div className="mb-2">
-          <img
-            src={form.imageData}
-            alt="Preview"
-            className="max-h-40 rounded-lg border border-gray-300"
-          />
-        </div>
-      )}
-
-      {/* Actions */}
-      <div className="flex gap-2 justify-end">
-        <Button variant="outlined" size="sm" onClick={onCancel} disabled={isSaving}>
-          Cancel
-        </Button>
-        <Button variant="primary" size="sm" onClick={handleSave} disabled={isSaving}>
-          {isSaving ? 'Saving…' : 'Save Changes'}
-        </Button>
-      </div>
-    </div>
-  );
-};
-
 /* ------------------------------------------------------------------ */
-/* Read-only Question Card                                              */
-/* ------------------------------------------------------------------ */
-interface QuestionCardProps {
-  question: DraftQuestionDTO;
-  index: number;
-  onEdit: () => void;
-}
-const QuestionCard: React.FC<QuestionCardProps> = ({ question, index, onEdit }) => {
-  const tags = question.rubric?.keywords ?? [];
-
-  return (
-    <div className="group rounded-lg px-5 py-4 flex items-start gap-4 relative bg-surface-lowest border border-outlineVariant transition-shadow hover:shadow-md">
-      {/* Index */}
-      <span className="text-[13px] font-semibold text-on-surfaceVariant min-w-[28px] pt-0.5 shrink-0">
-        {index + 1}.
-      </span>
-
-      {/* Main content */}
-      <div className="flex-1 min-w-0">
-        <p className="text-sm text-on-surface leading-relaxed mb-2 line-clamp-2">
-          {question.content}
-        </p>
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="inline-flex items-center text-[11px] font-semibold bg-surface-high text-on-surfaceVariant rounded px-1.5 h-[22px]">
-            {question.type ?? 'MCQ'}
-          </span>
-          <div className="flex items-center gap-1 text-on-surfaceVariant">
-            <Star size={14} />
-            <span className="text-xs">{question.points} pts</span>
-          </div>
-          <div className="flex items-center gap-1 text-on-surfaceVariant">
-            <History size={14} />
-            <span className="text-xs">0 uses</span>
-          </div>
-          {tags.slice(0, 3).map((tag) => (
-            <span
-              key={tag}
-              className="inline-flex items-center text-[11px] bg-surface-low text-on-surfaceVariant rounded px-1.5 h-5"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Actions (shown on hover) */}
-      <div className="flex items-center gap-1 transition-opacity duration-150 opacity-0 group-hover:opacity-100">
-        <Button
-          onClick={onEdit}
-          variant="outlined"
-          size="sm"
-          icon={<Pencil size={18} />}
-          iconPlacement="left"
-          className="flex items-center gap-1 text-xs px-2 py-1 rounded border transition text-primary-600 border-primary-600"
-        >
-          Edit
-        </Button>
-        <Button
-          variant="danger"
-          size="sm"
-          icon={<Trash2 size={16} />}
-          iconPlacement="left"
-          className="flex items-center gap-1 text-xs px-2 py-1 rounded border transition text-error-600 border-error-600"
-        >
-          Delete
-        </Button>
-      </div>
-    </div>
-  );
-};
-
-/* ------------------------------------------------------------------ */
-/* MCQ Options Form (shared between Add and Edit dialogs)              */
-/* ------------------------------------------------------------------ */
-interface McqOptionsProps {
-  options: string[];
-  optionImages?: (string | undefined)[];
-  correctAnswer: string;
-  idPrefix: string;
-  onOptionChange: (idx: number, val: string) => void;
-  onOptionImageChange?: (idx: number, imageBase64?: string) => void;
-  onCorrectAnswerChange: (val: string) => void;
-}
-
-const McqOptionsForm: React.FC<McqOptionsProps> = ({
-  options,
-  optionImages,
-  correctAnswer,
-  idPrefix,
-  onOptionChange,
-  onOptionImageChange,
-  onCorrectAnswerChange,
-}) => {
-  const handleFileChange = (idx: number, file?: File) => {
-    if (!file) return;
-    if (file.size > 1024 * 1024) {
-      toast.error('Image size must be less than 1MB');
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result as string;
-      onOptionImageChange?.(idx, result);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  return (
-    <div className="mb-4">
-      <p className="text-xs font-semibold uppercase tracking-wide mb-2 text-on-surfaceVariant">
-        Answer Options
-      </p>
-      {OPTION_LABELS.map((label, idx) => {
-        const optionImage = optionImages?.[idx];
-        return (
-          <div key={label} className="mb-2 p-2 rounded-lg border border-gray-100 bg-gray-50/50">
-            <div className="flex items-center gap-2">
-              <input
-                type="radio"
-                name={`${idPrefix}-correctAnswer`}
-                value={label}
-                checked={correctAnswer === label}
-                onChange={(e) => onCorrectAnswerChange(e.target.value)}
-                className="accent-primary-600 w-4 h-4 shrink-0 cursor-pointer"
-              />
-              <span className="text-sm font-semibold min-w-[20px] text-on-surface">{label}</span>
-              <input
-                className={`${inputCls} flex-1`}
-                placeholder={`Option ${label}`}
-                value={options[idx] ?? ''}
-                onChange={(e) => onOptionChange(idx, e.target.value)}
-              />
-              {/* Option Image Upload Button */}
-              <label
-                title="Upload option image"
-                className="p-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 hover:text-primary transition shrink-0 flex items-center justify-center text-gray-600"
-              >
-                <ImageIcon size={16} />
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    handleFileChange(idx, e.target.files?.[0]);
-                    e.target.value = '';
-                  }}
-                />
-              </label>
-            </div>
-            {optionImage && (
-              <div className="mt-2 ml-7 flex items-center gap-2">
-                <div className="relative group rounded-md border border-gray-200 overflow-hidden bg-white p-1">
-                  <img
-                    src={optionImage}
-                    alt={`Option ${label}`}
-                    className="max-h-20 max-w-[160px] object-contain rounded"
-                  />
-                  <button
-                    type="button"
-                    title="Remove image"
-                    onClick={() => onOptionImageChange?.(idx, undefined)}
-                    className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full shadow hover:bg-red-700 transition"
-                  >
-                    <Trash2 size={12} />
-                  </button>
-                </div>
-                <span className="text-xs text-gray-500">Image attached</span>
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-};
-
-/* ------------------------------------------------------------------ */
-/* Page                                                                 */
+/* Page                                                               */
 /* ------------------------------------------------------------------ */
 const QuestionBankPage: React.FC = () => {
   const [dockMode, setDockMode] = useNavDockMode('pinned', TEACHER_NAV_DOCK_STORAGE_KEY);
@@ -501,17 +155,6 @@ const QuestionBankPage: React.FC = () => {
   const [previewPage, setPreviewPage] = useState(1);
   const [previewAnswerMap, setPreviewAnswerMap] = useState<Record<string, string>>({});
   const [addOpen, setAddOpen] = useState(false);
-  const [addForm, setAddForm] = useState<EditFormState>({
-    content: '',
-    type: 'MCQ',
-    difficulty: 'Medium',
-    options: ['', '', '', ''],
-    optionImages: [undefined, undefined, undefined, undefined],
-    correctAnswer: 'A',
-    points: DEFAULT_POINTS_BY_TYPE.MCQ,
-    tags: '',
-    imageData: '',
-  });
   const [addError, setAddError] = useState<string | null>(null);
 
   const navigate = useNavigate();
@@ -548,15 +191,7 @@ const QuestionBankPage: React.FC = () => {
 
   const hasMore = (data?.content.length ?? 0) < (data?.totalElements ?? 0);
   const isLoadingMore = isFetching && !isLoading;
-  const sortedQuestions = data?.content ?? []
-
-  const questionListLoader = (
-    <div className="w-full flex flex-col gap-3" aria-label="Loading more questions">
-      {[0, 1, 2].map((i) => (
-        <Skeleton key={i} height={96} />
-      ))}
-    </div>
-  );
+  const sortedQuestions = data?.content ?? [];
 
   const {
     data: previewData,
@@ -578,24 +213,7 @@ const QuestionBankPage: React.FC = () => {
 
   const hasPreviewMore = (previewData?.content.length ?? 0) < (previewData?.totalElements ?? 0);
   const isPreviewLoadingMore = isPreviewFetching && !isPreviewLoading;
-  const sortedPreviewQuestions = previewData?.content ?? []
-  const previewLoader = (
-    <div className="w-full flex flex-col gap-4" aria-label="Loading preview questions">
-      {[0, 1].map((i) => (
-        <Skeleton key={i} height={340} />
-      ))}
-    </div>
-  );
-
-  const handlePreviewScroll: React.UIEventHandler<HTMLDivElement> = (event) => {
-    if (!hasPreviewMore || isPreviewFetching) return;
-
-    const target = event.currentTarget;
-    const remaining = target.scrollHeight - target.scrollTop - target.clientHeight;
-    if (remaining < 180) {
-      setPreviewPage((p) => p + 1);
-    }
-  };
+  const sortedPreviewQuestions = previewData?.content ?? [];
 
   const mapPreviewOptions = (options?: string[]): QuestionOption[] | undefined =>
     options?.map((raw, i) => {
@@ -606,6 +224,20 @@ const QuestionBankPage: React.FC = () => {
         imageBase64: parsed.imageBase64,
       };
     });
+
+  const previewItems = sortedPreviewQuestions.map((question, idx) => {
+    const previewPayload = derivePreviewQuestionPayload(question);
+    return {
+      id: question.id,
+      questionNumber: question.questionNumber || idx + 1,
+      questionText: previewPayload.questionText,
+      questionStem: previewPayload.questionStem,
+      questionType: question.type ?? 'MCQ',
+      options: mapPreviewOptions(question.options),
+      questionParts: previewPayload.questionParts,
+      imageData: question.imageData,
+    };
+  });
 
   const { mutate: updateQuestion, isPending: isSaving } = useMutation({
     mutationFn: ({ id, cmd }: { id: string; cmd: DraftQuestionEditCommand }) =>
@@ -623,17 +255,6 @@ const QuestionBankPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['question-bank'] });
       setAddOpen(false);
-      setAddForm({
-        content: '',
-        type: 'MCQ',
-        difficulty: 'Medium',
-        options: ['', '', '', ''],
-        optionImages: [undefined, undefined, undefined, undefined],
-        correctAnswer: 'A',
-        points: DEFAULT_POINTS_BY_TYPE.MCQ,
-        tags: '',
-        imageData: '',
-      });
       setAddError(null);
       toast.success('Question added successfully.');
     },
@@ -645,29 +266,49 @@ const QuestionBankPage: React.FC = () => {
     },
   });
 
-  const handleAddSubmit = () => {
-    if (!addForm.content.trim()) {
-      setAddError('Question content is required.');
-      return;
-    }
-    setAddError(null);
-    const tagList = addForm.tags
+  const handleSaveEdit = (id: string, form: ExamIntegrityQuestionBankEditFormState) => {
+    const tagList = form.tags
       .split(',')
       .map((t) => t.trim())
       .filter(Boolean);
-    const normalizedCorrectAnswer = resolveMcqCorrectAnswerLabel(addForm.correctAnswer, addForm.options);
-    const serializedOptions = addForm.options.map((optText, idx) =>
-      serializeOption(optText, addForm.optionImages[idx]),
+    const normalizedCorrectAnswer = resolveMcqCorrectAnswerLabel(form.correctAnswer, form.options);
+    const serializedOptions = form.options.map((optText, idx) =>
+      serializeOption(optText, form.optionImages[idx]),
+    );
+
+    updateQuestion({
+      id,
+      cmd: {
+        content: form.content,
+        type: form.type as QuestionType,
+        points: form.points,
+        options: form.type === 'MCQ' ? serializedOptions : undefined,
+        correctAnswer: form.type === 'MCQ' ? normalizedCorrectAnswer : undefined,
+        rubric: tagList.length ? { keywords: tagList } : undefined,
+        imageData: form.imageData || undefined,
+      },
+    });
+  };
+
+  const handleAddSubmit = (form: ExamIntegrityQuestionBankEditFormState) => {
+    setAddError(null);
+    const tagList = form.tags
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean);
+    const normalizedCorrectAnswer = resolveMcqCorrectAnswerLabel(form.correctAnswer, form.options);
+    const serializedOptions = form.options.map((optText, idx) =>
+      serializeOption(optText, form.optionImages[idx]),
     );
 
     addQuestion({
-      content: addForm.content,
-      type: addForm.type,
-      points: addForm.points,
-      options: addForm.type === 'MCQ' ? serializedOptions : undefined,
-      correctAnswer: addForm.type === 'MCQ' ? normalizedCorrectAnswer : undefined,
+      content: form.content,
+      type: form.type as QuestionType,
+      points: form.points,
+      options: form.type === 'MCQ' ? serializedOptions : undefined,
+      correctAnswer: form.type === 'MCQ' ? normalizedCorrectAnswer : undefined,
       rubric: tagList.length ? { keywords: tagList } : undefined,
-      imageData: addForm.imageData || undefined,
+      imageData: form.imageData || undefined,
       reviewStatus: undefined,
       teacherNotes: undefined,
     } as DraftQuestionEditCommand);
@@ -702,133 +343,62 @@ const QuestionBankPage: React.FC = () => {
         dockMode={dockMode}
         onDockModeChange={setDockMode}
         filterBar={
-          <div className="flex flex-wrap gap-2 items-center">
-            {/* Search */}
-            <div className="relative flex-1 min-w-[320px]">
-              <Search
-                size={18}
-                className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-on-surfaceVariant"
-              />
-              <input
-                className={`${inputCls} pl-8`}
-                placeholder="Search questions…"
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-              />
-            </div>
-
-            {/* Type */}
-            <Select
-              value={type}
-              onChange={(e) => setType(e.target.value as QuestionType | '')}
-              options={TYPE_OPTIONS}
-              placeholder="All Types"
-              className="min-w-[160px] w-[160px]"
-            />
-
-            {/* Tag combobox */}
-            <Combobox
-              className="w-48 shrink-0"
-              placeholder={isTagsLoading ? 'Loading tags…' : 'Select tag…'}
-              value={tagInput}
-              onChange={(val) => {
-                if (val) addTagFilter(val);
-              }}
-              options={availableTags.map((tag) => ({ value: tag, label: tag }))}
-            />
-
-            {/* Active tag chips */}
-            {tagFilters.map((tag) => (
-              <span
-                key={tag}
-                className="inline-flex items-center gap-1 text-xs font-semibold bg-primary-100 text-primary-deep rounded-full px-2 h-6 shrink-0"
-              >
-                {tag}
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeTagFilter(tag)}
-                  className="!min-w-0 !h-5 !px-1 !py-0 leading-none hover:opacity-70"
-                >
-                  <X size={14} />
-                </Button>
-              </span>
-            ))}
-          </div>
+          <ExamIntegrityQuestionBankFilterBar
+            searchQuery={q}
+            onSearchChange={setQ}
+            typeFilter={type}
+            onTypeChange={(val) => setType(val as QuestionType | '')}
+            typeOptions={TYPE_OPTIONS}
+            tagInput={tagInput}
+            onTagInputChange={setTagInput}
+            availableTags={availableTags}
+            isTagsLoading={isTagsLoading}
+            selectedTags={tagFilters}
+            onAddTag={addTagFilter}
+            onRemoveTag={removeTagFilter}
+          />
         }
         resultsBar={
-          <div className="flex items-center justify-between w-full">
-            <span className="text-[13px] text-on-surfaceVariant">
-              Showing <strong>{data?.totalElements ?? 0}</strong> results
-            </span>
-            <div className="flex gap-2 items-center">
-              {(data?.totalElements ?? 0) > 0 && (
-                <span title="Preview questions in student view">
-                  <Button
-                    size="sm"
-                    variant="outlined"
-                    icon={<Eye size={16} />}
-                    onClick={() => {
-                      setPreviewAnswerMap({});
-                      setPreviewPage(1);
-                      setPreviewOpen(true);
-                    }}
-                  >
-                    Preview
-                  </Button>
-                </span>
-              )}
-              <span title="Add a new question to the bank">
-                <Button
-                  size="sm"
-                  variant="primary"
-                  icon={<PlusCircle size={16} />}
-                  onClick={() => {
-                    setAddOpen(true);
-                    setAddError(null);
-                  }}
-                >
-                  Add Question
-                </Button>
-              </span>
-              {(data?.totalElements ?? 0) > 0 && (
-                <span title="Delete all questions from the bank">
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    icon={<Trash2 size={16} />}
-                    onClick={() => setDeleteAllOpen(true)}
-                  >
-                    Delete All
-                  </Button>
-                </span>
-              )}
-            </div>
-          </div>
+          <ExamIntegrityQuestionBankActionBar
+            totalCount={data?.totalElements ?? 0}
+            onPreview={() => {
+              setPreviewAnswerMap({});
+              setPreviewPage(1);
+              setPreviewOpen(true);
+            }}
+            onAddQuestion={() => {
+              setAddOpen(true);
+              setAddError(null);
+            }}
+            onDeleteAll={() => setDeleteAllOpen(true)}
+          />
         }
       >
         <ScrollArea
           hasMore={hasMore}
           isLoading={isLoadingMore}
           onLoadMore={() => setPage((p) => p + 1)}
-          loader={questionListLoader}
-          endMessage={(data?.totalElements ?? 0) > 0 ? <span>All results loaded</span> : null}
+          loader={<ExamIntegrityQuestionBankListLoader />}
+          endMessage={(data?.totalElements ?? 0) > 0 ? <ExamIntegrityQuestionBankEndMessage /> : null}
         >
           {sortedQuestions.map((item, i) =>
             editingId === item.id ? (
-              <QuestionEditCard
+              <ExamIntegrityQuestionBankEditCard
                 key={item.id}
-                question={item}
+                idPrefix={`edit-${item.id}`}
+                initialValues={toEditForm(item)}
                 isSaving={isSaving}
-                onSave={(id, cmd) => updateQuestion({ id, cmd })}
+                onSave={(formValues) => handleSaveEdit(item.id, formValues)}
                 onCancel={() => setEditingId(null)}
               />
             ) : (
-              <QuestionCard
+              <ExamIntegrityQuestionBankCard
                 key={item.id}
-                question={item}
                 index={i}
+                content={item.content}
+                type={item.type}
+                points={item.points}
+                tags={item.rubric?.keywords}
                 onEdit={() => setEditingId(item.id)}
               />
             ),
@@ -836,227 +406,39 @@ const QuestionBankPage: React.FC = () => {
         </ScrollArea>
       </TeacherManQuestionBankLayout>
 
-      {/* Add Question modal */}
-      <Modal
+      <ExamIntegrityAddQuestionDialog
         isOpen={addOpen}
         onClose={() => {
           setAddOpen(false);
           setAddError(null);
         }}
-        title="Add New Question"
-        footer={
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="neutral"
-              size="sm"
-              onClick={() => {
-                setAddOpen(false);
-                setAddError(null);
-              }}
-              disabled={isAdding}
-            >
-              Cancel
-            </Button>
-            <Button variant="primary" size="sm" onClick={handleAddSubmit} disabled={isAdding}>
-              {isAdding ? 'Saving…' : 'Add Question'}
-            </Button>
-          </div>
-        }
-      >
-        <textarea
-          className={`${inputCls} resize-y min-h-[72px] mb-4 w-full`}
-          placeholder="Question Content"
-          rows={3}
-          value={addForm.content}
-          onChange={(e) => setAddForm((f) => ({ ...f, content: e.target.value }))}
-        />
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <div>
-            <label className={labelCls}>Question Type</label>
-            <Select
-              value={addForm.type}
-              onChange={(e) => {
-                const nextType = e.target.value as QuestionType;
-                setAddForm((f) => ({
-                  ...f,
-                  type: nextType,
-                  points: DEFAULT_POINTS_BY_TYPE[nextType],
-                }));
-              }}
-              options={TYPE_OPTIONS}
-            />
-          </div>
-          <div>
-            <label className={labelCls}>Difficulty Level</label>
-            <Select
-              value={addForm.difficulty}
-              onChange={(e) => setAddForm((f) => ({ ...f, difficulty: e.target.value }))}
-              options={DIFFICULTY_OPTIONS.map((d) => ({ value: d, label: d }))}
-            />
-          </div>
-        </div>
+        onSubmit={handleAddSubmit}
+        isSubmitting={isAdding}
+        error={addError}
+      />
 
-        {addForm.type === 'MCQ' && (
-          <McqOptionsForm
-            options={addForm.options}
-            optionImages={addForm.optionImages}
-            correctAnswer={addForm.correctAnswer}
-            idPrefix="add"
-            onOptionChange={(idx, val) =>
-              setAddForm((f) => {
-                const opts = [...f.options];
-                opts[idx] = val;
-                return { ...f, options: opts };
-              })
-            }
-            onOptionImageChange={(idx, imageBase64) =>
-              setAddForm((f) => {
-                const optImgs = [...f.optionImages];
-                optImgs[idx] = imageBase64;
-                return { ...f, optionImages: optImgs };
-              })
-            }
-            onCorrectAnswerChange={(val) => setAddForm((f) => ({ ...f, correctAnswer: val }))}
-          />
-        )}
-
-        <div className="flex gap-3 mb-3">
-          <div>
-            <label className={labelCls}>Points</label>
-            <input
-              type="number"
-              className={`${inputCls} w-24`}
-              min={0}
-              value={addForm.points}
-              onChange={(e) => setAddForm((f) => ({ ...f, points: Number(e.target.value) }))}
-            />
-          </div>
-          <div className="flex-1">
-            <label className={labelCls}>Tags / Keywords (comma separated)</label>
-            <input
-              className={inputCls}
-              value={addForm.tags}
-              onChange={(e) => setAddForm((f) => ({ ...f, tags: e.target.value }))}
-            />
-          </div>
-        </div>
-
-        {/* Image Upload */}
-        <label className="inline-flex items-center gap-1.5 mb-3 px-3 py-1.5 text-sm border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition">
-          Upload Image
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={async (e) => {
-              const file = e.target.files?.[0];
-              if (!file) return;
-              const reader = new FileReader();
-              reader.onload = (ev) => {
-                setAddForm((f) => ({ ...f, imageData: ev.target?.result as string }));
-              };
-              reader.readAsDataURL(file);
-            }}
-          />
-        </label>
-        {addForm.imageData && (
-          <div className="mb-3">
-            <img
-              src={addForm.imageData}
-              alt="Preview"
-              className="max-h-40 rounded-lg border border-gray-300"
-            />
-          </div>
-        )}
-        {addError && <p className="text-xs mt-1 text-error-600">{addError}</p>}
-      </Modal>
-
-      {/* Student-style preview modal */}
-      <Modal
+      <ExamIntegrityQuestionBankPreviewModal
         isOpen={previewOpen}
         onClose={() => setPreviewOpen(false)}
-        title="Question Preview (Student View)"
-        className="!max-w-6xl w-full"
-        footer={
-          <div className="flex justify-end">
-            <Button variant="primary" size="sm" onClick={() => setPreviewOpen(false)}>
-              Close
-            </Button>
-          </div>
+        questions={previewItems}
+        totalElements={previewData?.totalElements ?? 0}
+        isLoading={isPreviewLoading}
+        isLoadingMore={isPreviewLoadingMore}
+        hasMore={hasPreviewMore}
+        onLoadMore={() => setPreviewPage((p) => p + 1)}
+        selectedAnswers={previewAnswerMap}
+        onAnswerChange={(questionId, answer) =>
+          setPreviewAnswerMap((prev) => ({ ...prev, [questionId]: answer }))
         }
-      >
-        <div className="text-xs text-on-surfaceVariant mb-3">
-          Previewing {previewData?.content.length ?? 0} / {previewData?.totalElements ?? 0} questions
-        </div>
+      />
 
-        <div className="max-h-[65vh] overflow-y-auto pr-2" onScroll={handlePreviewScroll}>
-          <div className="space-y-5">
-            {isPreviewLoading && <Skeleton height={340} />}
-
-            {sortedPreviewQuestions.map((question, idx) => (
-              <div key={question.id} className="overflow-x-auto pb-1">
-                {(() => {
-                  const previewPayload = derivePreviewQuestionPayload(question);
-                  return (
-                <StudentManQuestionPanel
-                  questionNumber={question.questionNumber || idx + 1}
-                  questionText={previewPayload.questionText}
-                  questionStem={previewPayload.questionStem}
-                  questionType={question.type ?? 'MCQ'}
-                  options={mapPreviewOptions(question.options)}
-                  questionParts={previewPayload.questionParts}
-                  selectedAnswer={previewAnswerMap[question.id] ?? ''}
-                  onAnswerChange={(answer) =>
-                    setPreviewAnswerMap((prev) => ({ ...prev, [question.id]: answer }))
-                  }
-                  imageData={question.imageData}
-                />
-                  );
-                })()}
-              </div>
-            ))}
-
-            {isPreviewLoadingMore && previewLoader}
-
-            {!hasPreviewMore && (previewData?.totalElements ?? 0) > 0 && (
-              <p className="text-center text-sm text-on-surfaceVariant py-2">All questions loaded</p>
-            )}
-          </div>
-        </div>
-      </Modal>
-
-      {/* Delete All confirmation modal */}
-      <Modal
+      <ExamIntegrityDeleteAllQuestionsDialog
         isOpen={deleteAllOpen}
         onClose={() => setDeleteAllOpen(false)}
-        title="Delete All Questions"
-        maxWidth="sm"
-        footer={
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="neutral"
-              size="sm"
-              onClick={() => setDeleteAllOpen(false)}
-              disabled={isDeleting}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="danger"
-              size="sm"
-              onClick={() => deleteAllQuestions()}
-              disabled={isDeleting}
-            >
-              {isDeleting ? 'Deleting…' : 'Delete All'}
-            </Button>
-          </div>
-        }
-      >
-        <p className="text-sm text-gray-600 leading-relaxed">
-          This will permanently delete <strong>all {data?.totalElements ?? ''} questions</strong>{' '}
-          from the question bank. This action cannot be undone.
-        </p>
-      </Modal>
+        onConfirm={() => deleteAllQuestions()}
+        isDeleting={isDeleting}
+        totalCount={data?.totalElements ?? 0}
+      />
     </>
   );
 };
