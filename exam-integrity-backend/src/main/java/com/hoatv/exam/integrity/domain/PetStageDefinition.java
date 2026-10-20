@@ -12,10 +12,15 @@ public class PetStageDefinition {
     private String description;
     private String avatarEmoji;
     private String imageName;
+    private PetAbilityDefinition ability;
 
     public PetStageDefinition() {}
 
     public PetStageDefinition(int stage, int minLevel, String name, String title, String description, String avatarEmoji, String imageName) {
+        this(stage, minLevel, name, title, description, avatarEmoji, imageName, null);
+    }
+
+    public PetStageDefinition(int stage, int minLevel, String name, String title, String description, String avatarEmoji, String imageName, PetAbilityDefinition ability) {
         this.stage = stage;
         this.minLevel = minLevel;
         this.name = name;
@@ -23,6 +28,7 @@ public class PetStageDefinition {
         this.description = description;
         this.avatarEmoji = avatarEmoji;
         this.imageName = imageName;
+        this.ability = ability;
     }
 
     public int getStage() {
@@ -79,6 +85,14 @@ public class PetStageDefinition {
 
     public void setImageName(String imageName) {
         this.imageName = imageName;
+    }
+
+    public PetAbilityDefinition getAbility() {
+        return ability;
+    }
+
+    public void setAbility(PetAbilityDefinition ability) {
+        this.ability = ability;
     }
 }
 
