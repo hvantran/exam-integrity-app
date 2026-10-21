@@ -82,9 +82,9 @@ public class PetHatcheryService {
         double legendaryMax = epicMax + (legendary / total) * 100.0;
 
         return List.of(
-            new RollTier(commonMax, RARITY_COMMON, 3, List.of(PET_SPROUTLING, "pipflick", "embersqueak", "zephyrpuff")),
-            new RollTier(rareMax, RARITY_RARE, 4, List.of("frostpaw", "magmafang", "voltwing", "thundercat")),
-            new RollTier(epicMax, RARITY_EPIC, 5, List.of("phoenix", "chronochimera", "shadowpanther", "stormstag")),
+            new RollTier(commonMax, RARITY_COMMON, 3, List.of(PET_SPROUTLING, "pipflick", "embersqueak", "zephyrpuff", "aquaflea", "cinderchick", "gloomshroom", "pebblemunch")),
+            new RollTier(rareMax, RARITY_RARE, 4, List.of("frostpaw", "magmafang", "voltwing", "thundercat", "glacipaw", "volcanon", "venomscale")),
+            new RollTier(epicMax, RARITY_EPIC, 5, List.of("phoenix", "chronochimera", "shadowpanther", "stormstag", "abyssleviathan", "astralgriffin", "glacierbeak")),
             new RollTier(legendaryMax, RARITY_LEGENDARY, 6, List.of("astraldragon", "astralleviathan", "solarwyvern")),
             new RollTier(100.0, RARITY_MYTHIC, 8, List.of("voiddragon", "chronodraco", "aegispaladin"))
         );

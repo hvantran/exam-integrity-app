@@ -125,11 +125,11 @@ class PetLibraryDataSeederTest {
     }
 
     @Test
-    void verifyActualSeedJsonContainsAll18PetsAnd90Abilities() throws Exception {
+    void verifyActualSeedJsonContainsAll28PetsAnd129Abilities() throws Exception {
         try (InputStream is = getClass().getResourceAsStream("/data/pet-library-seed.json")) {
             assertNotNull(is, "Seed JSON must be packaged in classpath /data/pet-library-seed.json");
             List<PetLibraryItemDTO> items = objectMapper.readValue(is, new TypeReference<>() {});
-            assertEquals(18, items.size(), "Should have exactly 18 pets in pet catalog");
+            assertEquals(28, items.size(), "Should have exactly 28 pets in pet catalog");
 
             int totalStages = 0;
             int totalAbilities = 0;
@@ -147,8 +147,8 @@ class PetLibraryDataSeederTest {
                     }
                 }
             }
-            assertEquals(90, totalStages, "Should have exactly 90 evolution stages");
-            assertEquals(90, totalAbilities, "Should have exactly 90 stage abilities");
+            assertEquals(129, totalStages, "Should have exactly 129 evolution stages");
+            assertEquals(129, totalAbilities, "Should have exactly 129 stage abilities");
         }
     }
 }

@@ -958,7 +958,7 @@
         "title": "Tiny cosmic dragon hatchling named Stardrop Wyrmlet",
         "description": "Tiny cosmic dragon hatchling named Stardrop Wyrmlet. Adorable chubby dark-navy and soft lilac baby dragon body sprinkled with glowing tiny starlight specks, oversized curious celestial violet anime eyes, small soft nub horns, tiny translucent nebula fin wings, sitting adorably on.",
         "avatarEmoji": "✨",
-        "imageName": "astral-dragon-stage-1.png",
+        "imageName": "astraldragon-stage-1.png",
         "ability": {
           "name": "Stardust Glimmer",
           "description": "Spill twinkling stardust across the desk, instilling tranquil cosmic wonder.",
@@ -973,7 +973,7 @@
         "title": "Energetic juvenile cosmic drake named Astral Drakelet",
         "description": "Energetic juvenile cosmic drake named Astral Drakelet. Sleek midnight-indigo scales with glowing constellation star charts along spine, emerging sharper celestial horns, articulated cosmic nebula wings with deep violet and cyan stardust membranes, playful agile stalking pose on.",
         "avatarEmoji": "🌟",
-        "imageName": "astral-dragon-stage-2.png",
+        "imageName": "astraldragon-stage-2.png",
         "ability": {
           "name": "Astral Glide",
           "description": "Glides on solar winds to navigate complex exam questions with effortless agility.",
@@ -988,7 +988,7 @@
         "title": "Adolescent combat starlight dragon named Nebula Drake",
         "description": "Adolescent combat starlight dragon named Nebula Drake. Muscular athletic dragon body with sweeping wings filled with glowing star clusters and purple nebulae, sharp crystalline horns, glowing starlight chest core, agile battle stance on.",
         "avatarEmoji": "💫",
-        "imageName": "astral-dragon-stage-3.png",
+        "imageName": "astraldragon-stage-3.png",
         "ability": {
           "name": "Nebula Flare Breath",
           "description": "Breathes iridescent nebular flames that illuminate obscure concepts and tricky math formulas.",
@@ -1003,7 +1003,7 @@
         "title": "Adult majestic astral dragon named Constellation Wyrm",
         "description": "Adult majestic astral dragon named Constellation Wyrm. Regal armored dragon with meteorite plates, broad glowing cosmic wings with dual-layered star pinions, floating starlight halo ring, glowing celestial rune markings, commanding stance on.",
         "avatarEmoji": "⭐",
-        "imageName": "astral-dragon-stage-4.png",
+        "imageName": "astraldragon-stage-4.png",
         "ability": {
           "name": "Constellation Aegis",
           "description": "Aligns zodiacal star bridges into an unyielding integrity shield, preventing proctor flags.",
@@ -1018,7 +1018,7 @@
         "title": "Elder cosmic dragon sovereign named Astral Sovereign Wyrm",
         "description": "Elder cosmic dragon sovereign named Astral Sovereign Wyrm. Colossal majestic dragon with four sweeping cosmic stardust wings, dual rotating celestial constellation rings, intensely radiating white-violet supernova soul core, flowing comet-tail ribbons.",
         "avatarEmoji": "🌌",
-        "imageName": "astral-dragon-stage-5.png",
+        "imageName": "astraldragon-stage-5.png",
         "ability": {
           "name": "Supernova Roar",
           "description": "Roars with supernova luminescence, shattering cognitive roadblocks during critical final review.",
@@ -1033,7 +1033,7 @@
         "title": "Colossal supreme mythic deity dragon named Primordial Astral Sovereign",
         "description": "Colossal supreme mythic deity dragon named Primordial Astral Sovereign. Colossal celestial titan dragon with six magnificent glowing galaxy wings ablaze in violet and gold star nebulae, triple floating rotating zodiac halo rings, blinding stellar singularity core radiating cosmic shockwaves, eight flowing star-dust plume tails, cinematic 3D character.",
         "avatarEmoji": "👑",
-        "imageName": "astral-dragon-stage-6.png",
+        "imageName": "astraldragon-stage-6.png",
         "ability": {
           "name": "Cosmic Singularity Transcendence",
           "description": "Channels the primordial celestial matrix, bestowing god-tier academic flow and supreme integrity mastery.",
@@ -1669,6 +1669,771 @@
           "description": "Manifests a grounded sacred sanctuary of cosmic starlight, conferring supreme integrity honors and immortal bond.",
           "videoFile": "aegispaladin-stage-8-primordial-celestial-paladin-overlord.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/aegispaladin-stage-8-primordial-celestial-paladin-overlord.mp4"
+        }
+      }
+    ]
+  },
+  {
+    "id": "aquaflea",
+    "petKey": "aquaflea",
+    "name": "Bubbles",
+    "species": "Hydro Flea Sprite",
+    "rarity": "Common",
+    "tier": "forest",
+    "element": "Water",
+    "avatarEmoji": "💧",
+    "totalStages": 3,
+    "maxLevel": 10,
+    "eggShopPrice": 250,
+    "hatchDurationHours": 8,
+    "description": "3 Evolution Stages (Common): Energetic water flea that skims surface currents and evolves into the tidal Tsunami Hopper.",
+    "bannerGradient": "from-sky-700 via-cyan-600 to-blue-700",
+    "stages": [
+      {
+        "stage": 1,
+        "minLevel": 1,
+        "name": "Aquaflea",
+        "title": "Tiny translucent water flea with iridescent bubble feelers",
+        "description": "Tiny translucent water flea with iridescent bubble feelers that skips merrily across ripples.",
+        "avatarEmoji": "💧",
+        "imageName": "aquaflea-stage-1.png",
+        "ability": {
+          "name": "Bubble Dart",
+          "description": "Splashes refreshing micro-droplets that soothe eye fatigue during reading comprehension blocks.",
+          "videoFile": "pipflick-stage-1-pipflick.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/pipflick-stage-1-pipflick.mp4"
+        }
+      },
+      {
+        "stage": 2,
+        "minLevel": 7,
+        "name": "Hydroskater",
+        "title": "Agile water strider skimming surface tension",
+        "description": "Agile water strider skimming surface tension with crystalline azure legs and reflective crest.",
+        "avatarEmoji": "🌊",
+        "imageName": "aquaflea-stage-2.png",
+        "ability": {
+          "name": "Aqua Ward",
+          "description": "Deflects screen fatigue and stabilizes focus through rapid problem-solving sequences.",
+          "videoFile": "pipflick-stage-2-aquafinne.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/pipflick-stage-2-aquafinne.mp4"
+        }
+      },
+      {
+        "stage": 3,
+        "minLevel": 10,
+        "name": "Tsunami Hopper",
+        "title": "Regal azure tidespinner commanding hydro-bubbles",
+        "description": "Regal azure tidespinner commanding hydro-bubbles and ocean waves to empower students.",
+        "avatarEmoji": "🌀",
+        "imageName": "aquaflea-stage-3.png",
+        "ability": {
+          "name": "Tidal Crest Surge",
+          "description": "Unleashes a gentle tidal current that washes away test anxiety and boosts endurance by +15%.",
+          "videoFile": "pipflick-stage-3-leviataide.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/pipflick-stage-3-leviataide.mp4"
+        }
+      }
+    ]
+  },
+  {
+    "id": "cinderchick",
+    "petKey": "cinderchick",
+    "name": "Ignis",
+    "species": "Hearth Cinder Chick",
+    "rarity": "Common",
+    "tier": "dragon",
+    "element": "Fire",
+    "avatarEmoji": "🔥",
+    "totalStages": 3,
+    "maxLevel": 10,
+    "eggShopPrice": 250,
+    "hatchDurationHours": 8,
+    "description": "3 Evolution Stages (Common): Warm fluffy hearth chick born from cozy fireplace embers that grows into the majestic Pyrebird.",
+    "bannerGradient": "from-amber-600 via-orange-600 to-red-600",
+    "stages": [
+      {
+        "stage": 1,
+        "minLevel": 1,
+        "name": "Cinderchick",
+        "title": "Fluffy warm sparklet chick nesting in glowing embers",
+        "description": "Fluffy warm sparklet chick nesting in glowing embers with radiant golden down feathers.",
+        "avatarEmoji": "🐣",
+        "imageName": "cinderchick-stage-1.png",
+        "ability": {
+          "name": "Ember Chirp",
+          "description": "Kindles warm motivation and dispels morning study drowsiness.",
+          "videoFile": "embersqueak-stage-1-embersqueak.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/embersqueak-stage-1-embersqueak.mp4"
+        }
+      },
+      {
+        "stage": 2,
+        "minLevel": 7,
+        "name": "Flamefowl",
+        "title": "Brisk ember runner with fiery tail plumes",
+        "description": "Brisk ember runner with fiery tail plumes that dashes energetically across the hearth.",
+        "avatarEmoji": "🔥",
+        "imageName": "cinderchick-stage-2.png",
+        "ability": {
+          "name": "Ignition Dash",
+          "description": "Accelerates problem breakdown speed and boosts analytical pacing.",
+          "videoFile": "embersqueak-stage-2-pyreclaw.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/embersqueak-stage-2-pyreclaw.mp4"
+        }
+      },
+      {
+        "stage": 3,
+        "minLevel": 10,
+        "name": "Pyrebird",
+        "title": "Sovereign hearth cockatrice with crown of golden flames",
+        "description": "Sovereign hearth cockatrice crowned with perpetual radiant flames that illuminate challenging concepts.",
+        "avatarEmoji": "🦅",
+        "imageName": "cinderchick-stage-3.png",
+        "ability": {
+          "name": "Solar Hearth Ward",
+          "description": "Radiates comforting warmth that prevents focus drops when tackling complex multi-step questions.",
+          "videoFile": "phoenix-stage-3-solar-firebird.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/phoenix-stage-3-solar-firebird.mp4"
+        }
+      }
+    ]
+  },
+  {
+    "id": "gloomshroom",
+    "petKey": "gloomshroom",
+    "name": "Spore",
+    "species": "Twilight Gloom Spore",
+    "rarity": "Common",
+    "tier": "forest",
+    "element": "Flora",
+    "avatarEmoji": "🍄",
+    "totalStages": 3,
+    "maxLevel": 10,
+    "eggShopPrice": 250,
+    "hatchDurationHours": 8,
+    "description": "3 Evolution Stages (Common): Bioluminescent fungal spirit whose soft glow calms nervous hearts and blooms into the Archon Cap.",
+    "bannerGradient": "from-purple-800 via-indigo-700 to-teal-800",
+    "stages": [
+      {
+        "stage": 1,
+        "minLevel": 1,
+        "name": "Gloomshroom",
+        "title": "Bioluminescent purple mushroom cap creature",
+        "description": "Tiny bioluminescent purple mushroom cap creature that blinks slowly in dim study corners.",
+        "avatarEmoji": "🍄",
+        "imageName": "gloomshroom-stage-1.png",
+        "ability": {
+          "name": "Twilight Spore",
+          "description": "Releases tranquil luminescent spores that lower heart rate and reduce test apprehension.",
+          "videoFile": "sproutling-stage-1-sproutling.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/sproutling-stage-1-sproutling.mp4"
+        }
+      },
+      {
+        "stage": 2,
+        "minLevel": 7,
+        "name": "Shadowmycelium",
+        "title": "Bioluminescent fungal stalk weaving mycorrhizal networks",
+        "description": "Bioluminescent fungal stalk weaving mycorrhizal networks that absorb mental stress.",
+        "avatarEmoji": "🌿",
+        "imageName": "gloomshroom-stage-2.png",
+        "ability": {
+          "name": "Mycelial Net",
+          "description": "Intercepts wandering thoughts and re-centers cognitive attention onto exam prompts.",
+          "videoFile": "sproutling-stage-2-bloomfaun.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/sproutling-stage-2-bloomfaun.mp4"
+        }
+      },
+      {
+        "stage": 3,
+        "minLevel": 10,
+        "name": "Archon Cap",
+        "title": "Towering umbral mycological sovereign glowing with fungal runes",
+        "description": "Towering umbral mycological sovereign glowing with ancient bio-runes that sustain tranquil focus.",
+        "avatarEmoji": "👑",
+        "imageName": "gloomshroom-stage-3.png",
+        "ability": {
+          "name": "Deep Forest Zen",
+          "description": "Envelops the student in a calm cocoon of quiet contemplation, granting +15% integrity bond.",
+          "videoFile": "sproutling-stage-3-verdant-forest-stag.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/sproutling-stage-3-verdant-forest-stag.mp4"
+        }
+      }
+    ]
+  },
+  {
+    "id": "pebblemunch",
+    "petKey": "pebblemunch",
+    "name": "Rocky",
+    "species": "Granite Golem Critter",
+    "rarity": "Common",
+    "tier": "forest",
+    "element": "Earth",
+    "avatarEmoji": "🪨",
+    "totalStages": 3,
+    "maxLevel": 10,
+    "eggShopPrice": 250,
+    "hatchDurationHours": 8,
+    "description": "3 Evolution Stages (Common): Sturdy granite critter crunching river pebbles that grows into the tectonic Monolith Titan.",
+    "bannerGradient": "from-stone-700 via-amber-800 to-stone-900",
+    "stages": [
+      {
+        "stage": 1,
+        "minLevel": 1,
+        "name": "Pebblemunch",
+        "title": "Chubby boulder cub with obsidian eyes crunching small minerals",
+        "description": "Chubby boulder cub with glossy obsidian eyes happily munching mineral pebbles.",
+        "avatarEmoji": "🪨",
+        "imageName": "pebblemunch-stage-1.png",
+        "ability": {
+          "name": "Pebble Bastion",
+          "description": "Hardens mental concentration against background noise and fidgeting.",
+          "videoFile": "magmafang-stage-1-cinderpig.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/magmafang-stage-1-cinderpig.mp4"
+        }
+      },
+      {
+        "stage": 2,
+        "minLevel": 7,
+        "name": "Bouldergnaw",
+        "title": "Stocky granite badger armored with layered basalt ridges",
+        "description": "Stocky granite badger armored with layered basalt ridges that resist external distractions.",
+        "avatarEmoji": "⛰️",
+        "imageName": "pebblemunch-stage-2.png",
+        "ability": {
+          "name": "Basalt Grounding",
+          "description": "Steadies question pacing and prevents rushed mistakes on lengthy exams.",
+          "videoFile": "magmafang-stage-2-pyrotusk.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/magmafang-stage-2-pyrotusk.mp4"
+        }
+      },
+      {
+        "stage": 3,
+        "minLevel": 10,
+        "name": "Monolith Titan",
+        "title": "Colossal quartz-crested earth behemoth anchoring tectonic stability",
+        "description": "Colossal quartz-crested earth behemoth whose unwavering stance grounds cognitive focus.",
+        "avatarEmoji": "🗿",
+        "imageName": "pebblemunch-stage-3.png",
+        "ability": {
+          "name": "Tectonic Anchor",
+          "description": "Eliminates exam-room panic and maintains rock-solid concentration until test submission.",
+          "videoFile": "magmafang-stage-3-caldera-razorback.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/magmafang-stage-3-caldera-razorback.mp4"
+        }
+      }
+    ]
+  },
+  {
+    "id": "glacipaw",
+    "petKey": "glacipaw",
+    "name": "Shiver",
+    "species": "Cryo Snow Lynx",
+    "rarity": "Rare",
+    "tier": "celestial",
+    "element": "Ice",
+    "avatarEmoji": "❄️",
+    "totalStages": 4,
+    "maxLevel": 10,
+    "eggShopPrice": 250,
+    "hatchDurationHours": 8,
+    "description": "4 Evolution Stages (Rare): Frost-footed mountain lynx that strides through blizzards to become the Frostbite Monarch.",
+    "bannerGradient": "from-cyan-700 via-sky-600 to-blue-800",
+    "stages": [
+      {
+        "stage": 1,
+        "minLevel": 1,
+        "name": "Glacipaw",
+        "title": "Powder-blue snow lynx kitten with crystalline icy paws",
+        "description": "Powder-blue snow lynx kitten with crystalline icy paws leaving gentle frost prints.",
+        "avatarEmoji": "🐾",
+        "imageName": "glacipaw-stage-1.png",
+        "ability": {
+          "name": "Frost Touch",
+          "description": "Cools mental overheating and restores 5 Vitality during fast-paced exam sections.",
+          "videoFile": "frostpaw-stage-1-frostpup.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-1-frostpup.mp4"
+        }
+      },
+      {
+        "stage": 2,
+        "minLevel": 5,
+        "name": "Rimefang",
+        "title": "Sleek frosted predator stalking through blizzard squalls",
+        "description": "Sleek frosted predator with shimmering whiskers that slice through mental haze.",
+        "avatarEmoji": "❄️",
+        "imageName": "glacipaw-stage-2.png",
+        "ability": {
+          "name": "Cryo Clarity",
+          "description": "Freezes peripheral distractions and sharpens pattern recognition.",
+          "videoFile": "frostpaw-stage-2-cryoleo.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-2-cryoleo.mp4"
+        }
+      },
+      {
+        "stage": 3,
+        "minLevel": 8,
+        "name": "Glacial Sovereign",
+        "title": "Majestic ice lynx with antlered frost spires",
+        "description": "Majestic ice lynx with towering frost crystal antlers commanding serene sub-zero focus.",
+        "avatarEmoji": "🐆",
+        "imageName": "glacipaw-stage-3.png",
+        "ability": {
+          "name": "Absolute Zero Focus",
+          "description": "Locks attention firmly onto multi-part mathematical and analytical problems.",
+          "videoFile": "frostpaw-stage-3-glacial-panthera.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-3-glacial-panthera.mp4"
+        }
+      },
+      {
+        "stage": 4,
+        "minLevel": 10,
+        "name": "Frostbite Monarch",
+        "title": "Colossal primordial cryo apex beast wreathed in auroral icicles",
+        "description": "Colossal primordial cryo apex beast wreathed in shimmering auroral icicles of pure concentration.",
+        "avatarEmoji": "👑",
+        "imageName": "glacipaw-stage-4.png",
+        "ability": {
+          "name": "Blizzard Aegis",
+          "description": "Deploys an impervious auroral dome that blocks test-day stress spikes completely.",
+          "videoFile": "frostpaw-stage-4-primordial-frost-overlord.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-4-primordial-frost-overlord.mp4"
+        }
+      }
+    ]
+  },
+  {
+    "id": "volcanon",
+    "petKey": "volcanon",
+    "name": "Magmus",
+    "species": "Volcanic Caldera Cannon",
+    "rarity": "Rare",
+    "tier": "dragon",
+    "element": "Fire",
+    "avatarEmoji": "🌋",
+    "totalStages": 4,
+    "maxLevel": 10,
+    "eggShopPrice": 250,
+    "hatchDurationHours": 8,
+    "description": "4 Evolution Stages (Rare): Magma tortoise with a miniature caldera that evolves into the explosive Apex Eruptor.",
+    "bannerGradient": "from-orange-700 via-red-600 to-stone-900",
+    "stages": [
+      {
+        "stage": 1,
+        "minLevel": 1,
+        "name": "Volcanon",
+        "title": "Stocky magma tortoise with an active mini caldera on its shell",
+        "description": "Stocky magma tortoise with glowing lava vents that bubble warmly when solving puzzles.",
+        "avatarEmoji": "🐢",
+        "imageName": "volcanon-stage-1.png",
+        "ability": {
+          "name": "Caldera Spark",
+          "description": "Sparks sharp attentiveness and builds early momentum on test start.",
+          "videoFile": "magmafang-stage-1-cinderpig.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/magmafang-stage-1-cinderpig.mp4"
+        }
+      },
+      {
+        "stage": 2,
+        "minLevel": 5,
+        "name": "Pyroclast",
+        "title": "Armored magma beast launching harmless incandescent smoke puffs",
+        "description": "Armored magma beast launching harmless incandescent smoke puffs that burn away self-doubt.",
+        "avatarEmoji": "🔥",
+        "imageName": "volcanon-stage-2.png",
+        "ability": {
+          "name": "Thermal Drive",
+          "description": "Fuels persistent drive through consecutive difficult calculation steps.",
+          "videoFile": "magmafang-stage-2-pyrotusk.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/magmafang-stage-2-pyrotusk.mp4"
+        }
+      },
+      {
+        "stage": 3,
+        "minLevel": 8,
+        "name": "Basalt Siege",
+        "title": "Heavy vulcanized fortress tortoise with smoking crater cannons",
+        "description": "Heavy vulcanized fortress tortoise whose obsidian shell withstands any test fatigue.",
+        "avatarEmoji": "🛡️",
+        "imageName": "volcanon-stage-3.png",
+        "ability": {
+          "name": "Lava Ward",
+          "description": "Melts cognitive roadblocks and protects confidence during tricky questions.",
+          "videoFile": "magmafang-stage-3-caldera-razorback.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/magmafang-stage-3-caldera-razorback.mp4"
+        }
+      },
+      {
+        "stage": 4,
+        "minLevel": 10,
+        "name": "Apex Eruptor",
+        "title": "Colossal volcano sovereign walking on magma streams",
+        "description": "Colossal volcano sovereign walking on flowing basalt streams, inspiring scholarly passion.",
+        "avatarEmoji": "🌋",
+        "imageName": "volcanon-stage-4.png",
+        "ability": {
+          "name": "Supervolcanic Surge",
+          "description": "Unleashes an explosive burst of academic clarity, rewarding +20% Integrity Bond upon completion.",
+          "videoFile": "magmafang-stage-4-volcanoking-behemoth.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/magmafang-stage-4-volcanoking-behemoth.mp4"
+        }
+      }
+    ]
+  },
+  {
+    "id": "venomscale",
+    "petKey": "venomscale",
+    "name": "Viper",
+    "species": "Emerald Venom Viper",
+    "rarity": "Rare",
+    "tier": "forest",
+    "element": "Earth",
+    "avatarEmoji": "🐍",
+    "totalStages": 4,
+    "maxLevel": 10,
+    "eggShopPrice": 250,
+    "hatchDurationHours": 8,
+    "description": "4 Evolution Stages (Rare): Coiled emerald serpent with hypnotic focus that ascends into the sacred Ouroboros Prime.",
+    "bannerGradient": "from-emerald-800 via-green-700 to-stone-900",
+    "stages": [
+      {
+        "stage": 1,
+        "minLevel": 1,
+        "name": "Venomscale",
+        "title": "Emerald scaled serpent hatchling with hypnotic chartreuse eyes",
+        "description": "Emerald scaled serpent hatchling with hypnotic chartreuse eyes curled quietly beside study books.",
+        "avatarEmoji": "🐍",
+        "imageName": "venomscale-stage-1.png",
+        "ability": {
+          "name": "Venom Ward",
+          "description": "Inoculates concentration against minor environmental disruptions and alerts.",
+          "videoFile": "sproutling-stage-1-sproutling.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/sproutling-stage-1-sproutling.mp4"
+        }
+      },
+      {
+        "stage": 2,
+        "minLevel": 5,
+        "name": "Toxic Serpent",
+        "title": "Coiling emerald cobra hooded with jade protective scales",
+        "description": "Coiling emerald cobra hooded with polished jade protective scales that gleam with focus.",
+        "avatarEmoji": "🐉",
+        "imageName": "venomscale-stage-2.png",
+        "ability": {
+          "name": "Hypnotic Gaze",
+          "description": "Locks laser focus onto question wording to identify tricky phrasing and subtle traps.",
+          "videoFile": "sproutling-stage-2-bloomfaun.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/sproutling-stage-2-bloomfaun.mp4"
+        }
+      },
+      {
+        "stage": 3,
+        "minLevel": 8,
+        "name": "Basilisk Drake",
+        "title": "Four-legged venom drake crested with jade toxicity horns",
+        "description": "Four-legged venom drake crested with jade toxicity horns that repels all mental wanderlust.",
+        "avatarEmoji": "🦎",
+        "imageName": "venomscale-stage-3.png",
+        "ability": {
+          "name": "Petrifying Stillness",
+          "description": "Prevents impulsive misclicks and hasty guesswork, encouraging measured verification.",
+          "videoFile": "magmafang-stage-3-caldera-razorback.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/magmafang-stage-3-caldera-razorback.mp4"
+        }
+      },
+      {
+        "stage": 4,
+        "minLevel": 10,
+        "name": "Ouroboros Prime",
+        "title": "Eternal primordial serpent crowned with immortal jade halos",
+        "description": "Eternal primordial serpent crowned with immortal jade halos symbolizing unending integrity.",
+        "avatarEmoji": "♾️",
+        "imageName": "venomscale-stage-4.png",
+        "ability": {
+          "name": "Eternal Scale Bastion",
+          "description": "Enforces flawless examination posture and sustains peak integrity status till test submission.",
+          "videoFile": "stormstag-stage-5-primordial-storm-sovereign.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/stormstag-stage-5-primordial-storm-sovereign.mp4"
+        }
+      }
+    ]
+  },
+  {
+    "id": "abyssleviathan",
+    "petKey": "abyssleviathan",
+    "name": "Hadal",
+    "species": "Abyssal Trench Leviathan",
+    "rarity": "Epic",
+    "tier": "celestial",
+    "element": "Water",
+    "avatarEmoji": "🐋",
+    "totalStages": 5,
+    "maxLevel": 10,
+    "eggShopPrice": 250,
+    "hatchDurationHours": 8,
+    "description": "5 Evolution Stages (Epic): Ancient deep-sea whale that navigates midnight ocean trenches into the supreme Abyssal Emperor.",
+    "bannerGradient": "from-blue-950 via-indigo-950 to-slate-900",
+    "stages": [
+      {
+        "stage": 1,
+        "minLevel": 1,
+        "name": "Abyss Pup",
+        "title": "Deep trench whale calf with luminescent abyssal angler lure",
+        "description": "Deep trench whale calf with a glowing blue angler lure that dispels gloomy exam thoughts.",
+        "avatarEmoji": "🐟",
+        "imageName": "abyssleviathan-stage-1.png",
+        "ability": {
+          "name": "Abyssal Glow",
+          "description": "Illuminates tricky test questions with gentle bioluminescent clarity.",
+          "videoFile": "astralleviathan-stage-1-astraea-pip.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astralleviathan-stage-1-astraea-pip.mp4"
+        }
+      },
+      {
+        "stage": 2,
+        "minLevel": 4,
+        "name": "Trench Hunter",
+        "title": "Armored deep-sea serpent cruising midnight ocean trenches",
+        "description": "Armored deep-sea serpent cruising midnight ocean trenches with calm rhythmic grace.",
+        "avatarEmoji": "🐬",
+        "imageName": "abyssleviathan-stage-2.png",
+        "ability": {
+          "name": "Midnight Current",
+          "description": "Smooths pacing through timed question blocks without feeling hurried.",
+          "videoFile": "astralleviathan-stage-2-stardrifter.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astralleviathan-stage-2-stardrifter.mp4"
+        }
+      },
+      {
+        "stage": 3,
+        "minLevel": 7,
+        "name": "Hadal Drake",
+        "title": "Colossal abyssal dragon gliding beneath crushing pressures",
+        "description": "Colossal abyssal dragon that thrives under intense pressure and shields against burnout.",
+        "avatarEmoji": "🐉",
+        "imageName": "abyssleviathan-stage-3.png",
+        "ability": {
+          "name": "Pressure Mastery",
+          "description": "Converts high-stakes testing tension into laser-sharp analytical flow.",
+          "videoFile": "astralleviathan-stage-3-nebula-leviathan.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astralleviathan-stage-3-nebula-leviathan.mp4"
+        }
+      },
+      {
+        "stage": 4,
+        "minLevel": 9,
+        "name": "Void Whale",
+        "title": "Translucent leviathan swimming through deep oceanic rifts",
+        "description": "Translucent leviathan swimming through deep oceanic rifts, radiating tranquil silence.",
+        "avatarEmoji": "🐋",
+        "imageName": "abyssleviathan-stage-4.png",
+        "ability": {
+          "name": "Void Oceanic Barrier",
+          "description": "Shields exam workspace from external acoustic distractions completely.",
+          "videoFile": "astralleviathan-stage-4-starborne-titan.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astralleviathan-stage-4-starborne-titan.mp4"
+        }
+      },
+      {
+        "stage": 5,
+        "minLevel": 10,
+        "name": "Abyssal Emperor",
+        "title": "Primordial titan of deep trenches crowned with coral horns",
+        "description": "Primordial titan of the deep trenches crowned with luminescent bioluminescent coral horns.",
+        "avatarEmoji": "🔱",
+        "imageName": "abyssleviathan-stage-5.png",
+        "ability": {
+          "name": "Hadal Dominion",
+          "description": "Commands ancient depths to grant supreme cognitive stamina across multi-hour examinations.",
+          "videoFile": "astralleviathan-stage-6-primordial-astral-leviathan-overlord.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astralleviathan-stage-6-primordial-astral-leviathan-overlord.mp4"
+        }
+      }
+    ]
+  },
+  {
+    "id": "astralgriffin",
+    "petKey": "astralgriffin",
+    "name": "Aero",
+    "species": "Starlight Astral Griffin",
+    "rarity": "Epic",
+    "tier": "celestial",
+    "element": "Astral",
+    "avatarEmoji": "🦅",
+    "totalStages": 5,
+    "maxLevel": 10,
+    "eggShopPrice": 250,
+    "hatchDurationHours": 8,
+    "description": "5 Evolution Stages (Epic): Celestial star-lion griffin that soars through nebula winds into the Primordial Star Gryphon.",
+    "bannerGradient": "from-indigo-800 via-purple-700 to-amber-600",
+    "stages": [
+      {
+        "stage": 1,
+        "minLevel": 1,
+        "name": "Astral Fledgling",
+        "title": "Feathered chick with starlight speckled wings and golden claws",
+        "description": "Cute feathered chick with starlight speckled wings and bright curious eyes.",
+        "avatarEmoji": "🐣",
+        "imageName": "astralgriffin-stage-1.png",
+        "ability": {
+          "name": "Star Feather",
+          "description": "Gently lifts test anxiety and brightens problem-solving enthusiasm.",
+          "videoFile": "astraldragon-stage-1-stardrop-wyrmlet.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astraldragon-stage-1-stardrop-wyrmlet.mp4"
+        }
+      },
+      {
+        "stage": 2,
+        "minLevel": 4,
+        "name": "Comet Hunter",
+        "title": "Agile celestial griffin tracking comet trails across twilight skies",
+        "description": "Agile celestial griffin with radiant crest tracking comet trails with piercing eyesight.",
+        "avatarEmoji": "🦅",
+        "imageName": "astralgriffin-stage-2.png",
+        "ability": {
+          "name": "Comet Glide",
+          "description": "Enhances reading speed across dense paragraphs and extracts key requirements.",
+          "videoFile": "astraldragon-stage-2-astral-drakelet.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astraldragon-stage-2-astral-drakelet.mp4"
+        }
+      },
+      {
+        "stage": 3,
+        "minLevel": 7,
+        "name": "Starlight Talon",
+        "title": "Regal lion-eagle hybrid crowned with constellation halos",
+        "description": "Regal lion-eagle hybrid with stellar wings that illuminate complex problem sets.",
+        "avatarEmoji": "✨",
+        "imageName": "astralgriffin-stage-3.png",
+        "ability": {
+          "name": "Constellation Strike",
+          "description": "Pinpoints logical contradictions in multiple-choice questions with unerring accuracy.",
+          "videoFile": "astraldragon-stage-3-nebula-drake.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astraldragon-stage-3-nebula-drake.mp4"
+        }
+      },
+      {
+        "stage": 4,
+        "minLevel": 9,
+        "name": "Solar Storm Griffin",
+        "title": "Four-winged astral emperor draped in auroral plumage",
+        "description": "Four-winged astral emperor draped in auroral plumage commanding solar gale currents.",
+        "avatarEmoji": "🦁",
+        "imageName": "astralgriffin-stage-4.png",
+        "ability": {
+          "name": "Solar Wing Aegis",
+          "description": "Protects focus from mid-exam mental fatigue and preserves cognitive sharpness.",
+          "videoFile": "astraldragon-stage-4-constellation-wyrm.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astraldragon-stage-4-constellation-wyrm.mp4"
+        }
+      },
+      {
+        "stage": 5,
+        "minLevel": 10,
+        "name": "Primordial Star Gryphon",
+        "title": "Omnipresent deity of celestial heavens soaring across star galaxies",
+        "description": "Omnipresent deity of the celestial heavens bestowing transcendent flow state and integrity mastery.",
+        "avatarEmoji": "👑",
+        "imageName": "astralgriffin-stage-5.png",
+        "ability": {
+          "name": "Apex Cosmic Ascendance",
+          "description": "Unlocks ultimate cognitive synchronization, awarding +20% Integrity Bond on test finish.",
+          "videoFile": "astraldragon-stage-6-primordial-astral-sovereign.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astraldragon-stage-6-primordial-astral-sovereign.mp4"
+        }
+      }
+    ]
+  },
+  {
+    "id": "glacierbeak",
+    "petKey": "glacierbeak",
+    "name": "Boreal",
+    "species": "Boreal Frost Falcon",
+    "rarity": "Epic",
+    "tier": "celestial",
+    "element": "Ice",
+    "avatarEmoji": "🦅",
+    "totalStages": 5,
+    "maxLevel": 10,
+    "eggShopPrice": 250,
+    "hatchDurationHours": 8,
+    "description": "5 Evolution Stages (Epic): Permafrost raptor whose keen sight pierces blizzards, ascending into the Primordial Frost Falcon.",
+    "bannerGradient": "from-cyan-800 via-sky-700 to-indigo-900",
+    "stages": [
+      {
+        "stage": 1,
+        "minLevel": 1,
+        "name": "Glacier Chick",
+        "title": "Fluffy permafrost owlet with razor-sharp icicle talons",
+        "description": "Fluffy permafrost owlet with razor-sharp icicle talons and brilliant icy blue eyes.",
+        "avatarEmoji": "🦉",
+        "imageName": "glacierbeak-stage-1.png",
+        "ability": {
+          "name": "Permafrost Pip",
+          "description": "Cools rapid heartbeat and establishes calm baseline breathing.",
+          "videoFile": "frostpaw-stage-1-frostpup.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-1-frostpup.mp4"
+        }
+      },
+      {
+        "stage": 2,
+        "minLevel": 4,
+        "name": "Tundra Hawk",
+        "title": "Sharp-eyed arctic raptor swooping through glacial valleys",
+        "description": "Sharp-eyed arctic raptor swooping through glacial valleys with flawless navigational precision.",
+        "avatarEmoji": "🦅",
+        "imageName": "glacierbeak-stage-2.png",
+        "ability": {
+          "name": "Glacial Keen Sight",
+          "description": "Detects trick answers and grammatical subtleties in difficult reading passages.",
+          "videoFile": "frostpaw-stage-2-cryoleo.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-2-cryoleo.mp4"
+        }
+      },
+      {
+        "stage": 3,
+        "minLevel": 7,
+        "name": "Blizzard Eagle",
+        "title": "Colossal raptor with wings forged from pure glacial ice crystals",
+        "description": "Colossal raptor with crystalline frost wings that sweep aside mental clutter and doubts.",
+        "avatarEmoji": "❄️",
+        "imageName": "glacierbeak-stage-3.png",
+        "ability": {
+          "name": "Boreal Tempest",
+          "description": "Freezes self-doubt in its tracks and restores 10 Vitality per 15 minutes of continuous focus.",
+          "videoFile": "frostpaw-stage-3-glacial-panthera.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-3-glacial-panthera.mp4"
+        }
+      },
+      {
+        "stage": 4,
+        "minLevel": 9,
+        "name": "Rime Archon",
+        "title": "Sacred frost phoenix-hawk wreathed in blue polar auroras",
+        "description": "Sacred frost phoenix-hawk wreathed in shimmering blue polar auroras of absolute integrity.",
+        "avatarEmoji": "🌨️",
+        "imageName": "glacierbeak-stage-4.png",
+        "ability": {
+          "name": "Auroral Sanctuary",
+          "description": "Guards exam integrity with unbending chill, maintaining maximum proctor trust.",
+          "videoFile": "frostpaw-stage-4-primordial-frost-overlord.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-4-primordial-frost-overlord.mp4"
+        }
+      },
+      {
+        "stage": 5,
+        "minLevel": 10,
+        "name": "Primordial Frost Falcon",
+        "title": "Ancient god-bird of eternal glaciers commanding absolute zero",
+        "description": "Ancient god-bird of eternal glaciers commanding absolute zero focus and divine composure.",
+        "avatarEmoji": "👑",
+        "imageName": "glacierbeak-stage-5.png",
+        "ability": {
+          "name": "Crystalline Infinity",
+          "description": "Ensures immaculate test performance with unwavering clarity and +20% Integrity Bond.",
+          "videoFile": "frostpaw-stage-4-primordial-frost-overlord.mp4",
+          "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-4-primordial-frost-overlord.mp4"
         }
       }
     ]
