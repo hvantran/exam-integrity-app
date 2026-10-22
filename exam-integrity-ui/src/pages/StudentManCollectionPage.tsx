@@ -6,7 +6,6 @@ import {
   type ExamIntegrityStudentPortalSection as PortalSection,
   type IncubatingEgg,
   type StudentPet,
-  getExportedPetLibrary,
 } from '@hvantran/ui-component-library';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
@@ -53,12 +52,6 @@ const StudentManCollectionPage: React.FC = () => {
 
   useEffect(() => {
     let isMounted = true;
-    try {
-      const exported = getExportedPetLibrary();
-      hatcheryService.syncPetLibrary(exported).catch(() => {});
-    } catch {
-      // ignore
-    }
 
     if (currentUserId) {
       removeScopedItem(LEGACY_EGGS_STORAGE_KEY, currentUserId);
@@ -68,8 +61,22 @@ const StudentManCollectionPage: React.FC = () => {
     Promise.all([hatcheryService.getIncubatorEggs(), hatcheryService.getMyPets()])
       .then(([serverEggs, serverPets]) => {
         if (!isMounted) return;
-        setIncubatingEggs(serverEggs ?? []);
-        setPets(serverPets ?? []);
+        setIncubatingEggs((prev) => {
+          if (!serverEggs) return prev;
+          const map = new Map(serverEggs.map((e) => [e.id, e]));
+          prev.forEach((e) => {
+            if (!map.has(e.id)) map.set(e.id, e);
+          });
+          return Array.from(map.values());
+        });
+        setPets((prev) => {
+          if (!serverPets) return prev;
+          const map = new Map(serverPets.map((p) => [p.id, p]));
+          prev.forEach((p) => {
+            if (!map.has(p.id)) map.set(p.id, p);
+          });
+          return Array.from(map.values());
+        });
       })
       .catch(() => {
         if (!isMounted) return;
@@ -88,25 +95,16 @@ const StudentManCollectionPage: React.FC = () => {
 
   const handleNavigate = (section: PortalSection) => navigate(PORTAL_ROUTES[section]);
 
-  const handleEggHatched = async (eggId: string, clientFallbackPet?: StudentPet) => {
-    setIncubatingEggs((prev) => prev.filter((egg) => egg.id !== eggId));
-    if (clientFallbackPet) {
-      setPets((prev) => [clientFallbackPet, ...prev]);
-    }
+  const handleEggHatched = async (eggId: string) => {
     try {
       const serverPet = await hatcheryService.hatchEgg(eggId);
       if (serverPet && serverPet.id) {
-        setPets((prev) => [
-          serverPet,
-          ...prev.filter((p) => p.id !== serverPet.id && p.id !== clientFallbackPet?.id),
-        ]);
+        setIncubatingEggs((prev) => prev.filter((egg) => egg.id !== eggId));
+        setPets((prev) => [serverPet, ...prev.filter((p) => p.id !== serverPet.id)]);
         return serverPet;
       }
     } catch {
-      // server hatch failed; fallback already kept
-      if (clientFallbackPet) {
-        return clientFallbackPet;
-      }
+      toast.error('Failed to hatch egg from server');
     }
   };
 
