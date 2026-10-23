@@ -1,5 +1,6 @@
 package com.hoatv.exam.integrity.services;
 
+import com.hoatv.exam.integrity.domain.PetAbilityDefinition;
 import com.hoatv.exam.integrity.domain.PetLibraryItem;
 import com.hoatv.exam.integrity.domain.PetStageDefinition;
 import com.hoatv.exam.integrity.domain.StudentItem;
@@ -7,6 +8,7 @@ import com.hoatv.exam.integrity.domain.UserProfile;
 import com.hoatv.exam.integrity.dtos.EggShopItemDTO;
 import com.hoatv.exam.integrity.dtos.GrowPetResponseDTO;
 import com.hoatv.exam.integrity.dtos.IncubatingEggDTO;
+import com.hoatv.exam.integrity.dtos.PetAbilityDTO;
 import com.hoatv.exam.integrity.dtos.PetLibraryItemDTO;
 import com.hoatv.exam.integrity.dtos.PetStageDTO;
 import com.hoatv.exam.integrity.dtos.PurchaseEggResponseDTO;
@@ -80,9 +82,9 @@ public class PetHatcheryService {
         double legendaryMax = epicMax + (legendary / total) * 100.0;
 
         return List.of(
-            new RollTier(commonMax, RARITY_COMMON, 3, List.of(PET_SPROUTLING, "pipflick", "embersqueak", "zephyrpuff")),
-            new RollTier(rareMax, RARITY_RARE, 4, List.of("frostpaw", "magmafang", "voltwing", "thundercat")),
-            new RollTier(epicMax, RARITY_EPIC, 5, List.of("phoenix", "chronochimera", "shadowpanther", "stormstag")),
+            new RollTier(commonMax, RARITY_COMMON, 3, List.of(PET_SPROUTLING, "pipflick", "embersqueak", "zephyrpuff", "aquaflea", "cinderchick", "gloomshroom", "pebblemunch")),
+            new RollTier(rareMax, RARITY_RARE, 4, List.of("frostpaw", "magmafang", "voltwing", "thundercat", "glacipaw", "volcanon", "venomscale")),
+            new RollTier(epicMax, RARITY_EPIC, 5, List.of("phoenix", "chronochimera", "shadowpanther", "stormstag", "abyssleviathan", "astralgriffin", "glacierbeak")),
             new RollTier(legendaryMax, RARITY_LEGENDARY, 6, List.of("astraldragon", "astralleviathan", "solarwyvern")),
             new RollTier(100.0, RARITY_MYTHIC, 8, List.of("voiddragon", "chronodraco", "aegispaladin"))
         );
@@ -285,15 +287,27 @@ public class PetHatcheryService {
 
         if (dto.stages() != null) {
             List<PetStageDefinition> stageDefs = dto.stages().stream()
-                .map(s -> new PetStageDefinition(
-                    s.stage(),
-                    s.minLevel(),
-                    s.name(),
-                    s.title(),
-                    s.description(),
-                    s.avatarEmoji(),
-                    s.imageName()
-                ))
+                .map(s -> {
+                    PetAbilityDefinition ability = null;
+                    if (s.ability() != null) {
+                        ability = new PetAbilityDefinition(
+                            s.ability().name(),
+                            s.ability().description(),
+                            s.ability().videoFile(),
+                            s.ability().videoUrl()
+                        );
+                    }
+                    return new PetStageDefinition(
+                        s.stage(),
+                        s.minLevel(),
+                        s.name(),
+                        s.title(),
+                        s.description(),
+                        s.avatarEmoji(),
+                        s.imageName(),
+                        ability
+                    );
+                })
                 .toList();
             item.setStages(stageDefs);
         }
@@ -309,15 +323,27 @@ public class PetHatcheryService {
 
     private PetLibraryItemDTO toLibraryDTO(PetLibraryItem item) {
         List<PetStageDTO> stages = (item.getStages() != null) ? item.getStages().stream()
-            .map(s -> new PetStageDTO(
-                s.getStage(),
-                s.getMinLevel(),
-                s.getName(),
-                s.getTitle(),
-                s.getDescription(),
-                s.getAvatarEmoji(),
-                s.getImageName()
-            ))
+            .map(s -> {
+                PetAbilityDTO abilityDTO = null;
+                if (s.getAbility() != null) {
+                    abilityDTO = new PetAbilityDTO(
+                        s.getAbility().getName(),
+                        s.getAbility().getDescription(),
+                        s.getAbility().getVideoFile(),
+                        s.getAbility().getVideoUrl()
+                    );
+                }
+                return new PetStageDTO(
+                    s.getStage(),
+                    s.getMinLevel(),
+                    s.getName(),
+                    s.getTitle(),
+                    s.getDescription(),
+                    s.getAvatarEmoji(),
+                    s.getImageName(),
+                    abilityDTO
+                );
+            })
             .toList() : List.of();
 
         return new PetLibraryItemDTO(
