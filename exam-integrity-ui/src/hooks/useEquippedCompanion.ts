@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { hatcheryService } from '../services/hatcheryService';
 import type { StudentPet, IncubatingEgg } from '@hvantran/ui-component-library';
@@ -12,6 +13,7 @@ export interface EquippedCompanion {
   iconUrl?: string;
   backgroundUrl?: string;
   species?: string;
+  element?: string;
   stageName?: string;
   level?: number;
 }
@@ -76,6 +78,7 @@ export function useEquippedCompanion() {
       iconUrl: resolveAssetUrl(avatarIcon),
       backgroundUrl: resolveAssetUrl(backgroundImage),
       species: equippedPet.species,
+      element: equippedPet.element,
       stageName: equippedPet.stageName,
       level: equippedPet.level,
     };
@@ -88,6 +91,27 @@ export function useEquippedCompanion() {
       species: equippedEgg.isMystery ? 'Mystery Egg' : equippedEgg.hatchedSpecies,
     };
   }
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const root = document.documentElement;
+
+    if (companion?.type === 'pet') {
+      if (companion.element) {
+        root.setAttribute('data-companion-element', String(companion.element).toLowerCase().trim());
+      }
+      if (companion.backgroundUrl) {
+        root.style.setProperty('--companion-bg-image', `url(${companion.backgroundUrl})`);
+      }
+      if (companion.iconUrl) {
+        root.style.setProperty('--companion-avatar-icon', `url(${companion.iconUrl})`);
+      }
+    } else {
+      root.removeAttribute('data-companion-element');
+      root.style.removeProperty('--companion-bg-image');
+      root.style.removeProperty('--companion-avatar-icon');
+    }
+  }, [companion]);
 
   return {
     companion,
