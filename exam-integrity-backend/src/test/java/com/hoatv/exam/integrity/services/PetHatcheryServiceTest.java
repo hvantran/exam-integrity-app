@@ -457,4 +457,34 @@ class PetHatcheryServiceTest {
             .isInstanceOf(EntityNotFoundException.class)
             .hasMessageContaining("Egg not found: non-existent");
     }
+
+    @Test
+    void migrateStudentItemAssetsPopulatesMissingAssetsFromCatalogue() {
+        StudentItem pet = StudentItem.builder()
+            .id("pet-old")
+            .userId("user1")
+            .category(StudentItem.CATEGORY_PET)
+            .petLibraryId("thundercat")
+            .stageLevel(2)
+            .avatarIcon(null)
+            .backgroundImage(null)
+            .build();
+
+        PetStageDefinition stage1 = new PetStageDefinition(1, 1, "Sparkpaw", "T1", "D1", "🐱", "s1.png", "s1-icon.png", "s1-bg.png", null);
+        PetStageDefinition stage2 = new PetStageDefinition(2, 5, "Boltfang", "T2", "D2", "⚡", "s2.png", "s2-icon.png", "s2-bg.png", null);
+        PetLibraryItem lib = new PetLibraryItem();
+        lib.setId("thundercat");
+        lib.setPetKey("thundercat");
+        lib.setStages(java.util.List.of(stage1, stage2));
+
+        when(studentItemRepository.findByCategory(StudentItem.CATEGORY_PET)).thenReturn(java.util.List.of(pet));
+        when(petLibraryRepository.findByPetKey("thundercat")).thenReturn(java.util.Optional.of(lib));
+
+        int migrated = petHatcheryService.migrateStudentItemAssets();
+
+        assertThat(migrated).isEqualTo(1);
+        assertThat(pet.getAvatarIcon()).isEqualTo("s2-icon.png");
+        assertThat(pet.getBackgroundImage()).isEqualTo("s2-bg.png");
+        verify(studentItemRepository).saveAll(any());
+    }
 }

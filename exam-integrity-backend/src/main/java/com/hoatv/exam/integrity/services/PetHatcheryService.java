@@ -262,6 +262,36 @@ public class PetHatcheryService {
         return getPetLibrary();
     }
 
+    public int migrateStudentItemAssets() {
+        List<StudentItem> pets = studentItemRepository.findByCategory(StudentItem.CATEGORY_PET);
+        List<StudentItem> toUpdate = new ArrayList<>();
+
+        for (StudentItem pet : pets) {
+            boolean needsUpdate = pet.getAvatarIcon() == null || pet.getAvatarIcon().isBlank()
+                || pet.getBackgroundImage() == null || pet.getBackgroundImage().isBlank();
+
+            if (needsUpdate && pet.getPetLibraryId() != null && !pet.getPetLibraryId().isBlank()) {
+                var libOpt = petLibraryRepository.findByPetKey(pet.getPetLibraryId());
+                if (libOpt.isPresent() && libOpt.get().getStages() != null && !libOpt.get().getStages().isEmpty()) {
+                    List<PetStageDefinition> stages = libOpt.get().getStages();
+                    int stageIdx = Math.max(0, Math.min(pet.getStageLevel() - 1, stages.size() - 1));
+                    PetStageDefinition stage = stages.get(stageIdx);
+                    if (stage != null) {
+                        pet.setAvatarIcon(stage.getAvatarIcon());
+                        pet.setBackgroundImage(stage.getBackgroundImage());
+                        toUpdate.add(pet);
+                    }
+                }
+            }
+        }
+
+        if (!toUpdate.isEmpty()) {
+            studentItemRepository.saveAll(toUpdate);
+            logger.info("Migrated avatarIcon and backgroundImage for {} student pets", toUpdate.size());
+        }
+        return toUpdate.size();
+    }
+
     private void syncSinglePetLibraryItem(PetLibraryItemDTO dto) {
         String key = (dto.petKey() != null && !dto.petKey().isBlank()) ? dto.petKey() : dto.id();
         PetLibraryItem item = petLibraryRepository.findByPetKey(key)
@@ -523,6 +553,18 @@ public class PetHatcheryService {
         }
         if (target == null) {
             throw new EntityNotFoundException("Pet not found: " + petId);
+        }
+        if ((target.getAvatarIcon() == null || target.getBackgroundImage() == null) && target.getPetLibraryId() != null) {
+            petLibraryRepository.findByPetKey(target.getPetLibraryId()).ifPresent(lib -> {
+                if (lib.getStages() != null && !lib.getStages().isEmpty()) {
+                    int stageIdx = Math.max(0, Math.min(target.getStageLevel() - 1, lib.getStages().size() - 1));
+                    PetStageDefinition stage = lib.getStages().get(stageIdx);
+                    if (stage != null) {
+                        target.setAvatarIcon(stage.getAvatarIcon());
+                        target.setBackgroundImage(stage.getBackgroundImage());
+                    }
+                }
+            });
         }
         studentItemRepository.saveAll(pets);
 

@@ -57,6 +57,8 @@ public class PetLibraryDataSeeder implements CommandLineRunner {
                 List<PetLibraryItemDTO> items = objectMapper.readValue(is, new TypeReference<>() {});
                 List<PetLibraryItemDTO> synced = petHatcheryService.syncPetLibrary(items);
                 logger.info("PetLibraryDataSeeder: successfully seeded {} pet library items into MongoDB", synced.size());
+                int migrated = petHatcheryService.migrateStudentItemAssets();
+                logger.info("PetLibraryDataSeeder: migrated {} student pets with missing assets", migrated);
             }
         } catch (Exception e) {
             logger.error("Failed to seed pet library from resource: {}", seedResourcePath, e);

@@ -122,6 +122,7 @@ class PetLibraryDataSeederTest {
         seeder.run();
 
         verify(petHatcheryService).syncPetLibrary(anyList());
+        verify(petHatcheryService).migrateStudentItemAssets();
     }
 
     @Test

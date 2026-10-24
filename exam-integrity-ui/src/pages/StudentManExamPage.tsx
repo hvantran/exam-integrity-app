@@ -151,9 +151,6 @@ const serializeAnswerParts = (parts: AnswerPart[], promptsByKey: Record<string, 
     .map((part) => `${part.key}) ${part.answer}`)
     .join('\n\n');
 
-const ElementaryBanner = ExamIntegrityStudentElementaryBanner as React.ComponentType<any>;
-const ElementarySidebar = ExamIntegrityStudentElementarySidebar as React.ComponentType<any>;
-
 const ExamPage: React.FC = () => {
   const { sessionId = '' } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
@@ -291,7 +288,7 @@ const ExamPage: React.FC = () => {
       }
       bannerSlot={
         examLayoutTheme.isElementary ? (
-          <ElementaryBanner
+          <ExamIntegrityStudentElementaryBanner
             mascotEmoji={effectiveMascotEmoji}
             mascotIconUrl={companion?.iconUrl}
             subjectTitle={examLayoutTheme.subjectTitle}
@@ -451,7 +448,7 @@ const ExamPage: React.FC = () => {
       }
       sidebarSlot={
         examLayoutTheme.isElementary ? (
-          <ElementarySidebar
+          <ExamIntegrityStudentElementarySidebar
             mascotEmoji={effectiveMascotEmoji}
             mascotName={effectiveMascotName}
             mascotTip={effectiveMascotTip}
