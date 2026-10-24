@@ -85,6 +85,9 @@ describe('useEquippedCompanion', () => {
       stageName: 'Juvenile',
       level: 3,
     });
+    expect(document.documentElement.getAttribute('data-companion-element')).toBe('fire');
+    expect(document.documentElement.style.getPropertyValue('--companion-accent')).toBe('#f59e0b');
+    expect(document.documentElement.style.getPropertyValue('--companion-bg-image')).toContain('phoenix-stage-2-bg.png');
   });
 
   it('resolves equipped incubating egg when no pet is equipped', async () => {

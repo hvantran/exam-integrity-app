@@ -31,3 +31,24 @@
   --color-on-surface-variant: #444653;
   --color-on-background: #151c27;
 }
+
+/* Companion element border & accent styles */
+[data-companion-element] {
+  --companion-border-color: var(--companion-accent, #3b82f6);
+}
+
+[data-companion-element] .companion-themed-border,
+[data-companion-element] [data-companion-border="true"],
+[data-companion-element] aside > div.rounded-3xl,
+[data-companion-element] aside > div.rounded-2xl,
+[data-companion-element] [data-testid="student-landing-banner"],
+[data-companion-element] .exam-question-card {
+  border-color: var(--companion-accent) !important;
+}
+
+.companion-whole-page-bg {
+  background-image: var(--companion-bg-image);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
