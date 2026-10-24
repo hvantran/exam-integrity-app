@@ -10,7 +10,6 @@ import {
   ExamIntegrityStudentAchievementsTray,
   ExamIntegrityExamGrid,
   ExamIntegrityExamGridLoader,
-  useTheme,
   type ExamIntegrityStudentPortalSection as PortalSection,
 } from '@hvantran/ui-component-library';
 import { useExamList, useTagList } from '../hooks/useExams';
@@ -54,15 +53,12 @@ const LandingPage: React.FC = () => {
 
   const [dockMode, setDockMode] = useNavDockMode();
   const { companion } = useEquippedCompanion();
-  const { theme: uiTheme, setTheme: setUiTheme } = useTheme();
 
   return (
     <StudentManLandingLayout
       studentName={displayName || 'Student'}
       starCount={totalStars}
       activeSection="dashboard"
-      isDarkMode={uiTheme === 'dark'}
-      onThemeToggle={() => setUiTheme(uiTheme === 'dark' ? 'light' : 'dark')}
       pageTitle={theme.isElementary ? 'Learning Quests 🌟' : 'Ky thi dang dien ra'}
       pageSubtitle={
         theme.isElementary
