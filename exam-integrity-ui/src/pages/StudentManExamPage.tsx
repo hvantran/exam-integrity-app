@@ -276,7 +276,8 @@ const ExamPage: React.FC = () => {
   return (
     <>
       <StudentManExamLayout
-      pageAccentClass={examTheme.pageAccentClass}
+      className={cn(companion?.backgroundUrl && 'companion-whole-page-bg relative')}
+      pageAccentClass={companion?.backgroundUrl ? 'bg-transparent' : examTheme.pageAccentClass}
       headerClass={examTheme.headerClass}
       headerSlot={
         <StudentManExamHeader
@@ -318,11 +319,12 @@ const ExamPage: React.FC = () => {
         <>
           <Card
             className={cn(
-              'w-full p-3 sm:p-6 md:p-8 flex flex-col',
+              'w-full p-3 sm:p-6 md:p-8 flex flex-col exam-question-card relative z-10 transition-colors',
               examLayoutTheme.isElementary
-                ? 'rounded-3xl border-2 border-amber-200/90 bg-white shadow-[0_4px_0_#cbd5e1]'
-                : 'rounded-2xl border border-gray-200 bg-white shadow-sm',
+                ? 'rounded-3xl border-2 border-amber-200/90 bg-white/95 dark:bg-gray-800/95 shadow-[0_4px_0_#cbd5e1]'
+                : 'rounded-2xl border border-gray-200 bg-white dark:bg-gray-800 shadow-sm',
             )}
+            style={companion?.element ? { borderColor: 'var(--companion-accent)' } : undefined}
           >
             {questionLoading ? (
               <StudentManQuestionPanel
