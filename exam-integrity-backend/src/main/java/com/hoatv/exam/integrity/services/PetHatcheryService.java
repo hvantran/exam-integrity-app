@@ -556,16 +556,16 @@ public class PetHatcheryService {
             throw new EntityNotFoundException("Pet not found: " + petId);
         }
         if ((target.getAvatarIcon() == null || target.getBackgroundImage() == null) && target.getPetLibraryId() != null) {
-            petLibraryRepository.findByPetKey(target.getPetLibraryId()).ifPresent(lib -> {
-                if (lib.getStages() != null && !lib.getStages().isEmpty()) {
-                    int stageIdx = Math.max(0, Math.min(target.getStageLevel() - 1, lib.getStages().size() - 1));
-                    PetStageDefinition stage = lib.getStages().get(stageIdx);
-                    if (stage != null) {
-                        target.setAvatarIcon(stage.getAvatarIcon());
-                        target.setBackgroundImage(stage.getBackgroundImage());
-                    }
+            var libOpt = petLibraryRepository.findByPetKey(target.getPetLibraryId());
+            if (libOpt.isPresent() && libOpt.get().getStages() != null && !libOpt.get().getStages().isEmpty()) {
+                List<PetStageDefinition> stages = libOpt.get().getStages();
+                int stageIdx = Math.max(0, Math.min(target.getStageLevel() - 1, stages.size() - 1));
+                PetStageDefinition stage = stages.get(stageIdx);
+                if (stage != null) {
+                    target.setAvatarIcon(stage.getAvatarIcon());
+                    target.setBackgroundImage(stage.getBackgroundImage());
                 }
-            });
+            }
         }
         studentItemRepository.saveAll(pets);
 
