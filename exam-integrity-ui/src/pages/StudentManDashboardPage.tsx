@@ -61,8 +61,8 @@ const LandingPage: React.FC = () => {
       studentName={displayName || 'Student'}
       starCount={totalStars}
       activeSection="dashboard"
-      themeMode={uiTheme}
-      onThemeModeChange={setUiTheme}
+      isDarkMode={uiTheme === 'dark'}
+      onThemeToggle={() => setUiTheme(uiTheme === 'dark' ? 'light' : 'dark')}
       pageTitle={theme.isElementary ? 'Learning Quests 🌟' : 'Ky thi dang dien ra'}
       pageSubtitle={
         theme.isElementary
