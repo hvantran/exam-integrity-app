@@ -1478,10 +1478,10 @@
   resolved "https://registry.npmjs.org/@humanwhocodes/object-schema/-/object-schema-2.0.3.tgz#4a2868d75d6d6963e423bcf90b7fd1be343409d3"
   integrity sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==
 
-"@hvantran/ui-component-library@1.0.53":
-  version "1.0.53"
-  resolved "https://npm.pkg.github.com/download/@hvantran/ui-component-library/1.0.53/de372f16777a6e08a579afcb717a58078201fac0#de372f16777a6e08a579afcb717a58078201fac0"
-  integrity sha512-r3nEDZGEWct4Va/FOQPmfYBIeGTtFgEX0AtfbG0cIyzM3m9k8Yn8iTTB3LpirZsPLTNLXFI9Fe3kRLv7cvobkg==
+"@hvantran/ui-component-library@1.0.55":
+  version "1.0.55"
+  resolved "https://npm.pkg.github.com/download/@hvantran/ui-component-library/1.0.55/51bda63c48940b4ba6a8ef3671af59d57b7a78ce#51bda63c48940b4ba6a8ef3671af59d57b7a78ce"
+  integrity sha512-KUtdchv3mqrs0GCHR0YDo2Xm5lZsFVVsBoaqWLHtnxAtf9MCRfHTSNY1iBbtQQm9xZQEZzLoMFZNACxjEVKjiA==
   dependencies:
     "@codemirror/lang-javascript" "^6.2.2"
     "@codemirror/lang-json" "^6.0.1"

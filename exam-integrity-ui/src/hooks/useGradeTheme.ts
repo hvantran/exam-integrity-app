@@ -63,40 +63,48 @@ export function extractSubjectFromTags(tags?: string[]): ExamSubject {
 export const ELEMENTARY_THEME: Omit<GradeThemeConfig, 'gradeNumber' | 'tier' | 'isElementary' | 'badgeLabel'> = {
   brandTitle: 'ExamIntegrity Junior 🌟',
   themeName: 'Sprout UI (Playful Explorer)',
-  headerClass: 'bg-gradient-to-r from-amber-50 via-sky-50 to-emerald-50 border-b-2 border-amber-200/80',
-  cardClass: 'rounded-3xl border-2 border-amber-200/80 bg-white shadow-lg p-6 md:p-8',
+  headerClass:
+    'bg-gradient-to-r from-amber-50 via-sky-50 to-emerald-50 dark:from-amber-950/40 dark:via-sky-950/40 dark:to-emerald-950/40 border-b-2 border-amber-200/80 dark:border-amber-800/80',
+  cardClass:
+    'rounded-3xl border-2 border-amber-200/80 dark:border-amber-800/80 bg-white dark:bg-gray-800 shadow-lg p-6 md:p-8',
   buttonPrimaryClass:
     'min-h-[56px] rounded-full bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold px-6 shadow-[0_4px_0_#d97706] active:translate-y-1 active:shadow-none transition-all',
   buttonSecondaryClass:
     'min-h-[56px] rounded-full bg-sky-400 hover:bg-sky-500 text-white font-bold px-6 shadow-[0_4px_0_#0284c7] active:translate-y-1 active:shadow-none transition-all',
-  accentPillClass: 'rounded-full bg-amber-100 border border-amber-300 text-amber-900 font-bold px-4 py-1.5',
-  containerBgClass: 'min-h-screen bg-[#fffdf7] text-slate-900',
+  accentPillClass:
+    'rounded-full bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 font-bold px-4 py-1.5',
+  containerBgClass: 'min-h-screen bg-[#fffdf7] dark:bg-gray-900 text-slate-900 dark:text-slate-100',
 };
 
 export const MIDDLE_THEME: Omit<GradeThemeConfig, 'gradeNumber' | 'tier' | 'isElementary' | 'badgeLabel'> = {
   brandTitle: 'ExamIntegrity Plus 🎯',
   themeName: 'Balanced Focus',
-  headerClass: 'bg-gradient-to-r from-emerald-50 via-white to-teal-50 border-b border-emerald-200',
-  cardClass: 'rounded-2xl border border-emerald-200 bg-white shadow-md p-6',
+  headerClass:
+    'bg-gradient-to-r from-emerald-50 via-white to-teal-50 dark:from-emerald-950/40 dark:via-gray-900 dark:to-teal-950/40 border-b border-emerald-200 dark:border-emerald-800',
+  cardClass:
+    'rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-gray-800 shadow-md p-6',
   buttonPrimaryClass:
     'min-h-[48px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 transition-all shadow-sm',
   buttonSecondaryClass:
     'min-h-[48px] rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold px-5 transition-all shadow-sm',
-  accentPillClass: 'rounded-full bg-emerald-100 border border-emerald-300 text-emerald-900 font-semibold px-3 py-1',
-  containerBgClass: 'min-h-screen bg-slate-50 text-slate-900',
+  accentPillClass:
+    'rounded-full bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700 text-emerald-900 dark:text-emerald-200 font-semibold px-3 py-1',
+  containerBgClass: 'min-h-screen bg-slate-50 dark:bg-gray-900 text-slate-900 dark:text-slate-100',
 };
 
 export const HIGH_THEME: Omit<GradeThemeConfig, 'gradeNumber' | 'tier' | 'isElementary' | 'badgeLabel'> = {
   brandTitle: 'ExamIntegrity',
   themeName: 'Academic Precision',
-  headerClass: 'bg-white border-b border-slate-200',
-  cardClass: 'rounded-xl border border-slate-200 bg-white shadow-sm p-6',
+  headerClass: 'bg-white dark:bg-gray-800 border-b border-slate-200 dark:border-slate-700',
+  cardClass:
+    'rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-gray-800 shadow-sm p-6',
   buttonPrimaryClass:
     'min-h-[42px] rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 transition-all shadow-sm',
   buttonSecondaryClass:
     'min-h-[42px] rounded-lg bg-slate-800 hover:bg-slate-900 text-white font-medium px-4 transition-all shadow-sm',
-  accentPillClass: 'rounded-md bg-slate-100 border border-slate-200 text-slate-700 text-xs font-medium px-2.5 py-1',
-  containerBgClass: 'min-h-screen bg-slate-50 text-slate-900',
+  accentPillClass:
+    'rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium px-2.5 py-1',
+  containerBgClass: 'min-h-screen bg-slate-50 dark:bg-gray-900 text-slate-900 dark:text-slate-100',
 };
 
 export function getGradeTheme(gradeNumber: number | null): GradeThemeConfig {

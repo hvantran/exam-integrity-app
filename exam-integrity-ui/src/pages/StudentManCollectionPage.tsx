@@ -49,6 +49,7 @@ const StudentManCollectionPage: React.FC = () => {
 
   const [incubatingEggs, setIncubatingEggs] = useState<IncubatingEgg[]>([]);
   const [pets, setPets] = useState<StudentPet[]>([]);
+  const [petLibrary, setPetLibrary] = useState<any[] | undefined>(undefined);
 
   useEffect(() => {
     let isMounted = true;
@@ -58,9 +59,18 @@ const StudentManCollectionPage: React.FC = () => {
       removeScopedItem(LEGACY_PETS_STORAGE_KEY, currentUserId);
     }
 
-    Promise.all([hatcheryService.getIncubatorEggs(), hatcheryService.getMyPets()])
-      .then(([serverEggs, serverPets]) => {
+    Promise.all([
+      hatcheryService.getIncubatorEggs(),
+      hatcheryService.getMyPets(),
+      Promise.resolve()
+        .then(() => hatcheryService.getPetLibrary?.())
+        .catch(() => []),
+    ])
+      .then(([serverEggs, serverPets, serverLibrary]) => {
         if (!isMounted) return;
+        if (serverLibrary && Array.isArray(serverLibrary) && serverLibrary.length > 0) {
+          setPetLibrary(serverLibrary);
+        }
         setIncubatingEggs((prev) => {
           if (!serverEggs) return prev;
           const map = new Map(serverEggs.map((e) => [e.id, e]));
@@ -258,6 +268,7 @@ const StudentManCollectionPage: React.FC = () => {
       crackCostInStars={crackCost}
       incubatingEggs={incubatingEggs}
       pets={pets}
+      petLibrary={petLibrary}
       onEggHatched={handleEggHatched}
       onGrowPet={handleGrowPet}
       onStrikeCrack={handleStrikeCrack}

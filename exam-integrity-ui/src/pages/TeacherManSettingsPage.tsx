@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
   ExamIntegrityTeacherSettingsTemplate,
+  useTheme,
   type ExamIntegrityDashboardSection as DashboardSection,
 } from '@hvantran/ui-component-library';
 import { useAuth } from '../context/AuthContext';
@@ -23,6 +24,7 @@ const SECTION_ROUTES: Record<DashboardSection, string> = {
 export const TeacherManSettingsPage: React.FC = () => {
   const navigate = useNavigate();
   const { logout, displayName } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [dockMode, setDockMode] = useNavDockMode('pinned', TEACHER_NAV_DOCK_STORAGE_KEY);
   const { settings, updateSettings, isLoading } = useSettings();
 
@@ -67,6 +69,8 @@ export const TeacherManSettingsPage: React.FC = () => {
       onLogout={logout}
       dockMode={dockMode}
       onDockModeChange={setDockMode}
+      themeMode={theme}
+      onThemeModeChange={setTheme}
       settings={formState}
       onSettingsChange={handleChange}
       onSave={handleSave}
