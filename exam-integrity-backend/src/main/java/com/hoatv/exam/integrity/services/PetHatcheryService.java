@@ -305,6 +305,8 @@ public class PetHatcheryService {
                         s.description(),
                         s.avatarEmoji(),
                         s.imageName(),
+                        s.avatarIcon(),
+                        s.backgroundImage(),
                         ability
                     );
                 })
@@ -341,6 +343,8 @@ public class PetHatcheryService {
                     s.getDescription(),
                     s.getAvatarEmoji(),
                     s.getImageName(),
+                    s.getAvatarIcon(),
+                    s.getBackgroundImage(),
                     abilityDTO
                 );
             })
@@ -387,6 +391,8 @@ public class PetHatcheryService {
             PetStageDefinition st1 = lib.getStages().get(0);
             pet.setStageName(st1.getName());
             pet.setImageName(st1.getImageName());
+            pet.setAvatarIcon(st1.getAvatarIcon());
+            pet.setBackgroundImage(st1.getBackgroundImage());
         }
     }
 
@@ -463,6 +469,12 @@ public class PetHatcheryService {
                     pet.setStageName(stageDef.getName());
                     if (stageDef.getImageName() != null && !stageDef.getImageName().isBlank()) {
                         pet.setImageName(stageDef.getImageName());
+                    }
+                    if (stageDef.getAvatarIcon() != null && !stageDef.getAvatarIcon().isBlank()) {
+                        pet.setAvatarIcon(stageDef.getAvatarIcon());
+                    }
+                    if (stageDef.getBackgroundImage() != null && !stageDef.getBackgroundImage().isBlank()) {
+                        pet.setBackgroundImage(stageDef.getBackgroundImage());
                     }
                 });
         });
@@ -622,6 +634,8 @@ public class PetHatcheryService {
             pet.getAvatarEmoji(),
             pet.getImageUrl(),
             pet.getImageName(),
+            pet.getAvatarIcon(),
+            pet.getBackgroundImage(),
             pet.getPetLibraryId(),
             pet.isEquipped(),
             pet.getStats(),

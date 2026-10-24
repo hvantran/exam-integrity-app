@@ -151,6 +151,9 @@ const serializeAnswerParts = (parts: AnswerPart[], promptsByKey: Record<string, 
     .map((part) => `${part.key}) ${part.answer}`)
     .join('\n\n');
 
+const ElementaryBanner = ExamIntegrityStudentElementaryBanner as React.ComponentType<any>;
+const ElementarySidebar = ExamIntegrityStudentElementarySidebar as React.ComponentType<any>;
+
 const ExamPage: React.FC = () => {
   const { sessionId = '' } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
@@ -288,8 +291,9 @@ const ExamPage: React.FC = () => {
       }
       bannerSlot={
         examLayoutTheme.isElementary ? (
-          <ExamIntegrityStudentElementaryBanner
+          <ElementaryBanner
             mascotEmoji={effectiveMascotEmoji}
+            mascotIconUrl={companion?.iconUrl}
             subjectTitle={examLayoutTheme.subjectTitle}
           />
         ) : undefined
@@ -447,12 +451,14 @@ const ExamPage: React.FC = () => {
       }
       sidebarSlot={
         examLayoutTheme.isElementary ? (
-          <ExamIntegrityStudentElementarySidebar
+          <ElementarySidebar
             mascotEmoji={effectiveMascotEmoji}
             mascotName={effectiveMascotName}
             mascotTip={effectiveMascotTip}
+            mascotIconUrl={companion?.iconUrl}
+            backgroundImageUrl={companion?.backgroundUrl}
             flaggedNumbers={flaggedNumbers}
-            onJumpToQuestion={(qNum) => {
+            onJumpToQuestion={(qNum: number) => {
               if (inReviewFlagged) {
                 const idx = flaggedNumbers.indexOf(qNum);
                 if (idx !== -1) setFlaggedReviewIndex(idx);

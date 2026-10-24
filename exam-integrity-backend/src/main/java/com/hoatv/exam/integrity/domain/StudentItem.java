@@ -52,6 +52,8 @@ public class StudentItem {
     private int totalStages = 3;
     private String imageUrl;
     private String imageName;
+    private String avatarIcon;
+    private String backgroundImage;
     private String petLibraryId;
     private boolean isEquipped;
 

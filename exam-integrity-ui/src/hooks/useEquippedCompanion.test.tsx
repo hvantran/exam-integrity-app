@@ -52,7 +52,10 @@ describe('useEquippedCompanion', () => {
         id: 'pet-1',
         name: 'Sun Ember Phoenix',
         avatarEmoji: '🔥',
+        avatarIcon: 'phoenix-stage-2-icon.png',
+        backgroundImage: 'phoenix-stage-2-bg.png',
         species: 'Primordial Phoenix',
+        element: 'Fire',
         stageName: 'Juvenile',
         level: 3,
         isEquipped: true,
@@ -71,7 +74,14 @@ describe('useEquippedCompanion', () => {
       id: 'pet-1',
       name: 'Sun Ember Phoenix',
       avatarEmoji: '🔥',
+      avatarIcon: 'phoenix-stage-2-icon.png',
+      backgroundImage: 'phoenix-stage-2-bg.png',
+      iconUrl:
+        'https://github.com/hvantran/ui-component-library/releases/download/assets-v1/phoenix-stage-2-icon.png',
+      backgroundUrl:
+        'https://github.com/hvantran/ui-component-library/releases/download/assets-v1/phoenix-stage-2-bg.png',
       species: 'Primordial Phoenix',
+      element: 'Fire',
       stageName: 'Juvenile',
       level: 3,
     });

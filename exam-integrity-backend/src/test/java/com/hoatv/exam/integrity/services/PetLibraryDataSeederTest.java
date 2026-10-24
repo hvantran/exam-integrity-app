@@ -139,6 +139,8 @@ class PetLibraryDataSeederTest {
                 assertNotNull(item.stages());
                 totalStages += item.stages().size();
                 for (var stage : item.stages()) {
+                    assertNotNull(stage.avatarIcon(), "Stage avatarIcon should not be null for " + item.petKey() + " stage " + stage.stage());
+                    assertNotNull(stage.backgroundImage(), "Stage backgroundImage should not be null for " + item.petKey() + " stage " + stage.stage());
                     if (stage.ability() != null) {
                         assertNotNull(stage.ability().name());
                         assertNotNull(stage.ability().description());

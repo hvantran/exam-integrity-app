@@ -12,15 +12,21 @@ public class PetStageDefinition {
     private String description;
     private String avatarEmoji;
     private String imageName;
+    private String avatarIcon;
+    private String backgroundImage;
     private PetAbilityDefinition ability;
 
     public PetStageDefinition() {}
 
     public PetStageDefinition(int stage, int minLevel, String name, String title, String description, String avatarEmoji, String imageName) {
-        this(stage, minLevel, name, title, description, avatarEmoji, imageName, null);
+        this(stage, minLevel, name, title, description, avatarEmoji, imageName, null, null, null);
     }
 
     public PetStageDefinition(int stage, int minLevel, String name, String title, String description, String avatarEmoji, String imageName, PetAbilityDefinition ability) {
+        this(stage, minLevel, name, title, description, avatarEmoji, imageName, null, null, ability);
+    }
+
+    public PetStageDefinition(int stage, int minLevel, String name, String title, String description, String avatarEmoji, String imageName, String avatarIcon, String backgroundImage, PetAbilityDefinition ability) {
         this.stage = stage;
         this.minLevel = minLevel;
         this.name = name;
@@ -28,6 +34,8 @@ public class PetStageDefinition {
         this.description = description;
         this.avatarEmoji = avatarEmoji;
         this.imageName = imageName;
+        this.avatarIcon = avatarIcon;
+        this.backgroundImage = backgroundImage;
         this.ability = ability;
     }
 
@@ -85,6 +93,30 @@ public class PetStageDefinition {
 
     public void setImageName(String imageName) {
         this.imageName = imageName;
+    }
+
+    public String getAvatarIcon() {
+        return avatarIcon;
+    }
+
+    public void setAvatarIcon(String avatarIcon) {
+        this.avatarIcon = avatarIcon;
+    }
+
+    public String getIcon() {
+        return avatarIcon;
+    }
+
+    public void setIcon(String icon) {
+        this.avatarIcon = icon;
+    }
+
+    public String getBackgroundImage() {
+        return backgroundImage;
+    }
+
+    public void setBackgroundImage(String backgroundImage) {
+        this.backgroundImage = backgroundImage;
     }
 
     public PetAbilityDefinition getAbility() {
