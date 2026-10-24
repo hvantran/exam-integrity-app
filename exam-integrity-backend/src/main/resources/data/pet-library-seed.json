@@ -28,7 +28,9 @@
           "description": "Emits gentle chlorophyll mist that calms exam anxiety and restores 5 Vitality per minute of sustained focus.",
           "videoFile": "sproutling-stage-1-sproutling.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/sproutling-stage-1-sproutling.mp4"
-        }
+        },
+        "avatarIcon": "sproutling-stage-1-icon.png",
+        "backgroundImage": "sproutling-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -43,7 +45,9 @@
           "description": "Shields focus from sudden alert fatigue, converting study milestones into bonus bond points.",
           "videoFile": "sproutling-stage-2-bloomfaun.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/sproutling-stage-2-bloomfaun.mp4"
-        }
+        },
+        "avatarIcon": "sproutling-stage-2-icon.png",
+        "backgroundImage": "sproutling-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -58,7 +62,9 @@
           "description": "Channels deep forest roots to grant immunity to distraction spikes and boosts integrity streak exp by +15%.",
           "videoFile": "sproutling-stage-3-verdant-forest-stag.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/sproutling-stage-3-verdant-forest-stag.mp4"
-        }
+        },
+        "avatarIcon": "sproutling-stage-3-icon.png",
+        "backgroundImage": "sproutling-stage-3-bg.png"
       }
     ]
   },
@@ -91,7 +97,9 @@
           "description": "Splashes cool droplets to refresh fatigued eyes and reset short attention lapses.",
           "videoFile": "pipflick-stage-1-pipflick.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/pipflick-stage-1-pipflick.mp4"
-        }
+        },
+        "avatarIcon": "pipflick-stage-1-icon.png",
+        "backgroundImage": "pipflick-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -106,7 +114,9 @@
           "description": "Establishes a steady rhythmic stream that smooths test pacing during timed question blocks.",
           "videoFile": "pipflick-stage-2-aquafinne.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/pipflick-stage-2-aquafinne.mp4"
-        }
+        },
+        "avatarIcon": "pipflick-stage-2-icon.png",
+        "backgroundImage": "pipflick-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -121,7 +131,9 @@
           "description": "Unleashes a tidal crest that cleanses session tension and awards +20% Integrity Bond upon exam completion.",
           "videoFile": "pipflick-stage-3-leviataide.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/pipflick-stage-3-leviataide.mp4"
-        }
+        },
+        "avatarIcon": "pipflick-stage-3-icon.png",
+        "backgroundImage": "pipflick-stage-3-bg.png"
       }
     ]
   },
@@ -154,7 +166,9 @@
           "description": "Ignites tiny hearth embers that kindle motivation and ward off early study lethargy.",
           "videoFile": "embersqueak-stage-1-embersqueak.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/embersqueak-stage-1-embersqueak.mp4"
-        }
+        },
+        "avatarIcon": "embersqueak-stage-1-icon.png",
+        "backgroundImage": "embersqueak-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -169,7 +183,9 @@
           "description": "Strikes through challenging problem sets with radiant heat, boosting problem-solving momentum.",
           "videoFile": "embersqueak-stage-2-pyreclaw.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/embersqueak-stage-2-pyreclaw.mp4"
-        }
+        },
+        "avatarIcon": "embersqueak-stage-2-icon.png",
+        "backgroundImage": "embersqueak-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -184,7 +200,9 @@
           "description": "Radiates solar warmth across the workspace, increasing critical thinking accuracy during high-stakes exams.",
           "videoFile": "embersqueak-stage-3-solartiger.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/embersqueak-stage-3-solartiger.mp4"
-        }
+        },
+        "avatarIcon": "embersqueak-stage-3-icon.png",
+        "backgroundImage": "embersqueak-stage-3-bg.png"
       }
     ]
   },
@@ -217,7 +235,9 @@
           "description": "Stirs a gentle updraft that clears mental haze during routine test-taking.",
           "videoFile": "zephyrpuff-stage-1-pufftail.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/zephyrpuff-stage-1-pufftail.mp4"
-        }
+        },
+        "avatarIcon": "zephyrpuff-stage-1-icon.png",
+        "backgroundImage": "zephyrpuff-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -232,7 +252,9 @@
           "description": "Propels quick comprehension through dense reading passages with swirling wind vortexes.",
           "videoFile": "zephyrpuff-stage-2-zephyrhare.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/zephyrpuff-stage-2-zephyrhare.mp4"
-        }
+        },
+        "avatarIcon": "zephyrpuff-stage-2-icon.png",
+        "backgroundImage": "zephyrpuff-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -247,7 +269,9 @@
           "description": "Commands serene cyclonic currents that stabilize heart rate and sustain uninterrupted deep concentration.",
           "videoFile": "zephyrpuff-stage-3-tempest-lop.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/zephyrpuff-stage-3-tempest-lop.mp4"
-        }
+        },
+        "avatarIcon": "zephyrpuff-stage-3-icon.png",
+        "backgroundImage": "zephyrpuff-stage-3-bg.png"
       }
     ]
   },
@@ -280,7 +304,9 @@
           "description": "Touches the workspace with cool frost, soothing test anxiety and rapid pulse.",
           "videoFile": "frostpaw-stage-1-frostpup.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-1-frostpup.mp4"
-        }
+        },
+        "avatarIcon": "frostpaw-stage-1-icon.png",
+        "backgroundImage": "frostpaw-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -295,7 +321,9 @@
           "description": "Freezes intrusive thoughts and distractions in their tracks with crystalline chill.",
           "videoFile": "frostpaw-stage-2-cryoleo.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-2-cryoleo.mp4"
-        }
+        },
+        "avatarIcon": "frostpaw-stage-2-icon.png",
+        "backgroundImage": "frostpaw-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -310,7 +338,9 @@
           "description": "Unleashes an icy roar that locks in cognitive clarity and shields from peripheral movements.",
           "videoFile": "frostpaw-stage-3-glacial-panthera.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-3-glacial-panthera.mp4"
-        }
+        },
+        "avatarIcon": "frostpaw-stage-3-icon.png",
+        "backgroundImage": "frostpaw-stage-3-bg.png"
       },
       {
         "stage": 4,
@@ -325,7 +355,9 @@
           "description": "Envelops the candidate in an impenetrable diamond-ice sanctuary, ensuring zero integrity infractions.",
           "videoFile": "frostpaw-stage-4-primordial-frost-overlord.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-4-primordial-frost-overlord.mp4"
-        }
+        },
+        "avatarIcon": "frostpaw-stage-4-icon.png",
+        "backgroundImage": "frostpaw-stage-4-bg.png"
       }
     ]
   },
@@ -358,7 +390,9 @@
           "description": "Snorts glowing embers that spark determined perseverance when facing tricky arithmetic.",
           "videoFile": "magmafang-stage-1-cinderpig.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/magmafang-stage-1-cinderpig.mp4"
-        }
+        },
+        "avatarIcon": "magmafang-stage-1-icon.png",
+        "backgroundImage": "magmafang-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -373,7 +407,9 @@
           "description": "Slams hooves to shatter hesitation, providing an immediate burst of exam stamina.",
           "videoFile": "magmafang-stage-2-pyrotusk.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/magmafang-stage-2-pyrotusk.mp4"
-        }
+        },
+        "avatarIcon": "magmafang-stage-2-icon.png",
+        "backgroundImage": "magmafang-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -388,7 +424,9 @@
           "description": "Channels molten subterranean power to burn away self-doubt during complex essay sections.",
           "videoFile": "magmafang-stage-3-caldera-razorback.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/magmafang-stage-3-caldera-razorback.mp4"
-        }
+        },
+        "avatarIcon": "magmafang-stage-3-icon.png",
+        "backgroundImage": "magmafang-stage-3-bg.png"
       },
       {
         "stage": 4,
@@ -403,7 +441,9 @@
           "description": "Erects an unbreakable obsidian bastion infused with core magma, granting absolute test-room tenacity.",
           "videoFile": "magmafang-stage-4-volcanoking-behemoth.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/magmafang-stage-4-volcanoking-behemoth.mp4"
-        }
+        },
+        "avatarIcon": "magmafang-stage-4-icon.png",
+        "backgroundImage": "magmafang-stage-4-bg.png"
       }
     ]
   },
@@ -436,7 +476,9 @@
           "description": "Sends a pleasant static pulse through posture, correcting slouching and drowsy focus.",
           "videoFile": "voltwing-stage-1-sparkhoot.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/voltwing-stage-1-sparkhoot.mp4"
-        }
+        },
+        "avatarIcon": "voltwing-stage-1-icon.png",
+        "backgroundImage": "voltwing-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -451,7 +493,9 @@
           "description": "Glides on ionic thermal updrafts to accelerate rapid analytical synthesis.",
           "videoFile": "voltwing-stage-2-electrofeather.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/voltwing-stage-2-electrofeather.mp4"
-        }
+        },
+        "avatarIcon": "voltwing-stage-2-icon.png",
+        "backgroundImage": "voltwing-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -466,7 +510,9 @@
           "description": "Strikes precise knowledge recall into long-term memory with pinpoint electrical precision.",
           "videoFile": "voltwing-stage-3-tempest-talon.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/voltwing-stage-3-tempest-talon.mp4"
-        }
+        },
+        "avatarIcon": "voltwing-stage-3-icon.png",
+        "backgroundImage": "voltwing-stage-3-bg.png"
       },
       {
         "stage": 4,
@@ -481,7 +527,9 @@
           "description": "Unfurls electrified gale wings that banish brain fog and supercharge test calculation velocity by +25%.",
           "videoFile": "voltwing-stage-4-raijin-strix-overlord.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/voltwing-stage-4-raijin-strix-overlord.mp4"
-        }
+        },
+        "avatarIcon": "voltwing-stage-4-icon.png",
+        "backgroundImage": "voltwing-stage-4-bg.png"
       }
     ]
   },
@@ -514,7 +562,9 @@
           "description": "Pounces playfully with crackling claws to re-engage attention after prolonged stillness.",
           "videoFile": "thundercat-stage-1-sparkpaw.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/thundercat-stage-1-sparkpaw.mp4"
-        }
+        },
+        "avatarIcon": "thundercat-stage-1-icon.png",
+        "backgroundImage": "thundercat-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -529,7 +579,9 @@
           "description": "Bites into complex questions with instantaneous logic sparks and decisive clarity.",
           "videoFile": "thundercat-stage-2-boltfang.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/thundercat-stage-2-boltfang.mp4"
-        }
+        },
+        "avatarIcon": "thundercat-stage-2-icon.png",
+        "backgroundImage": "thundercat-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -544,7 +596,9 @@
           "description": "Summons rolling thunder reverberations that dissolve surrounding acoustic noise.",
           "videoFile": "thundercat-stage-3-raijintiger.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/thundercat-stage-3-raijintiger.mp4"
-        }
+        },
+        "avatarIcon": "thundercat-stage-3-icon.png",
+        "backgroundImage": "thundercat-stage-3-bg.png"
       },
       {
         "stage": 4,
@@ -559,7 +613,9 @@
           "description": "Engulfs the entire test chamber in controlled lightning plasma, locking total student focus into flow state.",
           "videoFile": "thundercat-stage-4-tempest-overlord.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/thundercat-stage-4-tempest-overlord.mp4"
-        }
+        },
+        "avatarIcon": "thundercat-stage-4-icon.png",
+        "backgroundImage": "thundercat-stage-4-bg.png"
       }
     ]
   },
@@ -592,7 +648,9 @@
           "description": "Flickers warm golden embers that reassure and uplift the student during initial exam jitters.",
           "videoFile": "phoenix-stage-1-sun-ember-fledgling.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/phoenix-stage-1-sun-ember-fledgling.mp4"
-        }
+        },
+        "avatarIcon": "phoenix-stage-1-icon.png",
+        "backgroundImage": "phoenix-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -607,7 +665,9 @@
           "description": "Flares radiant sunfire across the mind, incinerating second-guessing and hesitation.",
           "videoFile": "phoenix-stage-2-ignited-pyrepaw.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/phoenix-stage-2-ignited-pyrepaw.mp4"
-        }
+        },
+        "avatarIcon": "phoenix-stage-2-icon.png",
+        "backgroundImage": "phoenix-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -622,7 +682,9 @@
           "description": "Cascades blazing solar feathers to reignite flagging energy halfway through multi-hour exams.",
           "videoFile": "phoenix-stage-3-solar-firebird.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/phoenix-stage-3-solar-firebird.mp4"
-        }
+        },
+        "avatarIcon": "phoenix-stage-3-icon.png",
+        "backgroundImage": "phoenix-stage-3-bg.png"
       },
       {
         "stage": 4,
@@ -637,7 +699,9 @@
           "description": "Triggers an exam comeback aura, restoring integrity shield after unintentional tab blips.",
           "videoFile": "phoenix-stage-4-pyre-sovereign.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/phoenix-stage-4-pyre-sovereign.mp4"
-        }
+        },
+        "avatarIcon": "phoenix-stage-4-icon.png",
+        "backgroundImage": "phoenix-stage-4-bg.png"
       },
       {
         "stage": 5,
@@ -652,7 +716,9 @@
           "description": "Radiates cosmic solar supremacy, bestowing immaculate focus, maximum star yield, and radiant integrity.",
           "videoFile": "phoenix-stage-5-primordial-solar-emperor.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/phoenix-stage-5-primordial-solar-emperor.mp4"
-        }
+        },
+        "avatarIcon": "phoenix-stage-5-icon.png",
+        "backgroundImage": "phoenix-stage-5-bg.png"
       }
     ]
   },
@@ -685,7 +751,9 @@
           "description": "Synchronizes breathing with steady second-hand clicks, settling anxious rush.",
           "videoFile": "chronochimera-stage-1-chronopip.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/chronochimera-stage-1-chronopip.mp4"
-        }
+        },
+        "avatarIcon": "chronochimera-stage-1-icon.png",
+        "backgroundImage": "chronochimera-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -700,7 +768,9 @@
           "description": "Mends fragmented attention spans by weaving split seconds into coherent thought blocks.",
           "videoFile": "chronochimera-stage-2-chronokit.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/chronochimera-stage-2-chronokit.mp4"
-        }
+        },
+        "avatarIcon": "chronochimera-stage-2-icon.png",
+        "backgroundImage": "chronochimera-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -715,7 +785,9 @@
           "description": "Echoes across timelines to grant immediate recollection of reviewed revision notes.",
           "videoFile": "chronochimera-stage-3-chrono-hound.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/chronochimera-stage-3-chrono-hound.mp4"
-        }
+        },
+        "avatarIcon": "chronochimera-stage-3-icon.png",
+        "backgroundImage": "chronochimera-stage-3-bg.png"
       },
       {
         "stage": 4,
@@ -730,7 +802,9 @@
           "description": "Charges through temporal distortions, preserving deep focus even under strict countdown limits.",
           "videoFile": "chronochimera-stage-4-tempoceros.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/chronochimera-stage-4-tempoceros.mp4"
-        }
+        },
+        "avatarIcon": "chronochimera-stage-4-icon.png",
+        "backgroundImage": "chronochimera-stage-4-bg.png"
       },
       {
         "stage": 5,
@@ -745,7 +819,9 @@
           "description": "Freezes external study stress in suspended animation, allowing serene mastery of all exam sections.",
           "videoFile": "chronochimera-stage-5-chronos-prime-sovereign.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/chronochimera-stage-5-chronos-prime-sovereign.mp4"
-        }
+        },
+        "avatarIcon": "chronochimera-stage-5-icon.png",
+        "backgroundImage": "chronochimera-stage-5-bg.png"
       }
     ]
   },
@@ -778,7 +854,9 @@
           "description": "Blends into quiet room shadows, shielding the test-taker from ambient eye-strain.",
           "videoFile": "shadowpanther-stage-1-umbralpaw.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/shadowpanther-stage-1-umbralpaw.mp4"
-        }
+        },
+        "avatarIcon": "shadowpanther-stage-1-icon.png",
+        "backgroundImage": "shadowpanther-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -793,7 +871,9 @@
           "description": "Veils the candidate in soothing darkness, keeping ambient lighting glare from disrupting focus.",
           "videoFile": "shadowpanther-stage-2-nightstalker.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/shadowpanther-stage-2-nightstalker.mp4"
-        }
+        },
+        "avatarIcon": "shadowpanther-stage-2-icon.png",
+        "backgroundImage": "shadowpanther-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -808,7 +888,9 @@
           "description": "Snuffs out background chatter and screen distractions with midnight shadow tendrils.",
           "videoFile": "shadowpanther-stage-3-eclipsefang.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/shadowpanther-stage-3-eclipsefang.mp4"
-        }
+        },
+        "avatarIcon": "shadowpanther-stage-3-icon.png",
+        "backgroundImage": "shadowpanther-stage-3-bg.png"
       },
       {
         "stage": 4,
@@ -823,7 +905,9 @@
           "description": "Wraps peripheral vision in deep twilight, channeling 100% sensory bandwidth onto exam prompts.",
           "videoFile": "shadowpanther-stage-4-umbral-nemesis.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/shadowpanther-stage-4-umbral-nemesis.mp4"
-        }
+        },
+        "avatarIcon": "shadowpanther-stage-4-icon.png",
+        "backgroundImage": "shadowpanther-stage-4-bg.png"
       },
       {
         "stage": 5,
@@ -838,7 +922,9 @@
           "description": "Commands the eternal cosmic night, making the proctoring environment serene, silent, and flawlessly secure.",
           "videoFile": "shadowpanther-stage-5-primordial-umbral-monarch.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/shadowpanther-stage-5-primordial-umbral-monarch.mp4"
-        }
+        },
+        "avatarIcon": "shadowpanther-stage-5-icon.png",
+        "backgroundImage": "shadowpanther-stage-5-bg.png"
       }
     ]
   },
@@ -871,7 +957,9 @@
           "description": "Gleams with static sparks from velvet antlers, sharpening initial problem identification.",
           "videoFile": "stormstag-stage-1-sparkfawn.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/stormstag-stage-1-sparkfawn.mp4"
-        }
+        },
+        "avatarIcon": "stormstag-stage-1-icon.png",
+        "backgroundImage": "stormstag-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -886,7 +974,9 @@
           "description": "Leaps through complex multi-step reasoning with swift electrical bounding strides.",
           "videoFile": "stormstag-stage-2-boltstag.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/stormstag-stage-2-boltstag.mp4"
-        }
+        },
+        "avatarIcon": "stormstag-stage-2-icon.png",
+        "backgroundImage": "stormstag-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -901,7 +991,9 @@
           "description": "Discharges controlled ionized arcs that dissolve fatigue and revitalize problem-solving stamina.",
           "videoFile": "stormstag-stage-3-tempest-buck.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/stormstag-stage-3-tempest-buck.mp4"
-        }
+        },
+        "avatarIcon": "stormstag-stage-3-icon.png",
+        "backgroundImage": "stormstag-stage-3-bg.png"
       },
       {
         "stage": 4,
@@ -916,7 +1008,9 @@
           "description": "Summons an encompassing magnetic field that repels wandering glances and keeps posture upright.",
           "videoFile": "stormstag-stage-4-thunderlord-cervus.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/stormstag-stage-4-thunderlord-cervus.mp4"
-        }
+        },
+        "avatarIcon": "stormstag-stage-4-icon.png",
+        "backgroundImage": "stormstag-stage-4-bg.png"
       },
       {
         "stage": 5,
@@ -931,7 +1025,9 @@
           "description": "Ascends into the storm heavens, blessing the scholar with lightning-fast comprehension and boundless vitality.",
           "videoFile": "stormstag-stage-5-primordial-storm-sovereign.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/stormstag-stage-5-primordial-storm-sovereign.mp4"
-        }
+        },
+        "avatarIcon": "stormstag-stage-5-icon.png",
+        "backgroundImage": "stormstag-stage-5-bg.png"
       }
     ]
   },
@@ -964,7 +1060,9 @@
           "description": "Spill twinkling stardust across the desk, instilling tranquil cosmic wonder.",
           "videoFile": "astral-dragon-stage-1-stardrop-wyrmlet.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astral-dragon-stage-1-stardrop-wyrmlet.mp4"
-        }
+        },
+        "avatarIcon": "astraldragon-stage-1-icon.png",
+        "backgroundImage": "astraldragon-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -979,7 +1077,9 @@
           "description": "Glides on solar winds to navigate complex exam questions with effortless agility.",
           "videoFile": "astral-dragon-stage-2-astral-drakelet.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astral-dragon-stage-2-astral-drakelet.mp4"
-        }
+        },
+        "avatarIcon": "astraldragon-stage-2-icon.png",
+        "backgroundImage": "astraldragon-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -994,7 +1094,9 @@
           "description": "Breathes iridescent nebular flames that illuminate obscure concepts and tricky math formulas.",
           "videoFile": "astral-dragon-stage-3-nebula-drake.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astral-dragon-stage-3-nebula-drake.mp4"
-        }
+        },
+        "avatarIcon": "astraldragon-stage-3-icon.png",
+        "backgroundImage": "astraldragon-stage-3-bg.png"
       },
       {
         "stage": 4,
@@ -1009,7 +1111,9 @@
           "description": "Aligns zodiacal star bridges into an unyielding integrity shield, preventing proctor flags.",
           "videoFile": "astral-dragon-stage-4-constellation-wyrm.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astral-dragon-stage-4-constellation-wyrm.mp4"
-        }
+        },
+        "avatarIcon": "astraldragon-stage-4-icon.png",
+        "backgroundImage": "astraldragon-stage-4-bg.png"
       },
       {
         "stage": 5,
@@ -1024,7 +1128,9 @@
           "description": "Roars with supernova luminescence, shattering cognitive roadblocks during critical final review.",
           "videoFile": "astral-dragon-stage-5-astral-sovereign-wyrm.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astral-dragon-stage-5-astral-sovereign-wyrm.mp4"
-        }
+        },
+        "avatarIcon": "astraldragon-stage-5-icon.png",
+        "backgroundImage": "astraldragon-stage-5-bg.png"
       },
       {
         "stage": 6,
@@ -1039,7 +1145,9 @@
           "description": "Channels the primordial celestial matrix, bestowing god-tier academic flow and supreme integrity mastery.",
           "videoFile": "astral-dragon-stage-6-primordial-astral-sovereign.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astral-dragon-stage-6-primordial-astral-sovereign.mp4"
-        }
+        },
+        "avatarIcon": "astraldragon-stage-6-icon.png",
+        "backgroundImage": "astraldragon-stage-6-bg.png"
       }
     ]
   },
@@ -1072,7 +1180,9 @@
           "description": "Ripples celestial pond water to bring refreshing calm during initial question intake.",
           "videoFile": "astralleviathan-stage-1-astraea-pip.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astralleviathan-stage-1-astraea-pip.mp4"
-        }
+        },
+        "avatarIcon": "astralleviathan-stage-1-icon.png",
+        "backgroundImage": "astralleviathan-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -1087,7 +1197,9 @@
           "description": "Drifts gracefully across cosmic oceanic currents, stabilizing pace through long exam stretches.",
           "videoFile": "astralleviathan-stage-2-stardrifter.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astralleviathan-stage-2-stardrifter.mp4"
-        }
+        },
+        "avatarIcon": "astralleviathan-stage-2-icon.png",
+        "backgroundImage": "astralleviathan-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -1102,7 +1214,9 @@
           "description": "Swishes flukes to cast nebular bioluminescence, dispelling mental fatigue and eye strain.",
           "videoFile": "astralleviathan-stage-3-nebula-leviathan.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astralleviathan-stage-3-nebula-leviathan.mp4"
-        }
+        },
+        "avatarIcon": "astralleviathan-stage-3-icon.png",
+        "backgroundImage": "astralleviathan-stage-3-bg.png"
       },
       {
         "stage": 4,
@@ -1117,7 +1231,9 @@
           "description": "Spouts a geyser of starlight that showers the workspace with enhanced analytical focus.",
           "videoFile": "astralleviathan-stage-4-starborne-titan.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astralleviathan-stage-4-starborne-titan.mp4"
-        }
+        },
+        "avatarIcon": "astralleviathan-stage-4-icon.png",
+        "backgroundImage": "astralleviathan-stage-4-bg.png"
       },
       {
         "stage": 5,
@@ -1132,7 +1248,9 @@
           "description": "Merges water and stellar cosmos into an oceanic barrier that absorbs test pressure completely.",
           "videoFile": "astralleviathan-stage-5-cosmos-emperor-leviathan.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astralleviathan-stage-5-cosmos-emperor-leviathan.mp4"
-        }
+        },
+        "avatarIcon": "astralleviathan-stage-5-icon.png",
+        "backgroundImage": "astralleviathan-stage-5-bg.png"
       },
       {
         "stage": 6,
@@ -1147,7 +1265,9 @@
           "description": "Sings the song of ancient celestial seas, bestowing boundless stamina and divine exam harmony.",
           "videoFile": "astralleviathan-stage-6-primordial-astral-leviathan-overlord.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astralleviathan-stage-6-primordial-astral-leviathan-overlord.mp4"
-        }
+        },
+        "avatarIcon": "astralleviathan-stage-6-icon.png",
+        "backgroundImage": "astralleviathan-stage-6-bg.png"
       }
     ]
   },
@@ -1180,7 +1300,9 @@
           "description": "Emits a cheerful solar chirp that banishes morning exam drowsiness and warms focus.",
           "videoFile": "solarwyvern-stage-1-solarpup.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/solarwyvern-stage-1-solarpup.mp4"
-        }
+        },
+        "avatarIcon": "solarwyvern-stage-1-icon.png",
+        "backgroundImage": "solarwyvern-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -1195,7 +1317,9 @@
           "description": "Beats fiery wings to fan away stagnant air, infusing fresh oxygen and clarity into thinking.",
           "videoFile": "solarwyvern-stage-2-pyrodrake.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/solarwyvern-stage-2-pyrodrake.mp4"
-        }
+        },
+        "avatarIcon": "solarwyvern-stage-2-icon.png",
+        "backgroundImage": "solarwyvern-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -1210,7 +1334,9 @@
           "description": "Exhales dazzling solar plasma that incinerates doubts and clarifies challenging test stems.",
           "videoFile": "solarwyvern-stage-3-sunflare-wyrm.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/solarwyvern-stage-3-sunflare-wyrm.mp4"
-        }
+        },
+        "avatarIcon": "solarwyvern-stage-3-icon.png",
+        "backgroundImage": "solarwyvern-stage-3-bg.png"
       },
       {
         "stage": 4,
@@ -1225,7 +1351,9 @@
           "description": "Unleashes a sweeping solar gale that accelerates reading speed and sharpens recall precision.",
           "videoFile": "solarwyvern-stage-4-helios-sovereign-wyvern.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/solarwyvern-stage-4-helios-sovereign-wyvern.mp4"
-        }
+        },
+        "avatarIcon": "solarwyvern-stage-4-icon.png",
+        "backgroundImage": "solarwyvern-stage-4-bg.png"
       },
       {
         "stage": 5,
@@ -1240,7 +1368,9 @@
           "description": "Crowning solar coronas burn away time pressure, creating a golden dome of uninterrupted composure.",
           "videoFile": "solarwyvern-stage-5-primordial-corona-drake.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/solarwyvern-stage-5-primordial-corona-drake.mp4"
-        }
+        },
+        "avatarIcon": "solarwyvern-stage-5-icon.png",
+        "backgroundImage": "solarwyvern-stage-5-bg.png"
       },
       {
         "stage": 6,
@@ -1255,7 +1385,9 @@
           "description": "Ignites primordial apex solar fire, guaranteeing triumphant exam excellence and stellar bond.",
           "videoFile": "solarwyvern-stage-6-sol-invictus-primordial-overlord.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/solarwyvern-stage-6-sol-invictus-primordial-overlord.mp4"
-        }
+        },
+        "avatarIcon": "solarwyvern-stage-6-icon.png",
+        "backgroundImage": "solarwyvern-stage-6-bg.png"
       }
     ]
   },
@@ -1288,7 +1420,9 @@
           "description": "Flickers tiny purple abyssal motes that ground nervous tremors before testing commences.",
           "videoFile": "void-dragon-stage-1-voidling-pip.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/void-dragon-stage-1-voidling-pip.mp4"
-        }
+        },
+        "avatarIcon": "void-dragon-stage-1-icon.png",
+        "backgroundImage": "void-dragon-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -1303,7 +1437,9 @@
           "description": "Fixes an unblinking nether gaze that zeroes in on difficult exam questions without wavering.",
           "videoFile": "void-dragon-stage-2-abyssal-wyrmlet.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/void-dragon-stage-2-abyssal-wyrmlet.mp4"
-        }
+        },
+        "avatarIcon": "void-dragon-stage-2-icon.png",
+        "backgroundImage": "void-dragon-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -1318,7 +1454,9 @@
           "description": "Pulses silent void waves that swallow ambient noise and chat echoes in the exam hall.",
           "videoFile": "void-dragon-stage-3-nether-drake.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/void-dragon-stage-3-nether-drake.mp4"
-        }
+        },
+        "avatarIcon": "void-dragon-stage-3-icon.png",
+        "backgroundImage": "void-dragon-stage-3-bg.png"
       },
       {
         "stage": 4,
@@ -1333,7 +1471,9 @@
           "description": "Unleashes shadowy violet dragonflame that burns away peripheral temptations and multitasking urges.",
           "videoFile": "void-dragon-stage-4-void-wyrm-knight.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/void-dragon-stage-4-void-wyrm-knight.mp4"
-        }
+        },
+        "avatarIcon": "void-dragon-stage-4-icon.png",
+        "backgroundImage": "void-dragon-stage-4-bg.png"
       },
       {
         "stage": 5,
@@ -1348,7 +1488,9 @@
           "description": "Opens a micro-tear in space to isolate the student workspace into an inviolable study dimension.",
           "videoFile": "void-dragon-stage-5-nether-shadow-sovereign.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/void-dragon-stage-5-nether-shadow-sovereign.mp4"
-        }
+        },
+        "avatarIcon": "void-dragon-stage-5-icon.png",
+        "backgroundImage": "void-dragon-stage-5-bg.png"
       },
       {
         "stage": 6,
@@ -1363,7 +1505,9 @@
           "description": "Rips through tricky false choices with gravity-bending claws, ensuring pristine test discernment.",
           "videoFile": "void-dragon-stage-6-dimensional-void-wyrm.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/void-dragon-stage-6-dimensional-void-wyrm.mp4"
-        }
+        },
+        "avatarIcon": "void-dragon-stage-6-icon.png",
+        "backgroundImage": "void-dragon-stage-6-bg.png"
       },
       {
         "stage": 7,
@@ -1378,7 +1522,9 @@
           "description": "Unleash a rift of cosmic energy.",
           "videoFile": "void-dragon-stage-7-event-horizon-dragon.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/void-dragon-stage-7-event-horizon-dragon.mp4"
-        }
+        },
+        "avatarIcon": "void-dragon-stage-7-icon.png",
+        "backgroundImage": "void-dragon-stage-7-bg.png"
       },
       {
         "stage": 8,
@@ -1393,7 +1539,9 @@
           "description": "Summon a cinematic black hole.",
           "videoFile": "void-dragon-stage-8-primordial-void-singularity-overlord.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/void-dragon-stage-8-primordial-void-singularity-overlord.mp4"
-        }
+        },
+        "avatarIcon": "void-dragon-stage-8-icon.png",
+        "backgroundImage": "void-dragon-stage-8-bg.png"
       }
     ]
   },
@@ -1426,7 +1574,9 @@
           "description": "Flaps translucent bronze wings to balance the flow of time at the beginning of an exam.",
           "videoFile": "chronodraco-stage-1-chronowing-pip.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/chronodraco-stage-1-chronowing-pip.mp4"
-        }
+        },
+        "avatarIcon": "chronodraco-stage-1-icon.png",
+        "backgroundImage": "chronodraco-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -1441,7 +1591,9 @@
           "description": "Spills luminous hourglass grains that grant a subconscious intuition for section time limits.",
           "videoFile": "chronodraco-stage-2-chrono-drakelet.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/chronodraco-stage-2-chrono-drakelet.mp4"
-        }
+        },
+        "avatarIcon": "chronodraco-stage-2-icon.png",
+        "backgroundImage": "chronodraco-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -1456,7 +1608,9 @@
           "description": "Roars across the timeline to reclaim wasted seconds from unexpected computer lag or stutter.",
           "videoFile": "chronodraco-stage-3-rift-drake.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/chronodraco-stage-3-rift-drake.mp4"
-        }
+        },
+        "avatarIcon": "chronodraco-stage-3-icon.png",
+        "backgroundImage": "chronodraco-stage-3-bg.png"
       },
       {
         "stage": 4,
@@ -1471,7 +1625,9 @@
           "description": "Projects celestial astrolabe dials that calculate the optimal order of tackling test questions.",
           "videoFile": "chronodraco-stage-4-astrolabe-wyrm.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/chronodraco-stage-4-astrolabe-wyrm.mp4"
-        }
+        },
+        "avatarIcon": "chronodraco-stage-4-icon.png",
+        "backgroundImage": "chronodraco-stage-4-bg.png"
       },
       {
         "stage": 5,
@@ -1486,7 +1642,9 @@
           "description": "Breathes temporal lightning plasma that accelerates neuronal synapse firing for instant answers.",
           "videoFile": "chronodraco-stage-5-chrono-sovereign-drake.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/chronodraco-stage-5-chrono-sovereign-drake.mp4"
-        }
+        },
+        "avatarIcon": "chronodraco-stage-5-icon.png",
+        "backgroundImage": "chronodraco-stage-5-bg.png"
       },
       {
         "stage": 6,
@@ -1501,7 +1659,9 @@
           "description": "Bends the perceptual fabric of time, making intense 60-minute blocks feel calm and unhurried.",
           "videoFile": "chronodraco-stage-6-continuum-wyrm-sovereign.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/chronodraco-stage-6-continuum-wyrm-sovereign.mp4"
-        }
+        },
+        "avatarIcon": "chronodraco-stage-6-icon.png",
+        "backgroundImage": "chronodraco-stage-6-bg.png"
       },
       {
         "stage": 7,
@@ -1516,7 +1676,9 @@
           "description": "Triggers an aeon burst of cosmic chronology, resetting cognitive fatigue back to full freshness.",
           "videoFile": "chronodraco-stage-7-aeon-singularity-dragon.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/chronodraco-stage-7-aeon-singularity-dragon.mp4"
-        }
+        },
+        "avatarIcon": "chronodraco-stage-7-icon.png",
+        "backgroundImage": "chronodraco-stage-7-bg.png"
       },
       {
         "stage": 8,
@@ -1531,7 +1693,9 @@
           "description": "Rules every dimension of the continuum, conferring flawless exam mastery across past, present, and future.",
           "videoFile": "chronodraco-stage-8-primordial-chrono-dragon-overlord.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/chronodraco-stage-8-primordial-chrono-dragon-overlord.mp4"
-        }
+        },
+        "avatarIcon": "chronodraco-stage-8-icon.png",
+        "backgroundImage": "chronodraco-stage-8-bg.png"
       }
     ]
   },
@@ -1564,7 +1728,9 @@
           "description": "Taps a miniature divine buckler to banish early nervousness and erect basic focus posture.",
           "videoFile": "aegispaladin-stage-1-aegis-pip.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/aegispaladin-stage-1-aegis-pip.mp4"
-        }
+        },
+        "avatarIcon": "aegispaladin-stage-1-icon.png",
+        "backgroundImage": "aegispaladin-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -1579,7 +1745,9 @@
           "description": "Glows with virtuous golden light, reminding the scholar of the honor of honest academic effort.",
           "videoFile": "aegispaladin-stage-2-aegis-drakeling.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/aegispaladin-stage-2-aegis-drakeling.mp4"
-        }
+        },
+        "avatarIcon": "aegispaladin-stage-2-icon.png",
+        "backgroundImage": "aegispaladin-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -1594,7 +1762,9 @@
           "description": "Stomps grounded granite tremors to firmly anchor physical posture and prevent restless fidgeting.",
           "videoFile": "aegispaladin-stage-3-bastion-draco-knight.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/aegispaladin-stage-3-bastion-draco-knight.mp4"
-        }
+        },
+        "avatarIcon": "aegispaladin-stage-3-icon.png",
+        "backgroundImage": "aegispaladin-stage-3-bg.png"
       },
       {
         "stage": 4,
@@ -1609,7 +1779,9 @@
           "description": "Smites dishonest impulses and shortcut temptations with blinding celestial dragon justice.",
           "videoFile": "aegispaladin-stage-4-holy-crest-crusader.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/aegispaladin-stage-4-holy-crest-crusader.mp4"
-        }
+        },
+        "avatarIcon": "aegispaladin-stage-4-icon.png",
+        "backgroundImage": "aegispaladin-stage-4-bg.png"
       },
       {
         "stage": 5,
@@ -1624,7 +1796,9 @@
           "description": "Summons an orbital radiant sun shield that absorbs exam stress and reflects confidence.",
           "videoFile": "aegispaladin-stage-5-radiant-grand-sovereign.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/aegispaladin-stage-5-radiant-grand-sovereign.mp4"
-        }
+        },
+        "avatarIcon": "aegispaladin-stage-5-icon.png",
+        "backgroundImage": "aegispaladin-stage-5-bg.png"
       },
       {
         "stage": 6,
@@ -1639,7 +1813,9 @@
           "description": "Spreads six cosmic wings of holy judgment, elevating integrity compliance score to perfection.",
           "videoFile": "aegispaladin-stage-6-astral-justiciar-wyrm.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/aegispaladin-stage-6-astral-justiciar-wyrm.mp4"
-        }
+        },
+        "avatarIcon": "aegispaladin-stage-6-icon.png",
+        "backgroundImage": "aegispaladin-stage-6-bg.png"
       },
       {
         "stage": 7,
@@ -1654,7 +1830,9 @@
           "description": "Channels ancient divine deity seals that purge fatigue and bestow profound intellectual serenity.",
           "videoFile": "aegispaladin-stage-7-seraphic-aegis-deity.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/aegispaladin-stage-7-seraphic-aegis-deity.mp4"
-        }
+        },
+        "avatarIcon": "aegispaladin-stage-7-icon.png",
+        "backgroundImage": "aegispaladin-stage-7-bg.png"
       },
       {
         "stage": 8,
@@ -1669,7 +1847,9 @@
           "description": "Manifests a grounded sacred sanctuary of cosmic starlight, conferring supreme integrity honors and immortal bond.",
           "videoFile": "aegispaladin-stage-8-primordial-celestial-paladin-overlord.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/aegispaladin-stage-8-primordial-celestial-paladin-overlord.mp4"
-        }
+        },
+        "avatarIcon": "aegispaladin-stage-8-icon.png",
+        "backgroundImage": "aegispaladin-stage-8-bg.png"
       }
     ]
   },
@@ -1702,7 +1882,9 @@
           "description": "Splashes refreshing micro-droplets that soothe eye fatigue during reading comprehension blocks.",
           "videoFile": "pipflick-stage-1-pipflick.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/pipflick-stage-1-pipflick.mp4"
-        }
+        },
+        "avatarIcon": "aquaflea-stage-1-icon.png",
+        "backgroundImage": "aquaflea-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -1717,7 +1899,9 @@
           "description": "Deflects screen fatigue and stabilizes focus through rapid problem-solving sequences.",
           "videoFile": "pipflick-stage-2-aquafinne.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/pipflick-stage-2-aquafinne.mp4"
-        }
+        },
+        "avatarIcon": "aquaflea-stage-2-icon.png",
+        "backgroundImage": "aquaflea-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -1732,7 +1916,9 @@
           "description": "Unleashes a gentle tidal current that washes away test anxiety and boosts endurance by +15%.",
           "videoFile": "pipflick-stage-3-leviataide.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/pipflick-stage-3-leviataide.mp4"
-        }
+        },
+        "avatarIcon": "aquaflea-stage-3-icon.png",
+        "backgroundImage": "aquaflea-stage-3-bg.png"
       }
     ]
   },
@@ -1765,7 +1951,9 @@
           "description": "Kindles warm motivation and dispels morning study drowsiness.",
           "videoFile": "embersqueak-stage-1-embersqueak.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/embersqueak-stage-1-embersqueak.mp4"
-        }
+        },
+        "avatarIcon": "cinderchick-stage-1-icon.png",
+        "backgroundImage": "cinderchick-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -1780,7 +1968,9 @@
           "description": "Accelerates problem breakdown speed and boosts analytical pacing.",
           "videoFile": "embersqueak-stage-2-pyreclaw.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/embersqueak-stage-2-pyreclaw.mp4"
-        }
+        },
+        "avatarIcon": "cinderchick-stage-2-icon.png",
+        "backgroundImage": "cinderchick-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -1795,7 +1985,9 @@
           "description": "Radiates comforting warmth that prevents focus drops when tackling complex multi-step questions.",
           "videoFile": "phoenix-stage-3-solar-firebird.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/phoenix-stage-3-solar-firebird.mp4"
-        }
+        },
+        "avatarIcon": "cinderchick-stage-3-icon.png",
+        "backgroundImage": "cinderchick-stage-3-bg.png"
       }
     ]
   },
@@ -1828,7 +2020,9 @@
           "description": "Releases tranquil luminescent spores that lower heart rate and reduce test apprehension.",
           "videoFile": "sproutling-stage-1-sproutling.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/sproutling-stage-1-sproutling.mp4"
-        }
+        },
+        "avatarIcon": "gloomshroom-stage-1-icon.png",
+        "backgroundImage": "gloomshroom-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -1843,7 +2037,9 @@
           "description": "Intercepts wandering thoughts and re-centers cognitive attention onto exam prompts.",
           "videoFile": "sproutling-stage-2-bloomfaun.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/sproutling-stage-2-bloomfaun.mp4"
-        }
+        },
+        "avatarIcon": "gloomshroom-stage-2-icon.png",
+        "backgroundImage": "gloomshroom-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -1858,7 +2054,9 @@
           "description": "Envelops the student in a calm cocoon of quiet contemplation, granting +15% integrity bond.",
           "videoFile": "sproutling-stage-3-verdant-forest-stag.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/sproutling-stage-3-verdant-forest-stag.mp4"
-        }
+        },
+        "avatarIcon": "gloomshroom-stage-3-icon.png",
+        "backgroundImage": "gloomshroom-stage-3-bg.png"
       }
     ]
   },
@@ -1891,7 +2089,9 @@
           "description": "Hardens mental concentration against background noise and fidgeting.",
           "videoFile": "magmafang-stage-1-cinderpig.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/magmafang-stage-1-cinderpig.mp4"
-        }
+        },
+        "avatarIcon": "pebblemunch-stage-1-icon.png",
+        "backgroundImage": "pebblemunch-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -1906,7 +2106,9 @@
           "description": "Steadies question pacing and prevents rushed mistakes on lengthy exams.",
           "videoFile": "magmafang-stage-2-pyrotusk.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/magmafang-stage-2-pyrotusk.mp4"
-        }
+        },
+        "avatarIcon": "pebblemunch-stage-2-icon.png",
+        "backgroundImage": "pebblemunch-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -1921,7 +2123,9 @@
           "description": "Eliminates exam-room panic and maintains rock-solid concentration until test submission.",
           "videoFile": "magmafang-stage-3-caldera-razorback.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/magmafang-stage-3-caldera-razorback.mp4"
-        }
+        },
+        "avatarIcon": "pebblemunch-stage-3-icon.png",
+        "backgroundImage": "pebblemunch-stage-3-bg.png"
       }
     ]
   },
@@ -1954,7 +2158,9 @@
           "description": "Cools mental overheating and restores 5 Vitality during fast-paced exam sections.",
           "videoFile": "frostpaw-stage-1-frostpup.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-1-frostpup.mp4"
-        }
+        },
+        "avatarIcon": "glacipaw-stage-1-icon.png",
+        "backgroundImage": "glacipaw-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -1969,7 +2175,9 @@
           "description": "Freezes peripheral distractions and sharpens pattern recognition.",
           "videoFile": "frostpaw-stage-2-cryoleo.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-2-cryoleo.mp4"
-        }
+        },
+        "avatarIcon": "glacipaw-stage-2-icon.png",
+        "backgroundImage": "glacipaw-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -1984,7 +2192,9 @@
           "description": "Locks attention firmly onto multi-part mathematical and analytical problems.",
           "videoFile": "frostpaw-stage-3-glacial-panthera.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-3-glacial-panthera.mp4"
-        }
+        },
+        "avatarIcon": "glacipaw-stage-3-icon.png",
+        "backgroundImage": "glacipaw-stage-3-bg.png"
       },
       {
         "stage": 4,
@@ -1999,7 +2209,9 @@
           "description": "Deploys an impervious auroral dome that blocks test-day stress spikes completely.",
           "videoFile": "frostpaw-stage-4-primordial-frost-overlord.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-4-primordial-frost-overlord.mp4"
-        }
+        },
+        "avatarIcon": "glacipaw-stage-4-icon.png",
+        "backgroundImage": "glacipaw-stage-4-bg.png"
       }
     ]
   },
@@ -2032,7 +2244,9 @@
           "description": "Sparks sharp attentiveness and builds early momentum on test start.",
           "videoFile": "magmafang-stage-1-cinderpig.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/magmafang-stage-1-cinderpig.mp4"
-        }
+        },
+        "avatarIcon": "volcanon-stage-1-icon.png",
+        "backgroundImage": "volcanon-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -2047,7 +2261,9 @@
           "description": "Fuels persistent drive through consecutive difficult calculation steps.",
           "videoFile": "magmafang-stage-2-pyrotusk.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/magmafang-stage-2-pyrotusk.mp4"
-        }
+        },
+        "avatarIcon": "volcanon-stage-2-icon.png",
+        "backgroundImage": "volcanon-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -2062,7 +2278,9 @@
           "description": "Melts cognitive roadblocks and protects confidence during tricky questions.",
           "videoFile": "magmafang-stage-3-caldera-razorback.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/magmafang-stage-3-caldera-razorback.mp4"
-        }
+        },
+        "avatarIcon": "volcanon-stage-3-icon.png",
+        "backgroundImage": "volcanon-stage-3-bg.png"
       },
       {
         "stage": 4,
@@ -2077,7 +2295,9 @@
           "description": "Unleashes an explosive burst of academic clarity, rewarding +20% Integrity Bond upon completion.",
           "videoFile": "magmafang-stage-4-volcanoking-behemoth.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/magmafang-stage-4-volcanoking-behemoth.mp4"
-        }
+        },
+        "avatarIcon": "volcanon-stage-4-icon.png",
+        "backgroundImage": "volcanon-stage-4-bg.png"
       }
     ]
   },
@@ -2110,7 +2330,9 @@
           "description": "Inoculates concentration against minor environmental disruptions and alerts.",
           "videoFile": "sproutling-stage-1-sproutling.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/sproutling-stage-1-sproutling.mp4"
-        }
+        },
+        "avatarIcon": "venomscale-stage-1-icon.png",
+        "backgroundImage": "venomscale-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -2125,7 +2347,9 @@
           "description": "Locks laser focus onto question wording to identify tricky phrasing and subtle traps.",
           "videoFile": "sproutling-stage-2-bloomfaun.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/sproutling-stage-2-bloomfaun.mp4"
-        }
+        },
+        "avatarIcon": "venomscale-stage-2-icon.png",
+        "backgroundImage": "venomscale-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -2140,7 +2364,9 @@
           "description": "Prevents impulsive misclicks and hasty guesswork, encouraging measured verification.",
           "videoFile": "magmafang-stage-3-caldera-razorback.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/magmafang-stage-3-caldera-razorback.mp4"
-        }
+        },
+        "avatarIcon": "venomscale-stage-3-icon.png",
+        "backgroundImage": "venomscale-stage-3-bg.png"
       },
       {
         "stage": 4,
@@ -2155,7 +2381,9 @@
           "description": "Enforces flawless examination posture and sustains peak integrity status till test submission.",
           "videoFile": "stormstag-stage-5-primordial-storm-sovereign.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/stormstag-stage-5-primordial-storm-sovereign.mp4"
-        }
+        },
+        "avatarIcon": "venomscale-stage-4-icon.png",
+        "backgroundImage": "venomscale-stage-4-bg.png"
       }
     ]
   },
@@ -2188,7 +2416,9 @@
           "description": "Illuminates tricky test questions with gentle bioluminescent clarity.",
           "videoFile": "astralleviathan-stage-1-astraea-pip.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astralleviathan-stage-1-astraea-pip.mp4"
-        }
+        },
+        "avatarIcon": "abyssleviathan-stage-1-icon.png",
+        "backgroundImage": "abyssleviathan-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -2203,7 +2433,9 @@
           "description": "Smooths pacing through timed question blocks without feeling hurried.",
           "videoFile": "astralleviathan-stage-2-stardrifter.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astralleviathan-stage-2-stardrifter.mp4"
-        }
+        },
+        "avatarIcon": "abyssleviathan-stage-2-icon.png",
+        "backgroundImage": "abyssleviathan-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -2218,7 +2450,9 @@
           "description": "Converts high-stakes testing tension into laser-sharp analytical flow.",
           "videoFile": "astralleviathan-stage-3-nebula-leviathan.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astralleviathan-stage-3-nebula-leviathan.mp4"
-        }
+        },
+        "avatarIcon": "abyssleviathan-stage-3-icon.png",
+        "backgroundImage": "abyssleviathan-stage-3-bg.png"
       },
       {
         "stage": 4,
@@ -2233,7 +2467,9 @@
           "description": "Shields exam workspace from external acoustic distractions completely.",
           "videoFile": "astralleviathan-stage-4-starborne-titan.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astralleviathan-stage-4-starborne-titan.mp4"
-        }
+        },
+        "avatarIcon": "abyssleviathan-stage-4-icon.png",
+        "backgroundImage": "abyssleviathan-stage-4-bg.png"
       },
       {
         "stage": 5,
@@ -2248,7 +2484,9 @@
           "description": "Commands ancient depths to grant supreme cognitive stamina across multi-hour examinations.",
           "videoFile": "astralleviathan-stage-6-primordial-astral-leviathan-overlord.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astralleviathan-stage-6-primordial-astral-leviathan-overlord.mp4"
-        }
+        },
+        "avatarIcon": "abyssleviathan-stage-5-icon.png",
+        "backgroundImage": "abyssleviathan-stage-5-bg.png"
       }
     ]
   },
@@ -2281,7 +2519,9 @@
           "description": "Gently lifts test anxiety and brightens problem-solving enthusiasm.",
           "videoFile": "astraldragon-stage-1-stardrop-wyrmlet.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astraldragon-stage-1-stardrop-wyrmlet.mp4"
-        }
+        },
+        "avatarIcon": "astralgriffin-stage-1-icon.png",
+        "backgroundImage": "astralgriffin-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -2296,7 +2536,9 @@
           "description": "Enhances reading speed across dense paragraphs and extracts key requirements.",
           "videoFile": "astraldragon-stage-2-astral-drakelet.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astraldragon-stage-2-astral-drakelet.mp4"
-        }
+        },
+        "avatarIcon": "astralgriffin-stage-2-icon.png",
+        "backgroundImage": "astralgriffin-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -2311,7 +2553,9 @@
           "description": "Pinpoints logical contradictions in multiple-choice questions with unerring accuracy.",
           "videoFile": "astraldragon-stage-3-nebula-drake.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astraldragon-stage-3-nebula-drake.mp4"
-        }
+        },
+        "avatarIcon": "astralgriffin-stage-3-icon.png",
+        "backgroundImage": "astralgriffin-stage-3-bg.png"
       },
       {
         "stage": 4,
@@ -2326,7 +2570,9 @@
           "description": "Protects focus from mid-exam mental fatigue and preserves cognitive sharpness.",
           "videoFile": "astraldragon-stage-4-constellation-wyrm.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astraldragon-stage-4-constellation-wyrm.mp4"
-        }
+        },
+        "avatarIcon": "astralgriffin-stage-4-icon.png",
+        "backgroundImage": "astralgriffin-stage-4-bg.png"
       },
       {
         "stage": 5,
@@ -2341,7 +2587,9 @@
           "description": "Unlocks ultimate cognitive synchronization, awarding +20% Integrity Bond on test finish.",
           "videoFile": "astraldragon-stage-6-primordial-astral-sovereign.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/astraldragon-stage-6-primordial-astral-sovereign.mp4"
-        }
+        },
+        "avatarIcon": "astralgriffin-stage-5-icon.png",
+        "backgroundImage": "astralgriffin-stage-5-bg.png"
       }
     ]
   },
@@ -2374,7 +2622,9 @@
           "description": "Cools rapid heartbeat and establishes calm baseline breathing.",
           "videoFile": "frostpaw-stage-1-frostpup.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-1-frostpup.mp4"
-        }
+        },
+        "avatarIcon": "glacierbeak-stage-1-icon.png",
+        "backgroundImage": "glacierbeak-stage-1-bg.png"
       },
       {
         "stage": 2,
@@ -2389,7 +2639,9 @@
           "description": "Detects trick answers and grammatical subtleties in difficult reading passages.",
           "videoFile": "frostpaw-stage-2-cryoleo.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-2-cryoleo.mp4"
-        }
+        },
+        "avatarIcon": "glacierbeak-stage-2-icon.png",
+        "backgroundImage": "glacierbeak-stage-2-bg.png"
       },
       {
         "stage": 3,
@@ -2404,7 +2656,9 @@
           "description": "Freezes self-doubt in its tracks and restores 10 Vitality per 15 minutes of continuous focus.",
           "videoFile": "frostpaw-stage-3-glacial-panthera.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-3-glacial-panthera.mp4"
-        }
+        },
+        "avatarIcon": "glacierbeak-stage-3-icon.png",
+        "backgroundImage": "glacierbeak-stage-3-bg.png"
       },
       {
         "stage": 4,
@@ -2419,7 +2673,9 @@
           "description": "Guards exam integrity with unbending chill, maintaining maximum proctor trust.",
           "videoFile": "frostpaw-stage-4-primordial-frost-overlord.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-4-primordial-frost-overlord.mp4"
-        }
+        },
+        "avatarIcon": "glacierbeak-stage-4-icon.png",
+        "backgroundImage": "glacierbeak-stage-4-bg.png"
       },
       {
         "stage": 5,
@@ -2434,7 +2690,9 @@
           "description": "Ensures immaculate test performance with unwavering clarity and +20% Integrity Bond.",
           "videoFile": "frostpaw-stage-4-primordial-frost-overlord.mp4",
           "videoUrl": "https://github.com/hvantran/ui-component-library/releases/download/assets-v1/frostpaw-stage-4-primordial-frost-overlord.mp4"
-        }
+        },
+        "avatarIcon": "glacierbeak-stage-5-icon.png",
+        "backgroundImage": "glacierbeak-stage-5-bg.png"
       }
     ]
   }

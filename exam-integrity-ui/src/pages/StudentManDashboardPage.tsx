@@ -17,6 +17,7 @@ import { useAuth } from '../context/AuthContext';
 import { useStudentPageTheme, extractSubjectFromTags } from '../hooks/useGradeTheme';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useNavDockMode } from '../hooks/useNavDockMode';
+import { useEquippedCompanion } from '../hooks/useEquippedCompanion';
 
 const PORTAL_ROUTES: Record<PortalSection, string> = {
   dashboard: '/',
@@ -25,6 +26,8 @@ const PORTAL_ROUTES: Record<PortalSection, string> = {
   shop: '/shop',
   collection: '/collection',
 };
+
+const StudentWelcomeBanner = ExamIntegrityStudentWelcomeBanner as React.ComponentType<any>;
 
 const LandingPage: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState('');
@@ -50,6 +53,7 @@ const LandingPage: React.FC = () => {
   const handleNavigate = (section: PortalSection) => navigate(PORTAL_ROUTES[section]);
 
   const [dockMode, setDockMode] = useNavDockMode();
+  const { companion } = useEquippedCompanion();
 
   return (
     <StudentManLandingLayout
@@ -71,7 +75,12 @@ const LandingPage: React.FC = () => {
       onDockModeChange={setDockMode}
       bannerSlot={
         theme.isElementary ? (
-          <ExamIntegrityStudentWelcomeBanner studentName={displayName || 'Adventurer'} />
+          <StudentWelcomeBanner
+            studentName={displayName || 'Adventurer'}
+            avatarEmoji={companion?.avatarEmoji}
+            avatarIconUrl={companion?.iconUrl}
+            backgroundImageUrl={companion?.backgroundUrl}
+          />
         ) : undefined
       }
     >
