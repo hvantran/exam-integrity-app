@@ -15,6 +15,7 @@ import {
   ExamIntegrityCreateExamDialog,
   ExamIntegrityExamFilterBar,
   ExamIntegrityExamPreviewModal,
+  useTheme,
   type ExamIntegrityDashboardSection as DashboardSection,
 } from '@hvantran/ui-component-library';
 import {
@@ -47,6 +48,7 @@ type ExamStatusFilter = 'all' | 'published' | 'draft';
 const TeacherManDashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { logout, displayName } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [dockMode, setDockMode] = useNavDockMode('pinned', TEACHER_NAV_DOCK_STORAGE_KEY);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectDialogOpen, setSelectDialogOpen] = useState(false);
@@ -244,6 +246,8 @@ const TeacherManDashboardPage: React.FC = () => {
     <TeacherManDashboardLayout
       activeSection="dashboard"
       userName={displayName}
+      themeMode={theme}
+      onThemeModeChange={setTheme}
       onNavigate={handleNavigate}
       onCreateExam={() => setDialogOpen(true)}
       onLogout={handleLogout}
