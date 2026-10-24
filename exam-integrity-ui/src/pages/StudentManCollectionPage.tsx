@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
   ExamIntegrityStudentCollectionTemplate,
-  enrichStudentPet,
   type ExamIntegrityStudentPortalSection as PortalSection,
   type IncubatingEgg,
   type StudentPet,
@@ -69,12 +68,8 @@ const StudentManCollectionPage: React.FC = () => {
     ])
       .then(([serverEggs, serverPets, serverLibrary]) => {
         if (!isMounted) return;
-        const lib =
-          serverLibrary && Array.isArray(serverLibrary) && serverLibrary.length > 0
-            ? serverLibrary
-            : undefined;
-        if (lib) {
-          setPetLibrary(lib);
+        if (serverLibrary && Array.isArray(serverLibrary) && serverLibrary.length > 0) {
+          setPetLibrary(serverLibrary);
         }
         setIncubatingEggs((prev) => {
           if (!serverEggs) return prev;
@@ -86,10 +81,9 @@ const StudentManCollectionPage: React.FC = () => {
         });
         setPets((prev) => {
           if (!serverPets) return prev;
-          const enrichedPets = serverPets.map((p) => enrichStudentPet(p, lib as any));
-          const map = new Map(enrichedPets.map((p) => [p.id, p]));
+          const map = new Map(serverPets.map((p) => [p.id, p]));
           prev.forEach((p) => {
-            if (!map.has(p.id)) map.set(p.id, enrichStudentPet(p, lib as any));
+            if (!map.has(p.id)) map.set(p.id, p);
           });
           return Array.from(map.values());
         });
@@ -115,10 +109,9 @@ const StudentManCollectionPage: React.FC = () => {
     try {
       const serverPet = await hatcheryService.hatchEgg(eggId);
       if (serverPet && serverPet.id) {
-        const enriched = enrichStudentPet(serverPet, petLibrary as any);
         setIncubatingEggs((prev) => prev.filter((egg) => egg.id !== eggId));
-        setPets((prev) => [enriched, ...prev.filter((p) => p.id !== serverPet.id)]);
-        return enriched;
+        setPets((prev) => [serverPet, ...prev.filter((p) => p.id !== serverPet.id)]);
+        return serverPet;
       }
     } catch {
       toast.error('Failed to hatch egg from server');
@@ -159,8 +152,7 @@ const StudentManCollectionPage: React.FC = () => {
     Promise.resolve(hatcheryService.growPet(petId))
       .then((res) => {
         if (res && res.pet) {
-          const enriched = enrichStudentPet(res.pet, petLibrary as any);
-          setPets((prev) => prev.map((p) => (p.id === petId ? { ...p, ...enriched } : p)));
+          setPets((prev) => prev.map((p) => (p.id === petId ? { ...p, ...res.pet } : p)));
         }
         if (res && res.remainingStars !== undefined) {
           queryClient?.setQueryData<UserProfile>(['user-profile', 'me'], (old) => {
@@ -276,6 +268,7 @@ const StudentManCollectionPage: React.FC = () => {
       crackCostInStars={crackCost}
       incubatingEggs={incubatingEggs}
       pets={pets}
+      petLibrary={petLibrary}
       onEggHatched={handleEggHatched}
       onGrowPet={handleGrowPet}
       onStrikeCrack={handleStrikeCrack}
