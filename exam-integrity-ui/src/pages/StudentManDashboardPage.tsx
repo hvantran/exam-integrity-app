@@ -27,8 +27,6 @@ const PORTAL_ROUTES: Record<PortalSection, string> = {
   collection: '/collection',
 };
 
-const StudentWelcomeBanner = ExamIntegrityStudentWelcomeBanner as React.ComponentType<any>;
-
 const LandingPage: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState('');
   const tags = activeFilter ? [activeFilter] : undefined;
@@ -75,7 +73,7 @@ const LandingPage: React.FC = () => {
       onDockModeChange={setDockMode}
       bannerSlot={
         theme.isElementary ? (
-          <StudentWelcomeBanner
+          <ExamIntegrityStudentWelcomeBanner
             studentName={displayName || 'Adventurer'}
             avatarEmoji={companion?.avatarEmoji}
             avatarIconUrl={companion?.iconUrl}

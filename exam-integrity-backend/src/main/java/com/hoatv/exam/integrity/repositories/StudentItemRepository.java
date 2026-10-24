@@ -12,6 +12,8 @@ public interface StudentItemRepository extends MongoRepository<StudentItem, Stri
 
     List<StudentItem> findByUserId(String userId);
 
+    List<StudentItem> findByCategory(String category);
+
     List<StudentItem> findByUserIdAndCategory(String userId, String category);
 
     Optional<StudentItem> findByIdAndUserId(String id, String userId);
