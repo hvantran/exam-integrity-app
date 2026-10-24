@@ -18,6 +18,7 @@ jest.mock('../services/hatcheryService', () => ({
   hatcheryService: {
     getIncubatorEggs: jest.fn().mockResolvedValue([]),
     getMyPets: jest.fn().mockResolvedValue([]),
+    getPetLibrary: jest.fn().mockResolvedValue([]),
     hatchEgg: jest.fn().mockResolvedValue({ id: 'pet-new', name: 'Sun Fledgling' }),
     growPet: jest.fn().mockResolvedValue({}),
     strikeEgg: jest.fn().mockResolvedValue({ id: 'egg-1', crackProgress: 0.5 }),
@@ -154,6 +155,7 @@ describe('StudentManCollectionPage', () => {
     (useNavDockMode as jest.Mock).mockReturnValue(['pinned', mockSetDockMode]);
     (hatcheryService.getIncubatorEggs as jest.Mock).mockResolvedValue([]);
     (hatcheryService.getMyPets as jest.Mock).mockResolvedValue([]);
+    (hatcheryService.getPetLibrary as jest.Mock).mockResolvedValue([]);
     (hatcheryService.hatchEgg as jest.Mock).mockResolvedValue({ id: 'pet-new', name: 'Sun Fledgling' });
     (hatcheryService.growPet as jest.Mock).mockResolvedValue({});
     (hatcheryService.strikeEgg as jest.Mock).mockResolvedValue({ id: 'egg-1', crackProgress: 0.5 });
