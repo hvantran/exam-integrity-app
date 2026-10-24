@@ -58,8 +58,6 @@ const LandingPage: React.FC = () => {
     <StudentManLandingLayout
       studentName={displayName || 'Student'}
       starCount={totalStars}
-      backgroundImageUrl={companion?.backgroundUrl}
-      className={cn(companion?.backgroundUrl && 'companion-whole-page-bg')}
       activeSection="dashboard"
       pageTitle={theme.isElementary ? 'Learning Quests 🌟' : 'Ky thi dang dien ra'}
       pageSubtitle={
