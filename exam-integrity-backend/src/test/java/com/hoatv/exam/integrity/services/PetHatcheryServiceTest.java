@@ -1,5 +1,7 @@
 package com.hoatv.exam.integrity.services;
 
+import com.hoatv.exam.integrity.domain.PetLibraryItem;
+import com.hoatv.exam.integrity.domain.PetStageDefinition;
 import com.hoatv.exam.integrity.domain.StudentItem;
 import com.hoatv.exam.integrity.domain.UserProfile;
 import com.hoatv.exam.integrity.domain.UserProfileStats;
