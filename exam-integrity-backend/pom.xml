@@ -23,6 +23,12 @@
             <groupId>hoatv</groupId>
             <artifactId>common-fwk</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.freemarker</groupId>
+                    <artifactId>freemarker</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>hoatv</groupId>
