@@ -90,3 +90,4 @@ class SessionControllerTest {
         verify(sessionReviewService).gradeEssay(eq("session-1"), eq("q-1"), any(TeacherScoreUpdateDTO.class));
     }
 }
+
