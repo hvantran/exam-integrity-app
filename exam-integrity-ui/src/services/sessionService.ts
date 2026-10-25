@@ -45,4 +45,8 @@ export const sessionService = {
     apiClient
       .patch<ReviewDashboardDTO>(`${BASE}/${sessionId}/scores/${questionId}`, payload)
       .then((r) => r.data),
+  markAllIncorrect: (sessionId: string): Promise<ReviewDashboardDTO> =>
+    apiClient
+      .post<ReviewDashboardDTO>(`${BASE}/${sessionId}/scores/mark-all-incorrect`)
+      .then((r) => r.data),
 };

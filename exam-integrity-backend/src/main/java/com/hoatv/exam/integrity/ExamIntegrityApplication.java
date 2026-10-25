@@ -2,12 +2,13 @@ package com.hoatv.exam.integrity;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
-@EnableAutoConfiguration
+@EnableAutoConfiguration(exclude = {FreeMarkerAutoConfiguration.class})
 @EnableScheduling
 @ComponentScan({"com.hoatv.exam.integrity", "com.hoatv.springboot.common"})
 public class ExamIntegrityApplication {

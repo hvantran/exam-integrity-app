@@ -94,4 +94,10 @@ public class SessionController {
             @Valid @RequestBody TeacherScoreUpdateDTO updateDTO) {
         return ResponseEntity.ok(sessionReviewService.gradeEssay(sessionId, questionId, updateDTO));
     }
+
+    @PostMapping("/{sessionId}/scores/mark-all-incorrect")
+    public ResponseEntity<ReviewDashboardDTO> markAllIncorrect(
+            @PathVariable("sessionId") String sessionId) {
+        return ResponseEntity.ok(sessionReviewService.markAllIncorrect(sessionId));
+    }
 }
