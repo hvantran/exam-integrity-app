@@ -11,6 +11,7 @@ import {
   useReviewDashboard,
   useTeacherScore,
   useTeacherScoringQueue,
+  useMarkAllIncorrect,
 } from '../hooks/useReviewDashboard';
 
 const SECTION_ROUTES: Record<DashboardSection, string> = {
@@ -31,6 +32,7 @@ const TeacherManScoringPage: React.FC = () => {
   const [selectedSessionId, setSelectedSessionId] = useState('');
   const { data: dashboard, isLoading: isLoadingSubmission } = useReviewDashboard(selectedSessionId);
   const teacherScore = useTeacherScore(selectedSessionId);
+  const markAllIncorrect = useMarkAllIncorrect(selectedSessionId);
 
   useEffect(() => {
     if (queue.length === 0) {
@@ -95,6 +97,13 @@ const TeacherManScoringPage: React.FC = () => {
     );
   };
 
+  const handleMarkAllIncorrect = () => {
+    markAllIncorrect.mutate(undefined, {
+      onSuccess: () => toast.success('All answers marked as incorrect.'),
+      onError: (e: Error) => toast.error(e.message || 'Failed to mark answers as incorrect.'),
+    });
+  };
+
   return (
     <ExamIntegrityTeacherScoringTemplate
       userName={displayName || 'Teacher'}
@@ -109,9 +118,10 @@ const TeacherManScoringPage: React.FC = () => {
       dashboard={dashboard}
       isLoadingQueue={isLoadingQueue}
       isLoadingSubmission={isLoadingSubmission}
-      isSavingScore={teacherScore.isPending}
+      isSavingScore={teacherScore.isPending || markAllIncorrect.isPending}
       onSaveScore={handleSaveScore}
       onMarkCorrect={handleMarkCorrect}
+      onMarkAllIncorrect={handleMarkAllIncorrect}
     />
   );
 };

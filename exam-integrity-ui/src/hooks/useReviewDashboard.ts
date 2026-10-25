@@ -44,3 +44,16 @@ export function useTeacherScore(sessionId: string) {
     },
   });
 }
+
+export function useMarkAllIncorrect(sessionId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => sessionService.markAllIncorrect(sessionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['review', sessionId] });
+      queryClient.invalidateQueries({ queryKey: ['teacher-scoring'] });
+      queryClient.invalidateQueries({ queryKey: ['student-results'] });
+    },
+  });
+}

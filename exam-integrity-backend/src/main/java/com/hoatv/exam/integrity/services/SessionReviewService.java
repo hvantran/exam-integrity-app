@@ -167,6 +167,27 @@ public class SessionReviewService {
             .orElseThrow(() -> new EntityNotFoundException("Review dashboard not found for session: " + sessionId));
     }
 
+    public ReviewDashboardDTO markAllIncorrect(String sessionId) {
+        ExamSession session = sessionRepository.findById(sessionId)
+            .orElseThrow(() -> new EntityNotFoundException("Session not found: " + sessionId));
+
+        List<Score> scores = scoreRepository.findBySessionId(sessionId);
+        if (scores.isEmpty()) {
+            throw new EntityNotFoundException("Scores not found for session: " + sessionId);
+        }
+
+        for (Score score : scores) {
+            score.setEarnedPoints(0.0);
+            score.setStatus(Score.ScoreStatus.INCORRECT);
+        }
+        scoreRepository.saveAll(scores);
+
+        recordSessionScoreToProfile(session);
+
+        return getReviewDashboard(sessionId)
+            .orElseThrow(() -> new EntityNotFoundException("Review dashboard not found for session: " + sessionId));
+    }
+
     private Score createInitialScore(ExamSession session, Question question) {
         String studentAnswer = Optional.ofNullable(session.getAnswers().get(question.getId()))
             .map(ExamSession.AnswerRecord::getAnswer)

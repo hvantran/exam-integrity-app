@@ -8,6 +8,7 @@ import {
   useReviewDashboard,
   useTeacherScore,
   useTeacherScoringQueue,
+  useMarkAllIncorrect,
 } from '../hooks/useReviewDashboard';
 
 const mockNavigate = jest.fn();
@@ -30,6 +31,7 @@ jest.mock('../hooks/useReviewDashboard', () => ({
   useTeacherScoringQueue: jest.fn(),
   useReviewDashboard: jest.fn(),
   useTeacherScore: jest.fn(),
+  useMarkAllIncorrect: jest.fn(),
 }));
 
 jest.mock('react-toastify', () => ({
@@ -41,6 +43,7 @@ jest.mock('react-toastify', () => ({
 
 describe('TeacherManScoringPage', () => {
   const mockMutate = jest.fn();
+  const mockMarkAllMutate = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -51,6 +54,10 @@ describe('TeacherManScoringPage', () => {
     (useNavDockMode as jest.Mock).mockReturnValue(['pinned', jest.fn()]);
     (useTeacherScore as jest.Mock).mockReturnValue({
       mutate: mockMutate,
+      isPending: false,
+    });
+    (useMarkAllIncorrect as jest.Mock).mockReturnValue({
+      mutate: mockMarkAllMutate,
       isPending: false,
     });
     (useTeacherScoringQueue as jest.Mock).mockReturnValue({
@@ -142,6 +149,27 @@ describe('TeacherManScoringPage', () => {
           explanation: undefined,
         },
       },
+      expect.objectContaining({
+        onSuccess: expect.any(Function),
+        onError: expect.any(Function),
+      }),
+    );
+  });
+
+  it('calls markAllIncorrect.mutate when Mark all incorrect is confirmed', () => {
+    render(<TeacherManScoringPage />);
+
+    const markAllIncorrectBtn = screen.getByRole('button', { name: /mark all incorrect/i });
+    fireEvent.click(markAllIncorrectBtn);
+
+    expect(screen.getByText(/Are you sure you want to mark all student answers/i)).toBeInTheDocument();
+
+    const buttons = screen.getAllByRole('button', { name: /mark all incorrect/i });
+    const dialogConfirmBtn = buttons[buttons.length - 1];
+    fireEvent.click(dialogConfirmBtn);
+
+    expect(mockMarkAllMutate).toHaveBeenCalledWith(
+      undefined,
       expect.objectContaining({
         onSuccess: expect.any(Function),
         onError: expect.any(Function),
